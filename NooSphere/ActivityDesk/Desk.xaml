@@ -1,0 +1,45 @@
+﻿<s:SurfaceWindow
+    x:Class="ActivityDesk.Desk"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:s="http://schemas.microsoft.com/surface/2008"
+    xmlns:tve="clr-namespace:ActivityDesk.Visualizer"
+    Title="Activity Desk" mc:Ignorable="d"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    d:DesignHeight="294" d:DesignWidth="717" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  <s:TagVisualizer x:Name="Visualizer" tve:TagVisualizerEvents.Mode="Auto" Background="#FFA7A2A2">
+    <Grid Name="grid" Background="White">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="200"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <s:SurfaceScrollViewer Grid.RowSpan="1">
+                <StackPanel Name="panel" Orientation="Horizontal">
+                </StackPanel>
+            </s:SurfaceScrollViewer>
+            <s:ScatterView Name="view" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#00000000" Margin="227,0,0,0">  
+      <s:ScatterViewItem
+          x:Name="Square"
+          Width="120"
+          Height="120"
+          CanScale="True"
+          Orientation="10"
+          tve:TagVisualizerEvents.VisualizationEnter="OnVisualizationEnter"
+          tve:TagVisualizerEvents.VisualizationLeave="OnVisualizationLeave">
+                    <ContentControl Style="{StaticResource TagHighlightStyle}">
+                        <Image Width="120" Height="120" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Source="/ActivityDesk;component/Images/document.PNG"></Image>
+                    </ContentControl>
+                </s:ScatterViewItem>
+            <s:SurfaceButton
+            Width="120"
+            Height="120" Content="Add Activity" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Name="btnAddActivity" Click="btnAddActivity_Click">
+                </s:SurfaceButton>
+            </s:ScatterView>
+        </Grid>
+        
+    </s:TagVisualizer>
+</s:SurfaceWindow>

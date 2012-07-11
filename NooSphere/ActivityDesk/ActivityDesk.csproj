@@ -1,0 +1,184 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{94919648-ACAC-4E13-817C-5F41B9123C77}</ProjectGuid>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <RootNamespace>ActivityDesk</RootNamespace>
+    <AssemblyName>ActivityDesk</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <WarningLevel>4</WarningLevel>
+    <OutputType>winexe</OutputType>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <PublishUrl>Publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>false</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <SccProjectName>Svn</SccProjectName>
+    <SccLocalPath>Svn</SccLocalPath>
+    <SccAuxPath>Svn</SccAuxPath>
+    <SccProvider>SubversionScc</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>.\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+    <OutputPath>.\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>
+    </ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="Microsoft.Surface" />
+    <Reference Include="Microsoft.Surface.Presentation" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Helper\Pdf\PDFConverter.cs" />
+    <Compile Include="Visualizer\Definitions\SmartPhoneDefinition.cs" />
+    <Compile Include="Visualizer\Definitions\TabletDefinition.cs" />
+    <Compile Include="Visualizer\Visualizations\VisualizationTablet.xaml.cs">
+      <DependentUpon>VisualizationTablet.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Visualizer\Visualizations\BaseVisualization.cs" />
+    <Compile Include="Visualizer\Visualizations\VisualizationSmartPhone.xaml.cs">
+      <DependentUpon>VisualizationSmartPhone.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Helper\GuiHelpers.cs" />
+    <Compile Include="Windowing\TableWindow.xaml.cs">
+      <DependentUpon>TableWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Helper\GlobalSuppressions.cs" />
+    <Compile Include="Desk.xaml.cs">
+      <DependentUpon>Desk.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Visualizer\AncestryChain.cs" />
+    <Compile Include="Visualizer\TagVisualizationEnterLeaveEventArgs.cs" />
+    <Compile Include="Visualizer\TagVisualizerEvents.cs" />
+    <Compile Include="Visualizer\TagVisualizerSynchronizationMode.cs" />
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Visualizer\Visualizations\VisualizationSmartPhone.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Desk.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windowing\TableWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Visualizer\Visualizations\StyleDictionary.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Visualizer\Visualizations\VisualizationTablet.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\document.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NooSphere.ActivitySystem.ActivityManager\NooSphere.ActivitySystem.ActivityService.csproj">
+      <Project>{12742CAB-ABDF-4B4B-A6F6-6646A524E0E8}</Project>
+      <Name>NooSphere.ActivitySystem.ActivityService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NooSphere.ActivitySystem.Client\NooSphere.ActivitySystem.Client.csproj">
+      <Project>{83D5B7DD-EC47-4E5D-931C-6A6004751AA1}</Project>
+      <Name>NooSphere.ActivitySystem.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NooSphere.ActivitySystem.Contracts\NooSphere.ActivitySystem.Contracts.csproj">
+      <Project>{95CA0E6D-F44A-484A-B066-D5AA0DDA08E2}</Project>
+      <Name>NooSphere.ActivitySystem.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NooSphere.ActivitySystem.Discovery\NooSphere.ActivitySystem.DiscoveryService.csproj">
+      <Project>{4B3AEB33-9F3F-4C1F-AD68-5B6F620D94F6}</Project>
+      <Name>NooSphere.ActivitySystem.DiscoveryService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NooSphere.ActivitySystem.Host\NooSphere.ActivitySystem.Host.csproj">
+      <Project>{E09A47AF-5F60-4E3C-B853-50C8B182E4C5}</Project>
+      <Name>NooSphere.ActivitySystem.Host</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NooSphere.Core\NooSphere.Core.csproj">
+      <Project>{03C072A4-5960-4A5D-B0CC-98EBD854E970}</Project>
+      <Name>NooSphere.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NooSphere.Helper\NooSphere.Helpers.csproj">
+      <Project>{6424191D-5C04-43E6-B610-FD4B41E8A340}</Project>
+      <Name>NooSphere.Helpers</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>

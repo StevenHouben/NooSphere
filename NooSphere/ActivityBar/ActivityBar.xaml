@@ -1,0 +1,45 @@
+﻿<Window x:Class="ActivityUI.ActivityBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+        d:DesignHeight="50" 
+        d:DesignWidth="750" 
+        Width="auto"
+        Height="40" Loaded="Window_Loaded" Closed="Window_Closed" BorderThickness="2" WindowStyle="None">
+    <Grid>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto" Loaded="StackPanel_Loaded">
+            <StackPanel Name="Add" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="auto">
+                <Button Height="auto" Name="btnClose" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnClose_Click">
+                    <Image Source="Images\cross.png" Width="auto" Height="auto" Margin="5" Tag="2"/>
+                </Button>
+                <Button Height="auto" Name="btnStart" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnStart_Click">
+                    <Image Source="Images\application_view_tile.png" Width="auto" Height="auto" Margin="5" Tag="2"/>
+                </Button>
+                <Button Height="auto" Name="btnHome" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnHome_Click">
+                    <Image Source="Images\house.png" Width="auto" Height="auto" Margin="5" Tag="2"/>
+                </Button>
+                <Button Height="auto" Name="btnAdd" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnAdd_Click">
+                    <Image Source="Images\add.png" Width="auto" Height="auto" Margin="5" Tag="2"/>
+                </Button>
+            </StackPanel>
+            <StackPanel Name="Body" Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto"/>
+        </StackPanel>
+        <Popup x:Name="popActivityManagers" MouseLeave="popActivityManagers_MouseLeave">
+        	<Grid Background="#FFE5E5E5" Height="177" Width="248">
+        		<TextBlock x:Name="content" Margin="8" TextWrapping="Wrap"/>
+        	</Grid>
+        </Popup>
+    </Grid>
+    <Window.Background>
+        <SolidColorBrush />
+    </Window.Background>
+    <Window.BorderBrush>
+        <RadialGradientBrush>
+            <GradientStop Color="Black" Offset="1" />
+            <GradientStop Color="White" Offset="0.227" />
+        </RadialGradientBrush>
+    </Window.BorderBrush>
+</Window>

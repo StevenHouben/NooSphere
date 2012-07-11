@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{B3333919-EE66-441A-8AB3-6E6601A8A0B1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NooSphere.Platform.Windows</RootNamespace>
+    <AssemblyName>NooSphere.Platform.Windows</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>Svn</SccProjectName>
+    <SccLocalPath>Svn</SccLocalPath>
+    <SccAuxPath>Svn</SccAuxPath>
+    <SccProvider>SubversionScc</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Dock\AppBar.cs" />
+    <Compile Include="Dock\Enums.cs" />
+    <Compile Include="Glass\DwmApi.cs" />
+    <Compile Include="Interopt\Base\Callbacks.cs" />
+    <Compile Include="Interopt\Base\ExtendedWindowStyle.cs" />
+    <Compile Include="Interopt\Base\GCLFlags.cs" />
+    <Compile Include="Interopt\GDI32.cs" />
+    <Compile Include="Interopt\Shell32.cs" />
+    <Compile Include="Interopt\Base\ShellFlags.cs" />
+    <Compile Include="Interopt\Base\ShellMessages.cs" />
+    <Compile Include="Interopt\Base\Structs.cs" />
+    <Compile Include="Interopt\User32.cs" />
+    <Compile Include="Interopt\Base\WindowMessage.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VDM\VirtualDesktop.cs" />
+    <Compile Include="VDM\VirtualDesktopManager.cs" />
+    <Compile Include="VDM\DesktopFolderSwitcher.cs" />
+    <Compile Include="Hooks\HookEvents.cs" />
+    <Compile Include="Hooks\KeyboardHook.cs" />
+    <Compile Include="Hooks\MouseHook.cs" />
+    <Compile Include="InteroptServices\NativeWindowEx.cs" />
+    <Compile Include="Shell\ShellEvents.cs" />
+    <Compile Include="Hooks\ShellHook.cs" />
+    <Compile Include="Windowing\WindowInfo.cs" />
+    <Compile Include="VDM\WindowDescription.cs" />
+    <Compile Include="Windowing\WindowManager.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

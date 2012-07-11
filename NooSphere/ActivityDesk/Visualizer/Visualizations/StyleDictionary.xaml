@@ -1,0 +1,148 @@
+<ResourceDictionary
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:s="http://schemas.microsoft.com/surface/2008"
+  xmlns:tve="clr-namespace:ActivityDesk.Visualizer">
+
+  <!-- A style that makes an element opaque when it has a
+  tag visualization over it.-->
+  <Style x:Key="FadeStyle" TargetType="{x:Type s:ScatterViewItem}">
+    <Style.Resources>
+      <Storyboard x:Key="Highlight">
+        <DoubleAnimation
+          BeginTime="0:00:00"
+          Duration="0:00:00.2"
+          Storyboard.TargetProperty="Opacity"
+          DecelerationRatio="0.7"
+          To="1"/>
+        <ColorAnimation
+          BeginTime="0:00:00"
+          Duration="0:00:00.2"
+          Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)"
+          DecelerationRatio="0.7"
+          To="#FFFFFFFF"/>
+      </Storyboard>
+      <Storyboard x:Key="Unhighlight">
+        <DoubleAnimation
+          BeginTime="0:00:00"
+          Duration="0:00:00.2"
+          Storyboard.TargetProperty="Opacity"
+          DecelerationRatio="0.7"
+          From="1"/>
+      <ColorAnimation
+          BeginTime="0:00:00"
+          Duration="0:00:00.2"
+          Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)"
+          DecelerationRatio="0.7"
+          To="#FFF2F2F2"/>
+       </Storyboard>
+    </Style.Resources>
+    <Style.Triggers>
+        <MultiTrigger>
+            <MultiTrigger.Conditions>
+                <Condition 	Property="IsContainerActive"
+                           			Value="True" />
+                <Condition 	Property="ShowsActivationEffects"
+                           			Value="True" />
+            </MultiTrigger.Conditions>
+            <MultiTrigger.EnterActions>                 
+                <BeginStoryboard Storyboard="{StaticResource Highlight}"/>                
+            </MultiTrigger.EnterActions>
+            <MultiTrigger.ExitActions>
+                <BeginStoryboard Storyboard="{StaticResource Unhighlight}"/>
+            </MultiTrigger.ExitActions>
+       </MultiTrigger>
+            <Trigger Property="tve:TagVisualizerEvents.IsAnyVisualizationOver" Value="True">
+        <Trigger.EnterActions>
+          <BeginStoryboard Storyboard="{StaticResource Highlight}"/>
+        </Trigger.EnterActions>
+        <Trigger.ExitActions>
+          <BeginStoryboard Storyboard="{StaticResource Unhighlight}"/>
+        </Trigger.ExitActions>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+
+  <!-- A style that draws a rectangular highlight over a content control
+  when a tag visualization is over it. -->
+  <Style x:Key="TagHighlightStyle" TargetType="{x:Type ContentControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <ControlTemplate.Resources>
+            <Storyboard x:Key="ShowHighlight">
+              <DoubleAnimation
+                BeginTime="0:00:00"
+                Duration="0:00:00.1"
+                Storyboard.TargetName="Highlight"
+                Storyboard.TargetProperty="Opacity"
+                DecelerationRatio="1"
+                To="1"/>
+            </Storyboard>
+            <Storyboard x:Key="HideHighlight">
+              <DoubleAnimation
+                BeginTime="0:00:00"
+                Duration="0:00:00.2"
+                Storyboard.TargetName="Highlight"
+                Storyboard.TargetProperty="Opacity"
+                DecelerationRatio="1"
+                To="0"/>
+            </Storyboard>
+          </ControlTemplate.Resources>
+          <Grid Background="{TemplateBinding Background}">
+            <ContentPresenter/>
+            <Rectangle x:Name="Highlight" 
+                       Fill="{DynamicResource {x:Static s:SurfaceColors.ControlAccentBrushKey}}" 
+                       Stroke="{DynamicResource {x:Static s:SurfaceColors.ControlAccentBrushKey}}"  
+                       StrokeThickness="3" 
+                       Opacity="0"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="tve:TagVisualizerEvents.IsAnyVisualizationOver" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard Storyboard="{StaticResource ShowHighlight}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <BeginStoryboard Storyboard="{StaticResource HideHighlight}"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- A style that alters the fill and stroke colors of a shape
+  object when a tag visualization is over it.-->
+  <Style x:Key="TagShapeStyle" TargetType="{x:Type Shape}">
+    <Style.Resources>
+      <Storyboard x:Key="Highlight">       
+        <ColorAnimation
+          BeginTime="0:00:00"
+          Duration="0:00:00.2"
+          Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"
+          DecelerationRatio="0.7"
+          To="#FFA1CDD3"/>
+      </Storyboard>
+      <Storyboard x:Key="Unhighlight">      
+        <ColorAnimation
+          BeginTime="0:00:00"
+          Duration="0:00:00.2"
+          Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)"
+          DecelerationRatio="0.7"
+          From="#FFF2F2F2"/>
+      </Storyboard>
+    </Style.Resources>
+    <Style.Triggers>
+      <Trigger Property="tve:TagVisualizerEvents.IsAnyVisualizationOver" Value="True">
+        <Trigger.EnterActions>
+          <BeginStoryboard Storyboard="{StaticResource Highlight}"/>
+        </Trigger.EnterActions>
+        <Trigger.ExitActions>
+          <BeginStoryboard Storyboard="{StaticResource Unhighlight}"/>
+        </Trigger.ExitActions>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+
+</ResourceDictionary>
