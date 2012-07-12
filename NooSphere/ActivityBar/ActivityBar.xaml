@@ -9,7 +9,6 @@
         Width="auto"
         Height="40" Loaded="Window_Loaded" Closed="Window_Closed" BorderThickness="2" WindowStyle="None">
     <Grid>
-
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto">
             <StackPanel Name="Add" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="auto">
                 <Button Height="auto" Name="btnClose" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnClose_Click">
@@ -29,14 +28,9 @@
         </StackPanel>
         <Popup x:Name="popActivityManagers" MouseLeave="popActivityManagers_MouseLeave">
         	<TabControl Height="185" Width="431.64">
-        		<TabItem x:Name="managers" Header="Detected Managers">
-        			<Grid Background="#FFE5E5E5">
-        				<TextBlock x:Name="content" TextWrapping="Wrap"/>
-        			</Grid>
-        		</TabItem>
         		<TabItem Header="My Information">
         			<Grid Background="#FFE5E5E5">
-        				<TextBox x:Name="txtDeviceName" Margin="101.087,8,8,0" TextWrapping="Wrap" Text="Devicename" VerticalAlignment="Top"/>
+        				<TextBox x:Name="txtDeviceName" Margin="101.087,8,8,0" TextWrapping="Wrap" Text="Device name" VerticalAlignment="Top"/>
         				<TextBox x:Name="txtUsername" Margin="101.087,58,8,73.08" TextWrapping="Wrap" Text="Username" d:LayoutOverrides="Height"/>
         				<TextBox x:Name="txtEmail" Margin="101.087,0,8,44.08" TextWrapping="Wrap" Text="email" VerticalAlignment="Bottom"/>
         				<Label Content="Device Name" HorizontalAlignment="Left" Margin="7,5,0,0" VerticalAlignment="Top"/>
@@ -62,7 +56,29 @@
         				</Label>
         			</Grid>
         		</TabItem>
+        		<TabItem x:Name="managers" Header="Discovery">
+        			<Grid Background="#FFE5E5E5">
+        				<ListBox x:Name="managerlist" Margin="8"/>
+        			</Grid>
+        		</TabItem>
+        		<TabItem Header="Broadcasting" Height="22.96" VerticalAlignment="Bottom">
+        			<Grid Background="#FFE5E5E5">
+        				<CheckBox x:Name="chkBroadcast" Content="Broadcast Local Service" Margin="8,8,210.75,0" IsChecked="True" Height="15.96" VerticalAlignment="Top" Click="chkBroadcast_Click" />
+        			</Grid>
+        		</TabItem>
+        		<TabItem x:Name="NetEvents" Header="Network Events">
+        			<Grid Background="#FFE5E5E5">
+        				<TextBox x:Name="log" Margin="8" TextWrapping="Wrap"/>
+        			</Grid>
+        		</TabItem>
         	</TabControl>
+        </Popup>
+        <Popup x:Name="popupActivity" MouseLeave="popupActivity_MouseLeave">
+        	<Grid Background="#FFE5E5E5" Height="141" Width="372">
+        		<TextBox x:Name="txtName" Margin="8,8,8,0" TextWrapping="Wrap" Text="Activity name" VerticalAlignment="Top"/>
+        		<TextBox x:Name="txtParticipants" Margin="8,33.96,8,35" TextWrapping="Wrap" Text="Activity name" d:LayoutOverrides="VerticalAlignment"/>
+        		<Button x:Name="btnDeleteActivity" Content="Delete" HorizontalAlignment="Right" Margin="0,110,8,0" VerticalAlignment="Top" Width="75" Click="btnDeleteActivity_Click" />
+        	</Grid>
         </Popup>
     </Grid>
     <Window.Background>

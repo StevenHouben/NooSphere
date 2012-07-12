@@ -22,7 +22,7 @@ using NooSphere.Core.ActivityModel;
 
 namespace ActivityUI
 {
-    public class Proxy:Identity
+    public class Proxy
     {
      
         public VirtualDesktop Desktop { get; set; }

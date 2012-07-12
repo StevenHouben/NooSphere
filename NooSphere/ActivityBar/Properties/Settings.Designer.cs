@@ -22,5 +22,17 @@ namespace ActivityUI.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CHECK_BROADCAST {
+            get {
+                return ((bool)(this["CHECK_BROADCAST"]));
+            }
+            set {
+                this["CHECK_BROADCAST"] = value;
+            }
+        }
     }
 }

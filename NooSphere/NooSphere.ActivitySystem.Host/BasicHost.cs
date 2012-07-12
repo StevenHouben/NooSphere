@@ -38,7 +38,7 @@ namespace NooSphere.ActivitySystem.Host
 
         #region Members
         private ServiceHost host;
-        private BroadcastService broadcast;
+        private BroadcastService broadcast = new BroadcastService();
         private ServiceEndpoint serviceEndpoint;
         #endregion
 
@@ -104,13 +104,16 @@ namespace NooSphere.ActivitySystem.Host
         {
             Thread t = new Thread(() =>
             {
-                if (broadcast != null)
-                    if (broadcast.IsRunning)
-                        broadcast.Stop();
-                broadcast = new BroadcastService();
+                StopBroadcast();
                 broadcast.Start(hostName, location, NetHelper.GetUrl(this.IP, this.Port, ""));
             });
             t.Start();
+        }
+        public void StopBroadcast()
+        {
+            if (broadcast != null)
+                if (broadcast.IsRunning)
+                    broadcast.Stop();
         }
         public void Open(object implementation,Type description,string name)
         {
@@ -165,5 +168,6 @@ namespace NooSphere.ActivitySystem.Host
             Console.WriteLine("BasicHost: Faulted: " + e.ToString());
         }
         #endregion
+
     }
 }

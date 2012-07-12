@@ -53,11 +53,16 @@ namespace NooSphere.ActivitySystem.Discovery.Host
 
         private ServiceHost discoveryHost;
 
+        public BroadcastService()
+        {
+            this.IsRunning = false;
+        }
+
         public void Start(string name,string location,Uri addr)
         {
             this.IP = NetHelper.GetIP(true);
-            this.Port = NetHelper.FindPort();
-
+            //this.Port = NetHelper.FindPort();
+            this.Port = 56789;
             this.Address = "http://" + this.IP + ":" + this.Port + "/";
 
             discoveryHost = new ServiceHost(new DiscoveyService());
