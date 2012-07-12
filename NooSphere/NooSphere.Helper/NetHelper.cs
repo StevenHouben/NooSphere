@@ -19,13 +19,13 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 
-namespace NooSphere.ActivitySystem.Client
+namespace NooSphere.Helpers
 {
     public class NetHelper
     {
         public static int FindPort()
         {
-            int port = NO_PORT;
+            int port = 0;
 
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
             using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
@@ -35,16 +35,16 @@ namespace NooSphere.ActivitySystem.Client
                 port = local.Port;
             }
 
-            if (port == NO_PORT)
-                throw new InvalidOperationException("The client was unable to find a free port.");
+            if (port == 0)
+                throw new InvalidOperationException("Unable to find a free port.");
 
             return port;
         }
         public static string GetIP(bool local)
         {
-            string localIP = NO_IP;
-
-            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+            IPHostEntry host;
+            string localIP = "?";
+            host = Dns.GetHostEntry(Dns.GetHostName());
             foreach (IPAddress ip in host.AddressList)
             {
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
@@ -61,13 +61,12 @@ namespace NooSphere.ActivitySystem.Client
                     }
                 }
             }
-
-            if (localIP == NO_IP)
-                throw new InvalidOperationException("The client was unable to detect an IP address or there is no active connection.");
-
-            return localIP;
+            return null;
         }
-        public static string NO_IP = "NULL";
-        public static int NO_PORT = -1;
+        public static string NO_IP = "?";
+        public static Uri GetUrl(string ip, int port, string relative)
+        {
+            return new Uri(string.Format("http://{0}:{1}/{2}", ip, port, relative));
+        }
     }
 }

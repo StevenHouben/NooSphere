@@ -1,4 +1,18 @@
-﻿using System;
+﻿/// <licence>
+/// 
+/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+/// 
+/// Pervasive Interaction Technology Laboratory (pIT lab)
+/// IT University of Copenhagen
+///
+/// This library is free software; you can redistribute it and/or 
+/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+/// as published by the Free Software Foundation. Check 
+/// http://www.gnu.org/licenses/gpl.html for details.
+/// 
+/// </licence>
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -34,7 +48,7 @@ namespace NooSphere.ActivitySystem.ActivityService.ActivityManagement
         #endregion
 
         #region Constructor
-        public ActivityManager()
+        public ActivityManager(User owner)
         {
             subscriber = new RestSubscriber();
             publisher = new RestPublisher();
@@ -45,29 +59,31 @@ namespace NooSphere.ActivitySystem.ActivityService.ActivityManagement
             Registry.Register(EventType.FileEvents);
 
             if(useActivityCloud)
-                ConnectToCloud(useLocalCloud);
+                ConnectToCloud(useLocalCloud,owner);
         }
         #endregion
 
         #region Net
-        private void ConnectToCloud(bool useLocalcloud)
+        private void ConnectToCloud(bool useLocalcloud,User owner)
         {
             if (useLocalCloud)
             {
                 var serviceAddress = "http://localhost:56002";
-                ActivityCloudConnector = new ActivityCloudConnector(serviceAddress + "/Api/", @"C:\abc\");
+                ActivityCloudConnector = new ActivityCloudConnector(serviceAddress + "/Api/", @"C:\abc\",owner);
                 Console.WriteLine("Local Activity Manager: Attempting to connect to local ActivityCloud.");
             }
             else
             {
                 var serviceAddress = "http://activitycloud-1.apphb.com";
-                ActivityCloudConnector = new ActivityCloudConnector(serviceAddress + "/Api/", @"C:\abc\");
+                ActivityCloudConnector = new ActivityCloudConnector(serviceAddress + "/Api/", @"C:\abc\",owner);
                 Console.WriteLine("Local Activity Manager: Attempting to connect to appharbor ActivityCloud.");
             }
         }
         #endregion
 
+        #region Helper
         public bool Alive() { return true; }
+        #endregion
 
         #region Activity Management
         public object GetActivity(Guid id)

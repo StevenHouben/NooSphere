@@ -17,23 +17,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NooSphere.Core.Primitives
+namespace NooSphere.ActivitySystem.Discovery.Primitives
 {
-    public class Identity
+    public class ServiceStruct
     {
-        public Identity()
-        {
-            this.Name = "default";
-            this.Id = Guid.NewGuid();
-            this.Description = "default activity";
-        }
-        public Guid Id { get; set; }
+        public string Address { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
-        public string Uri { get; set; }
-        public bool Equals(Identity id)
+        public string Location { get; set; }
+        public ServiceStruct() { }
+        public ServiceStruct(string name,string location, string addr)
         {
-            return this.Id == id.Id;
+            this.Name = name;
+            this.Location = location;
+            this.Address = addr;
         }
     }
 }

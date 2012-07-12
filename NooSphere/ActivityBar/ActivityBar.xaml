@@ -10,7 +10,7 @@
         Height="40" Loaded="Window_Loaded" Closed="Window_Closed" BorderThickness="2" WindowStyle="None">
     <Grid>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto" Loaded="StackPanel_Loaded">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto">
             <StackPanel Name="Add" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="auto">
                 <Button Height="auto" Name="btnClose" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnClose_Click">
                     <Image Source="Images\cross.png" Width="auto" Height="auto" Margin="5" Tag="2"/>
@@ -28,9 +28,41 @@
             <StackPanel Name="Body" Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto"/>
         </StackPanel>
         <Popup x:Name="popActivityManagers" MouseLeave="popActivityManagers_MouseLeave">
-        	<Grid Background="#FFE5E5E5" Height="177" Width="248">
-        		<TextBlock x:Name="content" Margin="8" TextWrapping="Wrap"/>
-        	</Grid>
+        	<TabControl Height="185" Width="431.64">
+        		<TabItem x:Name="managers" Header="Detected Managers">
+        			<Grid Background="#FFE5E5E5">
+        				<TextBlock x:Name="content" TextWrapping="Wrap"/>
+        			</Grid>
+        		</TabItem>
+        		<TabItem Header="My Information">
+        			<Grid Background="#FFE5E5E5">
+        				<TextBox x:Name="txtDeviceName" Margin="101.087,8,8,0" TextWrapping="Wrap" Text="Devicename" VerticalAlignment="Top"/>
+        				<TextBox x:Name="txtUsername" Margin="101.087,58,8,73.08" TextWrapping="Wrap" Text="Username" d:LayoutOverrides="Height"/>
+        				<TextBox x:Name="txtEmail" Margin="101.087,0,8,44.08" TextWrapping="Wrap" Text="email" VerticalAlignment="Bottom"/>
+        				<Label Content="Device Name" HorizontalAlignment="Left" Margin="7,5,0,0" VerticalAlignment="Top"/>
+        				<Label Content="Username" HorizontalAlignment="Left" Margin="7,54,0,73.08" d:LayoutOverrides="Height" RenderTransformOrigin="0.5,0.5">
+        					<Label.RenderTransform>
+        						<TransformGroup>
+        							<ScaleTransform/>
+        							<SkewTransform/>
+        							<RotateTransform Angle="1.029"/>
+        							<TranslateTransform/>
+        						</TransformGroup>
+        					</Label.RenderTransform>
+        				</Label>
+        				<Label Content="Email" HorizontalAlignment="Left" Margin="7,0,0,42.08" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Bottom">
+        					<Label.RenderTransform>
+        						<TransformGroup>
+        							<ScaleTransform/>
+        							<SkewTransform/>
+        							<RotateTransform Angle="1.029"/>
+        							<TranslateTransform/>
+        						</TransformGroup>
+        					</Label.RenderTransform>
+        				</Label>
+        			</Grid>
+        		</TabItem>
+        	</TabControl>
         </Popup>
     </Grid>
     <Window.Background>

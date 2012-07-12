@@ -1,4 +1,18 @@
-﻿using System;
+﻿/// <licence>
+/// 
+/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+/// 
+/// Pervasive Interaction Technology Laboratory (pIT lab)
+/// IT University of Copenhagen
+///
+/// This library is free software; you can redistribute it and/or 
+/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+/// as published by the Free Software Foundation. Check 
+/// http://www.gnu.org/licenses/gpl.html for details.
+/// 
+/// </licence>
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,6 +21,9 @@ using System.ServiceModel.Discovery;
 using System.ServiceModel.Web;
 using System.ServiceModel.Description;
 using System.Xml.Linq;
+using NooSphere.Helpers;
+using NooSphere.ActivitySystem.Discovery.Host;
+using System.Threading;
 
 namespace NooSphere.ActivitySystem.Host
 {
@@ -21,6 +38,8 @@ namespace NooSphere.ActivitySystem.Host
 
         #region Members
         private ServiceHost host;
+        private BroadcastService broadcast;
+        private ServiceEndpoint serviceEndpoint;
         #endregion
 
         #region Properties
@@ -81,40 +100,47 @@ namespace NooSphere.ActivitySystem.Host
         #endregion
 
         #region Public Methods
+        public void StartBroadcast(string hostName, string location)
+        {
+            Thread t = new Thread(() =>
+            {
+                if (broadcast != null)
+                    if (broadcast.IsRunning)
+                        broadcast.Stop();
+                broadcast = new BroadcastService();
+                broadcast.Start(hostName, location, NetHelper.GetUrl(this.IP, this.Port, ""));
+            });
+            t.Start();
+        }
         public void Open(object implementation,Type description,string name)
         {
             Console.WriteLine("BasicHost: Attemting to find an IP for endPoint");
             this.IP = NetHelper.GetIP(true);
 
             Console.WriteLine("BasicHost: Found IP "+this.IP);
-            //host = new ServiceHost( new ActivityManager());
             host = new ServiceHost(implementation);
 
-            ServiceEndpoint se = host.AddServiceEndpoint(description, new WebHttpBinding(), GetUrl(this.IP, this.Port, ""));
-            se.Name = "hahaha";
-            se.Behaviors.Add(new WebHttpBehavior());
-    
+            serviceEndpoint = host.AddServiceEndpoint(description, new WebHttpBinding(), NetHelper.GetUrl(this.IP, this.Port, ""));
+            serviceEndpoint.Behaviors.Add(new WebHttpBehavior());
 
-            var endpointDiscoveryBehavior = new EndpointDiscoveryBehavior();
 
-            // add the binding information to the endpoint
-            endpointDiscoveryBehavior.Extensions.Add(Helpers.ObjectToXmlHelper.ToXElement<string>(name));
+            //broadcaster = new EndpointDiscoveryBehavior();
 
-            se.Behaviors.Add(endpointDiscoveryBehavior);
-            host.Description.Behaviors.Add(new ServiceDiscoveryBehavior());
-            host.Description.Endpoints.Add(new UdpDiscoveryEndpoint());
+            //// add the binding information to the endpoint
+            //broadcaster.Extensions.Add(Helpers.ObjectToXmlHelper.ToXElement<string>(name));
+
+            //serviceEndpoint.Behaviors.Add(broadcaster);
+            //host.Description.Behaviors.Add(new ServiceDiscoveryBehavior());
+            //host.Description.Endpoints.Add(new UdpDiscoveryEndpoint());
             host.Faulted += new EventHandler(host_Faulted);
             host.Open();
 
-            Console.WriteLine("BasicHost: Host opened at " + GetUrl(this.IP, this.Port, ""));
+            Console.WriteLine("BasicHost: Host opened at " + NetHelper.GetUrl(this.IP, this.Port, ""));
             IsRunning = true;
 
             OnHostLaunchedEvent(new EventArgs());
         }
-        private Uri GetUrl(string ip, int port, string relative)
-        {
-            return new Uri(string.Format("http://{0}:{1}/{2}", ip, port, relative));
-        }
+
         public void Close()
         {
             if (IsRunning)

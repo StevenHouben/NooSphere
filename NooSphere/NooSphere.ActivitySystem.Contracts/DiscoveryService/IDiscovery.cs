@@ -16,24 +16,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.ServiceModel;
+using System.ServiceModel.Web;
 
-namespace NooSphere.Core.Primitives
+namespace NooSphere.ActivitySystem.Contracts
 {
-    public class Identity
+    [ServiceContract]
+    public interface IDiscovery
     {
-        public Identity()
-        {
-            this.Name = "default";
-            this.Id = Guid.NewGuid();
-            this.Description = "default activity";
-        }
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Uri { get; set; }
-        public bool Equals(Identity id)
-        {
-            return this.Id == id.Id;
-        }
+        [OperationContract]
+        [WebGet(ResponseFormat = WebMessageFormat.Json, UriTemplate = "")]
+        bool Alive();
     }
 }

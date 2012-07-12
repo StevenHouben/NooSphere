@@ -16,24 +16,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NooSphere.ActivitySystem.Discovery.Primitives;
 
-namespace NooSphere.Core.Primitives
+namespace NooSphere.ActivitySystem.Discovery.Client
 {
-    public class Identity
+    public class DiscoveryAddressAddedEventArgs:EventArgs
     {
-        public Identity()
+        public ServiceStruct ServicePair{ get; set; }
+        public DiscoveryAddressAddedEventArgs() { }
+        public DiscoveryAddressAddedEventArgs(ServiceStruct pair)
         {
-            this.Name = "default";
-            this.Id = Guid.NewGuid();
-            this.Description = "default activity";
-        }
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Uri { get; set; }
-        public bool Equals(Identity id)
-        {
-            return this.Id == id.Id;
+            ServicePair = new ServiceStruct();
+            this.ServicePair = pair;
         }
     }
 }

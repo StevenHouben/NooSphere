@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NetHelper.cs" />
     <Compile Include="ObjectToJsonHelper.cs" />
     <Compile Include="ObjectToXmlHelper.cs" />
     <Compile Include="RestHelper.cs" />

@@ -1,26 +1,46 @@
-﻿using System;
+﻿/// <licence>
+/// 
+/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+/// 
+/// Pervasive Interaction Technology Laboratory (pIT lab)
+/// IT University of Copenhagen
+///
+/// This library is free software; you can redistribute it and/or 
+/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+/// as published by the Free Software Foundation. Check 
+/// http://www.gnu.org/licenses/gpl.html for details.
+/// 
+/// </licence>
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SignalR.Client;
 using System.Net.Http;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using System.Net.Http.Headers;
-using NooSphere.Core.ActivityModel;
 using System.IO;
 using System.Threading;
 using System.Web;
+
+using SignalR.Client;
+
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+
 using NooSphere.ActivitySystem.ActivityService.ActivityManagement;
+using NooSphere.Core.ActivityModel;
 
 namespace NooSphere.ActivitySystem.ActivityService
 {
     public class ActivityCloudConnector
     {
-        string baseUrl;
-        string baseDir;
-        Connection connection;
+        #region Private Members
+        private string baseUrl;
+        private string baseDir;
+        private Connection connection;
+        #endregion
 
+        #region Events
         public event EventHandler UserAdded;
         public event EventHandler UserUpdated;
         public event EventHandler UserConnected;
@@ -29,76 +49,75 @@ namespace NooSphere.ActivitySystem.ActivityService
         public event EventHandler ActivityAdded;
         public event EventHandler ActivityUpdated;
         public event EventHandler ActivityDeleted;
+        #endregion
 
-        public ActivityCloudConnector(string baseUrl, string baseDir)
+        #region Constructor
+        public ActivityCloudConnector(string baseUrl, string baseDir,User user)
         {
             this.baseUrl = baseUrl;
             this.baseDir = baseDir;
             this.connection = new Connection(baseUrl + "Connect");
-            Connect();
+            Connect(user);
         }
+        #endregion
 
+        #region Public Members
         public object GetUsers()
         {
             return SendRequest(baseUrl + "Users", HttpMethod.Get, null);
         }
-
         public object GetUser(string userId)
         {
             return SendRequest(baseUrl + "Users/" + userId, HttpMethod.Get, null);
         }
-
         public void AddUser(User user)
         {
             SendRequest(baseUrl + "Users?connectionId=" + connection.ConnectionId, HttpMethod.Post, user);
         }
-
         public void UpdateUser(User user)
         {
             SendRequest(baseUrl + "Users/" + user.Id, HttpMethod.Put, user);
         }
-
         public void DeleteUser(string userId)
         {
             SendRequest(baseUrl + "Users/" + userId, HttpMethod.Delete, null);
         }
-
         public void Login(string email)
         {
             SendRequest(baseUrl + "Login/" + email, HttpMethod.Post, null);
         }
-
         public void Logout(string email)
         {
             SendRequest(baseUrl + "Logout/" + email, HttpMethod.Post, null);
         }
-
         public object GetActivities()
         {
             return SendRequest(baseUrl + "Activities", HttpMethod.Get, null);
         }
-
         public object GetActivity(string activityId)
         {
             return SendRequest(baseUrl + "Activities/" + activityId, HttpMethod.Get, null);
         }
-
         public void AddActivity(Activity activity)
         {
             SendRequest(baseUrl + "Activities/", HttpMethod.Post, activity);
         }
-
         public void UpdateActivity(Activity activity)
         {
             SendRequest(baseUrl + "Activities/" + activity.Id, HttpMethod.Put, activity);
         }
-
         public void DeleteActivity(string activityId)
         {
             SendRequest(baseUrl + "Activities/" + activityId, HttpMethod.Delete, null);
         }
+        public void DeleteFile(Resource resource)
+        {
+            File.Delete(baseDir + resource.RelativePath);
+        }
+        #endregion
 
-        private void Connect()
+        #region Private Members
+        private void Connect(User user)
         {
             connection.Start().ContinueWith(task =>
             {
@@ -106,18 +125,16 @@ namespace NooSphere.ActivitySystem.ActivityService
                     Console.WriteLine("Failed to start: {0}", task.Exception.GetBaseException());
                 else
                 {
-                    Login("snielsen@itu.dk");
+                    Login(user.Email);
                     connection.Received += SignalRecieved;
                 }
             });
             Console.ReadLine();
         }
-
         private void Disconnect()
         {
             connection.Stop();
         }
-
         private void DownloadFile(Resource resource)
         {
             string AbsolutePath = Path.Combine(baseDir, resource.RelativePath);
@@ -131,7 +148,6 @@ namespace NooSphere.ActivitySystem.ActivityService
             File.SetCreationTimeUtc(AbsolutePath, DateTime.Parse(resource.CreationTime));
             File.SetLastWriteTimeUtc(AbsolutePath, DateTime.Parse(resource.LastWriteTime));
         }
-
         private void UploadFile(Resource resource)
         {
             FileInfo fi = new FileInfo(baseDir + resource.RelativePath);
@@ -143,12 +159,6 @@ namespace NooSphere.ActivitySystem.ActivityService
             SendRequest(baseUrl + Id(resource.ActivityId, resource.ActionId, resource.Id) + "?size=" + resource.Size.ToString() + "&creationTime=" + resource.CreationTime
                 + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), HttpMethod.Post, buffer);
         }
-
-        public void DeleteFile(Resource resource)
-        {
-            File.Delete(baseDir + resource.RelativePath);
-        }
-
         private void SignalRecieved(string obj)
         {
             JObject content = JsonConvert.DeserializeObject<JObject>(obj);
@@ -201,12 +211,10 @@ namespace NooSphere.ActivitySystem.ActivityService
 
             }
         }
-
         private string Id(Guid activityId, Guid actionId, Guid resourceId)
         {
             return "Activities/" + activityId + "/Actions/" + actionId + "/Resources/" + resourceId;
         }
-
         private string SendRequest(string url, HttpMethod method, object content)
         {
             HttpClient client = new HttpClient();
@@ -223,5 +231,6 @@ namespace NooSphere.ActivitySystem.ActivityService
             HttpResponseMessage response = client.SendAsync(message).Result;
             return response.Content.ReadAsStringAsync().Result;
         }
+        #endregion
     }
 }

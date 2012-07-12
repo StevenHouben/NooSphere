@@ -17,23 +17,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NooSphere.Core.Primitives
+namespace NooSphere.ActivitySystem.Discovery.Client
 {
-    public class Identity
+    public class DiscoveryEventArgs:EventArgs
     {
-        public Identity()
+        public List<string> ServicesAddresses { get; set; }
+        public DiscoveryEventArgs() 
         {
-            this.Name = "default";
-            this.Id = Guid.NewGuid();
-            this.Description = "default activity";
+            ServicesAddresses = new List<string>();
         }
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Uri { get; set; }
-        public bool Equals(Identity id)
+        public DiscoveryEventArgs(List<string> addrs)
         {
-            return this.Id == id.Id;
+            ServicesAddresses = new List<string>();
+            this.ServicesAddresses = addrs;
         }
     }
 }
