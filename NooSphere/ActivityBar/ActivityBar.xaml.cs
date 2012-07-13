@@ -1,4 +1,18 @@
-﻿using System;
+﻿/// <licence>
+/// 
+/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+/// 
+/// Pervasive Interaction Technology Laboratory (pIT lab)
+/// IT University of Copenhagen
+///
+/// This library is free software; you can redistribute it and/or 
+/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+/// as published by the Free Software Foundation. Check 
+/// http://www.gnu.org/licenses/gpl.html for details.
+/// 
+/// </licence>
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +25,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Threading;
 using System.Threading;
@@ -28,16 +43,12 @@ using NooSphere.Platform.Windows.VDM;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.Core.Devices;
 using NooSphere.ActivitySystem.Discovery.Client;
-using System.Collections.ObjectModel;
+
 using ActivityUI.Properties;
+using ActivityUI.Login;
 
 namespace ActivityUI
 {
-    public enum StartUpMode
-    {
-        Host,
-        Client
-    }
     public partial class ActivityBar : Window
     {
         #region Private Members
@@ -50,7 +61,7 @@ namespace ActivityUI
         private Dictionary<Guid, Button> buttons = new Dictionary<Guid, Button>();
         private Activity currentActivity;
         private Button currentButton;
-
+        private LoginWindow login;
         private bool startingUp = true;
         #endregion
 
@@ -60,29 +71,24 @@ namespace ActivityUI
             InitializeComponent();
             DisableUI();
 
-            BuildUser();
-            BuildDevice();
-
-            if (MessageBoxResult.No == MessageBox.Show("Do you wish to search for activity managers in the local network?",
-                "Activity Manager", MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.Yes))
-                startMode = StartUpMode.Host;
-            else
-                startMode = StartUpMode.Client;
-            Start();
+            login = new LoginWindow();
+            login.LoggedIn += new EventHandler(login_LoggedIn);
+            login.Show();
         }
 
-        private void BuildDevice()
+        void login_LoggedIn(object sender, EventArgs e)
         {
-            device = new Device();
-            device.Name = "Stevens Notebook";
-            device.DeviceType = DeviceType.Mobile;
+            login.Close();
+            StartSystem();
+        }
+
+        private void StartSystem()
+        {
+            device = login.Device;
             device.Location = "pIT lab";
-        }
-
-        private void BuildUser()
-        {
-            owner = new User();
-            owner.Email = "snielsen@itu.dk";
+            owner = login.User;
+            startMode = login.Mode;
+            Start();
         }
         #endregion
 
@@ -133,7 +139,9 @@ namespace ActivityUI
 
             client.Register();
             client.CurrentParticipant = owner;
-            
+
+            client.GetActivities();
+
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ActivityEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ComEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.DeviceEvents);
@@ -279,7 +287,7 @@ namespace ActivityUI
         {
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                log.Text = output + log.Text;
+                txtLog.Text = output + txtLog.Text;
             }));
 
         }
@@ -324,7 +332,6 @@ namespace ActivityUI
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
             //Get pointer to our own application
             IntPtr handle = new WindowInteropHelper(this).Handle;
 
@@ -494,7 +501,6 @@ namespace ActivityUI
         {
             Settings.Default.CHECK_BROADCAST = (bool)chkBroadcast.IsChecked;
             CheckBroadCast(Settings.Default.CHECK_BROADCAST);
-
         }
         private void CheckBroadCast(bool check)
         {
@@ -507,6 +513,17 @@ namespace ActivityUI
         private void btnMsg_Click(object sender, RoutedEventArgs e)
         {
             client.SendMessage("hello world");
+        }
+
+        private void btnSend_Click(object sender, RoutedEventArgs e)
+        {
+            SendMessage(txtInput.Text);
+        }
+
+        private void SendMessage(string p)
+        {
+            client.SendMessage(p);
+            txtInput.Text = "";
         }
 
 

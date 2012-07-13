@@ -68,7 +68,9 @@
         		</TabItem>
         		<TabItem x:Name="NetEvents" Header="Network Events">
         			<Grid Background="#FFE5E5E5">
-        				<TextBox x:Name="log" Margin="8" TextWrapping="Wrap"/>
+        				<TextBox x:Name="txtLog" Margin="8,8,8,37.333" TextWrapping="Wrap" IsEnabled="False"/>
+        				<TextBox x:Name="txtInput" Margin="8,0,92.667,8" TextWrapping="Wrap" Height="22.04" VerticalAlignment="Bottom" AcceptsReturn="False" />
+        				<Button Content="Send" HorizontalAlignment="Right" Margin="0,0,8,8" VerticalAlignment="Bottom" Width="75" Name="btnSend" Click="btnSend_Click" IsDefault="True" />
         			</Grid>
         		</TabItem>
         	</TabControl>

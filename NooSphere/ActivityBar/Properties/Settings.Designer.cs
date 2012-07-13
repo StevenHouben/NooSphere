@@ -34,5 +34,53 @@ namespace ActivityUI.Properties {
                 this["CHECK_BROADCAST"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string USER_NAME {
+            get {
+                return ((string)(this["USER_NAME"]));
+            }
+            set {
+                this["USER_NAME"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string USER_EMAIL {
+            get {
+                return ((string)(this["USER_EMAIL"]));
+            }
+            set {
+                this["USER_EMAIL"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string USER_DEVICENAME {
+            get {
+                return ((string)(this["USER_DEVICENAME"]));
+            }
+            set {
+                this["USER_DEVICENAME"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string USER_LOCATION {
+            get {
+                return ((string)(this["USER_LOCATION"]));
+            }
+            set {
+                this["USER_LOCATION"] = value;
+            }
+        }
     }
 }
