@@ -29,5 +29,17 @@ http://www.gnu.org/licenses/gpl.html for details.
 - Run application
 
 <h2>Components</h2>
-<h3>NooSphere.Core</h3>
-Core library that represents the activity and all its subcomponents.
+<h3>NooSphere Core Packets</h3>
+<em>NooSphere.Core</em>: Core library that represents the activity and all its subcomponents.
+<em>NooSphere.Helpers</em>: Helper library for REST calls and serialisation.
+
+<h3>NooSphere Activity System</h3>
+<em>NooSphere.ActivitySystem.ActivityService</em>: local activity service and publish/subscribe mechanism.
+<em>NooSphere.ActivitySystem.ContextService</em>: under construction.
+<em>NooSphere.ActivitySystem.Client</em>: basic activity client used to connect the UI projects to the infrastructure.
+<em>NooSphere.ActivitySystem.DiscoveryService</em>: discovery manager and broadcast service that supports dynamic add-hoc aggregation of services and clients
+<em>NooSphere.ActivitySystem.Host</em>: generic webhost for activity/context and discovery services.
+<em>NooSphere.ActivitySystem.Contracts</em>: interfaces for all services and clients
+
+<h3>NooSphere Platform</h3>
+<em>NooSphere.Platform.Windows</em>: win32/shell32/vdm support for integration in Windows.
