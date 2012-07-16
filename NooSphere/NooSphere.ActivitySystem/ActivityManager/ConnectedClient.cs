@@ -16,18 +16,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NooSphere.ActivitySystem.Discovery.Primitives;
+using NooSphere.Core.Devices;
 
-namespace NooSphere.ActivitySystem.Discovery.Client
+namespace NooSphere.ActivitySystem.ActivityManager
 {
-    public class DiscoveryAddressAddedEventArgs:EventArgs
+    public class ConnectedClient
     {
-        public ServiceInfo ServiceInfo{ get; set; }
-        public DiscoveryAddressAddedEventArgs() { }
-        public DiscoveryAddressAddedEventArgs(ServiceInfo serviceInfo)
+        public string Name { get; private set; }
+        public string IP { get; private set; }
+        public Device Device { get; set; }
+        public ConnectedClient(string name, string ip, Device devi) 
         {
-            ServiceInfo = new ServiceInfo();
-            this.ServiceInfo = serviceInfo;
+            this.Name = name;
+            this.IP = ip;
+            this.Device = devi; 
+        }
+        public override string ToString()
+        {
+            return IP;
         }
     }
 }

@@ -27,11 +27,11 @@ using SignalR.Client;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 
-using NooSphere.ActivitySystem.ActivityService.ActivityManagement;
+using NooSphere.ActivitySystem.ActivityManager;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Helpers;
 
-namespace NooSphere.ActivitySystem.ActivityService
+namespace NooSphere.ActivitySystem.ActivityManager
 {
     public class ActivityCloudConnector
     {

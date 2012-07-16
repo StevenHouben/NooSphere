@@ -13,23 +13,17 @@
 /// </licence>
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Newtonsoft.Json.Linq;
 
-namespace NooSphere.ActivitySystem.Discovery.Primitives
+namespace NooSphere.ActivitySystem.ActivityManager
 {
-    public class ServiceStruct
+    public class DataEventArgs : EventArgs
     {
-        public string Address { get; set; }
-        public string Name { get; set; }
-        public string Location { get; set; }
-        public ServiceStruct() { }
-        public ServiceStruct(string name,string location, string addr)
+        public JObject Data { get; set; }
+
+        public DataEventArgs(object data)
         {
-            this.Name = name;
-            this.Location = location;
-            this.Address = addr;
+            Data = (JObject)data;
         }
     }
 }

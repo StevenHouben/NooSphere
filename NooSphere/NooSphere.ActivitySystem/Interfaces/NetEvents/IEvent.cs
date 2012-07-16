@@ -16,18 +16,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NooSphere.ActivitySystem.Discovery.Primitives;
+using System.ServiceModel;
+using System.ServiceModel.Web;
 
-namespace NooSphere.ActivitySystem.Discovery.Client
+namespace NooSphere.ActivitySystem.Contracts.NetEvents
 {
-    public class DiscoveryAddressAddedEventArgs:EventArgs
+    [ServiceContract]
+    public interface IEvent
     {
-        public ServiceInfo ServiceInfo{ get; set; }
-        public DiscoveryAddressAddedEventArgs() { }
-        public DiscoveryAddressAddedEventArgs(ServiceInfo serviceInfo)
-        {
-            ServiceInfo = new ServiceInfo();
-            this.ServiceInfo = serviceInfo;
-        }
+        		[OperationContract]
+        [WebGet(ResponseFormat = WebMessageFormat.Json, UriTemplate = "")]
+        bool Alive();
     }
 }

@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActivityCloudConnector.cs" />
+    <Compile Include="ActivityManagement\ActivityEventArgs.cs" />
     <Compile Include="ActivityManagement\ActivityManager.cs" />
     <Compile Include="ActivityManagement\ActivityStore.cs" />
     <Compile Include="ActivityManagement\ParticipantStore.cs" />

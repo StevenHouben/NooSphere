@@ -34,18 +34,21 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 
 using NooSphere.Platform.Windows.Glass;
-using NooSphere.ActivitySystem.ActivityService.ActivityManagement;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.Core.ActivityModel;
-using NooSphere.ActivitySystem.Client;
+
 using NooSphere.ActivitySystem.Host;
 using NooSphere.Platform.Windows.VDM;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.Core.Devices;
 using NooSphere.ActivitySystem.Discovery.Client;
+using NooSphere.ActivitySystem.Discovery.Primitives;
 
 using ActivityUI.Properties;
 using ActivityUI.Login;
+using NooSphere.ActivitySystem.ActivityClient;
+using NooSphere.ActivitySystem.ActivityManager;
+
 
 namespace ActivityUI
 {
@@ -66,6 +69,9 @@ namespace ActivityUI
         #endregion
 
         #region Constructor
+        /// <summary>
+        /// Disables the UI and runs the Login procedure
+        /// </summary>
         public ActivityBar()
         {
             InitializeComponent();
@@ -75,36 +81,40 @@ namespace ActivityUI
             login.LoggedIn += new EventHandler(login_LoggedIn);
             login.Show();
         }
+        #endregion
 
-        void login_LoggedIn(object sender, EventArgs e)
-        {
-            login.Close();
-            StartSystem();
-        }
-
-        private void StartSystem()
+        #region Private Members
+        /// <summary>
+        /// Initializes the device, user and system
+        /// </summary>
+        private void IntializeSystem()
         {
             device = login.Device;
             device.Location = "pIT lab";
             owner = login.User;
             startMode = login.Mode;
-            Start();
+            InitializeNetwork();
         }
-        #endregion
 
-        #region Private Members
-        private void Start()
+        /// <summary>
+        /// Initializes the network 
+        /// </summary>
+        private void InitializeNetwork()
         {
             RunDiscovery();
 
             if (startMode == StartUpMode.Host)
-                StartHost();
+                StartActivityManager();
             else
             {
                 chkBroadcast.IsChecked = chkBroadcast.IsEnabled = false;
                 Settings.Default.CHECK_BROADCAST = false;
             }
         }
+
+        /// <summary>
+        /// Runs the discovery manager to find managers on the local network
+        /// </summary>
         private void RunDiscovery()
         {
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
@@ -116,7 +126,11 @@ namespace ActivityUI
             disc.Find();
             disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
         }
-        private void StartHost()
+
+        /// <summary>
+        /// Starts an activity manager service in an bacic http service host
+        /// </summary>
+        private void StartActivityManager()
         {
             Thread t = new Thread(() =>
             {
@@ -129,42 +143,68 @@ namespace ActivityUI
             });
             t.Start();
         }
+
+        /// <summary>
+        /// Starts the activity client based on the host address
+        /// </summary>
         private void StartClient()
         {
             StartClient(host.Address);
         }
-        private void StartClient(string addr)
+
+        /// <summary>
+        /// Starts the activity client based on a given http address
+        /// </summary>
+        /// <param name="activityManagerHttpAddress"></param>
+        private void StartClient(string activityManagerHttpAddress)
         {
-            client = new BasicClient(addr);
 
+            //Build a new client that connects to an activity manager on the given address
+            client = new BasicClient(activityManagerHttpAddress);
+
+            //Register the current device with the activity manager we are connecting to
             client.Register();
-            client.CurrentParticipant = owner;
 
-            client.GetActivities();
+            //Set the current user
+            client.CurrentUser = owner;
 
+            //Subscribe to the activity manager events
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ActivityEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ComEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.DeviceEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.FileEvents);
 
-            client.DeviceAdded += new NooSphere.ActivitySystem.Client.Events.DeviceAddedHandler(client_DeviceAdded);
-            client.ActivityAdded += new NooSphere.ActivitySystem.Client.Events.ActivityAddedHandler(client_ActivityAdded);
-            client.DeviceRemoved+=new NooSphere.ActivitySystem.Client.Events.DeviceRemovedHandler(client_DeviceRemoved);
-            client.ActivityRemoved += new NooSphere.ActivitySystem.Client.Events.ActivityRemovedHandler(client_ActivityRemoved);
-            client.MessageReceived += new NooSphere.ActivitySystem.Client.Events.MessageReceivedHandler(client_MessageReceived);
+            //Subcribe to the callback events of the activity manager
+            client.DeviceAdded += new NooSphere.Core.Events.DeviceAddedHandler(client_DeviceAdded);
+            client.ActivityAdded += new NooSphere.Core.Events.ActivityAddedHandler(client_ActivityAdded);
+            client.DeviceRemoved += new NooSphere.Core.Events.DeviceRemovedHandler(client_DeviceRemoved);
+            client.ActivityRemoved += new NooSphere.Core.Events.ActivityRemovedHandler(client_ActivityRemoved);
+            client.MessageReceived += new NooSphere.Core.Events.MessageReceivedHandler(client_MessageReceived);
 
             BuildUI();
-
             startingUp = false;
         }
+
+        /// <summary>
+        /// Disable the UI
+        /// </summary>
         private void DisableUI()
         {
             ToggleUI(false);
         }
+
+        /// <summary>
+        /// Enable the UI
+        /// </summary>
         private void EnableUI()
         {
             ToggleUI(true);
         }
+
+        /// <summary>
+        /// Toggle the UI
+        /// </summary>
+        /// <param name="d">Bool indicating if the UI is enable or disabled</param>
         private void ToggleUI(bool d)
         {
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
@@ -173,6 +213,10 @@ namespace ActivityUI
                 btnHome.IsEnabled = d;
             }));
         }
+
+        /// <summary>
+        /// Builds the activity taskbar
+        /// </summary>
         private void BuildUI()
         {
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
@@ -190,12 +234,21 @@ namespace ActivityUI
             EnableUI();
             VirtualDesktopManager.InitDesktops(1);
         }
+
+        /// <summary>
+        /// Builds the discovery UI
+        /// </summary>
         private void BuildDiscoveryUI()
         {
             txtDeviceName.Text = device.Name;
             txtEmail.Text = owner.Email;
             txtUsername.Text = owner.Name;
         }
+
+        /// <summary>
+        /// Removes an activity button from the activity bar
+        /// </summary>
+        /// <param name="id">Guid value identifying the activity</param>
         private void RemoveActivityUI(Guid id)
         {
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
@@ -203,6 +256,11 @@ namespace ActivityUI
                 Body.Children.Remove(buttons[id]);
             }));
         }
+
+        /// <summary>
+        /// Adds an activity button to the activity bar
+        /// </summary>
+        /// <param name="activity">The activity that is represented by the button</param>
         private void AddActivityUI(Activity activity)
         {
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
@@ -221,6 +279,12 @@ namespace ActivityUI
                 buttons.Add(prox.Activity.Id, b);
             }));
         }
+
+        /// <summary>
+        /// Creates a proxy object from a given activity
+        /// </summary>
+        /// <param name="activity">The activity the proxy is representing</param>
+        /// <returns>An activity proxy that represents an activity</returns>
         private Proxy ConvertActivityToProxy(Activity activity)
         {
             Proxy p = new Proxy();
@@ -229,29 +293,187 @@ namespace ActivityUI
             VirtualDesktopManager.Desktops.Add(p.Desktop);
             return p;
         }
+
+        /// <summary>
+        /// Converts a button object into an activity proxy
+        /// </summary>
+        /// <param name="b">Button representing an activity</param>
+        /// <returns>A proxy object that represent that activity connected to the button</returns>
         private Proxy GetProxyFromButton(Button b)
         {
             return (Proxy)b.Tag;
         }
-        private void ShowActivityButtonContextMenu(object sender)
+
+        /// <summary>
+        /// Shows the activity button context menu
+        /// </summary>
+        /// <param name="sender"></param>
+        private void ShowActivityButtonContextMenu(Button btn)
         {
-            currentButton = (Button)sender;
+            currentButton = btn;
             popupActivity.PlacementTarget = currentButton;
             currentActivity = ((Proxy)currentButton.Tag).Activity;
             popupActivity.IsOpen = !popupActivity.IsOpen;
             txtName.Text = currentActivity.Name;
             foreach (User u in currentActivity.Participants)
                 txtParticipants.Text = u.Name;
+        }
 
+        /// <summary>
+        /// Hides the activity button context menu
+        /// </summary>
+        private void HideActivityButtonContextMenu(bool deleted)
+        {
+            popupActivity.IsOpen = false;
+            currentButton.Content = txtName.Text;
+            currentActivity.Name = txtName.Text;
+            if(!deleted) 
+                client.UpdateActivity(currentActivity);
+        }
+
+        /// <summary>
+        /// Hides the start menu
+        /// </summary>
+        private void HideStartMenu()
+        {
+            ToggleStartMenu();
+            device.Name = txtDeviceName.Text;
+            if (Settings.Default.CHECK_BROADCAST)
+                host.StartBroadcast(device.Name, device.Location);
+            RunDiscovery();
+        }
+        /// <summary>
+        /// Checks if client wants to broadcast activity manager
+        /// </summary>
+        /// <param name="check"></param>
+        private void CheckBroadCast(bool check)
+        {
+            if(startMode == StartUpMode.Host)
+                if (check)
+                    host.StartBroadcast(device.Name, device.Location);
+                else
+                    host.StopBroadcast();
+        }
+
+        /// <summary>
+        /// Sends a message to the activity manager
+        /// </summary>
+        /// <param name="message">Message that needs to be send to the activity manager</param>
+        private void SendMessage(string message)
+        {
+            client.SendMessage(message);
+            txtInput.Text = "";
+        }
+
+        /// <summary>
+        /// Deletes the activity
+        /// </summary>
+        private void DeleteActivity()
+        {
+            Button b = (Button)popupActivity.PlacementTarget;
+            Guid g = GetProxyFromButton(b).Activity.Id;
+            client.RemoveActivity(g);
+            HideActivityButtonContextMenu(true);
+        }
+
+        /// <summary>
+        /// Adds a discovered activity manager to the UI
+        /// </summary>
+        /// <param name="serviceInfo">The information of the found service</param>
+        private void AddDiscoveryActivityManagerToUI(ServiceInfo serviceInfo)
+        {
+            if (startMode == StartUpMode.Client && startingUp)
+            {
+                if (MessageBoxResult.Yes == MessageBox.Show("Activity Manager found '" + serviceInfo.Name
+                    + "' do you wish to connect to local activity service?",
+               "Activity Manager Found", MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.Yes))
+                    StartClient(serviceInfo.Address);
+                else
+                    StartActivityManager();
+            }
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                managerlist.Items.Add(serviceInfo.Name + " at " + serviceInfo.Address);
+            }));
+        }
+
+        /// <summary>
+        /// Adds a message to the UI log
+        /// </summary>
+        /// <param name="output"></param>
+        private void AddToLog(string message)
+        {
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                txtLog.Text = message + txtLog.Text;
+            }));
+
+        }
+
+        /// <summary>
+        /// Switches to a virtual desktop
+        /// </summary>
+        /// <param name="desktop">The virtual desktop to which the manager has to switch</param>
+        private void SwitchToVirtualDesktop(VirtualDesktop desktop)
+        {
+            try
+            {
+                VirtualDesktopManager.CurrentDesktop = desktop;
+            }
+            catch
+            {
+                VirtualDesktopManager.UninitDesktops();
+            }
+        }
+
+        /// <summary>
+        /// Toggles the start menu
+        /// </summary>
+        private void ToggleStartMenu()
+        {
+            popActivityManagers.PlacementTarget = btnStart;
+            popActivityManagers.IsOpen = !popActivityManagers.IsOpen;
+        }
+
+        /// <summary>
+        /// Initializes the taskbar
+        /// </summary>
+        private void InitializeTaskbar()
+        {
+            //Get pointer to our own application
+            IntPtr handle = new WindowInteropHelper(this).Handle;
+
+            //Force glass style
+            ApplyGlass(handle);
+
+            NooSphere.Platform.Windows.Dock.AppBarFunctions.SetAppBar(this, NooSphere.Platform.Windows.Dock.AppBarPosition.Top);
         }
         #endregion
 
         #region Event Handlers
-        void b_MouseDown(object sender, MouseButtonEventArgs e)
+        private void btnDeleteActivity_Click(object sender, RoutedEventArgs e)
+        {
+            DeleteActivity();
+        }
+        private void chkBroadcast_Click(object sender, RoutedEventArgs e)
+        {
+            Settings.Default.CHECK_BROADCAST = (bool)chkBroadcast.IsChecked;
+            CheckBroadCast(Settings.Default.CHECK_BROADCAST);
+        }
+        private void btnSend_Click(object sender, RoutedEventArgs e)
+        {
+            SendMessage(txtInput.Text);
+        }
+        private void login_LoggedIn(object sender, EventArgs e)
+        {
+            login.Close();
+            IntializeSystem();
+        }
+        private void b_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.RightButton == MouseButtonState.Pressed)
             {
-                ShowActivityButtonContextMenu(sender);
+                ShowActivityButtonContextMenu((Button)sender);
             }
         }
         private void host_HostLaunched(object sender, EventArgs e)
@@ -260,48 +482,27 @@ namespace ActivityUI
         }
         private void disc_DiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
-            if (startMode == StartUpMode.Client && startingUp)
-            {
-                if (MessageBoxResult.Yes == MessageBox.Show("Activity Manager found '" + e.ServicePair.Name + "' do you wish to connect to local activity service?",
-               "Activity Manager Found", MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.Yes))
-                    StartClient(e.ServicePair.Address);
-                else
-                    StartHost();
-            }
-            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
-            {
-                managerlist.Items.Add(e.ServicePair.Name + " at " + e.ServicePair.Address);
-            }));
+            AddDiscoveryActivityManagerToUI(e.ServiceInfo);
 
         }
-        void client_DeviceRemoved(object sender, NooSphere.ActivitySystem.Client.Events.DeviceEventArgs e)
+        private void client_DeviceRemoved(object sender, NooSphere.Core.Events.DeviceEventArgs e)
         {
             AddToLog("Device Removed\n");
         }
-        private void client_DeviceAdded(object sender, NooSphere.ActivitySystem.Client.Events.DeviceEventArgs e)
+        private void client_DeviceAdded(object sender, NooSphere.Core.Events.DeviceEventArgs e)
         {
             AddToLog("Device Added\n");
         }
-
-        private void AddToLog(string output)
-        {
-            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
-            {
-                txtLog.Text = output + txtLog.Text;
-            }));
-
-        }
-        private void client_MessageReceived(object sender, NooSphere.ActivitySystem.Client.Events.ComEventArgs e)
+        private void client_MessageReceived(object sender, NooSphere.Core.Events.ComEventArgs e)
         {
             AddToLog(e.Message+"\n");
         }
-        private void client_ActivityRemoved(object sender, NooSphere.ActivitySystem.Client.Events.ActivityRemovedEventArgs e)
+        private void client_ActivityRemoved(object sender, NooSphere.Core.Events.ActivityRemovedEventArgs e)
         {
             RemoveActivityUI(e.ID);
             AddToLog("Activity Added\n");
         }
-
-        private void client_ActivityAdded(object obj, NooSphere.ActivitySystem.Client.Events.ActivityEventArgs e)
+        private void client_ActivityAdded(object obj, NooSphere.Core.Events.ActivityEventArgs e)
         {
             AddActivityUI(e.Activity);
             AddToLog("Activity Removed\n");
@@ -316,29 +517,15 @@ namespace ActivityUI
         }
         private void b_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                VirtualDesktopManager.CurrentDesktop = ((Proxy)((Button)sender).Tag).Desktop;
-            }
-            catch
-            {
-                VirtualDesktopManager.UninitDesktops();
-            }
+            SwitchToVirtualDesktop(((Proxy)((Button)sender).Tag).Desktop);
         }
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
-            popActivityManagers.PlacementTarget = btnStart;
-            popActivityManagers.IsOpen = !popActivityManagers.IsOpen;
+            ToggleStartMenu();
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            //Get pointer to our own application
-            IntPtr handle = new WindowInteropHelper(this).Handle;
-
-            //Force glass style
-            ApplyGlass(handle);
-
-            NooSphere.Platform.Windows.Dock.AppBarFunctions.SetAppBar(this, NooSphere.Platform.Windows.Dock.AppBarPosition.Top);
+            InitializeTaskbar();
         }
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
@@ -351,24 +538,21 @@ namespace ActivityUI
         }
         private void popActivityManagers_MouseLeave(object sender, MouseEventArgs e)
         {
-            popActivityManagers.IsOpen = false;
-            device.Name = txtDeviceName.Text;
-            if (Settings.Default.CHECK_BROADCAST)
-                host.StartBroadcast(device.Name, device.Location);
-            RunDiscovery();
+            HideStartMenu();
         }
         private void popupActivity_MouseLeave(object sender, MouseEventArgs e)
         {
-            popupActivity.IsOpen = false;
-            currentButton.Content = txtName.Text;
-            currentActivity.Name = txtName.Text;
-            client.UpdateActivity(currentActivity);
+            //HideActivityButtonContextMenu(false);
         }
 
         #endregion
 
         #region Helper
 
+        /// <summary>
+        /// Generates a default activity
+        /// </summary>
+        /// <returns>An intialized activity</returns>
         public Activity GetInitializedActivity()
         {
             Activity ac = new Activity();
@@ -382,7 +566,6 @@ namespace ActivityUI
             ac.Owner = owner;
 
             NooSphere.Core.ActivityModel.Action act = new NooSphere.Core.ActivityModel.Action();
-            //act.Resources.Add(new Resource(new FileInfo(@"c:/test/sas.pdf")));
             ac.Actions.Add(act);
 
             return ac;
@@ -490,42 +673,9 @@ namespace ActivityUI
         }
         #endregion
 
-        private void btnDeleteActivity_Click(object sender, RoutedEventArgs e)
+        private void btnApplyChanges_Click(object sender, RoutedEventArgs e)
         {
-            Button b = (Button)popupActivity.PlacementTarget;
-            Guid g = GetProxyFromButton(b).Activity.Id;
-            client.RemoveActivity(g);
+            HideActivityButtonContextMenu(false);
         }
-
-        private void chkBroadcast_Click(object sender, RoutedEventArgs e)
-        {
-            Settings.Default.CHECK_BROADCAST = (bool)chkBroadcast.IsChecked;
-            CheckBroadCast(Settings.Default.CHECK_BROADCAST);
-        }
-        private void CheckBroadCast(bool check)
-        {
-            if (check)
-                host.StartBroadcast(device.Name, device.Location);
-            else
-                host.StopBroadcast();
-        }
-
-        private void btnMsg_Click(object sender, RoutedEventArgs e)
-        {
-            client.SendMessage("hello world");
-        }
-
-        private void btnSend_Click(object sender, RoutedEventArgs e)
-        {
-            SendMessage(txtInput.Text);
-        }
-
-        private void SendMessage(string p)
-        {
-            client.SendMessage(p);
-            txtInput.Text = "";
-        }
-
-
     }
 }

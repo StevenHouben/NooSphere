@@ -16,18 +16,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NooSphere.ActivitySystem.Discovery.Primitives;
+using NooSphere.Core.ActivityModel;
+using NooSphere.ActivitySystem.Contracts.NetEvents;
 
-namespace NooSphere.ActivitySystem.Discovery.Client
+namespace NooSphere.ActivitySystem.ActivityManager
 {
-    public class DiscoveryAddressAddedEventArgs:EventArgs
+    public class ActivityStore
     {
-        public ServiceInfo ServiceInfo{ get; set; }
-        public DiscoveryAddressAddedEventArgs() { }
-        public DiscoveryAddressAddedEventArgs(ServiceInfo serviceInfo)
-        {
-            ServiceInfo = new ServiceInfo();
-            this.ServiceInfo = serviceInfo;
-        }
+        public static Dictionary<Guid, Activity> Activities = new Dictionary<Guid, Activity>();
+
     }
 }

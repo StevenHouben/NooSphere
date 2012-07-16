@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NooSphere.ActivitySystem.Client.Events
+namespace NooSphere.Core.Events
 {
     public delegate void ActivityAddedHandler(Object sender, ActivityEventArgs e);
     public delegate void ActivityRemovedHandler(Object sender, ActivityRemovedEventArgs e);

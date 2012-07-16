@@ -35,7 +35,7 @@ using NooSphere.Helpers;
 using Newtonsoft.Json.Linq;
 using NooSphere.Core.Events;
 
-namespace NooSphere.ActivitySystem.Client
+namespace NooSphere.ActivitySystem.ActivityClient
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public class BasicClient : NetEventHandler

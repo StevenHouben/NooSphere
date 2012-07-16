@@ -30,9 +30,9 @@ using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Contracts.NetEvents;
-using NooSphere.ActivitySystem.ActivityService.PubSub;
+using NooSphere.ActivitySystem.PubSub;
 
-namespace NooSphere.ActivitySystem.ActivityService.ActivityManagement
+namespace NooSphere.ActivitySystem.ActivityManager
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Single, IncludeExceptionDetailInFaults = true)]
     public class ActivityManager : IActivityManager

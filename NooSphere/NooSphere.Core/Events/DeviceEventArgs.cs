@@ -16,18 +16,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NooSphere.ActivitySystem.Discovery.Primitives;
+using NooSphere.Core.Devices;
 
-namespace NooSphere.ActivitySystem.Discovery.Client
+namespace NooSphere.Core.Events
 {
-    public class DiscoveryAddressAddedEventArgs:EventArgs
+    public class DeviceEventArgs
     {
-        public ServiceInfo ServiceInfo{ get; set; }
-        public DiscoveryAddressAddedEventArgs() { }
-        public DiscoveryAddressAddedEventArgs(ServiceInfo serviceInfo)
+        public Device Device { get; set; }
+        public DeviceEventArgs() { }
+        public DeviceEventArgs(Device device)
         {
-            ServiceInfo = new ServiceInfo();
-            this.ServiceInfo = serviceInfo;
+            this.Device = device;
         }
     }
 }

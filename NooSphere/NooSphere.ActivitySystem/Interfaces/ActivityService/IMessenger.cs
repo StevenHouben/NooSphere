@@ -16,18 +16,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NooSphere.ActivitySystem.Discovery.Primitives;
+using System.ServiceModel;
+using System.ServiceModel.Web;
 
-namespace NooSphere.ActivitySystem.Discovery.Client
+namespace NooSphere.ActivitySystem.Contracts
 {
-    public class DiscoveryAddressAddedEventArgs:EventArgs
+    [ServiceContract]
+    public interface IMessenger
     {
-        public ServiceInfo ServiceInfo{ get; set; }
-        public DiscoveryAddressAddedEventArgs() { }
-        public DiscoveryAddressAddedEventArgs(ServiceInfo serviceInfo)
-        {
-            ServiceInfo = new ServiceInfo();
-            this.ServiceInfo = serviceInfo;
-        }
+        [OperationContract]
+        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest,RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "messages", Method = "POST")]
+        void SendMessage(string id, string message);
     }
 }

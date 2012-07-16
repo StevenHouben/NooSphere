@@ -16,17 +16,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NooSphere.Core.Devices;
+using System.ServiceModel;
+using System.ServiceModel.Web;
 
-namespace NooSphere.ActivitySystem.Client.Events
+namespace NooSphere.ActivitySystem.Contracts.NetEvents
 {
-    public class DeviceEventArgs
+    [ServiceContract]
+    public interface IComNetEvent : IEvent
     {
-        public Device Device { get; set; }
-        public DeviceEventArgs() { }
-        public DeviceEventArgs(Device device)
-        {
-            this.Device = device;
-        }
+        [OperationContract]
+        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "MessageReceived", Method = "POST")]
+        void MessageNetReceived(string msg);
+    }
+    public enum ComEvent
+    {
+        MessageReceived
     }
 }

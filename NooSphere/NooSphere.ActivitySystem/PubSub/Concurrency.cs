@@ -16,18 +16,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NooSphere.ActivitySystem.Discovery.Primitives;
 
-namespace NooSphere.ActivitySystem.Discovery.Client
+namespace NooSphere.ActivitySystem.PubSub
 {
-    public class DiscoveryAddressAddedEventArgs:EventArgs
+    public class Concurrency
     {
-        public ServiceInfo ServiceInfo{ get; set; }
-        public DiscoveryAddressAddedEventArgs() { }
-        public DiscoveryAddressAddedEventArgs(ServiceInfo serviceInfo)
-        {
-            ServiceInfo = new ServiceInfo();
-            this.ServiceInfo = serviceInfo;
-        }
+        public static object _SubscriberLock = new object();
     }
 }

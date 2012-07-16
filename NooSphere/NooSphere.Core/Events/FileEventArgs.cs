@@ -16,18 +16,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NooSphere.ActivitySystem.Discovery.Primitives;
+using NooSphere.Core.ActivityModel;
 
-namespace NooSphere.ActivitySystem.Discovery.Client
+namespace NooSphere.Core.Events
 {
-    public class DiscoveryAddressAddedEventArgs:EventArgs
+    public class FileEventArgs
     {
-        public ServiceInfo ServiceInfo{ get; set; }
-        public DiscoveryAddressAddedEventArgs() { }
-        public DiscoveryAddressAddedEventArgs(ServiceInfo serviceInfo)
+        public Resource Resource { get; set; }
+        public FileEventArgs() { }
+        public FileEventArgs(Resource resource)
         {
-            ServiceInfo = new ServiceInfo();
-            this.ServiceInfo = serviceInfo;
+            this.Resource = resource;
+        }
+    }
+    public class GenericEventArgs<T>
+    {
+        public T Generic { get; set; }
+        public GenericEventArgs() { }
+        public GenericEventArgs(T generic)
+        {
+            this.Generic = generic;
         }
     }
 }

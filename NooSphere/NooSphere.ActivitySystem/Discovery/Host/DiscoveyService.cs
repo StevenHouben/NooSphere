@@ -16,29 +16,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
 using NooSphere.ActivitySystem.Contracts;
-using NooSphere.Core.ActivityModel;
-using NooSphere.ActivitySystem.Contracts.NetEvents;
+using System.ServiceModel;
 
-namespace NooSphere.ActivitySystem.Client.Events
+namespace NooSphere.ActivitySystem.Discovery.Host
 {
-    public class ActivityEventArgs
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Single, IncludeExceptionDetailInFaults = true)]
+    public class DiscoveyService:IDiscovery
     {
-        public Activity Activity { get; set; }
-        public ActivityEventArgs() { }
-        public ActivityEventArgs(Activity activity)
-        {
-            this.Activity = activity;
-        }
-    }
-    public class ActivityRemovedEventArgs
-    {
-        public Guid ID { get; set; }
-        public ActivityRemovedEventArgs() { }
-        public ActivityRemovedEventArgs(Guid id)
-        {
-            this.ID = id;
-        }
+        public bool Alive()
+        { return true; }
     }
 }

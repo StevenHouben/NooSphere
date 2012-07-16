@@ -16,18 +16,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NooSphere.ActivitySystem.Discovery.Primitives;
 
-namespace NooSphere.ActivitySystem.Discovery.Client
+namespace NooSphere.ActivitySystem.Discovery.Primitives
 {
-    public class DiscoveryAddressAddedEventArgs:EventArgs
+    public class ServiceInfo
     {
-        public ServiceInfo ServiceInfo{ get; set; }
-        public DiscoveryAddressAddedEventArgs() { }
-        public DiscoveryAddressAddedEventArgs(ServiceInfo serviceInfo)
+        public string Address { get; set; }
+        public string Name { get; set; }
+        public string Location { get; set; }
+        public ServiceInfo() { }
+        public ServiceInfo(string name,string location, string addr)
         {
-            ServiceInfo = new ServiceInfo();
-            this.ServiceInfo = serviceInfo;
+            this.Name = name;
+            this.Location = location;
+            this.Address = addr;
         }
     }
 }

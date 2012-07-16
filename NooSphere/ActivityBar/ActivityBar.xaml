@@ -79,7 +79,8 @@
         	<Grid Background="#FFE5E5E5" Height="141" Width="372">
         		<TextBox x:Name="txtName" Margin="8,8,8,0" TextWrapping="Wrap" Text="Activity name" VerticalAlignment="Top"/>
         		<TextBox x:Name="txtParticipants" Margin="8,33.96,8,35" TextWrapping="Wrap" Text="Activity name" d:LayoutOverrides="VerticalAlignment"/>
-        		<Button x:Name="btnDeleteActivity" Content="Delete" HorizontalAlignment="Right" Margin="0,110,8,0" VerticalAlignment="Top" Width="75" Click="btnDeleteActivity_Click" />
+        		<Button x:Name="btnDeleteActivity" Content="Delete" HorizontalAlignment="Left" Margin="8,111.04,0,0" VerticalAlignment="Top" Width="75" Click="btnDeleteActivity_Click" />
+        		<Button x:Name="btnApplyChanges" Content="Apply Changes" HorizontalAlignment="Right" Margin="0,111.04,8,0" VerticalAlignment="Top" Width="101" Click="btnApplyChanges_Click" />
         	</Grid>
         </Popup>
     </Grid>

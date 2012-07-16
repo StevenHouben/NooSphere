@@ -22,7 +22,7 @@ using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Contracts.NetEvents;
 using NooSphere.Core.Events;
 
-namespace NooSphere.ActivitySystem.Client
+namespace NooSphere.ActivitySystem.ActivityClient
 {
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Single, InstanceContextMode = InstanceContextMode.Single, UseSynchronizationContext = false)]
     public class NetEventHandler : IActivityNetEvent,IDeviceNetEvent,IFileNetEvent,IComNetEvent

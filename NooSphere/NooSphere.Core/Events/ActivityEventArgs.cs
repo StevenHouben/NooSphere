@@ -16,18 +16,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NooSphere.ActivitySystem.Discovery.Primitives;
 
-namespace NooSphere.ActivitySystem.Discovery.Client
+using NooSphere.Core.ActivityModel;
+
+namespace NooSphere.Core.Events
 {
-    public class DiscoveryAddressAddedEventArgs:EventArgs
+    public class ActivityEventArgs
     {
-        public ServiceInfo ServiceInfo{ get; set; }
-        public DiscoveryAddressAddedEventArgs() { }
-        public DiscoveryAddressAddedEventArgs(ServiceInfo serviceInfo)
+        public Activity Activity { get; set; }
+        public ActivityEventArgs() { }
+        public ActivityEventArgs(Activity activity)
         {
-            ServiceInfo = new ServiceInfo();
-            this.ServiceInfo = serviceInfo;
+            this.Activity = activity;
+        }
+    }
+    public class ActivityRemovedEventArgs
+    {
+        public Guid ID { get; set; }
+        public ActivityRemovedEventArgs() { }
+        public ActivityRemovedEventArgs(Guid id)
+        {
+            this.ID = id;
         }
     }
 }
