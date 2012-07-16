@@ -86,21 +86,21 @@ namespace NooSphere.ActivitySystem.ActivityService.ActivityManagement
         #endregion
 
         #region Activity Management
-        public object GetActivity(Guid id)
+        public Activity GetActivity(Guid id)
         {
             if (useActivityCloud)
                 return ActivityCloudConnector.GetActivity(id.ToString());
             else
                 return ActivityStore.Activities[id];
         }
-        public object GetActivity(string id)
+        public Activity GetActivity(string id)
         {
             if (useActivityCloud)
                 return ActivityCloudConnector.GetActivity(id);
             else
                 return ActivityStore.Activities[new Guid(id)];
         }
-        public object GetActivities()
+        public List<Activity> GetActivities()
         {
             if (useActivityCloud)
                 return ActivityCloudConnector.GetActivities();
@@ -131,34 +131,27 @@ namespace NooSphere.ActivitySystem.ActivityService.ActivityManagement
         #endregion
 
         #region Participant Management
-        public object GetParticipant(Guid id)
-        {
-            if (useActivityCloud)
-                return ActivityCloudConnector.GetUser(id.ToString());
-            else
-                return ParticipantStore.Participants[id];
-        }
-        public object GetParticipant(string id)
+        public User GetParticipant(string id)
         {
             if (useActivityCloud)
                 return ActivityCloudConnector.GetUser(id);
             else
                 return ParticipantStore.Participants[new Guid(id)];
         }
-        public object GetParticipants()
+        public List<User> GetParticipants()
         {
             if (useActivityCloud)
                 return ActivityCloudConnector.GetUsers();
             else
-                return ParticipantStore.Participants;
+                return ParticipantStore.Participants.Values.ToList();
         }
-        public void AddParticipant(User p)
+        public void AddParticipant(Activity a, User p)
         {
             if (useActivityCloud)
                 ActivityCloudConnector.AddUser(p);
             ParticipantStore.Participants.Add(p.Id, p);
         }
-        public void RemoveParticipant(string id)
+        public void RemoveParticipant(Activity a, string id)
         {
             if (useActivityCloud)
                 ActivityCloudConnector.DeleteUser(id);
@@ -173,12 +166,12 @@ namespace NooSphere.ActivitySystem.ActivityService.ActivityManagement
         #endregion
 
         #region Pub/Sub 
-        public object Register(Device device)
+        public Guid Register(Device device)
         {
             ConnectedClient cc = new ConnectedClient(device.Name, device.BaseAddress, device);
             Registry.ConnectedClients.Add(device.Id.ToString(), cc);
             publisher.Publish(EventType.DeviceEvents, DeviceEvent.DeviceAdded.ToString(), device);
-            return device.Id.ToString();
+            return device.Id;
         }
         public void Subscribe(string id, EventType type,int callbackPort)
         {

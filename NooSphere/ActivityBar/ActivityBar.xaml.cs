@@ -240,8 +240,8 @@ namespace ActivityUI
             currentActivity = ((Proxy)currentButton.Tag).Activity;
             popupActivity.IsOpen = !popupActivity.IsOpen;
             txtName.Text = currentActivity.Name;
-            foreach (string u in currentActivity.Participants.Values)
-                txtParticipants.Text = u;
+            foreach (User u in currentActivity.Participants)
+                txtParticipants.Text = u.Name;
 
         }
         #endregion
@@ -379,7 +379,7 @@ namespace ActivityUI
             ac.Context = "random context model here";
             ac.Meta.Data = "added meta data";
 
-            ac.Participants.Add(owner.Id, "Owner");
+            ac.Owner = owner;
 
             NooSphere.Core.ActivityModel.Action act = new NooSphere.Core.ActivityModel.Action();
             //act.Resources.Add(new Resource(new FileInfo(@"c:/test/sas.pdf")));

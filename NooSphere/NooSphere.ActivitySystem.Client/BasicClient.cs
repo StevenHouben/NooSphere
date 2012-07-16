@@ -147,12 +147,12 @@ namespace NooSphere.ActivitySystem.Client
         }
         public void Register(Device d)
         {
-            DeviceID = JsonConvert.DeserializeObject<String>(RestHelper.Post(ServiceAddress + Url.devices, null, d));
+            DeviceID = JsonConvert.DeserializeObject<String>(RestHelper.Post(ServiceAddress + Url.devices, d));
             Console.WriteLine("BasicClient: Received device id: " + DeviceID);
         }
         public void Unregister(string id)
         {
-            RestHelper.Delete(ServiceAddress + Url.devices, null, id);
+            RestHelper.Delete(ServiceAddress + Url.devices, id);
         }
         public void Subscribe(EventType type)
         {
@@ -163,7 +163,7 @@ namespace NooSphere.ActivitySystem.Client
                 port = port,
                 type = type
             };
-            RestHelper.Post(ServiceAddress + Url.subscribers, null, subscription);
+            RestHelper.Post(ServiceAddress + Url.subscribers, subscription);
         }
         public void UnSubscribe(EventType type)
         {
@@ -172,7 +172,7 @@ namespace NooSphere.ActivitySystem.Client
                 id = DeviceID,
                 type = type
             };
-            RestHelper.Delete(ServiceAddress + Url.subscribers, null, unSubscription);
+            RestHelper.Delete(ServiceAddress + Url.subscribers, unSubscription);
             Type t = TypeFromEnum(type);
             callbackServices[t].Close();
             callbackServices.Remove(t);
@@ -184,24 +184,23 @@ namespace NooSphere.ActivitySystem.Client
         }
         public void AddActivity(Activity act)
         {
-            RestHelper.Post(ServiceAddress + Url.activities, CurrentParticipant, act);
+            RestHelper.Post(ServiceAddress + Url.activities, act);
         }
         public void RemoveActivity(Guid id)
         {
-            RestHelper.Delete(ServiceAddress + Url.activities, CurrentParticipant, id);
+            RestHelper.Delete(ServiceAddress + Url.activities, id);
         }
         public void UpdateActivity(Activity act)
         {
-            RestHelper.Put(ServiceAddress + Url.activities, CurrentParticipant, act);
+            RestHelper.Put(ServiceAddress + Url.activities, act);
         }
         public List<Activity> GetActivities()
         {
-            string result = RestHelper.Get(ServiceAddress + Url.activities, CurrentParticipant);
-            return JsonConvert.DeserializeObject<List<Activity>>(JsonConvert.DeserializeObject(result).ToString());
+            return JsonConvert.DeserializeObject<List<Activity>>(RestHelper.Get(ServiceAddress + Url.activities));
         }
         public Activity GetActivity(string id)
         {
-            return JsonConvert.DeserializeObject<Activity>(RestHelper.Get(ServiceAddress + Url.activities + "/" + id, CurrentParticipant));
+            return JsonConvert.DeserializeObject<Activity>(RestHelper.Get(ServiceAddress + Url.activities + "/" + id));
         }
         public void SendMessage(string msg)
         {
@@ -210,7 +209,7 @@ namespace NooSphere.ActivitySystem.Client
                 id = DeviceID,
                 message = msg
             };
-            RestHelper.Post(ServiceAddress + Url.messages, null, message);
+            RestHelper.Post(ServiceAddress + Url.messages, message);
         }
         #endregion
     }

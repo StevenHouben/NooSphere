@@ -27,7 +27,7 @@ using System.IO;
 namespace NooSphere.ActivitySystem.Contracts
 {
     [ServiceContract]
-    public interface IActivityManager:IMessenger
+    public interface IActivityManager : IMessenger
     {
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "POST")]
@@ -44,16 +44,16 @@ namespace NooSphere.ActivitySystem.Contracts
         [OperationContract]
         [ServiceKnownType(typeof(string))]
         [WebGet(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities")]
-        object GetActivities();
+        List<Activity> GetActivities();
 
         [OperationContract]
         [WebGet(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities/{id}")]
-        object GetActivity(string id);
+        Activity GetActivity(string id);
 
         [OperationContract]
         [ServiceKnownType(typeof(string))]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "devices", Method = "POST")]
-        object Register(Device device);
+        Guid Register(Device device);
 
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "devices", Method = "DELETE")]
