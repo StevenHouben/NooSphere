@@ -29,6 +29,7 @@ using Newtonsoft.Json;
 
 using NooSphere.ActivitySystem.ActivityService.ActivityManagement;
 using NooSphere.Core.ActivityModel;
+using NooSphere.Helpers;
 
 namespace NooSphere.ActivitySystem.ActivityService
 {
@@ -52,7 +53,7 @@ namespace NooSphere.ActivitySystem.ActivityService
         #endregion
 
         #region Constructor
-        public ActivityCloudConnector(string baseUrl, string baseDir,User user)
+        public ActivityCloudConnector(string baseUrl, string baseDir, User user)
         {
             this.baseUrl = baseUrl;
             this.baseDir = baseDir;
@@ -62,53 +63,54 @@ namespace NooSphere.ActivitySystem.ActivityService
         #endregion
 
         #region Public Members
-        public object GetUsers()
+        public List<User> GetUsers()
         {
-            return SendRequest(baseUrl + "Users", HttpMethod.Get, null);
+            return JsonConvert.DeserializeObject<List<User>>(RestHelper.SendRequest(baseUrl + "Users", HttpMethod.Get, null, connection.ConnectionId));
         }
-        public object GetUser(string userId)
+        public User GetUser(string userId)
         {
-            return SendRequest(baseUrl + "Users/" + userId, HttpMethod.Get, null);
+            return JsonConvert.DeserializeObject<User>(RestHelper.SendRequest(baseUrl + "Users/" + userId, HttpMethod.Get, null, connection.ConnectionId));
         }
         public void AddUser(User user)
         {
-            SendRequest(baseUrl + "Users?connectionId=" + connection.ConnectionId, HttpMethod.Post, user);
+            RestHelper.SendRequest(baseUrl + "Users?connectionId=" + connection.ConnectionId, HttpMethod.Post, user);
         }
         public void UpdateUser(User user)
         {
-            SendRequest(baseUrl + "Users/" + user.Id, HttpMethod.Put, user);
+            RestHelper.SendRequest(baseUrl + "Users/" + user.Id, HttpMethod.Put, user, connection.ConnectionId);
         }
         public void DeleteUser(string userId)
         {
-            SendRequest(baseUrl + "Users/" + userId, HttpMethod.Delete, null);
+            RestHelper.SendRequest(baseUrl + "Users/" + userId, HttpMethod.Delete, null, connection.ConnectionId);
         }
-        public void Login(string email)
+        public void Register(string userId)
         {
-            SendRequest(baseUrl + "Login/" + email, HttpMethod.Post, null);
+            RestHelper.SendRequest(baseUrl + "Users/" + userId + "/Device", HttpMethod.Post, null, connection.ConnectionId);
         }
-        public void Logout(string email)
+        public void Unregister(string userId)
         {
-            SendRequest(baseUrl + "Logout/" + email, HttpMethod.Post, null);
+            RestHelper.SendRequest(baseUrl + "Users/" + userId + "/Device", HttpMethod.Delete, null, connection.ConnectionId);
         }
-        public object GetActivities()
+        public List<Activity> GetActivities()
         {
-            return SendRequest(baseUrl + "Activities", HttpMethod.Get, null);
+            var result = RestHelper.SendRequest(baseUrl + "Activities", HttpMethod.Get, null, connection.ConnectionId);
+            return JsonConvert.DeserializeObject<List<Activity>>(result);
         }
-        public object GetActivity(string activityId)
+        public Activity GetActivity(string activityId)
         {
-            return SendRequest(baseUrl + "Activities/" + activityId, HttpMethod.Get, null);
+            return JsonConvert.DeserializeObject<Activity>(RestHelper.SendRequest(baseUrl + "Activities/" + activityId, HttpMethod.Get, null, connection.ConnectionId));
         }
         public void AddActivity(Activity activity)
         {
-            SendRequest(baseUrl + "Activities/", HttpMethod.Post, activity);
+            RestHelper.SendRequest(baseUrl + "Activities/", HttpMethod.Post, activity, connection.ConnectionId);
         }
         public void UpdateActivity(Activity activity)
         {
-            SendRequest(baseUrl + "Activities/" + activity.Id, HttpMethod.Put, activity);
+            RestHelper.SendRequest(baseUrl + "Activities/" + activity.Id, HttpMethod.Put, activity, connection.ConnectionId);
         }
         public void DeleteActivity(string activityId)
         {
-            SendRequest(baseUrl + "Activities/" + activityId, HttpMethod.Delete, null);
+            RestHelper.SendRequest(baseUrl + "Activities/" + activityId, HttpMethod.Delete, null, connection.ConnectionId);
         }
         public void DeleteFile(Resource resource)
         {
@@ -125,7 +127,7 @@ namespace NooSphere.ActivitySystem.ActivityService
                     Console.WriteLine("Failed to start: {0}", task.Exception.GetBaseException());
                 else
                 {
-                    Login(user.Email);
+                    Register(user.Id.ToString());
                     connection.Received += SignalRecieved;
                 }
             });
@@ -140,7 +142,7 @@ namespace NooSphere.ActivitySystem.ActivityService
             string AbsolutePath = Path.Combine(baseDir, resource.RelativePath);
 
             FileStream fs = new FileStream(AbsolutePath, FileMode.Create);
-            string result = SendRequest(baseUrl + Id(resource.ActivityId, resource.ActionId, resource.Id), HttpMethod.Get, null);
+            string result = RestHelper.SendRequest(baseUrl + Id(resource.ActivityId, resource.ActionId, resource.Id), HttpMethod.Get, null, connection.ConnectionId);
             byte[] bytestream = JsonConvert.DeserializeObject<byte[]>(result);
             fs.Write(bytestream, 0, resource.Size);
             fs.Close();
@@ -156,8 +158,8 @@ namespace NooSphere.ActivitySystem.ActivityService
             using (FileStream fs = new FileStream(Path.Combine(baseDir, resource.RelativePath), FileMode.Open, FileAccess.Read, FileShare.Read))
                 fs.Read(buffer, 0, (int)fs.Length);
 
-            SendRequest(baseUrl + Id(resource.ActivityId, resource.ActionId, resource.Id) + "?size=" + resource.Size.ToString() + "&creationTime=" + resource.CreationTime
-                + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), HttpMethod.Post, buffer);
+            RestHelper.SendRequest(baseUrl + Id(resource.ActivityId, resource.ActionId, resource.Id) + "?size=" + resource.Size.ToString() + "&creationTime=" + resource.CreationTime
+                + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), HttpMethod.Post, buffer, connection.ConnectionId);
         }
         private void SignalRecieved(string obj)
         {
@@ -214,22 +216,6 @@ namespace NooSphere.ActivitySystem.ActivityService
         private string Id(Guid activityId, Guid actionId, Guid resourceId)
         {
             return "Activities/" + activityId + "/Actions/" + actionId + "/Resources/" + resourceId;
-        }
-        private string SendRequest(string url, HttpMethod method, object content)
-        {
-            HttpClient client = new HttpClient();
-            HttpRequestMessage message = new HttpRequestMessage();
-            message.Headers.Authorization = AuthenticationHeaderValue.Parse(connection.ConnectionId);
-            if (content != null)
-            {
-                message.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(content)));
-                message.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
-            }
-            message.Method = method;
-            message.RequestUri = new Uri(url);
-
-            HttpResponseMessage response = client.SendAsync(message).Result;
-            return response.Content.ReadAsStringAsync().Result;
         }
         #endregion
     }

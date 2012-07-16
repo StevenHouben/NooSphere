@@ -26,7 +26,7 @@ namespace NooSphere.ActivitySystem.ActivityService.PubSub
                     {
                         try
                         {
-                            RestHelper.Post(entry.Value.ToString() + publishUrl, null, netObject);
+                            RestHelper.Post(entry.Value.ToString() + publishUrl, netObject);
                         }
                         catch (FaultException ex)
                         {

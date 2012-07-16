@@ -42,13 +42,14 @@ namespace NooSphere.Core.ActivityModel
         {
             this.Actions = new List<Action>();
             this.Workflows = new List<Workflow>();
-            this.Participants = new Dictionary<Guid, string>();
+            this.Participants = new List<User>();
             this.Meta = new Metadata();
         }
         #endregion
 
         #region Properties
-        public Dictionary<Guid, string> Participants { get; set; }
+        public User Owner { get; set; }
+        public List<User> Participants { get; set; }
 
         /// <summary>
         /// Context is a generic object so it can be included

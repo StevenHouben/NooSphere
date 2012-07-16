@@ -13,6 +13,8 @@ using System.Windows.Shapes;
 using NooSphere.Core.Devices;
 using NooSphere.Core.ActivityModel;
 using ActivityUI.Properties;
+using NooSphere.Helpers;
+using Newtonsoft.Json;
 
 namespace ActivityUI.Login
 {
@@ -49,9 +51,13 @@ namespace ActivityUI.Login
         }
         private void btnGo_Click(object sender, RoutedEventArgs e)
         {
-            this.User = new User();
-            this.User.Email = txtEmail.Text;
-            this.User.Name = txtUsername.Text;
+            string baseUrl = "http://activitycloud-1.apphb.com/Api/";
+            string result = RestHelper.Get(baseUrl + "Users?email=" + txtEmail.Text);
+            User u = JsonConvert.DeserializeObject<User>(result);
+            if (u != null)
+                this.User = u;
+            else
+                CreateUser(baseUrl);
 
             this.Device = new Device();
             this.Device.Name = txtDevicename.Text;
@@ -64,6 +70,19 @@ namespace ActivityUI.Login
             if (chkRemember.IsChecked==true)
                 SaveSettings();
             OnLoggedIn();
+        }
+        private void CreateUser(string baseUrl)
+        {
+            User user = new User();
+            user.Email = txtEmail.Text;
+            user.Name = txtUsername.Text;
+            string added = RestHelper.Post(baseUrl + "Users", user);
+            if (JsonConvert.DeserializeObject<bool>(added))
+            {
+                var result = RestHelper.Get(baseUrl + "Users?email=" + txtEmail.Text);
+                var u = JsonConvert.DeserializeObject<User>(result);
+                this.User = u;
+            }
         }
     }
 }
