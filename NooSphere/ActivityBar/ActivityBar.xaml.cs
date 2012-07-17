@@ -61,7 +61,7 @@ namespace ActivityUI
         private StartUpMode startMode;
         private User owner;
         private Device device;
-        private Dictionary<Guid, Button> buttons = new Dictionary<Guid, Button>();
+        private Dictionary<Guid, Proxy> proxies = new Dictionary<Guid, Proxy>();
         private Activity currentActivity;
         private Button currentButton;
         private LoginWindow login;
@@ -253,7 +253,7 @@ namespace ActivityUI
         {
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                Body.Children.Remove(buttons[id]);
+                Body.Children.Remove(proxies[id].Button);
             }));
         }
 
@@ -265,33 +265,24 @@ namespace ActivityUI
         {
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                Proxy prox = ConvertActivityToProxy(activity);
+                Proxy p = new Proxy();
+                p.Desktop = new VirtualDesktop();
+                p.Activity = activity;
+                VirtualDesktopManager.Desktops.Add(p.Desktop);
 
                 Button b = new Button();
                 b.Click += new RoutedEventHandler(b_Click);
                 b.MouseDown += new MouseButtonEventHandler(b_MouseDown);
-                b.Tag = prox;
                 b.Width = 300;
                 b.Height = this.Height - 5;
-                b.Content = prox.Activity.Name;
-                Body.Children.Add(b);
+                b.Tag = activity.Id;
+                b.Content = activity.Name;
 
-                buttons.Add(prox.Activity.Id, b);
+                p.Button = b;
+                Body.Children.Add(p.Button);
+
+                proxies.Add(p.Activity.Id, p);
             }));
-        }
-
-        /// <summary>
-        /// Creates a proxy object from a given activity
-        /// </summary>
-        /// <param name="activity">The activity the proxy is representing</param>
-        /// <returns>An activity proxy that represents an activity</returns>
-        private Proxy ConvertActivityToProxy(Activity activity)
-        {
-            Proxy p = new Proxy();
-            p.Desktop = new VirtualDesktop();
-            p.Activity = activity;
-            VirtualDesktopManager.Desktops.Add(p.Desktop);
-            return p;
         }
 
         /// <summary>
@@ -301,7 +292,7 @@ namespace ActivityUI
         /// <returns>A proxy object that represent that activity connected to the button</returns>
         private Proxy GetProxyFromButton(Button b)
         {
-            return (Proxy)b.Tag;
+            return proxies[(Guid)b.Tag];
         }
 
         /// <summary>
@@ -312,7 +303,7 @@ namespace ActivityUI
         {
             currentButton = btn;
             popupActivity.PlacementTarget = currentButton;
-            currentActivity = ((Proxy)currentButton.Tag).Activity;
+            currentActivity = proxies[(Guid)currentButton.Tag].Activity;
             popupActivity.IsOpen = !popupActivity.IsOpen;
             txtName.Text = currentActivity.Name;
             foreach (User u in currentActivity.Participants)
@@ -342,6 +333,7 @@ namespace ActivityUI
                 host.StartBroadcast(device.Name, device.Location);
             RunDiscovery();
         }
+
         /// <summary>
         /// Checks if client wants to broadcast activity manager
         /// </summary>
@@ -517,7 +509,7 @@ namespace ActivityUI
         }
         private void b_Click(object sender, RoutedEventArgs e)
         {
-            SwitchToVirtualDesktop(((Proxy)((Button)sender).Tag).Desktop);
+            SwitchToVirtualDesktop(proxies[(Guid)((Button)sender).Tag].Desktop);
         }
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {

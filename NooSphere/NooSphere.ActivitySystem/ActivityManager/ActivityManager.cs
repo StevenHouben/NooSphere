@@ -78,27 +78,32 @@ namespace NooSphere.ActivitySystem.ActivityManager
                 serviceAddress = "http://activitycloud-1.apphb.com";
 
             ActivityCloudConnector = new ActivityCloudConnector(serviceAddress + "/Api/", @"C:\abc\", owner);
-            ActivityCloudConnector.ActivityAdded += new EventHandler<DataEventArgs>(ActivityCloudConnector_ActivityAdded);
-            ActivityCloudConnector.ActivityDeleted += new EventHandler<DataEventArgs>(ActivityCloudConnector_ActivityDeleted);
-            ActivityCloudConnector.ActivityUpdated += new EventHandler<DataEventArgs>(ActivityCloudConnector_ActivityUpdated);
-
+            ActivityCloudConnector.ActivityAdded += new Core.Events.ActivityAddedHandler(ActivityCloudConnector_ActivityAdded);
+            ActivityCloudConnector.ActivityDeleted += new Core.Events.ActivityRemovedHandler(ActivityCloudConnector_ActivityDeleted);
+            ActivityCloudConnector.ActivityUpdated += new Core.Events.ActivityChangedHandler(ActivityCloudConnector_ActivityUpdated);
+            
             Console.WriteLine("Local Activity Manager: Attempting to connect to: " + serviceAddress);
         }
 
-        private void ActivityCloudConnector_ActivityUpdated(object sender, DataEventArgs e)
+        private void ActivityCloudConnector_ActivityUpdated(object sender, Core.Events.ActivityEventArgs e)
         {
-            object obj = e.Data;
-            //publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityAdded.ToString(), e.Data);
+            ActivityStore.Activities[e.Activity.Id] = e.Activity;
+            publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityChanged.ToString(), e.Activity);
         }
 
-        void ActivityCloudConnector_ActivityDeleted(object sender, DataEventArgs e)
+        private void ActivityCloudConnector_ActivityDeleted(object sender, Core.Events.ActivityRemovedEventArgs e)
         {
-            object obj = e.Data;
+            ActivityStore.Activities.Remove(e.ID);
+            publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityRemoved.ToString(), e.ID);
         }
 
-        void ActivityCloudConnector_ActivityAdded(object sender, DataEventArgs e)
+        private void ActivityCloudConnector_ActivityAdded(object sender, Core.Events.ActivityEventArgs e)
         {
-            object obj = e.Data;
+            if (!ActivityStore.Activities.ContainsKey(e.Activity.Id))
+            {
+                ActivityStore.Activities.Add(e.Activity.Id, e.Activity);
+                publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityAdded.ToString(), e.Activity);
+            }
         }
         #endregion
 
