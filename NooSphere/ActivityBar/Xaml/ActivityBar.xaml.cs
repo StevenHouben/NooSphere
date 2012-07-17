@@ -181,6 +181,7 @@ namespace ActivityUI
             //Subcribe to the callback events of the activity manager
             client.DeviceAdded += new NooSphere.Core.Events.DeviceAddedHandler(client_DeviceAdded);
             client.ActivityAdded += new NooSphere.Core.Events.ActivityAddedHandler(client_ActivityAdded);
+            client.ActivityChanged += new NooSphere.Core.Events.ActivityChangedHandler(client_ActivityChanged);
             client.DeviceRemoved += new NooSphere.Core.Events.DeviceRemovedHandler(client_DeviceRemoved);
             client.ActivityRemoved += new NooSphere.Core.Events.ActivityRemovedHandler(client_ActivityRemoved);
             client.MessageReceived += new NooSphere.Core.Events.MessageReceivedHandler(client_MessageReceived);
@@ -483,6 +484,11 @@ namespace ActivityUI
         #endregion
 
         #region Event Handlers
+        private void client_ActivityChanged(object sender, NooSphere.Core.Events.ActivityEventArgs e)
+        {
+            proxies[e.Activity.Id].Activity = e.Activity;
+            proxies[e.Activity.Id].Button.Text = e.Activity.Name; 
+        }
         private void b_MouseLeave(object sender, MouseEventArgs e)
         {
             ((ActivityButton)sender).RenderMode = RenderMode.Image;

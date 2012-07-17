@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace ActivityUI
 {
@@ -67,39 +68,42 @@ namespace ActivityUI
         #region Private Methods
         private void Invalidate()
         {
-            this.Content = null;
-            StackPanel panel = new StackPanel();
-            panel.Orientation = Orientation.Horizontal;
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                this.Content = null;
+                StackPanel panel = new StackPanel();
+                panel.Orientation = Orientation.Horizontal;
 
-            if(RenderMode== RenderMode.Image)
-            {
-                Image img = new Image();
-                img.Source =  new BitmapImage(this.Image);
-                panel.Children.Add(img);
-                this.Width = 50;
-            }
-            else if (RenderMode == RenderMode.Text)
-            {
-                Label l = new Label();
-                l.Foreground = Brushes.White;
-                l.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-                l.Content = this.Text;
-                panel.Children.Add(l);
-                this.Width = 250;
-            }
-            else 
-            {
-                Image img = new Image();
-                img.Source = new BitmapImage(this.Image);
-                panel.Children.Add(img);
-                Label l = new Label();
-                l.Foreground = Brushes.White;
-                l.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-                l.Content = this.Text;
-                panel.Children.Add(l);
-                this.Width = 250;
-            }
-            this.Content = panel;
+                if (RenderMode == RenderMode.Image)
+                {
+                    Image img = new Image();
+                    img.Source = new BitmapImage(this.Image);
+                    panel.Children.Add(img);
+                    this.Width = 50;
+                }
+                else if (RenderMode == RenderMode.Text)
+                {
+                    Label l = new Label();
+                    l.Foreground = Brushes.White;
+                    l.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                    l.Content = this.Text;
+                    panel.Children.Add(l);
+                    this.Width = 250;
+                }
+                else
+                {
+                    Image img = new Image();
+                    img.Source = new BitmapImage(this.Image);
+                    panel.Children.Add(img);
+                    Label l = new Label();
+                    l.Foreground = Brushes.White;
+                    l.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                    l.Content = this.Text;
+                    panel.Children.Add(l);
+                    this.Width = 250;
+                }
+                this.Content = panel;
+            }));
         }
         #endregion
     }
