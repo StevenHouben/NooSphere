@@ -30,6 +30,7 @@ using Newtonsoft.Json;
 using NooSphere.ActivitySystem.ActivityManager;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Helpers;
+using NooSphere.Core.Events;
 
 namespace NooSphere.ActivitySystem.ActivityManager
 {
@@ -47,9 +48,9 @@ namespace NooSphere.ActivitySystem.ActivityManager
         public event EventHandler UserConnected;
         public event EventHandler UserDisconnected;
         public event EventHandler UserDeleted;
-        public event EventHandler<DataEventArgs> ActivityAdded;
-        public event EventHandler<DataEventArgs> ActivityUpdated;
-        public event EventHandler<DataEventArgs> ActivityDeleted;
+        public event ActivityAddedHandler ActivityAdded;
+        public event ActivityChangedHandler ActivityUpdated;
+        public event ActivityRemovedHandler ActivityDeleted;
         #endregion
 
         #region Constructor
@@ -200,17 +201,22 @@ namespace NooSphere.ActivitySystem.ActivityManager
                     break;
                 case "ActivityAdded":
                     if (ActivityAdded != null)
-                        ActivityAdded(this, new DataEventArgs(data));
+                        ActivityAdded(this, new ActivityEventArgs(JsonConvert.DeserializeObject<Activity>(data.ToString())));
                     break;
                 case "ActivityUpdated":
                     if (ActivityUpdated != null)
-                        ActivityUpdated(this, new DataEventArgs(data));
+                        ActivityUpdated(this, new ActivityEventArgs(JsonConvert.DeserializeObject<Activity>(data.ToString())));
                     break;
                 case "ActivityDeleted":
                     if (ActivityDeleted != null)
-                        ActivityDeleted(this, new DataEventArgs(data));
+                    {
+                        JObject res = JsonConvert.DeserializeObject<JObject>(data.ToString());
+                        string sRes = res["Id"].ToString();
+                        ActivityDeleted(this, new
+                            ActivityRemovedEventArgs(
+                            new Guid(sRes)));
+                    }
                     break;
-
             }
         }
         private string Id(Guid activityId, Guid actionId, Guid resourceId)

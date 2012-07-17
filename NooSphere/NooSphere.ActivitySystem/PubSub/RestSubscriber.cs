@@ -10,6 +10,13 @@ namespace NooSphere.ActivitySystem.PubSub
 {
     public class RestSubscriber
     {
+        /// <summary>
+        /// Subscribes a request to an event
+        /// </summary>
+        /// <param name="id">The id of the requesting object</param>
+        /// <param name="type">The event type</param>
+        /// <param name="callbackPort">The callback port</param>
+        /// <returns></returns>
         public string Subscribe(string id, EventType type, int callbackPort)
         {
             string res;
@@ -32,6 +39,12 @@ namespace NooSphere.ActivitySystem.PubSub
                 res= "Device not registered";
             return res;
         }
+
+        /// <summary>
+        /// Unsubscribes an object from an event
+        /// </summary>
+        /// <param name="id">The id of the object that needs to be unsubscribed</param>
+        /// <param name="type">The event type</param>
         public void UnSubscribe(string id, EventType type)
         {
             if (Registry.ConnectedClients.ContainsKey(id))

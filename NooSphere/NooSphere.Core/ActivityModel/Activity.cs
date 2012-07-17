@@ -101,6 +101,7 @@ namespace NooSphere.Core.ActivityModel
         }
         #endregion
 
+        #region Public Methods
         public List<Resource> GetResources()
         {
             List<Resource> resources = new List<Resource>();
@@ -110,6 +111,7 @@ namespace NooSphere.Core.ActivityModel
 
             return resources;
         }
+        #endregion
 
         #region Overrides
         public override string ToString()

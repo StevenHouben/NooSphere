@@ -97,9 +97,11 @@ namespace NooSphere.ActivitySystem.ActivityClient
         }
         #endregion
 
+        #region Public Members
         public bool Alive()
         {
             return true;
         }
+        #endregion
     }
 }

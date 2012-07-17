@@ -23,6 +23,11 @@ namespace NooSphere.ActivitySystem.ActivityClient
 {
     public class NetHelper
     {
+        #region Public Members
+        /// <summary>
+        /// Finds an available port by scanning all ports
+        /// </summary>
+        /// <returns>A valid port</returns>
         public static int FindPort()
         {
             int port = NO_PORT;
@@ -40,7 +45,13 @@ namespace NooSphere.ActivitySystem.ActivityClient
 
             return port;
         }
-        public static string GetIP(bool local)
+
+        /// <summary>
+        /// Finds a valid IP address by scanning the network devices
+        /// </summary>
+        /// <param name="local">Indic</param>
+        /// <returns></returns>
+        public static string GetIP(IPType type)
         {
             string localIP = NO_IP;
 
@@ -49,16 +60,16 @@ namespace NooSphere.ActivitySystem.ActivityClient
             {
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    if (local)
+                    if (type == IPType.Local)
                     {
-                        if (ip.ToString().StartsWith("192"))
+                        if(IsLocalIpAddress(ip.ToString()))
                         {
                             localIP = ip.ToString();
                             return localIP;
                         }
-                        else
-                            return ip.ToString();
                     }
+                    else
+                        localIP = ip.ToString();
                 }
             }
 
@@ -67,7 +78,46 @@ namespace NooSphere.ActivitySystem.ActivityClient
 
             return localIP;
         }
+
+        /// <summary>
+        /// Checks if an IP address is local
+        /// </summary>
+        /// <param name="host">The IP address</param>
+        /// <returns>A bool indicating if the IP address if local or not</returns>
+        public static bool IsLocalIpAddress(string host)
+        {
+            try
+            { // get host IP addresses
+                IPAddress[] hostIPs = Dns.GetHostAddresses(host);
+                // get local IP addresses
+                IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
+
+                // test if any host IP equals to any local IP or to localhost
+                foreach (IPAddress hostIP in hostIPs)
+                {
+                    // is localhost
+                    if (IPAddress.IsLoopback(hostIP)) return true;
+                    // is local address
+                    foreach (IPAddress localIP in localIPs)
+                    {
+                        if (hostIP.Equals(localIP)) return true;
+                    }
+                }
+            }
+            catch { }
+            return false;
+        }
+        #endregion
+
+        #region Constants
         public static string NO_IP = "NULL";
         public static int NO_PORT = -1;
+        #endregion
+    }
+
+    public enum IPType
+    {
+        Local,
+        All
     }
 }

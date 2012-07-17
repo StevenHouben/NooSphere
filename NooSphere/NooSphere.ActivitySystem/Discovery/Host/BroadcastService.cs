@@ -26,6 +26,10 @@ namespace NooSphere.ActivitySystem.Discovery.Host
 {
     public class BroadcastService
     {
+        #region Private Members
+        private ServiceHost discoveryHost;
+        #endregion
+
         #region Properties
         /// <summary>
         /// Local callback address
@@ -51,18 +55,25 @@ namespace NooSphere.ActivitySystem.Discovery.Host
         public bool IsRunning { get; set; }
         #endregion
 
-        private ServiceHost discoveryHost;
-
+        #region Constructor
         public BroadcastService()
         {
             this.IsRunning = false;
         }
+        #endregion
 
-        public void Start(string name,string location,Uri addr)
+        #region Public Members
+        /// <summary>
+        /// Start new broadcast service
+        /// </summary>
+        /// <param name="nameToBroadcast">The name of the service that needs to be broadcasted</param>
+        /// <param name="physicalLocation">The physical location of the service that needs to be broadcasted</param>
+        /// <param name="addressToBroadcast">The address of the service that needs to be broadcasted</param>
+        /// <param name="broadcastPort">The port of the broadcast service. Default=56789</param>
+        public void Start(string nameToBroadcast,string physicalLocation,Uri addressToBroadcast,int broadcastPort=56789)
         {
             this.IP = NetHelper.GetIP(true);
-            //this.Port = NetHelper.FindPort();
-            this.Port = 56789;
+            this.Port = broadcastPort;
             this.Address = "http://" + this.IP + ":" + this.Port + "/";
 
             discoveryHost = new ServiceHost(new DiscoveyService());
@@ -72,9 +83,9 @@ namespace NooSphere.ActivitySystem.Discovery.Host
 
             EndpointDiscoveryBehavior broadcaster = new EndpointDiscoveryBehavior();
 
-            broadcaster.Extensions.Add(Helpers.ObjectToXmlHelper.ToXElement<string>(name));
-            broadcaster.Extensions.Add(Helpers.ObjectToXmlHelper.ToXElement<string>(location));
-            broadcaster.Extensions.Add(Helpers.ObjectToXmlHelper.ToXElement<string>(addr.ToString()));
+            broadcaster.Extensions.Add(Helpers.ObjectToXmlHelper.ToXElement<string>(nameToBroadcast));
+            broadcaster.Extensions.Add(Helpers.ObjectToXmlHelper.ToXElement<string>(physicalLocation));
+            broadcaster.Extensions.Add(Helpers.ObjectToXmlHelper.ToXElement<string>(addressToBroadcast.ToString()));
 
             serviceEndpoint.Behaviors.Add(broadcaster);
             discoveryHost.Description.Behaviors.Add(new ServiceDiscoveryBehavior());
@@ -83,10 +94,15 @@ namespace NooSphere.ActivitySystem.Discovery.Host
 
             IsRunning = true;
         }
+        
+        /// <summary>
+        /// Stops the broadcast service
+        /// </summary>
         public void Stop()
         {
             discoveryHost.Close();
             IsRunning = false;
         }
+        #endregion
     }
 }

@@ -53,7 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActivityClient\BasicClient.cs" />
+    <Compile Include="ActivityClient\Client.cs" />
     <Compile Include="ActivityClient\NetEventHandler.cs" />
     <Compile Include="ActivityClient\NetHelper.cs" />
     <Compile Include="ActivityManager\ActivityCloudConnector.cs" />
@@ -63,7 +63,6 @@
     <Compile Include="PubSub\Concurrency.cs" />
     <Compile Include="ActivityManager\ConnectedClient.cs" />
     <Compile Include="ActivityManager\DataEventArgs.cs" />
-    <Compile Include="ActivityManager\MyConverter.cs" />
     <Compile Include="Interfaces\ActivityService\IActivityManager.cs" />
     <Compile Include="Interfaces\ActivityService\IMessenger.cs" />
     <Compile Include="Interfaces\DiscoveryService\IDiscovery.cs" />

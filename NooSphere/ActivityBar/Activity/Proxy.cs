@@ -19,14 +19,15 @@ using System.Text;
 using NooSphere.Platform.Windows.VDM;
 using NooSphere.Core.Primitives;
 using NooSphere.Core.ActivityModel;
+using System.Windows.Controls;
 
 namespace ActivityUI
 {
     public class Proxy
     {
-     
         public VirtualDesktop Desktop { get; set; }
         public Activity Activity{get;set;}
+        public Button Button { get; set; }
         public System.Windows.Controls.Image Image
         {
             get;

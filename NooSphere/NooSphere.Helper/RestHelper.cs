@@ -27,6 +27,14 @@ namespace NooSphere.Helpers
 {
     public static class RestHelper
     {
+        /// <summary>
+        /// Sends an Http request
+        /// </summary>
+        /// <param name="url">Target url</param>
+        /// <param name="method">The method of the request</param>
+        /// <param name="content">The content that needs to be added to the http request</param>
+        /// <param name="connectionId">The id of the connection</param>
+        /// <returns></returns>
         public static string SendRequest(string url, HttpMethod method, object content = null, string connectionId = null)
         {
             HttpClient client = new HttpClient();

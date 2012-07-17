@@ -55,13 +55,13 @@ namespace ActivityUI
     public partial class ActivityBar : Window
     {
         #region Private Members
-        private BasicClient client;
+        private Client client;
         private BasicHost host;
         private DiscoveryManager disc;
         private StartUpMode startMode;
         private User owner;
         private Device device;
-        private Dictionary<Guid, Button> buttons = new Dictionary<Guid, Button>();
+        private Dictionary<Guid, Proxy> proxies = new Dictionary<Guid, Proxy>();
         private Activity currentActivity;
         private Button currentButton;
         private LoginWindow login;
@@ -160,7 +160,7 @@ namespace ActivityUI
         {
 
             //Build a new client that connects to an activity manager on the given address
-            client = new BasicClient(activityManagerHttpAddress);
+            client = new Client(activityManagerHttpAddress);
 
             //Register the current device with the activity manager we are connecting to
             client.Register();
@@ -253,7 +253,7 @@ namespace ActivityUI
         {
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                Body.Children.Remove(buttons[id]);
+                Body.Children.Remove(proxies[id].Button);
             }));
         }
 
@@ -265,33 +265,53 @@ namespace ActivityUI
         {
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                Proxy prox = ConvertActivityToProxy(activity);
+                Proxy p = new Proxy();
+                p.Desktop = new VirtualDesktop();
+                p.Activity = activity;
+                VirtualDesktopManager.Desktops.Add(p.Desktop);
 
                 Button b = new Button();
+                b.Foreground = Brushes.White;
+                b.Margin = new Thickness(1, 0, 0, 1);
+                b.VerticalAlignment = System.Windows.VerticalAlignment.Center;
                 b.Click += new RoutedEventHandler(b_Click);
                 b.MouseDown += new MouseButtonEventHandler(b_MouseDown);
-                b.Tag = prox;
-                b.Width = 300;
+                b.MouseEnter += new MouseEventHandler(b_MouseEnter);
+                b.MouseLeave += new MouseEventHandler(b_MouseLeave);
+                b.Width = 40;
                 b.Height = this.Height - 5;
-                b.Content = prox.Activity.Name;
-                Body.Children.Add(b);
+                b.Tag = activity.Id;
+                b.Style = (Style)this.Resources["ColorHotTrackButton"];
 
-                buttons.Add(prox.Activity.Id, b);
+                StackPanel panel = new StackPanel();
+                panel.Orientation = Orientation.Horizontal;
+
+                Image img = new Image();
+                img.Source = new BitmapImage(new Uri("pack://application:,,,/Images/activity.PNG"));
+                panel.Children.Add(img);
+                Label l = new Label();
+                l.Foreground = Brushes.White;
+                l.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                l.Content = activity.Name;
+                panel.Children.Add(l);
+
+                b.Content = panel;
+
+                p.Button = b;
+                Body.Children.Add(p.Button);
+
+                proxies.Add(p.Activity.Id, p);
             }));
         }
 
-        /// <summary>
-        /// Creates a proxy object from a given activity
-        /// </summary>
-        /// <param name="activity">The activity the proxy is representing</param>
-        /// <returns>An activity proxy that represents an activity</returns>
-        private Proxy ConvertActivityToProxy(Activity activity)
+        void b_MouseLeave(object sender, MouseEventArgs e)
         {
-            Proxy p = new Proxy();
-            p.Desktop = new VirtualDesktop();
-            p.Activity = activity;
-            VirtualDesktopManager.Desktops.Add(p.Desktop);
-            return p;
+            ((Button)sender).Width = 40;
+        }
+
+        void b_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ((Button)sender).Width = 300;
         }
 
         /// <summary>
@@ -301,7 +321,7 @@ namespace ActivityUI
         /// <returns>A proxy object that represent that activity connected to the button</returns>
         private Proxy GetProxyFromButton(Button b)
         {
-            return (Proxy)b.Tag;
+            return proxies[(Guid)b.Tag];
         }
 
         /// <summary>
@@ -312,7 +332,7 @@ namespace ActivityUI
         {
             currentButton = btn;
             popupActivity.PlacementTarget = currentButton;
-            currentActivity = ((Proxy)currentButton.Tag).Activity;
+            currentActivity = proxies[(Guid)currentButton.Tag].Activity;
             popupActivity.IsOpen = !popupActivity.IsOpen;
             txtName.Text = currentActivity.Name;
             foreach (User u in currentActivity.Participants)
@@ -342,6 +362,7 @@ namespace ActivityUI
                 host.StartBroadcast(device.Name, device.Location);
             RunDiscovery();
         }
+
         /// <summary>
         /// Checks if client wants to broadcast activity manager
         /// </summary>
@@ -451,6 +472,15 @@ namespace ActivityUI
         #endregion
 
         #region Event Handlers
+        private void btnApplyChanges_Click(object sender, RoutedEventArgs e)
+        {
+            HideActivityButtonContextMenu(false);
+        }
+
+        private void btnRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            RunDiscovery();
+        }
         private void btnDeleteActivity_Click(object sender, RoutedEventArgs e)
         {
             DeleteActivity();
@@ -517,7 +547,7 @@ namespace ActivityUI
         }
         private void b_Click(object sender, RoutedEventArgs e)
         {
-            SwitchToVirtualDesktop(((Proxy)((Button)sender).Tag).Desktop);
+            SwitchToVirtualDesktop(proxies[(Guid)((Button)sender).Tag].Desktop);
         }
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
@@ -542,7 +572,7 @@ namespace ActivityUI
         }
         private void popupActivity_MouseLeave(object sender, MouseEventArgs e)
         {
-            //HideActivityButtonContextMenu(false);
+            popupActivity.IsOpen = false;
         }
 
         #endregion
@@ -672,10 +702,5 @@ namespace ActivityUI
 
         }
         #endregion
-
-        private void btnApplyChanges_Click(object sender, RoutedEventArgs e)
-        {
-            HideActivityButtonContextMenu(false);
-        }
     }
 }
