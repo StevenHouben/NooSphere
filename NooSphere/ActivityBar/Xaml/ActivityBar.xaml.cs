@@ -49,7 +49,6 @@ using ActivityUI.Login;
 using NooSphere.ActivitySystem.ActivityClient;
 using NooSphere.ActivitySystem.ActivityManager;
 
-
 namespace ActivityUI
 {
     public partial class ActivityBar : Window
@@ -63,7 +62,7 @@ namespace ActivityUI
         private Device device;
         private Dictionary<Guid, Proxy> proxies = new Dictionary<Guid, Proxy>();
         private Activity currentActivity;
-        private Button currentButton;
+        private ActivityButton currentButton;
         private LoginWindow login;
         private bool startingUp = true;
         #endregion
@@ -122,9 +121,13 @@ namespace ActivityUI
                 managerlist.Items.Clear();
             }));
 
-            disc = new DiscoveryManager();
-            disc.Find();
-            disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
+            Thread t = new Thread(()=>{
+                disc = new DiscoveryManager();
+                disc.Find();
+                disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
+            });
+            t.IsBackground = true;
+            t.Start();
         }
 
         /// <summary>
@@ -141,6 +144,7 @@ namespace ActivityUI
                     host.StartBroadcast(device.Name, device.Location);
 
             });
+            t.IsBackground = true ;
             t.Start();
         }
 
@@ -233,6 +237,27 @@ namespace ActivityUI
             }
             EnableUI();
             VirtualDesktopManager.InitDesktops(1);
+
+            //DEBUG_AddActivities(50);
+            //DEBUG_DeleteAllActivities();
+        }
+
+        /// <summary>
+        /// Debug function -> remove when done
+        /// </summary>
+        private void DEBUG_DeleteAllActivities()
+        {
+            foreach (Proxy p in proxies.Values.ToList())
+                client.RemoveActivity(p.Activity.Id);
+        }
+
+        /// <summary>
+        /// Debug function -> remove when done
+        /// </summary>
+        private void DEBUG_AddActivities(int number)
+        {
+            for (int i = 0; i < number; i++)
+                client.AddActivity(GetInitializedActivity());
         }
 
         /// <summary>
@@ -270,32 +295,29 @@ namespace ActivityUI
                 p.Activity = activity;
                 VirtualDesktopManager.Desktops.Add(p.Desktop);
 
-                Button b = new Button();
-                b.Foreground = Brushes.White;
-                b.Margin = new Thickness(1, 0, 0, 1);
-                b.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                ActivityButton b = new ActivityButton(new Uri("pack://application:,,,/Images/activity.PNG"),activity.Name);
+                b.RenderMode = RenderMode.Image;
                 b.Click += new RoutedEventHandler(b_Click);
                 b.MouseDown += new MouseButtonEventHandler(b_MouseDown);
                 b.MouseEnter += new MouseEventHandler(b_MouseEnter);
                 b.MouseLeave += new MouseEventHandler(b_MouseLeave);
-                b.Width = 40;
                 b.Height = this.Height - 5;
-                b.Tag = activity.Id;
+                b.ActivityId = p.Activity.Id;
                 b.Style = (Style)this.Resources["ColorHotTrackButton"];
 
-                StackPanel panel = new StackPanel();
-                panel.Orientation = Orientation.Horizontal;
+                //StackPanel panel = new StackPanel();
+                //panel.Orientation = Orientation.Horizontal;
 
-                Image img = new Image();
-                img.Source = new BitmapImage(new Uri("pack://application:,,,/Images/activity.PNG"));
-                panel.Children.Add(img);
-                Label l = new Label();
-                l.Foreground = Brushes.White;
-                l.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-                l.Content = activity.Name;
-                panel.Children.Add(l);
+                //Image img = new Image();
+                //img.Source = new BitmapImage(new Uri("pack://application:,,,/Images/activity.PNG"));
+                //panel.Children.Add(img);
+                //Label l = new Label();
+                //l.Foreground = Brushes.White;
+                //l.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                //l.Content = activity.Name;
+                //panel.Children.Add(l);
 
-                b.Content = panel;
+                //b.Content = panel;
 
                 p.Button = b;
                 Body.Children.Add(p.Button);
@@ -304,35 +326,25 @@ namespace ActivityUI
             }));
         }
 
-        void b_MouseLeave(object sender, MouseEventArgs e)
-        {
-            ((Button)sender).Width = 40;
-        }
-
-        void b_MouseEnter(object sender, MouseEventArgs e)
-        {
-            ((Button)sender).Width = 300;
-        }
-
         /// <summary>
         /// Converts a button object into an activity proxy
         /// </summary>
         /// <param name="b">Button representing an activity</param>
         /// <returns>A proxy object that represent that activity connected to the button</returns>
-        private Proxy GetProxyFromButton(Button b)
+        private Proxy GetProxyFromButton(ActivityButton b)
         {
-            return proxies[(Guid)b.Tag];
+            return proxies[(Guid)b.ActivityId];
         }
 
         /// <summary>
         /// Shows the activity button context menu
         /// </summary>
         /// <param name="sender"></param>
-        private void ShowActivityButtonContextMenu(Button btn)
+        private void ShowActivityButtonContextMenu(ActivityButton btn)
         {
             currentButton = btn;
             popupActivity.PlacementTarget = currentButton;
-            currentActivity = proxies[(Guid)currentButton.Tag].Activity;
+            currentActivity = proxies[(Guid)currentButton.ActivityId].Activity;
             popupActivity.IsOpen = !popupActivity.IsOpen;
             txtName.Text = currentActivity.Name;
             foreach (User u in currentActivity.Participants)
@@ -345,7 +357,7 @@ namespace ActivityUI
         private void HideActivityButtonContextMenu(bool deleted)
         {
             popupActivity.IsOpen = false;
-            currentButton.Content = txtName.Text;
+            currentButton.Text = txtName.Text;
             currentActivity.Name = txtName.Text;
             if(!deleted) 
                 client.UpdateActivity(currentActivity);
@@ -360,7 +372,6 @@ namespace ActivityUI
             device.Name = txtDeviceName.Text;
             if (Settings.Default.CHECK_BROADCAST)
                 host.StartBroadcast(device.Name, device.Location);
-            RunDiscovery();
         }
 
         /// <summary>
@@ -391,7 +402,7 @@ namespace ActivityUI
         /// </summary>
         private void DeleteActivity()
         {
-            Button b = (Button)popupActivity.PlacementTarget;
+            ActivityButton b = (ActivityButton)popupActivity.PlacementTarget;
             Guid g = GetProxyFromButton(b).Activity.Id;
             client.RemoveActivity(g);
             HideActivityButtonContextMenu(true);
@@ -472,11 +483,18 @@ namespace ActivityUI
         #endregion
 
         #region Event Handlers
+        private void b_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ((ActivityButton)sender).RenderMode = RenderMode.Image;
+        }
+        private void b_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
+        }
         private void btnApplyChanges_Click(object sender, RoutedEventArgs e)
         {
             HideActivityButtonContextMenu(false);
         }
-
         private void btnRefresh_Click(object sender, RoutedEventArgs e)
         {
             RunDiscovery();
@@ -503,7 +521,7 @@ namespace ActivityUI
         {
             if (e.RightButton == MouseButtonState.Pressed)
             {
-                ShowActivityButtonContextMenu((Button)sender);
+                ShowActivityButtonContextMenu((ActivityButton)sender);
             }
         }
         private void host_HostLaunched(object sender, EventArgs e)
@@ -547,7 +565,7 @@ namespace ActivityUI
         }
         private void b_Click(object sender, RoutedEventArgs e)
         {
-            SwitchToVirtualDesktop(proxies[(Guid)((Button)sender).Tag].Desktop);
+            SwitchToVirtualDesktop(proxies[(Guid)((ActivityButton)sender).ActivityId].Desktop);
         }
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
@@ -702,5 +720,6 @@ namespace ActivityUI
 
         }
         #endregion
+
     }
 }
