@@ -126,7 +126,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         public Activity GetActivity(Guid id)
         {
             if (useActivityCloud)
-                return ActivityCloudConnector.GetActivity(id.ToString());
+                return ActivityCloudConnector.GetActivity(id);
             else
                 return ActivityStore.Activities[id];
         }
@@ -139,7 +139,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         public Activity GetActivity(string id)
         {
             if (useActivityCloud)
-                return ActivityCloudConnector.GetActivity(id);
+                return ActivityCloudConnector.GetActivity(new Guid(id));
             else
                 return ActivityStore.Activities[new Guid(id)];
         }
@@ -175,7 +175,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         public void RemoveActivity(string id)
         {
             if (useActivityCloud)
-                ActivityCloudConnector.DeleteActivity(id);
+                ActivityCloudConnector.DeleteActivity(new Guid(id));
             ActivityStore.Activities.Remove(new Guid(id));
             publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityRemoved.ToString(), id);
         }
@@ -194,37 +194,17 @@ namespace NooSphere.ActivitySystem.ActivityManager
         #endregion
 
         #region Participant Management
-        public User GetParticipant(string id)
+        public void AddParticipant(Activity a, User u)
         {
             if (useActivityCloud)
-                return ActivityCloudConnector.GetUser(id);
-            else
-                return ParticipantStore.Participants[new Guid(id)];
-        }
-        public List<User> GetParticipants()
-        {
-            if (useActivityCloud)
-                return ActivityCloudConnector.GetUsers();
-            else
-                return ParticipantStore.Participants.Values.ToList();
-        }
-        public void AddParticipant(Activity a, User p)
-        {
-            if (useActivityCloud)
-                ActivityCloudConnector.AddUser(p);
-            ParticipantStore.Participants.Add(p.Id, p);
+                ActivityCloudConnector.AddParticipant(a.Id, u.Id);
+            ParticipantStore.Participants.Add(u.Id, u);
         }
         public void RemoveParticipant(Activity a, string id)
         {
             if (useActivityCloud)
-                ActivityCloudConnector.DeleteUser(id);
+                ActivityCloudConnector.RemoveParticipant(a.Id, new Guid(id));
             ParticipantStore.Participants.Remove(new Guid(id));
-        }
-        public void UpdateParticipant(User p)
-        {
-            if (useActivityCloud)
-                ActivityCloudConnector.UpdateUser(p);
-            ParticipantStore.Participants[p.Id] = p;
         }
         #endregion
 
