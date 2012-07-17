@@ -26,11 +26,29 @@ namespace NooSphere.ActivitySystem.Discovery.Client
     public delegate void DiscoveryAddressAddedHandler(Object o,DiscoveryAddressAddedEventArgs e);
     public class DiscoveryManager
     {
+        #region Events
         public event DiscoveryFinishedHander DiscoveryFinished = null;
         public event DiscoveryAddressAddedHandler DiscoveryAddressAdded = null;
-        public List<ServiceInfo> ActivityServices = new List<ServiceInfo>();
-        public Collection<EndpointDiscoveryMetadata> RawEndPointMetaData = new Collection<EndpointDiscoveryMetadata>();
+        #endregion
 
+        #region Properties
+        public List<ServiceInfo> ActivityServices { get; set; }
+        public Collection<EndpointDiscoveryMetadata> RawEndPointMetaData { get; set; }
+        #endregion
+
+        #region Constructor
+        public DiscoveryManager()
+        { 
+            ActivityServices = new List<ServiceInfo>();
+            RawEndPointMetaData = new Collection<EndpointDiscoveryMetadata>();
+        }
+        #endregion
+
+        #region Public Members
+
+        /// <summary>
+        /// Starts a discovery process
+        /// </summary>
         public void Find()
         {
             ActivityServices.Clear();
@@ -41,6 +59,25 @@ namespace NooSphere.ActivitySystem.Discovery.Client
             discoveryClient.FindAsync(new FindCriteria(typeof(NooSphere.ActivitySystem.Contracts.IDiscovery)));
 
         }
+        #endregion
+
+        #region Private Members
+        /// <summary>
+        /// Adds a discovered service to the service list and send a DiscoverAddressAdded event
+        /// </summary>
+        /// <param name="metaData">The meta data of the service</param>
+        private void AddFoundService(EndpointDiscoveryMetadata metaData)
+        {
+            ServiceInfo sst = new ServiceInfo(
+                Helpers.ObjectToXmlHelper.FromXElement<string>(metaData.Extensions[0]),
+                Helpers.ObjectToXmlHelper.FromXElement<string>(metaData.Extensions[1]),
+                Helpers.ObjectToXmlHelper.FromXElement<string>(metaData.Extensions[2]));
+            ActivityServices.Add(sst);
+            OnDiscoveryAddressAdded(new DiscoveryAddressAddedEventArgs(sst));
+        }
+        #endregion
+
+        #region Internal Event Handlers
         protected void OnDiscoveryFinished(DiscoveryEventArgs e)
         {
             if (DiscoveryFinished != null)
@@ -57,15 +94,13 @@ namespace NooSphere.ActivitySystem.Discovery.Client
             RawEndPointMetaData.Clear();
             RawEndPointMetaData = e.Result.Endpoints;
         }
+        #endregion
 
-        void discoveryClient_FindProgressChanged(object sender, FindProgressChangedEventArgs e)
+        #region Event Handlers
+        private void discoveryClient_FindProgressChanged(object sender, FindProgressChangedEventArgs e)
         {
-            ServiceInfo sst = new ServiceInfo(
-                Helpers.ObjectToXmlHelper.FromXElement<string>(e.EndpointDiscoveryMetadata.Extensions[0]),
-                Helpers.ObjectToXmlHelper.FromXElement<string>(e.EndpointDiscoveryMetadata.Extensions[1]),
-                Helpers.ObjectToXmlHelper.FromXElement<string>(e.EndpointDiscoveryMetadata.Extensions[2]));
-            ActivityServices.Add(sst);
-            OnDiscoveryAddressAdded(new DiscoveryAddressAddedEventArgs(sst));
+            AddFoundService(e.EndpointDiscoveryMetadata);
         }
+        #endregion
     }
 }

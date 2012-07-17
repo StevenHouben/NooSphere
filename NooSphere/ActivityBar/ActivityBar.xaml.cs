@@ -55,7 +55,7 @@ namespace ActivityUI
     public partial class ActivityBar : Window
     {
         #region Private Members
-        private BasicClient client;
+        private Client client;
         private BasicHost host;
         private DiscoveryManager disc;
         private StartUpMode startMode;
@@ -160,7 +160,7 @@ namespace ActivityUI
         {
 
             //Build a new client that connects to an activity manager on the given address
-            client = new BasicClient(activityManagerHttpAddress);
+            client = new Client(activityManagerHttpAddress);
 
             //Register the current device with the activity manager we are connecting to
             client.Register();

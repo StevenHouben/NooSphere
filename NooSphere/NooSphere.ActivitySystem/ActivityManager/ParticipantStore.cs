@@ -24,6 +24,5 @@ namespace NooSphere.ActivitySystem.ActivityManager
     public class ParticipantStore
     {
         public static Dictionary<Guid, User> Participants = new Dictionary<Guid, User>();
-
     }
 }

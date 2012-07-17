@@ -15,6 +15,12 @@ namespace NooSphere.ActivitySystem.PubSub
 {
     public class RestPublisher
     {
+        /// <summary>
+        /// Publishes an event to all suscribers
+        /// </summary>
+        /// <param name="type">The event type</param>
+        /// <param name="publishUrl">The url to where the event needs to be published</param>
+        /// <param name="netObject">The object that needs to be published</param>
         public void Publish(EventType type,string publishUrl, object netObject)
         {
             Thread t = new Thread(() =>

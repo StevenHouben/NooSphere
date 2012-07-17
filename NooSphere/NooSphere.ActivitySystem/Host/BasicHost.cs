@@ -67,6 +67,25 @@ namespace NooSphere.ActivitySystem.Host
         public bool IsRunning { get; set; }
         #endregion
 
+        #region Constructor-Destructor
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="clientName">The name of the client.</param>
+        public BasicHost()
+        {
+            this.IP = NetHelper.GetIP(true);
+            this.Port = NetHelper.FindPort();
+
+            this.Address = "http://" + this.IP + ":" + this.Port + "/";
+        }
+
+        /// <summary>
+        /// Destructor
+        /// </summary>
+        ~BasicHost() { this.Close(); }
+        #endregion
+
         #region Local Handler
         protected void OnHostLaunchedEvent(EventArgs e)
         {
@@ -80,27 +99,13 @@ namespace NooSphere.ActivitySystem.Host
         }
         #endregion
 
-        #region Constructor-Destructor
-        /// <summary>
-        /// Constructure
-        /// </summary>
-        /// <param name="clientName">The name of the client.</param>
-        public BasicHost()
-        {
-            this.IP = NetHelper.GetIP(true);
-            this.Port = NetHelper.FindPort();
-			
-			this.Address = "http://"+this.IP+":"+this.Port+"/";
-        }
-
-        /// <summary>
-        /// Destructor
-        /// </summary>
-        ~BasicHost() { this.Close(); }
-        #endregion
-
         #region Public Methods
-        public void StartBroadcast(string hostName, string location)
+        /// <summary>
+        /// Starts a broadcast service for the current service
+        /// </summary>
+        /// <param name="hostName">The name of the service that needs to be broadcasted</param>
+        /// <param name="location">The physical location of the service that needs to be broadcasted</param>
+        public void StartBroadcast(string hostName, string location="undefined")
         {
             Thread t = new Thread(() =>
             {
@@ -109,12 +114,23 @@ namespace NooSphere.ActivitySystem.Host
             });
             t.Start();
         }
+
+        /// <summary>
+        /// Stops the broadcast service
+        /// </summary>
         public void StopBroadcast()
         {
             if (broadcast != null)
                 if (broadcast.IsRunning)
                     broadcast.Stop();
         }
+
+        /// <summary>
+        /// Opens a service that is run the host
+        /// </summary>
+        /// <param name="implementation">The concrete initialized single instance service</param>
+        /// <param name="description">The interface or contract of initialized single instance service</param>
+        /// <param name="name">The name the service</param>
         public void Open(object implementation,Type description,string name)
         {
             Console.WriteLine("BasicHost: Attemting to find an IP for endPoint");
@@ -126,15 +142,6 @@ namespace NooSphere.ActivitySystem.Host
             serviceEndpoint = host.AddServiceEndpoint(description, new WebHttpBinding(), NetHelper.GetUrl(this.IP, this.Port, ""));
             serviceEndpoint.Behaviors.Add(new WebHttpBehavior());
 
-
-            //broadcaster = new EndpointDiscoveryBehavior();
-
-            //// add the binding information to the endpoint
-            //broadcaster.Extensions.Add(Helpers.ObjectToXmlHelper.ToXElement<string>(name));
-
-            //serviceEndpoint.Behaviors.Add(broadcaster);
-            //host.Description.Behaviors.Add(new ServiceDiscoveryBehavior());
-            //host.Description.Endpoints.Add(new UdpDiscoveryEndpoint());
             host.Faulted += new EventHandler(host_Faulted);
             host.Open();
 
@@ -144,6 +151,9 @@ namespace NooSphere.ActivitySystem.Host
             OnHostLaunchedEvent(new EventArgs());
         }
 
+        /// <summary>
+        /// Closes the service that is running in the host
+        /// </summary>
         public void Close()
         {
             if (IsRunning)

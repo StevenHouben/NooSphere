@@ -18,27 +18,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ServiceModel.Discovery;
+using System.ServiceModel.Description;
+using System.Net;
+using System.IO;
+using System.Web;
 using System.ServiceModel.Web;
 
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Contracts.NetEvents;
-
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
-
-using System.ServiceModel.Description;
-using Newtonsoft.Json;
-using System.Net;
-using System.IO;
-using System.Web;
-using NooSphere.Helpers;
-using Newtonsoft.Json.Linq;
 using NooSphere.Core.Events;
+using NooSphere.Helpers;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 
 namespace NooSphere.ActivitySystem.ActivityClient
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-    public class BasicClient : NetEventHandler
+    public class Client : NetEventHandler
     {
         #region Events
         public event ConnectionEstablishedHandler ConnectionEstablished = null;
@@ -57,29 +57,13 @@ namespace NooSphere.ActivitySystem.ActivityClient
         #endregion
 
         #region Constructor
-        public BasicClient(string address)
+        public Client(string address)
         {
             Connect(address);
         }
-
-        private void Connect(string address)
-        {
-            this.IP = NetHelper.GetIP(true);
-            TestConnection(address);
-        }
         #endregion
 
-        #region Internal Event Handlers
-        protected void OnConnectionEstablishedEvent(EventArgs e)
-        {
-            if (ConnectionEstablished != null)
-                ConnectionEstablished(this, e);
-        }
-        private void discoveryClient_FindProgressChanged(object sender, FindProgressChangedEventArgs e)
-        {
-            Connect(e.EndpointDiscoveryMetadata.Address.ToString());
-        }
-
+        #region Private Methods
         private void TestConnection(string addr)
         {
             Console.WriteLine("BasicClient: Found running service at " + addr);
@@ -88,9 +72,11 @@ namespace NooSphere.ActivitySystem.ActivityClient
             Console.WriteLine("BasicClient: Service active? -> " + res);
 
         }
-        #endregion
-
-        #region Private Methods
+        private void Connect(string address)
+        {
+            this.IP = NetHelper.GetIP(IPType.All);
+            TestConnection(address);
+        }
         private Type TypeFromEnum(EventType type)
         {
             switch (type)
@@ -133,21 +119,39 @@ namespace NooSphere.ActivitySystem.ActivityClient
         #endregion
 
         #region Public Methods
+        /// <summary>
+        /// Registers the current device with the activity client
+        /// </summary>
         public void Register()
         {
             Device d = new Device();
-            d.BaseAddress = NetHelper.GetIP(true);
+            d.BaseAddress = NetHelper.GetIP(IPType.All);
             Register(d);
         }
+
+        /// <summary>
+        /// Register a given device with the activity client
+        /// </summary>
+        /// <param name="d">The device that needs to be registered with the activity client</param>
         public void Register(Device d)
         {
             DeviceID = JsonConvert.DeserializeObject<String>(RestHelper.Post(ServiceAddress + Url.devices, d));
             Console.WriteLine("BasicClient: Received device id: " + DeviceID);
         }
+
+        /// <summary>
+        /// Unregister a device from the activity client
+        /// </summary>
+        /// <param name="id">The id of the device that needs to be unregistered</param>
         public void Unregister(string id)
         {
             RestHelper.Delete(ServiceAddress + Url.devices, id);
         }
+
+        /// <summary>
+        /// Subscribe the activity client to an activity manager event
+        /// </summary>
+        /// <param name="type">The type of event for which the client needs to subscribe</param>
         public void Subscribe(EventType type)
         {
             int port = StartCallbackService(TypeFromEnum(type));
@@ -159,6 +163,11 @@ namespace NooSphere.ActivitySystem.ActivityClient
             };
             RestHelper.Post(ServiceAddress + Url.subscribers, subscription);
         }
+
+        /// <summary>
+        /// Unsubscribe the activity client from an activity client event
+        /// </summary>
+        /// <param name="type">The type of event to which the client has to unsubscribe</param>
         public void UnSubscribe(EventType type)
         {
             var unSubscription = new
@@ -171,31 +180,66 @@ namespace NooSphere.ActivitySystem.ActivityClient
             callbackServices[t].Close();
             callbackServices.Remove(t);
         }
+
+        /// <summary>
+        /// Unsubscribe the client for all events
+        /// </summary>
         public void UnSubscribeAll()
         {
             foreach (EventType ev in Enum.GetValues(typeof(EventType)))
                 UnSubscribe(ev);
         }
+
+        /// <summary>
+        /// Sends an "add activity" request to the activity manager
+        /// </summary>
+        /// <param name="act">The activity that needs to be included in the request</param>
         public void AddActivity(Activity act)
         {
             RestHelper.Post(ServiceAddress + Url.activities, act);
         }
+
+        /// <summary>
+        /// Sends a "Remove activity" request to the activity manager
+        /// </summary>
+        /// <param name="act">The id (of the activity) that needs to be included in the request</param>
         public void RemoveActivity(Guid id)
         {
             RestHelper.Delete(ServiceAddress + Url.activities, id);
         }
+
+        /// <summary>
+        /// Sends an "Update activity" request to the activity manager
+        /// </summary>
+        /// <param name="act">The activity that needs to be included in the request</param>
         public void UpdateActivity(Activity act)
         {
             RestHelper.Put(ServiceAddress + Url.activities, act);
         }
+
+        /// <summary>
+        /// Sends a "Get Activities" request to the activity manager
+        /// </summary>
+        /// <returns>A list of retrieved activities</returns>
         public List<Activity> GetActivities()
         {
             return JsonConvert.DeserializeObject<List<Activity>>(RestHelper.Get(ServiceAddress + Url.activities));
         }
+
+        /// <summary>
+        /// Sends a "Get Activity" request to the activity manager
+        /// </summary>
+        /// <param name="id">The id (of the activity) that needs to be included in the request</param>
+        /// <returns></returns>
         public Activity GetActivity(string id)
         {
             return JsonConvert.DeserializeObject<Activity>(RestHelper.Get(ServiceAddress + Url.activities + "/" + id));
         }
+
+        /// <summary>
+        /// Sends a "Send Message" request to the activity manager
+        /// </summary>
+        /// <param name="msg">The message that needs to be included in the request</param>
         public void SendMessage(string msg)
         {
             var message = new
@@ -206,6 +250,22 @@ namespace NooSphere.ActivitySystem.ActivityClient
             RestHelper.Post(ServiceAddress + Url.messages, message);
         }
         #endregion
+
+        #region Internal Event Handlers
+        protected void OnConnectionEstablishedEvent(EventArgs e)
+        {
+            if (ConnectionEstablished != null)
+                ConnectionEstablished(this, e);
+        }
+        #endregion
+
+        #region Event Handlers
+        private void discoveryClient_FindProgressChanged(object sender, FindProgressChangedEventArgs e)
+        {
+            Connect(e.EndpointDiscoveryMetadata.Address.ToString());
+        }
+        #endregion
+
     }
     public enum Url
     {
