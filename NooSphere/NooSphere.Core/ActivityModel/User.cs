@@ -33,6 +33,7 @@ namespace NooSphere.Core.ActivityModel
         {
         }
         #endregion
+
         #region Properties
         private object _image;
         public object Image

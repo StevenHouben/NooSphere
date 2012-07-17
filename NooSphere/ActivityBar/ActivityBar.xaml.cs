@@ -271,18 +271,47 @@ namespace ActivityUI
                 VirtualDesktopManager.Desktops.Add(p.Desktop);
 
                 Button b = new Button();
+                b.Foreground = Brushes.White;
+                b.Margin = new Thickness(1, 0, 0, 1);
+                b.VerticalAlignment = System.Windows.VerticalAlignment.Center;
                 b.Click += new RoutedEventHandler(b_Click);
                 b.MouseDown += new MouseButtonEventHandler(b_MouseDown);
-                b.Width = 300;
+                b.MouseEnter += new MouseEventHandler(b_MouseEnter);
+                b.MouseLeave += new MouseEventHandler(b_MouseLeave);
+                b.Width = 40;
                 b.Height = this.Height - 5;
                 b.Tag = activity.Id;
-                b.Content = activity.Name;
+                b.Style = (Style)this.Resources["ColorHotTrackButton"];
+
+                StackPanel panel = new StackPanel();
+                panel.Orientation = Orientation.Horizontal;
+
+                Image img = new Image();
+                img.Source = new BitmapImage(new Uri("pack://application:,,,/Images/activity.PNG"));
+                panel.Children.Add(img);
+                Label l = new Label();
+                l.Foreground = Brushes.White;
+                l.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                l.Content = activity.Name;
+                panel.Children.Add(l);
+
+                b.Content = panel;
 
                 p.Button = b;
                 Body.Children.Add(p.Button);
 
                 proxies.Add(p.Activity.Id, p);
             }));
+        }
+
+        void b_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ((Button)sender).Width = 40;
+        }
+
+        void b_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ((Button)sender).Width = 300;
         }
 
         /// <summary>
@@ -443,6 +472,15 @@ namespace ActivityUI
         #endregion
 
         #region Event Handlers
+        private void btnApplyChanges_Click(object sender, RoutedEventArgs e)
+        {
+            HideActivityButtonContextMenu(false);
+        }
+
+        private void btnRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            RunDiscovery();
+        }
         private void btnDeleteActivity_Click(object sender, RoutedEventArgs e)
         {
             DeleteActivity();
@@ -534,7 +572,7 @@ namespace ActivityUI
         }
         private void popupActivity_MouseLeave(object sender, MouseEventArgs e)
         {
-            //HideActivityButtonContextMenu(false);
+            popupActivity.IsOpen = false;
         }
 
         #endregion
@@ -664,10 +702,5 @@ namespace ActivityUI
 
         }
         #endregion
-
-        private void btnApplyChanges_Click(object sender, RoutedEventArgs e)
-        {
-            HideActivityButtonContextMenu(false);
-        }
     }
 }
