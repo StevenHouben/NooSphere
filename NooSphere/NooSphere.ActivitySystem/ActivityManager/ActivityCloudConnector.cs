@@ -43,11 +43,10 @@ namespace NooSphere.ActivitySystem.ActivityManager
         #endregion
 
         #region Events
-        public event EventHandler UserAdded;
-        public event EventHandler UserUpdated;
-        public event EventHandler UserConnected;
-        public event EventHandler UserDisconnected;
-        public event EventHandler UserDeleted;
+        public event EventHandler UserOnline;
+        public event EventHandler UserOffline;
+        public event EventHandler ParticipantAdded;
+        public event EventHandler ParticipantRemoved;
         public event ActivityAddedHandler ActivityAdded;
         public event ActivityChangedHandler ActivityUpdated;
         public event ActivityRemovedHandler ActivityDeleted;
@@ -64,58 +63,50 @@ namespace NooSphere.ActivitySystem.ActivityManager
         #endregion
 
         #region Public Members
-        public List<User> GetUsers()
+        public void AddParticipant(Guid activityId, Guid userId)
         {
-            return JsonConvert.DeserializeObject<List<User>>(RestHelper.SendRequest(baseUrl + "Users", HttpMethod.Get, null, connection.ConnectionId));
+            while (connection.State != ConnectionState.Connected) { }
+            RestHelper.SendRequest(baseUrl + "Activities/" + activityId + "/Participants/" + userId, HttpMethod.Post, null, connection.ConnectionId);
         }
-        public User GetUser(string userId)
+        public void RemoveParticipant(Guid activityId, Guid userId)
         {
-            return JsonConvert.DeserializeObject<User>(RestHelper.SendRequest(baseUrl + "Users/" + userId, HttpMethod.Get, null, connection.ConnectionId));
+            while (connection.State != ConnectionState.Connected) { }
+            RestHelper.SendRequest(baseUrl + "Activities/" + activityId + "/Participants/" + userId, HttpMethod.Delete, null, connection.ConnectionId);
         }
-        public void AddUser(User user)
+        public void Register(Guid userId)
         {
-            RestHelper.SendRequest(baseUrl + "Users?connectionId=" + connection.ConnectionId, HttpMethod.Post, user);
-        }
-        public void UpdateUser(User user)
-        {
-            RestHelper.SendRequest(baseUrl + "Users/" + user.Id, HttpMethod.Put, user, connection.ConnectionId);
-        }
-        public void DeleteUser(string userId)
-        {
-            RestHelper.SendRequest(baseUrl + "Users/" + userId, HttpMethod.Delete, null, connection.ConnectionId);
-        }
-        public void Register(string userId)
-        {
+            while (connection.State != ConnectionState.Connected) { }
             RestHelper.SendRequest(baseUrl + "Users/" + userId + "/Device", HttpMethod.Post, null, connection.ConnectionId);
         }
-        public void Unregister(string userId)
+        public void Unregister(Guid userId)
         {
+            while (connection.State != ConnectionState.Connected) { }
             RestHelper.SendRequest(baseUrl + "Users/" + userId + "/Device", HttpMethod.Delete, null, connection.ConnectionId);
         }
         public List<Activity> GetActivities()
         {
-            var result = RestHelper.SendRequest(baseUrl + "Activities", HttpMethod.Get, null, connection.ConnectionId);
-            return JsonConvert.DeserializeObject<List<Activity>>(result);
+            while (connection.State != ConnectionState.Connected) { }
+            return JsonConvert.DeserializeObject<List<Activity>>(RestHelper.SendRequest(baseUrl + "Activities", HttpMethod.Get, null, connection.ConnectionId));
         }
-        public Activity GetActivity(string activityId)
+        public Activity GetActivity(Guid activityId)
         {
+            while (connection.State != ConnectionState.Connected) { }
             return JsonConvert.DeserializeObject<Activity>(RestHelper.SendRequest(baseUrl + "Activities/" + activityId, HttpMethod.Get, null, connection.ConnectionId));
         }
         public void AddActivity(Activity activity)
         {
+            while (connection.State != ConnectionState.Connected) { }
             RestHelper.SendRequest(baseUrl + "Activities/", HttpMethod.Post, activity, connection.ConnectionId);
         }
         public void UpdateActivity(Activity activity)
         {
+            while (connection.State != ConnectionState.Connected) { }
             RestHelper.SendRequest(baseUrl + "Activities/" + activity.Id, HttpMethod.Put, activity, connection.ConnectionId);
         }
-        public void DeleteActivity(string activityId)
+        public void DeleteActivity(Guid activityId)
         {
+            while (connection.State != ConnectionState.Connected) { }
             RestHelper.SendRequest(baseUrl + "Activities/" + activityId, HttpMethod.Delete, null, connection.ConnectionId);
-        }
-        public void DeleteFile(Resource resource)
-        {
-            File.Delete(baseDir + resource.RelativePath);
         }
         #endregion
 
@@ -128,11 +119,10 @@ namespace NooSphere.ActivitySystem.ActivityManager
                     Console.WriteLine("Failed to start: {0}", task.Exception.GetBaseException());
                 else
                 {
-                    Register(user.Id.ToString());
+                    Register(user.Id);
                     connection.Received += SignalRecieved;
                 }
             });
-            Console.ReadLine();
         }
         private void Disconnect()
         {
@@ -162,6 +152,10 @@ namespace NooSphere.ActivitySystem.ActivityManager
             RestHelper.SendRequest(baseUrl + Id(resource.ActivityId, resource.ActionId, resource.Id) + "?size=" + resource.Size.ToString() + "&creationTime=" + resource.CreationTime
                 + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), HttpMethod.Post, buffer, connection.ConnectionId);
         }
+        private void DeleteFile(Resource resource)
+        {
+            File.Delete(baseDir + resource.RelativePath);
+        }
         private void SignalRecieved(string obj)
         {
             JObject content = JsonConvert.DeserializeObject<JObject>(obj);
@@ -179,25 +173,13 @@ namespace NooSphere.ActivitySystem.ActivityManager
                 case "FileDelete":
                     new Thread(() => DeleteFile(((JObject)data).ToObject<Resource>())).Start();
                     break;
-                case "UserAdded":
-                    if (UserAdded != null)
-                        UserAdded(this, new DataEventArgs(data));
+                case "UserOnline":
+                    if (UserOnline != null)
+                        UserOnline(this, new DataEventArgs(data));
                     break;
-                case "UserUpdated":
-                    if (UserUpdated != null)
-                        UserUpdated(this, new DataEventArgs(data));
-                    break;
-                case "UserDeleted":
-                    if (UserDeleted != null)
-                        UserDeleted(this, new DataEventArgs(data));
-                    break;
-                case "UserConnected":
-                    if (UserConnected != null)
-                        UserConnected(this, new DataEventArgs(data));
-                    break;
-                case "UserDisconnected":
-                    if (UserDisconnected != null)
-                        UserDisconnected(this, new DataEventArgs(data));
+                case "UserOffline":
+                    if (UserOffline != null)
+                        UserOffline(this, new DataEventArgs(data));
                     break;
                 case "ActivityAdded":
                     if (ActivityAdded != null)
