@@ -28,7 +28,11 @@ namespace ActivityUI.Login
         {
             InitializeComponent();
             LoadSettings();
+        }
 
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
         }
         private void LoadSettings()
         {

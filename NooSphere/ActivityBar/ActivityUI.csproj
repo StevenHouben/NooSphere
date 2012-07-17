@@ -70,23 +70,24 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <ApplicationDefinition Include="Xaml\App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Activity\DesktopContext.cs" />
     <Compile Include="Activity\Proxy.cs" />
-    <Compile Include="IconToAvgColorBrushConverter.cs" />
+    <Compile Include="Xaml\ActivityButton.cs" />
+    <Compile Include="Xaml\IconToAvgColorBrushConverter.cs" />
     <Compile Include="StartupMode.cs" />
-    <Compile Include="Win7ColorTracking.cs" />
-    <Page Include="ActivityBar.xaml">
+    <Compile Include="Xaml\Win7ColorTracking.cs" />
+    <Page Include="Xaml\ActivityBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Compile Include="ActivityBar.xaml.cs">
+    <Compile Include="Xaml\ActivityBar.xaml.cs">
       <DependentUpon>ActivityBar.xaml</DependentUpon>
     </Compile>
-    <Compile Include="App.xaml.cs">
+    <Compile Include="Xaml\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -98,7 +99,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Simple Styles.xaml">
+    <Page Include="Xaml\Simple Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

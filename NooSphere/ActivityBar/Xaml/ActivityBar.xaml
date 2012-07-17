@@ -687,16 +687,16 @@
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto">
             <StackPanel Name="Add" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="auto">
                 <Button Template="{DynamicResource Dark}" Height="auto" Name="btnClose" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnClose_Click">
-                    <Image Source="Images\cross.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
+                    <Image Source="..\Images\cross.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
                 </Button>
                 <Button Template="{DynamicResource Dark}" Height="auto" Name="btnStart" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnStart_Click">
-                    <Image Source="Images\application_view_tile.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
+                    <Image Source="..\Images\application_view_tile.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
                 </Button>
                 <Button Template="{DynamicResource Dark}" Height="auto" Name="btnHome" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnHome_Click">
-                    <Image Source="Images\house.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
+                    <Image Source="..\Images\house.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
                 </Button>
                 <Button Template="{DynamicResource Dark}" Height="auto" Name="btnAdd" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnAdd_Click">
-                    <Image Source="Images\add.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
+                    <Image Source="..\Images\add.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
                 </Button>
             </StackPanel>
             <StackPanel Name="Body" Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto"/>
