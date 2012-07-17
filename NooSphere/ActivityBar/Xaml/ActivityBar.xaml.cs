@@ -49,7 +49,6 @@ using ActivityUI.Login;
 using NooSphere.ActivitySystem.ActivityClient;
 using NooSphere.ActivitySystem.ActivityManager;
 
-
 namespace ActivityUI
 {
     public partial class ActivityBar : Window
@@ -122,9 +121,13 @@ namespace ActivityUI
                 managerlist.Items.Clear();
             }));
 
-            disc = new DiscoveryManager();
-            disc.Find();
-            disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
+            Thread t = new Thread(()=>{
+                disc = new DiscoveryManager();
+                disc.Find();
+                disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
+            });
+            t.IsBackground = true;
+            t.Start();
         }
 
         /// <summary>
@@ -141,6 +144,7 @@ namespace ActivityUI
                     host.StartBroadcast(device.Name, device.Location);
 
             });
+            t.IsBackground = true ;
             t.Start();
         }
 
@@ -233,6 +237,27 @@ namespace ActivityUI
             }
             EnableUI();
             VirtualDesktopManager.InitDesktops(1);
+
+            //DEBUG_AddActivities(50);
+            //DEBUG_DeleteAllActivities();
+        }
+
+        /// <summary>
+        /// Debug function -> remove when done
+        /// </summary>
+        private void DEBUG_DeleteAllActivities()
+        {
+            foreach (Proxy p in proxies.Values.ToList())
+                client.RemoveActivity(p.Activity.Id);
+        }
+
+        /// <summary>
+        /// Debug function -> remove when done
+        /// </summary>
+        private void DEBUG_AddActivities(int number)
+        {
+            for (int i = 0; i < number; i++)
+                client.AddActivity(GetInitializedActivity());
         }
 
         /// <summary>
@@ -271,11 +296,11 @@ namespace ActivityUI
                 VirtualDesktopManager.Desktops.Add(p.Desktop);
 
                 ActivityButton b = new ActivityButton(new Uri("pack://application:,,,/Images/activity.PNG"),activity.Name);
+                b.RenderMode = RenderMode.Image;
                 b.Click += new RoutedEventHandler(b_Click);
                 b.MouseDown += new MouseButtonEventHandler(b_MouseDown);
                 b.MouseEnter += new MouseEventHandler(b_MouseEnter);
                 b.MouseLeave += new MouseEventHandler(b_MouseLeave);
-                b.Width = 40;
                 b.Height = this.Height - 5;
                 b.ActivityId = p.Activity.Id;
                 b.Style = (Style)this.Resources["ColorHotTrackButton"];
@@ -299,16 +324,6 @@ namespace ActivityUI
 
                 proxies.Add(p.Activity.Id, p);
             }));
-        }
-
-        void b_MouseLeave(object sender, MouseEventArgs e)
-        {
-            ((Button)sender).Width = 40;
-        }
-
-        void b_MouseEnter(object sender, MouseEventArgs e)
-        {
-            ((Button)sender).Width = 300;
         }
 
         /// <summary>
@@ -357,7 +372,6 @@ namespace ActivityUI
             device.Name = txtDeviceName.Text;
             if (Settings.Default.CHECK_BROADCAST)
                 host.StartBroadcast(device.Name, device.Location);
-            RunDiscovery();
         }
 
         /// <summary>
@@ -469,6 +483,14 @@ namespace ActivityUI
         #endregion
 
         #region Event Handlers
+        private void b_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ((ActivityButton)sender).RenderMode = RenderMode.Image;
+        }
+        private void b_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
+        }
         private void btnApplyChanges_Click(object sender, RoutedEventArgs e)
         {
             HideActivityButtonContextMenu(false);
@@ -698,5 +720,6 @@ namespace ActivityUI
 
         }
         #endregion
+
     }
 }

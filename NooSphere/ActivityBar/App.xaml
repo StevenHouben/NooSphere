@@ -1,12 +1,13 @@
 ﻿<Application x:Class="ActivityUI.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="/ActivityUI;component/Xaml/ActivityBar.xaml">
+             StartupUri="ActivityBar.xaml">
     <Application.Resources>
          
     	<ResourceDictionary>
     		<ResourceDictionary.MergedDictionaries>
     			<ResourceDictionary Source="Simple Styles.xaml"/>
+    			<ResourceDictionary Source="Resources/GlassButton.xaml"/>
     		</ResourceDictionary.MergedDictionaries>
     	</ResourceDictionary>
          

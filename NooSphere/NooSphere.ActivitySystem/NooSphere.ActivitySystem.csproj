@@ -55,7 +55,6 @@
   <ItemGroup>
     <Compile Include="ActivityClient\Client.cs" />
     <Compile Include="ActivityClient\NetEventHandler.cs" />
-    <Compile Include="ActivityClient\NetHelper.cs" />
     <Compile Include="ActivityManager\ActivityCloudConnector.cs" />
     <Compile Include="ActivityManager\ActivityManager.cs" />
     <Compile Include="ActivityManager\ActivityStore.cs" />

@@ -72,7 +72,7 @@ namespace NooSphere.ActivitySystem.Discovery.Host
         /// <param name="broadcastPort">The port of the broadcast service. Default=56789</param>
         public void Start(string nameToBroadcast,string physicalLocation,Uri addressToBroadcast,int broadcastPort=56789)
         {
-            this.IP = NetHelper.GetIP(true);
+            this.IP = NetHelper.GetIP(IPType.All);
             this.Port = broadcastPort;
             this.Address = "http://" + this.IP + ":" + this.Port + "/";
 

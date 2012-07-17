@@ -74,7 +74,7 @@ namespace NooSphere.ActivitySystem.Host
         /// <param name="clientName">The name of the client.</param>
         public BasicHost()
         {
-            this.IP = NetHelper.GetIP(true);
+            this.IP = NetHelper.GetIP(IPType.All);
             this.Port = NetHelper.FindPort();
 
             this.Address = "http://" + this.IP + ":" + this.Port + "/";
@@ -112,6 +112,7 @@ namespace NooSphere.ActivitySystem.Host
                 StopBroadcast();
                 broadcast.Start(hostName, location, NetHelper.GetUrl(this.IP, this.Port, ""));
             });
+            t.IsBackground = true;
             t.Start();
         }
 
@@ -134,7 +135,7 @@ namespace NooSphere.ActivitySystem.Host
         public void Open(object implementation,Type description,string name)
         {
             Console.WriteLine("BasicHost: Attemting to find an IP for endPoint");
-            this.IP = NetHelper.GetIP(true);
+            this.IP = NetHelper.GetIP(IPType.All);
 
             Console.WriteLine("BasicHost: Found IP "+this.IP);
             host = new ServiceHost(implementation);

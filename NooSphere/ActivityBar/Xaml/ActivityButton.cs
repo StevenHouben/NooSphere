@@ -10,7 +10,7 @@ namespace ActivityUI
 {
     public class ActivityButton:System.Windows.Controls.Button
     {
-
+        #region Properties
         public Guid ActivityId { get; set; }
         private Uri image;
         public Uri Image 
@@ -19,7 +19,7 @@ namespace ActivityUI
             set
             {
                 this.image = value;
-                BuildButtonLayout();
+                Invalidate();
             }
         }
         
@@ -30,7 +30,7 @@ namespace ActivityUI
             set
             {
                 this.text = value;
-                BuildButtonLayout();
+                Invalidate();
             }
         }
 
@@ -41,12 +41,13 @@ namespace ActivityUI
             set 
             {
                 this.renderMode = value;
-                BuildButtonLayout();
+                Invalidate();
             }
  
         }
+        #endregion
 
-
+        #region Constructor
         public ActivityButton()
         {
             this.Image = new Uri("pack://application:,,,/Images/activity.PNG");
@@ -61,8 +62,10 @@ namespace ActivityUI
             this.RenderMode = RenderMode.ImageAndText;
             this.VerticalAlignment = System.Windows.VerticalAlignment.Center;
         }
+        #endregion
 
-        private void BuildButtonLayout()
+        #region Private Methods
+        private void Invalidate()
         {
             this.Content = null;
             StackPanel panel = new StackPanel();
@@ -73,6 +76,7 @@ namespace ActivityUI
                 Image img = new Image();
                 img.Source =  new BitmapImage(this.Image);
                 panel.Children.Add(img);
+                this.Width = 50;
             }
             else if (RenderMode == RenderMode.Text)
             {
@@ -81,6 +85,7 @@ namespace ActivityUI
                 l.VerticalAlignment = System.Windows.VerticalAlignment.Center;
                 l.Content = this.Text;
                 panel.Children.Add(l);
+                this.Width = 250;
             }
             else 
             {
@@ -92,11 +97,11 @@ namespace ActivityUI
                 l.VerticalAlignment = System.Windows.VerticalAlignment.Center;
                 l.Content = this.Text;
                 panel.Children.Add(l);
+                this.Width = 250;
             }
             this.Content = panel;
-                
- 
         }
+        #endregion
     }
     public enum RenderMode
     {
