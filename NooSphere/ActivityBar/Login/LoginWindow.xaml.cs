@@ -28,8 +28,8 @@ namespace ActivityUI.Login
         {
             InitializeComponent();
             LoadSettings();
+            list.Visibility = System.Windows.Visibility.Hidden;
         }
-
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
@@ -87,6 +87,20 @@ namespace ActivityUI.Login
                 var u = JsonConvert.DeserializeObject<User>(result);
                 this.User = u;
             }
+        }
+
+        private void rbDiscover_Checked(object sender, RoutedEventArgs e)
+        {
+            this.Height = 500;
+            if (list != null)
+                list.Visibility = System.Windows.Visibility.Visible;
+        }
+
+        private void rbClientAndHost_Checked(object sender, RoutedEventArgs e)
+        {
+            this.Height = 265;
+            if(list !=null)
+                list.Visibility = System.Windows.Visibility.Hidden;
         }
     }
 }

@@ -43,6 +43,10 @@ namespace NooSphere.ActivitySystem.ActivityManager
         #endregion
 
         #region Events
+        public event EventHandler ConnectionSetup;
+        #endregion
+
+        #region Events
         public event EventHandler UserOnline;
         public event EventHandler UserOffline;
         public event EventHandler ParticipantAdded;
@@ -65,47 +69,38 @@ namespace NooSphere.ActivitySystem.ActivityManager
         #region Public Members
         public void AddParticipant(Guid activityId, Guid userId)
         {
-            while (connection.State != ConnectionState.Connected) { }
             RestHelper.SendRequest(baseUrl + "Activities/" + activityId + "/Participants/" + userId, HttpMethod.Post, null, connection.ConnectionId);
         }
         public void RemoveParticipant(Guid activityId, Guid userId)
         {
-            while (connection.State != ConnectionState.Connected) { }
             RestHelper.SendRequest(baseUrl + "Activities/" + activityId + "/Participants/" + userId, HttpMethod.Delete, null, connection.ConnectionId);
         }
         public void Register(Guid userId)
         {
-            while (connection.State != ConnectionState.Connected) { }
             RestHelper.SendRequest(baseUrl + "Users/" + userId + "/Device", HttpMethod.Post, null, connection.ConnectionId);
         }
         public void Unregister(Guid userId)
         {
-            while (connection.State != ConnectionState.Connected) { }
             RestHelper.SendRequest(baseUrl + "Users/" + userId + "/Device", HttpMethod.Delete, null, connection.ConnectionId);
         }
         public List<Activity> GetActivities()
         {
-            while (connection.State != ConnectionState.Connected) { }
             return JsonConvert.DeserializeObject<List<Activity>>(RestHelper.SendRequest(baseUrl + "Activities", HttpMethod.Get, null, connection.ConnectionId));
         }
         public Activity GetActivity(Guid activityId)
         {
-            while (connection.State != ConnectionState.Connected) { }
             return JsonConvert.DeserializeObject<Activity>(RestHelper.SendRequest(baseUrl + "Activities/" + activityId, HttpMethod.Get, null, connection.ConnectionId));
         }
         public void AddActivity(Activity activity)
         {
-            while (connection.State != ConnectionState.Connected) { }
             RestHelper.SendRequest(baseUrl + "Activities/", HttpMethod.Post, activity, connection.ConnectionId);
         }
         public void UpdateActivity(Activity activity)
         {
-            while (connection.State != ConnectionState.Connected) { }
             RestHelper.SendRequest(baseUrl + "Activities/" + activity.Id, HttpMethod.Put, activity, connection.ConnectionId);
         }
         public void DeleteActivity(Guid activityId)
         {
-            while (connection.State != ConnectionState.Connected) { }
             RestHelper.SendRequest(baseUrl + "Activities/" + activityId, HttpMethod.Delete, null, connection.ConnectionId);
         }
         #endregion
@@ -120,6 +115,8 @@ namespace NooSphere.ActivitySystem.ActivityManager
                 else
                 {
                     Register(user.Id);
+                    if (ConnectionSetup != null)
+                        ConnectionSetup(this, new EventArgs());
                     connection.Received += SignalRecieved;
                 }
             });
@@ -192,11 +189,9 @@ namespace NooSphere.ActivitySystem.ActivityManager
                 case "ActivityDeleted":
                     if (ActivityDeleted != null)
                     {
-                        JObject res = JsonConvert.DeserializeObject<JObject>(data.ToString());
-                        string sRes = res["Id"].ToString();
                         ActivityDeleted(this, new
                             ActivityRemovedEventArgs(
-                            new Guid(sRes)));
+                            new Guid(JsonConvert.DeserializeObject<JObject>(data.ToString())["Id"].ToString())));
                     }
                     break;
             }

@@ -545,6 +545,7 @@ namespace ActivityUI
         }
         private void client_DeviceAdded(object sender, NooSphere.Core.Events.DeviceEventArgs e)
         {
+            
             AddToLog("Device Added\n");
         }
         private void client_MessageReceived(object sender, NooSphere.Core.Events.ComEventArgs e)
@@ -622,6 +623,10 @@ namespace ActivityUI
             NooSphere.Core.ActivityModel.Action act = new NooSphere.Core.ActivityModel.Action();
             ac.Actions.Add(act);
 
+            User part = new User();
+            part.Email = "test@test.dk";
+
+            ac.Participants.Add(part);
             return ac;
         }
         #endregion
@@ -710,6 +715,7 @@ namespace ActivityUI
         {
             if (DwmApi.DwmIsCompositionEnabled())
             {
+                this.Background = Brushes.Transparent;
                 HwndSource mainWindowSrc = System.Windows.Interop.HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
                 mainWindowSrc.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
                 DWM_BLURBEHIND blurBehindParameters = new DWM_BLURBEHIND();
@@ -721,7 +727,7 @@ namespace ActivityUI
             }
             else
             {
-                this.Background = SystemColors.WindowFrameBrush;
+                this.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("E5009ABF"));
             }
 
         }

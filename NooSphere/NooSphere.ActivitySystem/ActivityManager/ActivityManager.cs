@@ -44,6 +44,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
 
         private bool useActivityCloud = true;
         private bool useLocalCloud = false;
+        private bool connectionActive = false;
 
         #endregion
 
@@ -78,11 +79,17 @@ namespace NooSphere.ActivitySystem.ActivityManager
                 serviceAddress = "http://activitycloud-1.apphb.com";
 
             ActivityCloudConnector = new ActivityCloudConnector(serviceAddress + "/Api/", @"C:\abc\", owner);
+            ActivityCloudConnector.ConnectionSetup += new EventHandler(ActivityCloudConnector_ConnectionSetup);
             ActivityCloudConnector.ActivityAdded += new Core.Events.ActivityAddedHandler(ActivityCloudConnector_ActivityAdded);
             ActivityCloudConnector.ActivityDeleted += new Core.Events.ActivityRemovedHandler(ActivityCloudConnector_ActivityDeleted);
             ActivityCloudConnector.ActivityUpdated += new Core.Events.ActivityChangedHandler(ActivityCloudConnector_ActivityUpdated);
             
             Console.WriteLine("Local Activity Manager: Attempting to connect to: " + serviceAddress);
+        }
+
+        private void ActivityCloudConnector_ConnectionSetup(object sender, EventArgs e)
+        {
+            connectionActive = true;
         }
 
         private void ActivityCloudConnector_ActivityUpdated(object sender, Core.Events.ActivityEventArgs e)
@@ -162,7 +169,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         /// <param name="act">The activity that needs to be added to the cloud</param>
         public void AddActivity(Activity act)
         {
-            if (useActivityCloud)
+            if (useActivityCloud && connectionActive)
                 ActivityCloudConnector.AddActivity(act);
             ActivityStore.Activities.Add(act.Id, act);
             publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityAdded.ToString(), act);
@@ -174,7 +181,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         /// <param name="id">The id of the activity that needs to be removed</param>
         public void RemoveActivity(string id)
         {
-            if (useActivityCloud)
+            if (useActivityCloud && connectionActive)
                 ActivityCloudConnector.DeleteActivity(new Guid(id));
             ActivityStore.Activities.Remove(new Guid(id));
             publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityRemoved.ToString(), id);
@@ -186,7 +193,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         /// <param name="act">The activity that needs to be updated</param>
         public void UpdateActivity(Activity act)
         {
-            if (useActivityCloud)
+            if (useActivityCloud && connectionActive)
                 ActivityCloudConnector.UpdateActivity(act);
             ActivityStore.Activities[act.Id] = act;
             publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityChanged.ToString(), act);
@@ -196,13 +203,13 @@ namespace NooSphere.ActivitySystem.ActivityManager
         #region Participant Management
         public void AddParticipant(Activity a, User u)
         {
-            if (useActivityCloud)
+            if (useActivityCloud && connectionActive)
                 ActivityCloudConnector.AddParticipant(a.Id, u.Id);
             ParticipantStore.Participants.Add(u.Id, u);
         }
         public void RemoveParticipant(Activity a, string id)
         {
-            if (useActivityCloud)
+            if (useActivityCloud && connectionActive)
                 ActivityCloudConnector.RemoveParticipant(a.Id, new Guid(id));
             ParticipantStore.Participants.Remove(new Guid(id));
         }
