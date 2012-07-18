@@ -160,7 +160,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         {
             JObject content = JsonConvert.DeserializeObject<JObject>(obj);
             string eventType = content["Event"].ToString();
-            object data = JsonConvert.DeserializeObject<object>(content["Data"].ToString());
+            object data = content["Data"].ToObject<object>();
 
             switch (eventType)
             {
