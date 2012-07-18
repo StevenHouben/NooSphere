@@ -68,6 +68,23 @@ namespace NooSphere.ActivitySystem.Contracts
         void UnSubscribe(string id,EventType type);
 
         [OperationContract]
+        [ServiceKnownType(typeof(string))]
+        [WebGet(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "users")]
+        List<User> GetUsers();
+
+        [OperationContract]
+        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "users", Method = "POST")]
+        void RequestFriendShip(string email);
+
+        [OperationContract]
+        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "users", Method = "DELETE")]
+        void RemoveFriend(Guid friendId);
+
+        [OperationContract]
+        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "users", Method = "PUT")]
+        void RespondToFriendRequest(Guid friendId, bool approval);
+
+        [OperationContract]
         [WebGet(ResponseFormat = WebMessageFormat.Json, UriTemplate = "")]
         bool Alive();
     }

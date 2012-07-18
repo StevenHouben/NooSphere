@@ -102,6 +102,7 @@ namespace ActivityUI
                     panel.Children.Add(l);
                     this.Width = 250;
                 }
+                panel.Children.Add(new Button());
                 this.Content = panel;
             }));
         }

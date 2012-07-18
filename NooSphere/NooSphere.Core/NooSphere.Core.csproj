@@ -55,11 +55,6 @@
     <Compile Include="ActivityModel\Actor.cs" />
     <Compile Include="ActivityModel\Collaborator.cs" />
     <Compile Include="ActivityModel\Credentials.cs" />
-    <Compile Include="Events\ActivityEventArgs.cs" />
-    <Compile Include="Events\ComEventArgs.cs" />
-    <Compile Include="Events\DeviceEventArgs.cs" />
-    <Compile Include="Events\Events.cs" />
-    <Compile Include="Events\FileEventArgs.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="ActivityModel\Metadata.cs" />
     <Compile Include="ActivityModel\User.cs" />

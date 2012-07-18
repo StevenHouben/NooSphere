@@ -749,6 +749,13 @@
         				<Button Content="Send" HorizontalAlignment="Right" Margin="0,0,8,8" VerticalAlignment="Bottom" Width="75" Name="btnSend" Click="btnSend_Click" IsDefault="True" />
         			</Grid>
         		</TabItem>
+        		<TabItem Header="Friends">
+        			<Grid x:Name="tabFriends" Background="#FFE5E5E5">
+        				<ListBox x:Name="friendList" Margin="0,0,0,39"/>
+        				<TextBox x:Name="txtEmailFriend" Margin="8,0,92.667,8" TextWrapping="Wrap" Height="22.04" VerticalAlignment="Bottom" AcceptsReturn="False" />
+        				<Button Content="Add Friend" HorizontalAlignment="Right" Margin="0,0,8,8" VerticalAlignment="Bottom" Width="75" x:Name="txtAddFriend" IsDefault="True" Click="txtAddFriend_Click" />
+        			</Grid>
+        		</TabItem>
         	</TabControl>
         </Popup>
         <Popup x:Name="popupActivity" MouseLeave="popupActivity_MouseLeave">

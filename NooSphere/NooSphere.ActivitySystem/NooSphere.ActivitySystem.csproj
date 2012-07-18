@@ -59,6 +59,15 @@
     <Compile Include="ActivityManager\ActivityManager.cs" />
     <Compile Include="ActivityManager\ActivityStore.cs" />
     <Compile Include="ActivityManager\ParticipantStore.cs" />
+    <Compile Include="Events\ActivityEventArgs.cs" />
+    <Compile Include="Events\CloudEvents.cs" />
+    <Compile Include="Events\ComEventArgs.cs" />
+    <Compile Include="Events\DeviceEventArgs.cs" />
+    <Compile Include="Events\Events.cs" />
+    <Compile Include="Events\FileEventArgs.cs" />
+    <Compile Include="Events\ParticipantsEventArgs.cs" />
+    <Compile Include="Events\FriendEventArgs.cs" />
+    <Compile Include="Interfaces\NetEvents\IUserEvent.cs" />
     <Compile Include="PubSub\Concurrency.cs" />
     <Compile Include="ActivityManager\ConnectedClient.cs" />
     <Compile Include="ActivityManager\DataEventArgs.cs" />

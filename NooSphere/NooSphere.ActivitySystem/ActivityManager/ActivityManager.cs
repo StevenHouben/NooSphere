@@ -48,6 +48,8 @@ namespace NooSphere.ActivitySystem.ActivityManager
 
         #endregion
 
+        public User Owner { get; set; }
+
         #region Constructor
         public ActivityManager(User owner)
         {
@@ -58,9 +60,12 @@ namespace NooSphere.ActivitySystem.ActivityManager
             Registry.Register(EventType.ComEvents);
             Registry.Register(EventType.DeviceEvents);
             Registry.Register(EventType.FileEvents);
+            Registry.Register(EventType.UserEvent);
 
             if(useActivityCloud)
                 ConnectToCloud(useLocalCloud,owner);
+
+            this.Owner = owner;
         }
         #endregion
 
@@ -74,37 +79,88 @@ namespace NooSphere.ActivitySystem.ActivityManager
         {
             var serviceAddress="";
             if (useLocalCloud)
-                serviceAddress = "http://localhost:56002";
+                serviceAddress = "http://10.1.1.190:56002";
             else
                 serviceAddress = "http://activitycloud-1.apphb.com";
 
             ActivityCloudConnector = new ActivityCloudConnector(serviceAddress + "/Api/", @"C:\abc\", owner);
             ActivityCloudConnector.ConnectionSetup += new EventHandler(ActivityCloudConnector_ConnectionSetup);
-            ActivityCloudConnector.ActivityAdded += new Core.Events.ActivityAddedHandler(ActivityCloudConnector_ActivityAdded);
-            ActivityCloudConnector.ActivityDeleted += new Core.Events.ActivityRemovedHandler(ActivityCloudConnector_ActivityDeleted);
-            ActivityCloudConnector.ActivityUpdated += new Core.Events.ActivityChangedHandler(ActivityCloudConnector_ActivityUpdated);
-            
+            ActivityCloudConnector.ActivityAdded += new ActivitySystem.Events.ActivityAddedHandler(ActivityCloudConnector_ActivityAdded);
+            ActivityCloudConnector.ActivityDeleted += new ActivitySystem.Events.ActivityRemovedHandler(ActivityCloudConnector_ActivityDeleted);
+            ActivityCloudConnector.ActivityUpdated += new ActivitySystem.Events.ActivityChangedHandler(ActivityCloudConnector_ActivityUpdated);
+
+            ActivityCloudConnector.FileDeleted += new Events.FileDeletedHandler(ActivityCloudConnector_FileDeleted);
+            ActivityCloudConnector.FileDownloaded += new Events.FileDownloadedHandler(ActivityCloudConnector_FileDownloaded);
+            ActivityCloudConnector.FileUploaded += new Events.FileUploadedHandler(ActivityCloudConnector_FileUploaded);
+            ActivityCloudConnector.FriendDeleted += new Events.FriendDeletedHandler(ActivityCloudConnector_FriendDeleted);
+            ActivityCloudConnector.FriendAdded += new Events.FriendAddedHandler(ActivityCloudConnector_FriendAdded);
+            ActivityCloudConnector.FriendRequestReceived += new Events.FriendRequestReceivedHandler(ActivityCloudConnector_FriendRequestReceived);
+            ActivityCloudConnector.ParticipantAdded += new Events.ParticipantAddedHandler(ActivityCloudConnector_ParticipantAdded);
+            ActivityCloudConnector.ParticipantRemoved += new Events.ParticipantRemovedHandler(ActivityCloudConnector_ParticipantRemoved);
+
             Console.WriteLine("Local Activity Manager: Attempting to connect to: " + serviceAddress);
         }
 
+        #region Net Handlers
+        private void ActivityCloudConnector_ParticipantRemoved(object sender, Events.ParticipantEventArgs e)
+        {
+            ActivityStore.Activities[e.ActivityId].Participants.Remove(e.Participant);
+            var participantRemovedToActivity = new
+            {
+                u = e.Participant,
+                activityId = e.ActivityId
+            };
+            publisher.Publish(EventType.UserEvent, UserEvents.ParticipantAdded.ToString(), participantRemovedToActivity);
+        }
+        private void ActivityCloudConnector_ParticipantAdded(object sender, Events.ParticipantEventArgs e)
+        {
+            ActivityStore.Activities[e.ActivityId].Participants.Add(e.Participant);
+            var participantAddedToActivity = new
+            {
+                u = e.Participant,
+                activityId = e.ActivityId
+            };
+            publisher.Publish(EventType.UserEvent, UserEvents.ParticipantAdded.ToString(), participantAddedToActivity);
+        }
+        private void ActivityCloudConnector_FriendRequestReceived(object sender, Events.FriendEventArgs e)
+        {
+            publisher.Publish(EventType.UserEvent, UserEvents.FriendRequest.ToString(), e.User);
+        }
+        private void ActivityCloudConnector_FriendAdded(object sender, Events.FriendEventArgs e)
+        {
+            publisher.Publish(EventType.UserEvent, UserEvents.FriendAdded.ToString(), e.User);
+        }
+        private void ActivityCloudConnector_FriendDeleted(object sender, Events.FriendDeletedEventArgs e)
+        {
+            publisher.Publish(EventType.UserEvent, UserEvents.FriendRemoved.ToString(), e.Id);
+        }
+        private void ActivityCloudConnector_FileUploaded(object sender, Events.FileEventArgs e)
+        {
+            publisher.Publish(EventType.FileEvents, FileEvent.FileAdded.ToString(), e.Resource);
+        }
+        private void ActivityCloudConnector_FileDownloaded(object sender, Events.FileEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+        private void ActivityCloudConnector_FileDeleted(object sender, Events.FileEventArgs e)
+        {
+            publisher.Publish(EventType.FileEvents, FileEvent.FileRemoved.ToString(), e.Resource);
+        }
         private void ActivityCloudConnector_ConnectionSetup(object sender, EventArgs e)
         {
             connectionActive = true;
         }
-
-        private void ActivityCloudConnector_ActivityUpdated(object sender, Core.Events.ActivityEventArgs e)
+        private void ActivityCloudConnector_ActivityUpdated(object sender, ActivitySystem.Events.ActivityEventArgs e)
         {
             ActivityStore.Activities[e.Activity.Id] = e.Activity;
             publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityChanged.ToString(), e.Activity);
         }
-
-        private void ActivityCloudConnector_ActivityDeleted(object sender, Core.Events.ActivityRemovedEventArgs e)
+        private void ActivityCloudConnector_ActivityDeleted(object sender, ActivitySystem.Events.ActivityRemovedEventArgs e)
         {
             ActivityStore.Activities.Remove(e.ID);
             publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityRemoved.ToString(), e.ID);
         }
-
-        private void ActivityCloudConnector_ActivityAdded(object sender, Core.Events.ActivityEventArgs e)
+        private void ActivityCloudConnector_ActivityAdded(object sender, ActivitySystem.Events.ActivityEventArgs e)
         {
             if (!ActivityStore.Activities.ContainsKey(e.Activity.Id))
             {
@@ -112,6 +168,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
                 publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityAdded.ToString(), e.Activity);
             }
         }
+        #endregion
         #endregion
 
         #region Helper
@@ -215,7 +272,48 @@ namespace NooSphere.ActivitySystem.ActivityManager
         }
         #endregion
 
-        #region Pub/Sub 
+        #region User Management
+
+        /// <summary>
+        /// Gets all users in the friendlist
+        /// </summary>
+        /// <returns>A list with all users in the friendlist</returns>
+        public List<User> GetUsers()
+        {
+            return ActivityCloudConnector.GetUsers(Owner.Id);
+        }
+
+        /// <summary>
+        /// Request friendship with another user
+        /// </summary>
+        /// <param name="email">The email of the user that needs to be friended</param>
+        public void RequestFriendShip(string email)
+        {
+            ActivityCloudConnector.RequestFriendShip(Owner.Id, ActivityCloudConnector.GetIdFromUserEmail(email));
+        }
+
+        /// <summary>
+        /// Removes a user from the friendlist
+        /// </summary>
+        /// <param name="friendId">The id of the friend that needs to be removed</param>
+        public void RemoveFriend(Guid friendId)
+        {
+            ActivityCloudConnector.RemoveFriend(Owner.Id, friendId);
+        }
+
+        /// <summary>
+        /// Sends a response on a friend request from another user
+        /// </summary>
+        /// <param name="friendId">The id of the friend that is requesting friendship</param>
+        /// <param name="approval">Bool that indicates if the friendship was approved</param>
+        public void RespondToFriendRequest(Guid friendId, bool approval)
+        {
+            ActivityCloudConnector.RespondToFriendRequest(Owner.Id, friendId,approval);
+        }
+
+        #endregion
+
+        #region Pub/Sub
         public Guid Register(Device device)
         {
             ConnectedClient cc = new ConnectedClient(device.Name, device.BaseAddress, device);

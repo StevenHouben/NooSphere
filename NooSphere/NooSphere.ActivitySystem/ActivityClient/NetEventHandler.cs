@@ -20,12 +20,12 @@ using NooSphere.Core.ActivityModel;
 using System.ServiceModel;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Contracts.NetEvents;
-using NooSphere.Core.Events;
+using NooSphere.ActivitySystem.Events;
 
 namespace NooSphere.ActivitySystem.ActivityClient
 {
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Single, InstanceContextMode = InstanceContextMode.Single, UseSynchronizationContext = false)]
-    public class NetEventHandler : IActivityNetEvent,IDeviceNetEvent,IFileNetEvent,IComNetEvent
+    public class NetEventHandler : IActivityNetEvent,IDeviceNetEvent,IFileNetEvent,IComNetEvent,IUserEvent
     {
         #region Events
         public event ActivityAddedHandler ActivityAdded = null;
@@ -41,6 +41,20 @@ namespace NooSphere.ActivitySystem.ActivityClient
         public event FileRemovedHandler FileRemoved = null;
 
         public event MessageReceivedHandler MessageReceived = null;
+
+        public event FileDownloadedHandler FileDownloaded;
+        public event FileUploadedHandler FileUploaded;
+        public event FileDeletedHandler FileDeleted;
+
+        public event FriendAddedHandler FriendAdded;
+        public event FriendDeletedHandler FriendDeleted;
+        public event FriendRequestReceivedHandler FriendRequestReceived;
+
+        public event ParticipantAddedHandler ParticipantAdded;
+        public event ParticipantRemovedHandler ParticipantRemoved;
+
+        public event EventHandler UserOnline;
+        public event EventHandler UserOffline;
         #endregion
 
         #region Net Event handlers
@@ -94,6 +108,35 @@ namespace NooSphere.ActivitySystem.ActivityClient
         {
             if (DeviceRoleChanged != null)
                 DeviceRoleChanged(this, new DeviceEventArgs(dev));
+        }
+        public void FriendNetAdded(User u)
+        {
+            if(FriendAdded != null)
+                FriendAdded(this,new FriendEventArgs(u));
+        }
+
+        public void FriendNetRequest(User u)
+        {
+            if(FriendRequestReceived != null)
+                FriendRequestReceived(this, new FriendEventArgs(u));
+        }
+
+        public void FriendNetRemoved(Guid i)
+        {
+            if (FriendDeleted != null)
+                FriendDeleted(this, new FriendDeletedEventArgs(i));
+        }
+
+        public void ParticipantNetAdded(User u, Guid activityId)
+        {
+            if(ParticipantAdded != null)
+                ParticipantAdded(this, new ParticipantEventArgs(u,activityId));
+        }
+
+        public void ParticipantNetRemoved(User u, Guid activityId)
+        {
+            if (ParticipantRemoved != null)
+                ParticipantRemoved(this, new ParticipantEventArgs(u, activityId));
         }
         #endregion
 
