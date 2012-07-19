@@ -503,9 +503,9 @@ namespace ActivityUI
             IntPtr handle = new WindowInteropHelper(this).Handle;
 
             //Force glass style
-            ApplyGlass(handle);
-
+            //ApplyGlass(handle);
             NooSphere.Platform.Windows.Dock.AppBarFunctions.SetAppBar(this, NooSphere.Platform.Windows.Dock.AppBarPosition.Top);
+            this.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("E5009ABF"));
         }
         #endregion
 
@@ -755,11 +755,6 @@ namespace ActivityUI
 
                 IntPtr result = DwmEnableBlurBehindWindow(handle, ref blurBehindParameters);
             }
-            else
-            {
-                this.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("E5009ABF"));
-            }
-
         }
         #endregion
     }

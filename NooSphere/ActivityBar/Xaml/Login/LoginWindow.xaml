@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="ActivityUI.Login.LoginWindow"
         Title="Activity Cloud V1" Height="328" Width="387" Icon="/ActivityUI;component/Images/application_view_tile.png" UseLayoutRounding="True" SnapsToDevicePixels="False" WindowStartupLocation="CenterScreen" Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize" WindowStyle="SingleBorderWindow">
 	<Window.Resources>
-        <ResourceDictionary Source="../Styles/ColoredButtons.xaml"/>
 	</Window.Resources>
     <Grid>
     	<Grid.RowDefinitions>
@@ -19,7 +18,7 @@
         <TextBox Height="23" Margin="110,177,20,0" x:Name="txtDevicename" VerticalAlignment="Top" />
         <Image Height="94" HorizontalAlignment="Left" x:Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="144" Source="/ActivityUI;component/Images/activity1.PNG" />
         <TextBlock Height="66" HorizontalAlignment="Left" Margin="166,23,0,0" x:Name="textBlock1" Text="Welcome to activity cloud. Please provide your details to login." VerticalAlignment="Top" Width="185" TextWrapping="Wrap" />
-        <Button Content="Go" Margin="0,0,20,181" Style="{DynamicResource greenButton}" Foreground="White" FontSize="13.333" HorizontalAlignment="Right" Width="81" RenderTransformOrigin="-0.037,0.75" Height="32" VerticalAlignment="Bottom" Name="btnGo" Click="btnGo_Click">
+        <Button Content="Go" Margin="0,0,20,181" Style="{DynamicResource Success}" Foreground="White" FontSize="13.333" HorizontalAlignment="Right" Width="81" RenderTransformOrigin="-0.037,0.75" Height="30" VerticalAlignment="Bottom" Name="btnGo" Click="btnGo_Click">
         	<Button.Background>
         		<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
         			<GradientStop Color="#FFF3F3F3" Offset="0"/>
@@ -29,7 +28,7 @@
         		</LinearGradientBrush>
         	</Button.Background>
         </Button>
-        <Button Content="Stop" Margin="0,0,107,181" Style="{DynamicResource redButton}" Foreground="White" FontSize="13.333" HorizontalAlignment="Right" Width="81" RenderTransformOrigin="-0.037,0.75" Height="32" VerticalAlignment="Bottom" Click="cancel_Click">
+        <Button Content="Stop" Margin="0,0,107,181" Style="{DynamicResource Danger}" Foreground="White" FontSize="13.333" HorizontalAlignment="Right" Width="81" RenderTransformOrigin="-0.037,0.75" Height="30" VerticalAlignment="Bottom" Click="cancel_Click">
         	<Button.Background>
         		<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
         			<GradientStop Color="#FFF3F3F3" Offset="0"/>
@@ -42,5 +41,6 @@
         <RadioButton Content="Client and Host" Height="16" HorizontalAlignment="Left" Margin="247,215,0,0" Name="rbClientAndHost" VerticalAlignment="Top" GroupName="startup" IsChecked="True" />
         <RadioButton Content="Client" GroupName="startup" Height="16" HorizontalAlignment="Left" Margin="187,215,0,0" Name="rbClient" VerticalAlignment="Top" />
         <CheckBox Content="Remember me" Height="16" HorizontalAlignment="Left" Margin="21,245,0,0" Name="chkRemember" VerticalAlignment="Top" IsChecked="True" />
+        <Label Content="Device name" Height="28" HorizontalAlignment="Left" Margin="21,175,0,0" Name="label1" VerticalAlignment="Top" Width="83" />
     </Grid>
 </Window>
