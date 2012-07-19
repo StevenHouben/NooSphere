@@ -11,7 +11,8 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Resources/GlassButton.xaml"/>
+                <ResourceDictionary Source="../Styles/GlassButton.xaml"/>
+                <ResourceDictionary Source="../Styles/ColoredButtons.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <LinearGradientBrush x:Key="GlossGradient" EndPoint="0.0149999996647239,0.0160000007599592" StartPoint="0.486000001430511,0.723999977111816">

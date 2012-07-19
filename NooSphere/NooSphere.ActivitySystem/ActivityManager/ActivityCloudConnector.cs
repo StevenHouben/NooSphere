@@ -75,6 +75,10 @@ namespace NooSphere.ActivitySystem.ActivityManager
             this.connection = new Connection(baseUrl + "Connect");
             Connect(user);
         }
+        ~ActivityCloudConnector()
+        {
+            this.Disconnect();
+        }
         #endregion
 
         #region Public Members
@@ -156,7 +160,8 @@ namespace NooSphere.ActivitySystem.ActivityManager
         }
         private void Disconnect()
         {
-            connection.Stop();
+            if(connection != null)
+                connection.Stop();
         }
         private void DownloadFile(Resource resource)
         {

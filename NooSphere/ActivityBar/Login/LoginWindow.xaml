@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="ActivityUI.Login.LoginWindow"
         Title="Activity Cloud V1" Height="328" Width="387" Icon="/ActivityUI;component/Images/application_view_tile.png" UseLayoutRounding="True" SnapsToDevicePixels="False" WindowStartupLocation="CenterScreen" Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize" WindowStyle="SingleBorderWindow">
 	<Window.Resources>
+        <ResourceDictionary Source="../Styles/ColoredButtons.xaml"/>
 	</Window.Resources>
     <Grid>
     	<Grid.RowDefinitions>
