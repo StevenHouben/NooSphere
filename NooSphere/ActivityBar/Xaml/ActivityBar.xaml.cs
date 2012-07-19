@@ -340,6 +340,10 @@ namespace ActivityUI
                 b.MouseLeave += new MouseEventHandler(b_MouseLeave);
                 b.Height = this.Height - 5;
                 b.ActivityId = p.Activity.Id;
+
+
+
+                b.Template = (ControlTemplate)this.FindResource("Dark");
                 b.Style = (Style)this.Resources["ColorHotTrackButton"];
 
                 p.Button = b;
@@ -506,6 +510,10 @@ namespace ActivityUI
         #endregion
 
         #region Event Handlers
+        private void txtAddFriend_Click(object sender, RoutedEventArgs e)
+        {
+            client.RequestFriendShip(txtEmailFriend.Text);
+        }
         private void client_ActivityChanged(object sender, NooSphere.ActivitySystem.Events.ActivityEventArgs e)
         {
             proxies[e.Activity.Id].Activity = e.Activity;
@@ -517,7 +525,7 @@ namespace ActivityUI
         }
         private void b_MouseEnter(object sender, MouseEventArgs e)
         {
-            ((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
+            //((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
         }
         private void btnApplyChanges_Click(object sender, RoutedEventArgs e)
         {
@@ -577,12 +585,12 @@ namespace ActivityUI
         private void client_ActivityRemoved(object sender, NooSphere.ActivitySystem.Events.ActivityRemovedEventArgs e)
         {
             RemoveActivityUI(e.ID);
-            AddToLog("Activity Added\n");
+            AddToLog("Activity Removed\n");
         }
         private void client_ActivityAdded(object obj, NooSphere.ActivitySystem.Events.ActivityEventArgs e)
         {
             AddActivityUI(e.Activity);
-            AddToLog("Activity Removed\n");
+            AddToLog("Activity Added\n");
         }
         private void btnAdd_Click(object sender, RoutedEventArgs e)
         {
@@ -754,11 +762,5 @@ namespace ActivityUI
 
         }
         #endregion
-
-        private void txtAddFriend_Click(object sender, RoutedEventArgs e)
-        {
-            client.RequestFriendShip(txtEmailFriend.Text);
-        }
-
     }
 }

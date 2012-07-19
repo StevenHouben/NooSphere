@@ -15,6 +15,8 @@ using NooSphere.Core.ActivityModel;
 using ActivityUI.Properties;
 using NooSphere.Helpers;
 using Newtonsoft.Json;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 
 namespace ActivityUI.Login
 {
@@ -26,9 +28,10 @@ namespace ActivityUI.Login
         public StartUpMode Mode { get; set; } 
         public LoginWindow()
         {
+            SourceInitialized += new EventHandler(LoginWindow_SourceInitialized);
             InitializeComponent();
             LoadSettings();
-            list.Visibility = System.Windows.Visibility.Hidden;
+
         }
         protected override void OnClosed(EventArgs e)
         {
@@ -88,19 +91,27 @@ namespace ActivityUI.Login
                 this.User = u;
             }
         }
-
-        private void rbDiscover_Checked(object sender, RoutedEventArgs e)
+        private void cancel_Click(object sender, RoutedEventArgs e)
         {
-            this.Height = 500;
-            if (list != null)
-                list.Visibility = System.Windows.Visibility.Visible;
+            Environment.Exit(0);
         }
 
-        private void rbClientAndHost_Checked(object sender, RoutedEventArgs e)
+        #region Window Extension
+        void LoginWindow_SourceInitialized(object sender, EventArgs e)
         {
-            this.Height = 265;
-            if(list !=null)
-                list.Visibility = System.Windows.Visibility.Hidden;
+            WindowInteropHelper wih = new WindowInteropHelper(this);
+            int style = GetWindowLong(wih.Handle, GWL_STYLE);
+            SetWindowLong(wih.Handle, GWL_STYLE, style & ~WS_SYSMENU);
         }
+
+        private const int GWL_STYLE = -16;
+        private const int WS_SYSMENU = 0X00080000;
+
+        [DllImport("user32.dll")]
+        private extern static int SetWindowLong(IntPtr hwnd, int index, int value);
+        [DllImport("user32.dll")]
+        private extern static int GetWindowLong(IntPtr hwnd, int index);
+        #endregion
+
     }
 }

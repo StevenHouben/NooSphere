@@ -7,7 +7,7 @@
             d:DesignHeight="50" 
             d:DesignWidth="750" 
             Width="auto"
-            Height="40" Loaded="Window_Loaded" Closed="Window_Closed" BorderThickness="2" WindowStyle="None" Background="#000000" ShowInTaskbar="False">
+            Height="40" Loaded="Window_Loaded" Closed="Window_Closed" BorderThickness="2" WindowStyle="ToolWindow" Background="#000000" ShowInTaskbar="False" Topmost="True">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -96,15 +96,15 @@
                     </Trigger>
                 </ControlTemplate.Triggers>
             </ControlTemplate>
-            <ControlTemplate x:Key="ButtonControlTemplate1" TargetType="{x:Type Button}">
+            <ControlTemplate x:Key="Start" TargetType="{x:Type Button}">
                 <ControlTemplate.Resources>
                     <Storyboard x:Key="Timeline1">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)">
+                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow2" Storyboard.TargetProperty="(UIElement.Opacity)">
                             <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="1"/>
                         </DoubleAnimationUsingKeyFrames>
                     </Storyboard>
                     <Storyboard x:Key="Timeline2">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)">
+                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow2" Storyboard.TargetProperty="(UIElement.Opacity)">
                             <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0"/>
                         </DoubleAnimationUsingKeyFrames>
                     </Storyboard>
@@ -115,7 +115,7 @@
                             <RowDefinition Height="0.507*"/>
                             <RowDefinition Height="0.493*"/>
                         </Grid.RowDefinitions>
-                        <Border Opacity="0" HorizontalAlignment="Stretch" x:Name="glow" Width="Auto" Grid.RowSpan="2">
+                        <Border Opacity="0" HorizontalAlignment="Stretch" x:Name="glow2" Width="Auto" Grid.RowSpan="2">
                             <Border.Background>
                                 <RadialGradientBrush>
                                     <RadialGradientBrush.RelativeTransform>
@@ -126,17 +126,17 @@
                                             <TranslateTransform X="-0.368" Y="-0.152"/>
                                         </TransformGroup>
                                     </RadialGradientBrush.RelativeTransform>
-                                    <GradientStop Color="#B28DBDFF" Offset="0"/>
-                                    <GradientStop Color="#008DBDFF" Offset="1"/>
+                                    <GradientStop Color="#B2FF9F8D" Offset="0"/>
+                                    <GradientStop Color="#4BF56565" Offset="1"/>
                                 </RadialGradientBrush>
                             </Border.Background>
                         </Border>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Width="49" Grid.RowSpan="2"/>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" Grid.RowSpan="2"/>
                     </Grid>
                 </Border>
                 <ControlTemplate.Triggers>
                     <Trigger Property="IsPressed" Value="True">
-                        <Setter Property="Visibility" TargetName="glow" Value="Hidden"/>
+                        <Setter Property="Visibility" TargetName="glow2" Value="Hidden"/>
                     </Trigger>
                     <Trigger Property="IsMouseOver" Value="True">
                         <Trigger.EnterActions>
@@ -148,568 +148,42 @@
                     </Trigger>
                 </ControlTemplate.Triggers>
             </ControlTemplate>
-            <ControlTemplate x:Key="ButtonControlTemplate2" TargetType="{x:Type Button}">
-                <ControlTemplate.Resources>
-                    <Storyboard x:Key="Timeline1">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="1"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                    <Storyboard x:Key="Timeline2">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                </ControlTemplate.Resources>
-                <Border x:Name="border">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="0.507*"/>
-                            <RowDefinition Height="0.493*"/>
-                        </Grid.RowDefinitions>
-                        <Border Opacity="0" HorizontalAlignment="Stretch" x:Name="glow" Width="Auto" Grid.RowSpan="2">
-                            <Border.Background>
-                                <RadialGradientBrush>
-                                    <RadialGradientBrush.RelativeTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform ScaleX="1.702" ScaleY="2.243"/>
-                                            <SkewTransform AngleX="0" AngleY="0"/>
-                                            <RotateTransform Angle="0"/>
-                                            <TranslateTransform X="-0.368" Y="-0.152"/>
-                                        </TransformGroup>
-                                    </RadialGradientBrush.RelativeTransform>
-                                    <GradientStop Color="#B28DBDFF" Offset="0"/>
-                                    <GradientStop Color="#008DBDFF" Offset="1"/>
-                                </RadialGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Width="48" Grid.RowSpan="2"/>
-                    </Grid>
-                </Border>
-                <ControlTemplate.Triggers>
-                    <Trigger Property="IsPressed" Value="True">
-                        <Setter Property="Visibility" TargetName="glow" Value="Hidden"/>
-                    </Trigger>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Trigger.EnterActions>
-                            <BeginStoryboard Storyboard="{StaticResource Timeline1}"/>
-                        </Trigger.EnterActions>
-                        <Trigger.ExitActions>
-                            <BeginStoryboard x:Name="Timeline2_BeginStoryboard" Storyboard="{StaticResource Timeline2}"/>
-                        </Trigger.ExitActions>
-                    </Trigger>
-                </ControlTemplate.Triggers>
-            </ControlTemplate>
-            <ControlTemplate x:Key="Dark2" TargetType="{x:Type Button}">
-                <ControlTemplate.Resources>
-                    <Storyboard x:Key="Timeline1">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="1"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                    <Storyboard x:Key="Timeline2">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                </ControlTemplate.Resources>
-                <Border x:Name="border">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="0.507*"/>
-                            <RowDefinition Height="0.493*"/>
-                        </Grid.RowDefinitions>
-                        <Border Opacity="0" HorizontalAlignment="Stretch" x:Name="glow" Width="Auto" Grid.RowSpan="2">
-                            <Border.Background>
-                                <RadialGradientBrush>
-                                    <RadialGradientBrush.RelativeTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform ScaleX="1.702" ScaleY="2.243"/>
-                                            <SkewTransform AngleX="0" AngleY="0"/>
-                                            <RotateTransform Angle="0"/>
-                                            <TranslateTransform X="-0.368" Y="-0.152"/>
-                                        </TransformGroup>
-                                    </RadialGradientBrush.RelativeTransform>
-                                    <GradientStop Color="#99000000" Offset="0.086"/>
-                                    <GradientStop Color="#000C0C0C" Offset="1"/>
-                                </RadialGradientBrush>
-                            </Border.Background>
-                            <Border BorderBrush="Black" BorderThickness="1" CornerRadius="1"/>
-                        </Border>
-                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Grid.RowSpan="2" Margin="7,8,0,6" d:LayoutOverrides="Height"/>
-                    </Grid>
-                </Border>
-                <ControlTemplate.Triggers>
-                    <Trigger Property="IsPressed" Value="True">
-                        <Setter Property="Visibility" TargetName="glow" Value="Hidden"/>
-                    </Trigger>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Trigger.EnterActions>
-                            <BeginStoryboard Storyboard="{StaticResource Timeline1}"/>
-                        </Trigger.EnterActions>
-                        <Trigger.ExitActions>
-                            <BeginStoryboard x:Name="Timeline2_BeginStoryboard" Storyboard="{StaticResource Timeline2}"/>
-                        </Trigger.ExitActions>
-                    </Trigger>
-                </ControlTemplate.Triggers>
-            </ControlTemplate>
-            <Style x:Key="ButtonStyle3" TargetType="{x:Type Button}">
-                <Setter Property="SnapsToDevicePixels" Value="True"/>
-                <Setter Property="OverridesDefaultStyle" Value="True"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type Button}">
-                            <Grid>
-                                <!-- Background Layer -->
-                                <Ellipse Fill="{TemplateBinding Background}"/>
-                                <!-- Refraction Layer -->
-                                <Ellipse x:Name="RefractionLayer">
-                                    <Ellipse.Fill>
-                                        <RadialGradientBrush GradientOrigin="0.496,1.052">
-                                            <RadialGradientBrush.RelativeTransform>
-                                                <TransformGroup>
-                                                    <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.5" ScaleY="1.5"/>
-                                                    <TranslateTransform X="0.02" Y="0.3"/>
-                                                </TransformGroup>
-                                            </RadialGradientBrush.RelativeTransform>
-                                            <GradientStop Offset="1" Color="#00000000"/>
-                                            <GradientStop Offset="0.4" Color="#FF2FCBDD"/>
-                                        </RadialGradientBrush>
-                                    </Ellipse.Fill>
-                                </Ellipse>
-                                <!-- Reflection Layer -->
-                                <Path x:Name="ReflectionLayer" VerticalAlignment="Top" Stretch="Fill">
-                                    <Path.RenderTransform>
-                                        <ScaleTransform ScaleY="0.5" />
-                                    </Path.RenderTransform>
-                                    <Path.Data>
-                                        <PathGeometry>
-                                            <PathFigure IsClosed="True" StartPoint="98.999,45.499">
-                                                <BezierSegment Point1="98.999,54.170" Point2="89.046,52.258" Point3="85.502,51.029"/>
-                                                <BezierSegment
-            										IsSmoothJoin="True"
-            										Point1="75.860,47.685"
-            										Point2="69.111,45.196"
-            										Point3="50.167,45.196"/>
-                                                <BezierSegment Point1="30.805,45.196" Point2="20.173,47.741" Point3="10.665,51.363"/>
-                                                <BezierSegment
-            										IsSmoothJoin="True"
-            										Point1="7.469,52.580"
-            										Point2="1.000,53.252"
-            										Point3="1.000,44.999"/>
-                                                <BezierSegment Point1="1.000,39.510" Point2="0.884,39.227" Point3="2.519,34.286"/>
-                                                <BezierSegment
-            										IsSmoothJoin="True"
-            										Point1="9.106,14.370"
-            										Point2="27.875,0"
-            										Point3="50,0"/>
-                                                <BezierSegment Point1="72.198,0" Point2="91.018,14.466" Point3="97.546,34.485"/>
-                                                <BezierSegment
-            										IsSmoothJoin="True"
-            										Point1="99.139,39.369"
-            										Point2="98.999,40.084"
-            										Point3="98.999,45.499"/>
-                                            </PathFigure>
-                                        </PathGeometry>
-                                    </Path.Data>
-                                    <Path.Fill>
-                                        <RadialGradientBrush GradientOrigin="0.498,0.526">
-                                            <RadialGradientBrush.RelativeTransform>
-                                                <TransformGroup>
-                                                    <ScaleTransform
-            											CenterX="0.5"
-            											CenterY="0.5"
-            											ScaleX="1"
-            											ScaleY="1.997"/>
-                                                    <TranslateTransform X="0" Y="0.5"/>
-                                                </TransformGroup>
-                                            </RadialGradientBrush.RelativeTransform>
-                                            <GradientStop Offset="1" Color="#FFFFFFFF"/>
-                                            <GradientStop Offset="0.85" Color="#92FFFFFF"/>
-                                            <GradientStop Offset="0" Color="#00E40000"/>
-                                        </RadialGradientBrush>
-                                    </Path.Fill>
-                                </Path>
-                                <!-- ContentPresenter -->
-                                <ContentPresenter Margin="0,2,0,0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
-
-                            </Grid>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="RefractionLayer" Property="Fill">
-                                        <Setter.Value>
-                                            <RadialGradientBrush GradientOrigin="0.496,1.052">
-                                                <RadialGradientBrush.RelativeTransform>
-                                                    <TransformGroup>
-                                                        <ScaleTransform
-            												CenterX="0.5"
-            												CenterY="0.5"
-            												ScaleX="1.5"
-            												ScaleY="1.5"/>
-                                                        <TranslateTransform X="0.02" Y="0.3"/>
-                                                    </TransformGroup>
-                                                </RadialGradientBrush.RelativeTransform>
-                                                <GradientStop Offset="1" Color="#00000000"/>
-                                                <GradientStop Offset="0.45" Color="#FFFFFFFF"/>
-                                            </RadialGradientBrush>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter TargetName="ReflectionLayer" Property="Fill">
-                                        <Setter.Value>
-                                            <RadialGradientBrush GradientOrigin="0.498,0.526">
-                                                <RadialGradientBrush.RelativeTransform>
-                                                    <TransformGroup>
-                                                        <ScaleTransform
-            												CenterX="0.5"
-            												CenterY="0.5"
-            												ScaleX="1"
-            												ScaleY="1.997"/>
-                                                        <TranslateTransform X="0" Y="0.5"/>
-                                                    </TransformGroup>
-                                                </RadialGradientBrush.RelativeTransform>
-                                                <GradientStop Offset="1" Color="#FFFFFFFF"/>
-                                                <GradientStop Offset="0.85" Color="#BBFFFFFF"/>
-                                                <GradientStop Offset="0" Color="#00000000"/>
-                                            </RadialGradientBrush>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="RefractionLayer" Property="Fill">
-                                        <Setter.Value>
-                                            <RadialGradientBrush GradientOrigin="0.496,1.052">
-                                                <RadialGradientBrush.RelativeTransform>
-                                                    <TransformGroup>
-                                                        <ScaleTransform
-            												CenterX="0.5"
-            												CenterY="0.5"
-            												ScaleX="1.5"
-            												ScaleY="1.5"/>
-                                                        <TranslateTransform X="0.02" Y="0.3"/>
-                                                    </TransformGroup>
-                                                </RadialGradientBrush.RelativeTransform>
-                                                <GradientStop Offset="1" Color="#00000000"/>
-                                                <GradientStop Offset="0.3" Color="#FFFFFFFF"/>
-                                            </RadialGradientBrush>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter TargetName="ReflectionLayer" Property="Fill">
-                                        <Setter.Value>
-                                            <RadialGradientBrush GradientOrigin="0.498,0.526">
-                                                <RadialGradientBrush.RelativeTransform>
-                                                    <TransformGroup>
-                                                        <ScaleTransform
-            												CenterX="0.5"
-            												CenterY="0.5"
-            												ScaleX="1"
-            												ScaleY="1.997"/>
-                                                        <TranslateTransform X="0" Y="0.5"/>
-                                                    </TransformGroup>
-                                                </RadialGradientBrush.RelativeTransform>
-                                                <GradientStop Offset="1" Color="#CCFFFFFF"/>
-                                                <GradientStop Offset="0.85" Color="#66FFFFFF"/>
-                                                <GradientStop Offset="0" Color="#00000000"/>
-                                            </RadialGradientBrush>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-            <ControlTemplate x:Key="ButtonControlTemplate3" TargetType="{x:Type Button}">
-                <ControlTemplate.Resources>
-                    <Storyboard x:Key="Timeline1">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="1"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                    <Storyboard x:Key="Timeline2">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                </ControlTemplate.Resources>
-                <Border x:Name="border">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="0.507*"/>
-                            <RowDefinition Height="0.493*"/>
-                        </Grid.RowDefinitions>
-                        <Border Opacity="0" HorizontalAlignment="Stretch" x:Name="glow" Width="Auto" Grid.RowSpan="2">
-                            <Border.Background>
-                                <RadialGradientBrush>
-                                    <RadialGradientBrush.RelativeTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform ScaleX="1.702" ScaleY="2.243"/>
-                                            <SkewTransform AngleX="0" AngleY="0"/>
-                                            <RotateTransform Angle="0"/>
-                                            <TranslateTransform X="-0.368" Y="-0.152"/>
-                                        </TransformGroup>
-                                    </RadialGradientBrush.RelativeTransform>
-                                    <GradientStop Color="#B28DBDFF" Offset="0"/>
-                                    <GradientStop Color="#008DBDFF" Offset="1"/>
-                                </RadialGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Width="48" Grid.RowSpan="2"/>
-                    </Grid>
-                </Border>
-                <ControlTemplate.Triggers>
-                    <Trigger Property="IsPressed" Value="True">
-                        <Setter Property="Visibility" TargetName="glow" Value="Hidden"/>
-                    </Trigger>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Trigger.EnterActions>
-                            <BeginStoryboard Storyboard="{StaticResource Timeline1}"/>
-                        </Trigger.EnterActions>
-                        <Trigger.ExitActions>
-                            <BeginStoryboard x:Name="Timeline2_BeginStoryboard" Storyboard="{StaticResource Timeline2}"/>
-                        </Trigger.ExitActions>
-                    </Trigger>
-                </ControlTemplate.Triggers>
-            </ControlTemplate>
-            <ControlTemplate x:Key="ButtonControlTemplate4" TargetType="{x:Type Button}">
-                <ControlTemplate.Resources>
-                    <Storyboard x:Key="Timeline1">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="1"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                    <Storyboard x:Key="Timeline2">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                </ControlTemplate.Resources>
-                <Border x:Name="border">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="0.507*"/>
-                            <RowDefinition Height="0.493*"/>
-                        </Grid.RowDefinitions>
-                        <Ellipse x:Name="glow" Margin="-0.75,-6,1.75,-4.25" Grid.RowSpan="2" Opacity="1">
-                            <Ellipse.Fill>
-                                <RadialGradientBrush>
-                                    <GradientStop Color="#460012A5" Offset="0.703"/>
-                                    <GradientStop Color="#0FFFFFFF" Offset="1"/>
-                                </RadialGradientBrush>
-                            </Ellipse.Fill>
-                        </Ellipse>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Width="48" Grid.RowSpan="2" d:IsLocked="True"/>
-                    </Grid>
-                </Border>
-                <ControlTemplate.Triggers>
-                    <Trigger Property="IsPressed" Value="True">
-                        <Setter Property="Visibility" TargetName="glow" Value="Hidden"/>
-                    </Trigger>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Trigger.EnterActions>
-                            <BeginStoryboard Storyboard="{StaticResource Timeline1}"/>
-                        </Trigger.EnterActions>
-                        <Trigger.ExitActions>
-                            <BeginStoryboard x:Name="Timeline2_BeginStoryboard" Storyboard="{StaticResource Timeline2}"/>
-                        </Trigger.ExitActions>
-                    </Trigger>
-                </ControlTemplate.Triggers>
-            </ControlTemplate>
-            <Style x:Key="ButtonStyle4" TargetType="{x:Type Button}">
-                <Setter Property="SnapsToDevicePixels" Value="True"/>
-                <Setter Property="OverridesDefaultStyle" Value="True"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type Button}">
-                            <Grid>
-                                <!-- Background Layer -->
-                                <Ellipse Fill="{TemplateBinding Background}"/>
-                                <!-- Refraction Layer -->
-                                <Ellipse x:Name="RefractionLayer">
-                                    <Ellipse.Fill>
-                                        <RadialGradientBrush GradientOrigin="0.496,1.052">
-                                            <RadialGradientBrush.RelativeTransform>
-                                                <TransformGroup>
-                                                    <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.5" ScaleY="1.5"/>
-                                                    <TranslateTransform X="0.02" Y="0.3"/>
-                                                </TransformGroup>
-                                            </RadialGradientBrush.RelativeTransform>
-                                            <GradientStop Offset="1" Color="#00000000"/>
-                                            <GradientStop Offset="0.4" Color="#FF2FCBDD"/>
-                                        </RadialGradientBrush>
-                                    </Ellipse.Fill>
-                                </Ellipse>
-                                <!-- Reflection Layer -->
-                                <Path x:Name="ReflectionLayer" VerticalAlignment="Top" Stretch="Fill">
-                                    <Path.RenderTransform>
-                                        <ScaleTransform ScaleY="0.5" />
-                                    </Path.RenderTransform>
-                                    <Path.Data>
-                                        <PathGeometry>
-                                            <PathFigure IsClosed="True" StartPoint="98.999,45.499">
-                                                <BezierSegment Point1="98.999,54.170" Point2="89.046,52.258" Point3="85.502,51.029"/>
-                                                <BezierSegment
-            										IsSmoothJoin="True"
-            										Point1="75.860,47.685"
-            										Point2="69.111,45.196"
-            										Point3="50.167,45.196"/>
-                                                <BezierSegment Point1="30.805,45.196" Point2="20.173,47.741" Point3="10.665,51.363"/>
-                                                <BezierSegment
-            										IsSmoothJoin="True"
-            										Point1="7.469,52.580"
-            										Point2="1.000,53.252"
-            										Point3="1.000,44.999"/>
-                                                <BezierSegment Point1="1.000,39.510" Point2="0.884,39.227" Point3="2.519,34.286"/>
-                                                <BezierSegment
-            										IsSmoothJoin="True"
-            										Point1="9.106,14.370"
-            										Point2="27.875,0"
-            										Point3="50,0"/>
-                                                <BezierSegment Point1="72.198,0" Point2="91.018,14.466" Point3="97.546,34.485"/>
-                                                <BezierSegment
-            										IsSmoothJoin="True"
-            										Point1="99.139,39.369"
-            										Point2="98.999,40.084"
-            										Point3="98.999,45.499"/>
-                                            </PathFigure>
-                                        </PathGeometry>
-                                    </Path.Data>
-                                    <Path.Fill>
-                                        <RadialGradientBrush GradientOrigin="0.498,0.526">
-                                            <RadialGradientBrush.RelativeTransform>
-                                                <TransformGroup>
-                                                    <ScaleTransform
-            											CenterX="0.5"
-            											CenterY="0.5"
-            											ScaleX="1"
-            											ScaleY="1.997"/>
-                                                    <TranslateTransform X="0" Y="0.5"/>
-                                                </TransformGroup>
-                                            </RadialGradientBrush.RelativeTransform>
-                                            <GradientStop Offset="1" Color="#FFFFFFFF"/>
-                                            <GradientStop Offset="0.85" Color="#92FFFFFF"/>
-                                            <GradientStop Offset="0" Color="#00291F70"/>
-                                        </RadialGradientBrush>
-                                    </Path.Fill>
-                                </Path>
-                                <!-- ContentPresenter -->
-                                <ContentPresenter Margin="0,2,0,0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
-
-                            </Grid>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="RefractionLayer" Property="Fill">
-                                        <Setter.Value>
-                                            <RadialGradientBrush GradientOrigin="0.496,1.052">
-                                                <RadialGradientBrush.RelativeTransform>
-                                                    <TransformGroup>
-                                                        <ScaleTransform
-            												CenterX="0.5"
-            												CenterY="0.5"
-            												ScaleX="1.5"
-            												ScaleY="1.5"/>
-                                                        <TranslateTransform X="0.02" Y="0.3"/>
-                                                    </TransformGroup>
-                                                </RadialGradientBrush.RelativeTransform>
-                                                <GradientStop Offset="1" Color="#00000000"/>
-                                                <GradientStop Offset="0.45" Color="#FFFFFFFF"/>
-                                            </RadialGradientBrush>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter TargetName="ReflectionLayer" Property="Fill">
-                                        <Setter.Value>
-                                            <RadialGradientBrush GradientOrigin="0.498,0.526">
-                                                <RadialGradientBrush.RelativeTransform>
-                                                    <TransformGroup>
-                                                        <ScaleTransform
-            												CenterX="0.5"
-            												CenterY="0.5"
-            												ScaleX="1"
-            												ScaleY="1.997"/>
-                                                        <TranslateTransform X="0" Y="0.5"/>
-                                                    </TransformGroup>
-                                                </RadialGradientBrush.RelativeTransform>
-                                                <GradientStop Offset="1" Color="#FFFFFFFF"/>
-                                                <GradientStop Offset="0.85" Color="#BBFFFFFF"/>
-                                                <GradientStop Offset="0" Color="#00000000"/>
-                                            </RadialGradientBrush>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="RefractionLayer" Property="Fill">
-                                        <Setter.Value>
-                                            <RadialGradientBrush GradientOrigin="0.496,1.052">
-                                                <RadialGradientBrush.RelativeTransform>
-                                                    <TransformGroup>
-                                                        <ScaleTransform
-            												CenterX="0.5"
-            												CenterY="0.5"
-            												ScaleX="1.5"
-            												ScaleY="1.5"/>
-                                                        <TranslateTransform X="0.02" Y="0.3"/>
-                                                    </TransformGroup>
-                                                </RadialGradientBrush.RelativeTransform>
-                                                <GradientStop Offset="1" Color="#00000000"/>
-                                                <GradientStop Offset="0.3" Color="#FFFFFFFF"/>
-                                            </RadialGradientBrush>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter TargetName="ReflectionLayer" Property="Fill">
-                                        <Setter.Value>
-                                            <RadialGradientBrush GradientOrigin="0.498,0.526">
-                                                <RadialGradientBrush.RelativeTransform>
-                                                    <TransformGroup>
-                                                        <ScaleTransform
-            												CenterX="0.5"
-            												CenterY="0.5"
-            												ScaleX="1"
-            												ScaleY="1.997"/>
-                                                        <TranslateTransform X="0" Y="0.5"/>
-                                                    </TransformGroup>
-                                                </RadialGradientBrush.RelativeTransform>
-                                                <GradientStop Offset="1" Color="#CCFFFFFF"/>
-                                                <GradientStop Offset="0.85" Color="#66FFFFFF"/>
-                                                <GradientStop Offset="0" Color="#00000000"/>
-                                            </RadialGradientBrush>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto" Margin="0,0,124,0">
             <StackPanel Name="Add" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="auto">
-                <Button Template="{DynamicResource Dark}" Height="auto" Name="btnClose" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnClose_Click">
-                    <Image Source="..\Images\cross.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
+                <Button Template="{DynamicResource Start}" Height="auto" x:Name="btnStart" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnStart_Click" Background="#747D7DC7">
+                	<Image Source="..\Images\application_view_tile.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
                 </Button>
-                <Button Template="{DynamicResource Dark}" Height="auto" Name="btnStart" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnStart_Click">
-                    <Image Source="..\Images\application_view_tile.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
-                </Button>
-                <Button Template="{DynamicResource Dark}" Height="auto" Name="btnHome" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnHome_Click">
+                <Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnHome" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnHome_Click">
                     <Image Source="..\Images\house.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
                 </Button>
-                <Button Template="{DynamicResource Dark}" Height="auto" Name="btnAdd" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnAdd_Click">
+                <Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnAdd" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnAdd_Click">
                     <Image Source="..\Images\add.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
                 </Button>
             </StackPanel>
             <StackPanel Name="Body" Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto"/>
         </StackPanel>
         <Popup x:Name="popActivityManagers" MouseLeave="popActivityManagers_MouseLeave">
-        	<TabControl Height="185" Width="431.64">
+        	<TabControl Height="278" Width="575.64">
         		<TabItem Header="My Information">
         			<Grid Background="#FFE5E5E5">
         				<TextBox x:Name="txtDeviceName" Margin="101.087,8,8,0" TextWrapping="Wrap" Text="Device name" VerticalAlignment="Top"/>
-        				<TextBox x:Name="txtUsername" Margin="101.087,58,8,73.08" TextWrapping="Wrap" Text="Username" d:LayoutOverrides="Height"/>
-        				<TextBox x:Name="txtEmail" Margin="101.087,0,8,44.08" TextWrapping="Wrap" Text="email" VerticalAlignment="Bottom"/>
+        				<TextBox x:Name="txtUsername" Margin="101.087,42,8,0" TextWrapping="Wrap" Text="Username" Height="20.96" VerticalAlignment="Top"/>
+        				<TextBox x:Name="txtEmail" Margin="101.087,81,8,0" TextWrapping="Wrap" Text="email" VerticalAlignment="Top"/>
         				<Label Content="Device Name" HorizontalAlignment="Left" Margin="7,5,0,0" VerticalAlignment="Top"/>
-        				<Label Content="Username" HorizontalAlignment="Left" Margin="7,54,0,73.08" d:LayoutOverrides="Height" RenderTransformOrigin="0.5,0.5">
+        				<Label Content="Username" HorizontalAlignment="Left" Margin="6.8,37.007,0,0" RenderTransformOrigin="0.73,0.513" Height="26.849" VerticalAlignment="Top">
+        					<Label.RenderTransform>
+        						<TransformGroup>
+        							<ScaleTransform/>
+        							<SkewTransform/>
+        							<RotateTransform Angle="1.029"/>
+        							<TranslateTransform X="-0.009" Y="0.26"/>
+        						</TransformGroup>
+        					</Label.RenderTransform>
+        				</Label>
+        				<Label Content="Email" HorizontalAlignment="Left" Margin="11,78,0,0" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Top">
         					<Label.RenderTransform>
         						<TransformGroup>
         							<ScaleTransform/>
@@ -719,16 +193,7 @@
         						</TransformGroup>
         					</Label.RenderTransform>
         				</Label>
-        				<Label Content="Email" HorizontalAlignment="Left" Margin="7,0,0,42.08" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Bottom">
-        					<Label.RenderTransform>
-        						<TransformGroup>
-        							<ScaleTransform/>
-        							<SkewTransform/>
-        							<RotateTransform Angle="1.029"/>
-        							<TranslateTransform/>
-        						</TransformGroup>
-        					</Label.RenderTransform>
-        				</Label>
+        				<Button x:Name="btnClose" Content="Close Application" HorizontalAlignment="Left" Margin="7,0,0,8" VerticalAlignment="Bottom" Width="175" Click="btnClose_Click" Style="{DynamicResource redButton}" Foreground="White" FontSize="13.333" Height="32.08" />
         			</Grid>
         		</TabItem>
         		<TabItem x:Name="managers" Header="Discovery">
@@ -770,18 +235,14 @@
         	<Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnPhone" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch">
         		<Image Source="phone.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
         	</Button>
-        	<Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnDevice" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch">
+            <Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnDevice" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch">
         		<Image Source="computer.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
         	</Button>
-        	<Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnTablet" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch">
+            <Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnTablet" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch">
         		<Image Source="image.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
         	</Button>
         </DockPanel>
+        <Separator Margin="0" VerticalAlignment="Bottom" Background="#4CFFFFFF"/>
+        <Separator Margin="0,0,0,-1" VerticalAlignment="Bottom" Background="Black"/>
     </Grid>
-    <Window.BorderBrush>
-        <RadialGradientBrush>
-            <GradientStop Color="Black" Offset="1" />
-            <GradientStop Color="White" Offset="0.227" />
-        </RadialGradientBrush>
-    </Window.BorderBrush>
 </Window>
