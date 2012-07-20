@@ -26,9 +26,9 @@ using System.ServiceModel.Web;
 
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Contracts.NetEvents;
+using NooSphere.ActivitySystem.Events;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
-using NooSphere.ActivitySystem.Events;
 using NooSphere.Helpers;
 
 using Newtonsoft.Json;
@@ -56,6 +56,10 @@ namespace NooSphere.ActivitySystem.ActivityClient
         #endregion
 
         #region Constructor
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="address">The address of the service the client needs to connect to</param>
         public Client(string address)
         {
             Connect(address);
@@ -63,6 +67,11 @@ namespace NooSphere.ActivitySystem.ActivityClient
         #endregion
 
         #region Private Methods
+
+        /// <summary>
+        /// Tests the connection to the service
+        /// </summary>
+        /// <param name="addr">The address of the service</param>
         private void TestConnection(string addr)
         {
             Console.WriteLine("BasicClient: Found running service at " + addr);
@@ -71,11 +80,22 @@ namespace NooSphere.ActivitySystem.ActivityClient
             Console.WriteLine("BasicClient: Service active? -> " + res);
 
         }
+
+        /// <summary>
+        /// Connects the client to the activity service
+        /// </summary>
+        /// <param name="address">The address of the service</param>
         private void Connect(string address)
         {
             this.IP = NetHelper.GetIP(IPType.All);
             TestConnection(address);
         }
+
+        /// <summary>
+        /// Converts an enumeration into a service type
+        /// </summary>
+        /// <param name="type">The EventType enumerator</param>
+        /// <returns>The type that is represented by the emum</returns>
         private Type TypeFromEnum(EventType type)
         {
             switch (type)
@@ -94,12 +114,19 @@ namespace NooSphere.ActivitySystem.ActivityClient
                     return null;
             }
         }
+
+        /// <summary>
+        /// Starts a callback service. The activity manager uses this service to publish
+        /// events.
+        /// </summary>
+        /// <param name="service">The type of callback service</param>
+        /// <returns>The port of the deployed service</returns>
         private int StartCallbackService(Type service)
         {
             int port = NetHelper.FindPort();
 
             ServiceHost eventHandlerService = new ServiceHost(this);
-            ServiceEndpoint se = eventHandlerService.AddServiceEndpoint(service, new WebHttpBinding(), GetUrl(this.IP, port, ""));
+            ServiceEndpoint se = eventHandlerService.AddServiceEndpoint(service, new WebHttpBinding(), NetHelper.GetUrl(this.IP, port, ""));
             se.Behaviors.Add(new WebHttpBehavior());
             try
             {
@@ -112,10 +139,6 @@ namespace NooSphere.ActivitySystem.ActivityClient
             }
             callbackServices.Add(service, eventHandlerService);
             return port;
-        }
-        private Uri GetUrl(string ip, int port, string relative)
-        {
-            return new Uri(string.Format("http://{0}:{1}/{2}", ip, port, relative));
         }
         #endregion
 

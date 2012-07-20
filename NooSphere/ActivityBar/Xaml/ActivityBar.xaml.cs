@@ -33,21 +33,20 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 
-using NooSphere.Platform.Windows.Glass;
+using NooSphere.ActivitySystem.ActivityClient;
+using NooSphere.ActivitySystem.ActivityManager;
 using NooSphere.ActivitySystem.Contracts;
-using NooSphere.Core.ActivityModel;
-
-using NooSphere.ActivitySystem.Host;
-using NooSphere.Platform.Windows.VDM;
 using NooSphere.ActivitySystem.Discovery;
-using NooSphere.Core.Devices;
 using NooSphere.ActivitySystem.Discovery.Client;
 using NooSphere.ActivitySystem.Discovery.Primitives;
+using NooSphere.ActivitySystem.Host;
+using NooSphere.Core.ActivityModel;
+using NooSphere.Core.Devices;
+using NooSphere.Platform.Windows.Glass;
+using NooSphere.Platform.Windows.VDM;
 
 using ActivityUI.Properties;
 using ActivityUI.Login;
-using NooSphere.ActivitySystem.ActivityClient;
-using NooSphere.ActivitySystem.ActivityManager;
 
 namespace ActivityUI
 {
