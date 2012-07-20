@@ -28,7 +28,7 @@ using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Contracts.NetEvents;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
-using NooSphere.Core.Events;
+using NooSphere.ActivitySystem.Events;
 using NooSphere.Helpers;
 
 using Newtonsoft.Json;
@@ -89,6 +89,8 @@ namespace NooSphere.ActivitySystem.ActivityClient
                     return typeof(IDeviceNetEvent);
                 case EventType.FileEvents:
                     return typeof(IFileNetEvent);
+                case EventType.UserEvent:
+                    return typeof(IUserEvent);
                 default:
                     return null;
             }
@@ -249,6 +251,49 @@ namespace NooSphere.ActivitySystem.ActivityClient
             };
             RestHelper.Post(ServiceAddress + Url.messages, message);
         }
+
+        /// <summary>
+        /// Gets all users in the friendlist
+        /// </summary>
+        /// <returns>A list with all users in the friendlist</returns>
+        public List<User> GetUsers()
+        {
+            return JsonConvert.DeserializeObject<List<User>>(RestHelper.Get(ServiceAddress + Url.users)); 
+        }
+
+        /// <summary>
+        /// Request friendship with another user
+        /// </summary>
+        /// <param name="email">The email of the user that needs to be friended</param>
+        public void RequestFriendShip(string email)
+        {
+            JsonConvert.DeserializeObject<List<User>>(RestHelper.Post(ServiceAddress + Url.users,email)); 
+        }
+
+        /// <summary>
+        /// Removes a user from the friendlist
+        /// </summary>
+        /// <param name="friendId">The id of the friend that needs to be removed</param>
+        public void RemoveFriend(Guid friendId)
+        {
+            JsonConvert.DeserializeObject<List<User>>(RestHelper.Delete(ServiceAddress + Url.users, friendId)); 
+        }
+
+        /// <summary>
+        /// Sends a response on a friend request from another user
+        /// </summary>
+        /// <param name="friendId">The id of the friend that is requesting friendship</param>
+        /// <param name="approval">Bool that indicates if the friendship was approved</param>
+        public void RespondToFriendRequest(Guid friendId, bool approval)
+        {
+            var response = new
+            {
+                friendId = friendId,
+                approval = approval
+            };
+            RestHelper.Put(ServiceAddress + Url.users, response);
+        }
+
         #endregion
 
         #region Internal Event Handlers
@@ -272,6 +317,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
         activities,
         devices,
         subscribers,
-        messages
+        messages,
+        users
     }
 }

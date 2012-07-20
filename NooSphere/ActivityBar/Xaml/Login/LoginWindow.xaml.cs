@@ -15,6 +15,8 @@ using NooSphere.Core.ActivityModel;
 using ActivityUI.Properties;
 using NooSphere.Helpers;
 using Newtonsoft.Json;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 
 namespace ActivityUI.Login
 {
@@ -26,10 +28,11 @@ namespace ActivityUI.Login
         public StartUpMode Mode { get; set; } 
         public LoginWindow()
         {
+            SourceInitialized += new EventHandler(LoginWindow_SourceInitialized);
             InitializeComponent();
             LoadSettings();
-        }
 
+        }
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
@@ -88,5 +91,27 @@ namespace ActivityUI.Login
                 this.User = u;
             }
         }
+        private void cancel_Click(object sender, RoutedEventArgs e)
+        {
+            Environment.Exit(0);
+        }
+
+        #region Window Extension
+        void LoginWindow_SourceInitialized(object sender, EventArgs e)
+        {
+            WindowInteropHelper wih = new WindowInteropHelper(this);
+            int style = GetWindowLong(wih.Handle, GWL_STYLE);
+            SetWindowLong(wih.Handle, GWL_STYLE, style & ~WS_SYSMENU);
+        }
+
+        private const int GWL_STYLE = -16;
+        private const int WS_SYSMENU = 0X00080000;
+
+        [DllImport("user32.dll")]
+        private extern static int SetWindowLong(IntPtr hwnd, int index, int value);
+        [DllImport("user32.dll")]
+        private extern static int GetWindowLong(IntPtr hwnd, int index);
+        #endregion
+
     }
 }

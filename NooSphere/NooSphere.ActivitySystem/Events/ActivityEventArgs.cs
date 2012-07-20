@@ -17,9 +17,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+
 using NooSphere.Core.ActivityModel;
 
-namespace NooSphere.Core.Events
+namespace NooSphere.ActivitySystem.Events
 {
     public class ActivityEventArgs
     {

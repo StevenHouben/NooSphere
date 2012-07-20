@@ -48,6 +48,7 @@
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.4.5.7\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -91,11 +92,15 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Login\LoginWindow.xaml">
+    <Page Include="Xaml\Login\LoginWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Resources\GlassButton.xaml">
+    <Page Include="Styles\GlassButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\ColoredButtons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -105,7 +110,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Login\LoginWindow.xaml.cs">
+    <Compile Include="Xaml\Login\LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -153,6 +158,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\add.png" />
+    <Resource Include="Xaml\computer.png" />
+    <Resource Include="Xaml\image.png" />
+    <Resource Include="Xaml\phone.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\house.png" />
@@ -166,7 +174,12 @@
   <ItemGroup>
     <Resource Include="Images\activity.PNG" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\activity1.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
