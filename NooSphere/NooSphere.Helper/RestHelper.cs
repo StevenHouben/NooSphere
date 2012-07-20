@@ -50,6 +50,8 @@ namespace NooSphere.Helpers
             message.RequestUri = new Uri(url);
 
             HttpResponseMessage response = client.SendAsync(message).Result;
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
+                throw (new Exception(response.ToString()));
             return response.Content.ReadAsStringAsync().Result;
         }
 

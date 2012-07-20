@@ -43,5 +43,10 @@ namespace NooSphere.Core.ActivityModel
         }
         public string Email { get; set; }
         #endregion
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

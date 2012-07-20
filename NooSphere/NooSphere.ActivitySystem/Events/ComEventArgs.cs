@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NooSphere.Core.Events
+namespace NooSphere.ActivitySystem.Events
 {
     public class ComEventArgs
     {

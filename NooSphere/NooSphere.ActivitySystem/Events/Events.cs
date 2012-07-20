@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NooSphere.Core.Events
+namespace NooSphere.ActivitySystem.Events
 {
     public delegate void ActivityAddedHandler(Object sender, ActivityEventArgs e);
     public delegate void ActivityRemovedHandler(Object sender, ActivityRemovedEventArgs e);
@@ -30,9 +30,20 @@ namespace NooSphere.Core.Events
     public delegate void FileChangedHandler(Object sender, FileEventArgs e);
     public delegate void FileAddedHandler(Object sender, FileEventArgs e);
     public delegate void FileRemovedHandler(Object sender, FileEventArgs e);
+    public delegate void FileUploadedHandler(Object sender, FileEventArgs e);
+    public delegate void FileDownloadedHandler(Object sender,FileEventArgs e);
+    public delegate void FileDeletedHandler(Object sender, FileEventArgs e);
 
     public delegate void MessageReceivedHandler(Object sender, ComEventArgs e);
 
     public delegate void ConnectionEstablishedHandler(Object sender,EventArgs e);
+    
+    public delegate void ParticipantAddedHandler(Object sender, ParticipantEventArgs e);
+    public delegate void ParticipantRemovedHandler(Object sender, ParticipantEventArgs e);
+
+    public delegate void FriendAddedHandler(Object sender, FriendEventArgs e);
+    public delegate void FriendRemovedHander(Object sender, FriendEventArgs e);
+    public delegate void FriendDeletedHandler(Object sender, FriendDeletedEventArgs e);
+    public delegate void FriendRequestReceivedHandler(Object sender, FriendEventArgs e);
 
 }

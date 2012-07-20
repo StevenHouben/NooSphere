@@ -18,7 +18,7 @@ using System.Linq;
 using System.Text;
 using NooSphere.Core.Devices;
 
-namespace NooSphere.Core.Events
+namespace NooSphere.ActivitySystem.Events
 {
     public class DeviceEventArgs
     {

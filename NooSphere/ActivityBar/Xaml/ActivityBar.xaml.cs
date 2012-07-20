@@ -65,6 +65,8 @@ namespace ActivityUI
         private ActivityButton currentButton;
         private LoginWindow login;
         private bool startingUp = true;
+
+        private ObservableCollection<User> contactList = new ObservableCollection<User>();
         #endregion
 
         #region Constructor
@@ -177,13 +179,19 @@ namespace ActivityUI
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ComEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.DeviceEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.FileEvents);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.UserEvent);
 
             //Subcribe to the callback events of the activity manager
-            client.DeviceAdded += new NooSphere.Core.Events.DeviceAddedHandler(client_DeviceAdded);
-            client.ActivityAdded += new NooSphere.Core.Events.ActivityAddedHandler(client_ActivityAdded);
-            client.DeviceRemoved += new NooSphere.Core.Events.DeviceRemovedHandler(client_DeviceRemoved);
-            client.ActivityRemoved += new NooSphere.Core.Events.ActivityRemovedHandler(client_ActivityRemoved);
-            client.MessageReceived += new NooSphere.Core.Events.MessageReceivedHandler(client_MessageReceived);
+            client.DeviceAdded += new NooSphere.ActivitySystem.Events.DeviceAddedHandler(client_DeviceAdded);
+            client.ActivityAdded += new NooSphere.ActivitySystem.Events.ActivityAddedHandler(client_ActivityAdded);
+            client.ActivityChanged += new NooSphere.ActivitySystem.Events.ActivityChangedHandler(client_ActivityChanged);
+            client.DeviceRemoved += new NooSphere.ActivitySystem.Events.DeviceRemovedHandler(client_DeviceRemoved);
+            client.ActivityRemoved += new NooSphere.ActivitySystem.Events.ActivityRemovedHandler(client_ActivityRemoved);
+            client.MessageReceived += new NooSphere.ActivitySystem.Events.MessageReceivedHandler(client_MessageReceived);
+
+            client.FriendAdded += new NooSphere.ActivitySystem.Events.FriendAddedHandler(client_FriendAdded);
+            client.FriendDeleted += new NooSphere.ActivitySystem.Events.FriendDeletedHandler(client_FriendDeleted);
+            client.FriendRequestReceived += new NooSphere.ActivitySystem.Events.FriendRequestReceivedHandler(client_FriendRequestReceived);
 
             BuildUI();
             startingUp = false;
@@ -237,6 +245,15 @@ namespace ActivityUI
             }
             EnableUI();
             VirtualDesktopManager.InitDesktops(1);
+
+            List<User> users = client.GetUsers();
+            if(users != null)
+                contactList = new ObservableCollection<User>(users );
+
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                friendList.ItemsSource = contactList;
+            }));
 
             //DEBUG_AddActivities(50);
             //DEBUG_DeleteAllActivities();
@@ -303,21 +320,11 @@ namespace ActivityUI
                 b.MouseLeave += new MouseEventHandler(b_MouseLeave);
                 b.Height = this.Height - 5;
                 b.ActivityId = p.Activity.Id;
+
+
+
+                b.Template = (ControlTemplate)this.FindResource("Dark");
                 b.Style = (Style)this.Resources["ColorHotTrackButton"];
-
-                //StackPanel panel = new StackPanel();
-                //panel.Orientation = Orientation.Horizontal;
-
-                //Image img = new Image();
-                //img.Source = new BitmapImage(new Uri("pack://application:,,,/Images/activity.PNG"));
-                //panel.Children.Add(img);
-                //Label l = new Label();
-                //l.Foreground = Brushes.White;
-                //l.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-                //l.Content = activity.Name;
-                //panel.Children.Add(l);
-
-                //b.Content = panel;
 
                 p.Button = b;
                 Body.Children.Add(p.Button);
@@ -477,19 +484,44 @@ namespace ActivityUI
 
             //Force glass style
             ApplyGlass(handle);
-
             NooSphere.Platform.Windows.Dock.AppBarFunctions.SetAppBar(this, NooSphere.Platform.Windows.Dock.AppBarPosition.Top);
         }
         #endregion
 
         #region Event Handlers
+        void client_FriendRequestReceived(object sender, NooSphere.ActivitySystem.Events.FriendEventArgs e)
+        {
+            if (MessageBoxResult.Yes == MessageBox.Show("Do you want to add " + e.User.Name + " to your friend list?", "Friend list", MessageBoxButton.YesNo))
+            {
+                client.RespondToFriendRequest(e.User.Id, true);
+            }
+            else
+                client.RespondToFriendRequest(e.User.Id, false);
+        }
+        void client_FriendDeleted(object sender, NooSphere.ActivitySystem.Events.FriendDeletedEventArgs e)
+        {
+
+        }
+        void client_FriendAdded(object sender, NooSphere.ActivitySystem.Events.FriendEventArgs e)
+        {
+
+        }
+        private void txtAddFriend_Click(object sender, RoutedEventArgs e)
+        {
+            client.RequestFriendShip(txtEmailFriend.Text);
+        }
+        private void client_ActivityChanged(object sender, NooSphere.ActivitySystem.Events.ActivityEventArgs e)
+        {
+            proxies[e.Activity.Id].Activity = e.Activity;
+            proxies[e.Activity.Id].Button.Text = e.Activity.Name; 
+        }
         private void b_MouseLeave(object sender, MouseEventArgs e)
         {
             ((ActivityButton)sender).RenderMode = RenderMode.Image;
         }
         private void b_MouseEnter(object sender, MouseEventArgs e)
         {
-            ((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
+            //((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
         }
         private void btnApplyChanges_Click(object sender, RoutedEventArgs e)
         {
@@ -533,27 +565,28 @@ namespace ActivityUI
             AddDiscoveryActivityManagerToUI(e.ServiceInfo);
 
         }
-        private void client_DeviceRemoved(object sender, NooSphere.Core.Events.DeviceEventArgs e)
+        private void client_DeviceRemoved(object sender, NooSphere.ActivitySystem.Events.DeviceEventArgs e)
         {
             AddToLog("Device Removed\n");
         }
-        private void client_DeviceAdded(object sender, NooSphere.Core.Events.DeviceEventArgs e)
+        private void client_DeviceAdded(object sender, NooSphere.ActivitySystem.Events.DeviceEventArgs e)
         {
+            
             AddToLog("Device Added\n");
         }
-        private void client_MessageReceived(object sender, NooSphere.Core.Events.ComEventArgs e)
+        private void client_MessageReceived(object sender, NooSphere.ActivitySystem.Events.ComEventArgs e)
         {
             AddToLog(e.Message+"\n");
         }
-        private void client_ActivityRemoved(object sender, NooSphere.Core.Events.ActivityRemovedEventArgs e)
+        private void client_ActivityRemoved(object sender, NooSphere.ActivitySystem.Events.ActivityRemovedEventArgs e)
         {
             RemoveActivityUI(e.ID);
-            AddToLog("Activity Added\n");
+            AddToLog("Activity Removed\n");
         }
-        private void client_ActivityAdded(object obj, NooSphere.Core.Events.ActivityEventArgs e)
+        private void client_ActivityAdded(object obj, NooSphere.ActivitySystem.Events.ActivityEventArgs e)
         {
             AddActivityUI(e.Activity);
-            AddToLog("Activity Removed\n");
+            AddToLog("Activity Added\n");
         }
         private void btnAdd_Click(object sender, RoutedEventArgs e)
         {
@@ -616,6 +649,10 @@ namespace ActivityUI
             NooSphere.Core.ActivityModel.Action act = new NooSphere.Core.ActivityModel.Action();
             ac.Actions.Add(act);
 
+            User part = new User();
+            part.Email = "test@test.dk";
+
+            ac.Participants.Add(part);
             return ac;
         }
         #endregion
@@ -704,6 +741,7 @@ namespace ActivityUI
         {
             if (DwmApi.DwmIsCompositionEnabled())
             {
+                this.Background = Brushes.Transparent;
                 HwndSource mainWindowSrc = System.Windows.Interop.HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
                 mainWindowSrc.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
                 DWM_BLURBEHIND blurBehindParameters = new DWM_BLURBEHIND();
@@ -713,13 +751,7 @@ namespace ActivityUI
 
                 IntPtr result = DwmEnableBlurBehindWindow(handle, ref blurBehindParameters);
             }
-            else
-            {
-                this.Background = SystemColors.WindowFrameBrush;
-            }
-
         }
         #endregion
-
     }
 }

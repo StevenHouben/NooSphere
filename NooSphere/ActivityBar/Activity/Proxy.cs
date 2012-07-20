@@ -27,7 +27,7 @@ namespace ActivityUI
     {
         public VirtualDesktop Desktop { get; set; }
         public Activity Activity{get;set;}
-        public Button Button { get; set; }
+        public ActivityButton Button { get; set; }
         public System.Windows.Controls.Image Image
         {
             get;
