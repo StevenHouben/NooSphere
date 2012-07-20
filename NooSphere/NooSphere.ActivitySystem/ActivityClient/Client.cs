@@ -34,7 +34,6 @@ using NooSphere.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-
 namespace NooSphere.ActivitySystem.ActivityClient
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]

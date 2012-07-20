@@ -17,6 +17,7 @@ using NooSphere.Helpers;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
+using System.Diagnostics;
 
 namespace ActivityUI.Login
 {
@@ -32,6 +33,9 @@ namespace ActivityUI.Login
             InitializeComponent();
             LoadSettings();
 
+            ToolTipService.SetIsEnabled(btnInfo, false);
+            ToolTipService.SetIsEnabled(btnStop, false);
+            ToolTipService.SetIsEnabled(btnGo, false);
         }
         protected override void OnClosed(EventArgs e)
         {
@@ -112,6 +116,22 @@ namespace ActivityUI.Login
         [DllImport("user32.dll")]
         private extern static int GetWindowLong(IntPtr hwnd, int index);
         #endregion
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(@"http://activitycloud-1.apphb.com/");
+        }
+
+        private void btnGo_MouseEnter(object sender, MouseEventArgs e)
+        {
+            this.txtTooltip.Foreground = ((Button)sender).BorderBrush;
+            this.txtTooltip.Text = ((Button)sender).ToolTip.ToString();
+        }
+
+        private void btnGo_MouseLeave(object sender, MouseEventArgs e)
+        {
+            this.txtTooltip.Text = "";
+        }
 
     }
 }
