@@ -1,4 +1,4 @@
-﻿/// <licence>
+/// <licence>
 /// 
 /// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
 /// 
@@ -197,15 +197,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
                 return;
             JObject content = JsonConvert.DeserializeObject<JObject>(obj);
             string eventType = content["Event"].ToString();
-            object data = new object();
-            try
-            {
-                data = JsonConvert.DeserializeObject<object>(content["Data"].ToString());
-            }
-            catch 
-            {
-                //do stuff here
-            }
+            object data = content["Data"].ToObject<object>();
 
             Thread t = new Thread(()=>
             {
