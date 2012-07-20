@@ -483,7 +483,7 @@ namespace ActivityUI
             IntPtr handle = new WindowInteropHelper(this).Handle;
 
             //Force glass style
-            //ApplyGlass(handle);
+            ApplyGlass(handle);
             NooSphere.Platform.Windows.Dock.AppBarFunctions.SetAppBar(this, NooSphere.Platform.Windows.Dock.AppBarPosition.Top);
         }
         #endregion
