@@ -4,160 +4,26 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-            d:DesignHeight="50" 
+            d:DesignHeight="60" 
             d:DesignWidth="750" 
             Width="auto"
-            Height="40" Loaded="Window_Loaded" BorderThickness="2" WindowStyle="None" ShowInTaskbar="False" Topmost="True">
+            Height="45" Loaded="Window_Loaded" BorderThickness="2" WindowStyle="None" ShowInTaskbar="False" Topmost="True" Background="{DynamicResource NonGlassBrush}">
     <Window.Resources>
-        <ResourceDictionary>
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-            <LinearGradientBrush x:Key="GlossGradient" EndPoint="0.0149999996647239,0.0160000007599592" StartPoint="0.486000001430511,0.723999977111816">
-                <GradientStop Color="#0CFFFFFF"/>
-                <GradientStop Color="#4CFFFFFF" Offset="1"/>
-            </LinearGradientBrush>
-            <Style x:Key="ColorHotTrackButton" TargetType="{x:Type Button}" BasedOn="{x:Null}">
-                <Setter Property="Background" Value="#00FFFFFF"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type Button}">
-                            <Grid x:Name="Grid" ClipToBounds="True">
-                                <Border x:Name="Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" CornerRadius="3,3,3,3" Opacity=".5" ClipToBounds="True"/>
-                                <Rectangle x:Name="rectangle" RadiusX="3" RadiusY="3" Fill="#33FFFFFF" Opacity="0"/>
-                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True"/>
-                                <Path x:Name="gloss" Fill="{StaticResource GlossGradient}" Stretch="Fill" Margin="2,2,2,29.204" ClipToBounds="True" Data="M2.9999995,0 L151,0 C152.65686,1.0728836E-06 154,1.3431468 154,3.0000018 L154,21.0382 151.53519,21.193919 C90.378815,25.365844 36.495198,48.231778 1.1935941,97.114381 L0,98.795694 0,3.0000018 C4.7683716E-07,1.3431468 1.3431462,1.0728836E-06 2.9999995,0 z"/>
-                            </Grid>
 
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="true">
-                                    <Setter Property="Opacity" Value="1.0" TargetName="Border"/>
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="false">
-                                    <Setter Property="Background" Value="{DynamicResource DisabledBackgroundBrush}" TargetName="Border"/>
-                                    <Setter Property="BorderBrush" Value="{DynamicResource DisabledBorderBrush}" TargetName="Border"/>
-                                    <Setter Property="Foreground" Value="{DynamicResource DisabledForegroundBrush}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-            <ControlTemplate x:Key="Dark" TargetType="{x:Type Button}">
-                <ControlTemplate.Resources>
-                    <Storyboard x:Key="Timeline1">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="1"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                    <Storyboard x:Key="Timeline2">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow" Storyboard.TargetProperty="(UIElement.Opacity)">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                </ControlTemplate.Resources>
-                <Border x:Name="border">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="0.507*"/>
-                            <RowDefinition Height="0.493*"/>
-                        </Grid.RowDefinitions>
-                        <Border Opacity="0" HorizontalAlignment="Stretch" x:Name="glow" Width="Auto" Grid.RowSpan="2">
-                            <Border.Background>
-                                <RadialGradientBrush>
-                                    <RadialGradientBrush.RelativeTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform ScaleX="1.702" ScaleY="2.243"/>
-                                            <SkewTransform AngleX="0" AngleY="0"/>
-                                            <RotateTransform Angle="0"/>
-                                            <TranslateTransform X="-0.368" Y="-0.152"/>
-                                        </TransformGroup>
-                                    </RadialGradientBrush.RelativeTransform>
-                                    <GradientStop Color="#B28DBDFF" Offset="0"/>
-                                    <GradientStop Color="#008DBDFF" Offset="1"/>
-                                </RadialGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" Grid.RowSpan="2"/>
-                    </Grid>
-                </Border>
-                <ControlTemplate.Triggers>
-                    <Trigger Property="IsPressed" Value="True">
-                        <Setter Property="Visibility" TargetName="glow" Value="Hidden"/>
-                    </Trigger>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Trigger.EnterActions>
-                            <BeginStoryboard Storyboard="{StaticResource Timeline1}"/>
-                        </Trigger.EnterActions>
-                        <Trigger.ExitActions>
-                            <BeginStoryboard x:Name="Timeline2_BeginStoryboard" Storyboard="{StaticResource Timeline2}"/>
-                        </Trigger.ExitActions>
-                    </Trigger>
-                </ControlTemplate.Triggers>
-            </ControlTemplate>
-            <ControlTemplate x:Key="Start" TargetType="{x:Type Button}">
-                <ControlTemplate.Resources>
-                    <Storyboard x:Key="Timeline1">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow2" Storyboard.TargetProperty="(UIElement.Opacity)">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="1"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                    <Storyboard x:Key="Timeline2">
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="glow2" Storyboard.TargetProperty="(UIElement.Opacity)">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0"/>
-                        </DoubleAnimationUsingKeyFrames>
-                    </Storyboard>
-                </ControlTemplate.Resources>
-                <Border x:Name="border">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="0.507*"/>
-                            <RowDefinition Height="0.493*"/>
-                        </Grid.RowDefinitions>
-                        <Border Opacity="0" HorizontalAlignment="Stretch" x:Name="glow2" Width="Auto" Grid.RowSpan="2">
-                            <Border.Background>
-                                <RadialGradientBrush>
-                                    <RadialGradientBrush.RelativeTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform ScaleX="1.702" ScaleY="2.243"/>
-                                            <SkewTransform AngleX="0" AngleY="0"/>
-                                            <RotateTransform Angle="0"/>
-                                            <TranslateTransform X="-0.368" Y="-0.152"/>
-                                        </TransformGroup>
-                                    </RadialGradientBrush.RelativeTransform>
-                                    <GradientStop Color="#B2FF9F8D" Offset="0"/>
-                                    <GradientStop Color="#4BF56565" Offset="1"/>
-                                </RadialGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" Grid.RowSpan="2"/>
-                    </Grid>
-                </Border>
-                <ControlTemplate.Triggers>
-                    <Trigger Property="IsPressed" Value="True">
-                        <Setter Property="Visibility" TargetName="glow2" Value="Hidden"/>
-                    </Trigger>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Trigger.EnterActions>
-                            <BeginStoryboard Storyboard="{StaticResource Timeline1}"/>
-                        </Trigger.EnterActions>
-                        <Trigger.ExitActions>
-                            <BeginStoryboard x:Name="Timeline2_BeginStoryboard" Storyboard="{StaticResource Timeline2}"/>
-                        </Trigger.ExitActions>
-                    </Trigger>
-                </ControlTemplate.Triggers>
-            </ControlTemplate>
-        </ResourceDictionary>
     </Window.Resources>
     <Grid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto" Margin="0,0,124,0">
             <StackPanel Name="Add" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="auto">
-                <Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnStart" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnStart_Click" Background="#747D7DC7">
-                	<Image Source="..\Images\application_view_tile.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
+                <Button x:Name="btnStart"  VerticalAlignment="Center" Width="54" Height="40" Foreground="{x:Null}" Template="{DynamicResource StartMenuBackground}" Background="{x:Null}" BorderBrush="{x:Null}" ToolTip="Open the Activity Menu  (winKey + A)" Click="btnStart_Click">
+                    <Button x:Name="startButton" Style="{DynamicResource StartButton}" Width="34" Height="34" Background="#FF0461FF" BorderThickness="0" Margin="5,1.5,0,3.5" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Image x:Name="imgStartButton" Width="30" Height="28" Source="/ActivityUI;component/Images/activity.PNG" />
+                    </Button>
                 </Button>
                 <Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnHome" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnHome_Click">
-                    <Image Source="..\Images\house.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
+                    <Image Source="..\Images\house.png" Width="20" Height="20" Margin="10" Tag="2"/>
                 </Button>
                 <Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnAdd" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnAdd_Click">
-                    <Image Source="..\Images\add.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
+                    <Image Source="..\Images\add.png" Width="20" Height="20" Margin="10" Tag="2"/>
                 </Button>
             </StackPanel>
             <StackPanel Name="Body" Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto"/>
@@ -221,14 +87,6 @@
         		</TabItem>
         	</TabControl>
         </Popup>
-        <Popup x:Name="popupActivity" MouseLeave="popupActivity_MouseLeave">
-        	<Grid Height="171" Width="372" Background="White">
-        		<TextBox x:Name="txtName" Margin="8,8,8,0" TextWrapping="Wrap" Text="Activity name" VerticalAlignment="Top"/>
-        		<TextBox x:Name="txtParticipants" Margin="8,33.96,8,50" TextWrapping="Wrap" Text="Activity name" d:LayoutOverrides="VerticalAlignment"/>
-        		<Button x:Name="btnDeleteActivity" Content="Delete" HorizontalAlignment="Left" Margin="8,131,0,0" VerticalAlignment="Top" Width="103" Click="btnDeleteActivity_Click" Style="{DynamicResource Danger}" Height="30" Foreground="White" FontSize="13.333" />
-        		<Button x:Name="btnApplyChanges" Content="Done" Margin="0,131,8,0" VerticalAlignment="Top" Click="btnApplyChanges_Click" Style="{DynamicResource Success}" FontSize="13.333" Foreground="White" Height="30" HorizontalAlignment="Right" Width="102" />
-        	</Grid>
-        </Popup>
         <DockPanel x:Name="Status" HorizontalAlignment="Right">
         	<Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnPhone" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch">
         		<Image Source="phone.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
@@ -243,10 +101,4 @@
         <Separator Margin="0" VerticalAlignment="Bottom" Background="#4CFFFFFF"/>
         <Separator Margin="0,0,0,-1" VerticalAlignment="Bottom" Background="Black"/>
     </Grid>
-    <Window.Background>
-        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-            <GradientStop Color="#FF52A6E3" Offset="0" />
-            <GradientStop Color="#FF1678BF" Offset="1" />
-        </LinearGradientBrush>
-    </Window.Background>
 </Window>

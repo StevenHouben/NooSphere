@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Diagnostics;
+using ActivityUI.PopUp;
 
 namespace ActivityUI.Login
 {

@@ -47,6 +47,7 @@ using NooSphere.Platform.Windows.VDM;
 
 using ActivityUI.Properties;
 using ActivityUI.Login;
+using ActivityUI.PopUp;
 
 namespace ActivityUI
 {
@@ -64,6 +65,8 @@ namespace ActivityUI
         private ActivityButton currentButton;
         private LoginWindow login;
         private bool startingUp = true;
+        private PopUpWindow popUp;
+        public RenderStyle RenderStyle { get; set; }
 
         private ObservableCollection<User> contactList = new ObservableCollection<User>();
         #endregion
@@ -75,6 +78,8 @@ namespace ActivityUI
         public ActivityBar()
         {
             InitializeComponent();
+            popUp = new PopUpWindow(this);
+           
             DisableUI();
 
             login = new LoginWindow();
@@ -83,7 +88,7 @@ namespace ActivityUI
         }
         #endregion
 
-        #region Private Members
+        #region Private Methods
         /// <summary>
         /// Initializes the device, user and system
         /// </summary>
@@ -320,10 +325,8 @@ namespace ActivityUI
                 b.Height = this.Height - 5;
                 b.ActivityId = p.Activity.Id;
 
-
-
-                b.Template = (ControlTemplate)this.FindResource("Dark");
-                b.Style = (Style)this.Resources["ColorHotTrackButton"];
+                //b.Template = (ControlTemplate)this.FindResource("Dark");
+                b.Style = (Style)FindResource("ColorHotTrackButton");
 
                 p.Button = b;
                 Body.Children.Add(p.Button);
@@ -348,25 +351,14 @@ namespace ActivityUI
         /// <param name="sender"></param>
         private void ShowActivityButtonContextMenu(ActivityButton btn)
         {
-            currentButton = btn;
-            popupActivity.PlacementTarget = currentButton;
-            currentActivity = proxies[(Guid)currentButton.ActivityId].Activity;
-            popupActivity.IsOpen = !popupActivity.IsOpen;
-            txtName.Text = currentActivity.Name;
-            foreach (User u in currentActivity.Participants)
-                txtParticipants.Text = u.Name;
-        }
+            if(popUp.Visibility == System.Windows.Visibility.Visible)
+                popUp.Hide();
+            GeneralTransform transform = btn.TransformToAncestor(this);
+            Point rootPoint = transform.Transform(new Point(0, 0));
 
-        /// <summary>
-        /// Hides the activity button context menu
-        /// </summary>
-        private void HideActivityButtonContextMenu(bool deleted)
-        {
-            popupActivity.IsOpen = false;
-            currentButton.Text = txtName.Text;
-            currentActivity.Name = txtName.Text;
-            if(!deleted) 
-                client.UpdateActivity(currentActivity);
+            popUp.Show(proxies[btn.ActivityId].Activity, (int)rootPoint.X);
+
+
         }
 
         /// <summary>
@@ -406,13 +398,36 @@ namespace ActivityUI
         /// <summary>
         /// Deletes the activity
         /// </summary>
-        private void DeleteActivity()
+        public void DeleteActivity()
         {
-            ActivityButton b = (ActivityButton)popupActivity.PlacementTarget;
-            Guid g = GetProxyFromButton(b).Activity.Id;
+            Guid g = GetProxyFromButton(currentButton).Activity.Id;
             client.RemoveActivity(g);
-            HideActivityButtonContextMenu(true);
         }
+        public void EditActivity(Activity ac)
+        {
+            currentActivity = proxies[(Guid)currentButton.ActivityId].Activity;
+            currentButton.Text = ac.Name;
+            client.UpdateActivity(ac);
+        }
+
+        private bool StartMenuOpened = false;
+        private StartMenu StartMenu;
+        private void ToggleStartMenu()
+        {
+            if (!StartMenuOpened)
+            {
+                StartMenu = new StartMenu(this);
+                StartMenu.Show();
+                //StartMenu.Title = Settings.Default.AMWorkspace + " (workspace) -> " + ActivityManager.SelectedActivity.Name + " (activity)";
+                StartMenuOpened = true;
+            }
+            else
+            {
+                StartMenu.Close();
+                StartMenuOpened = false;
+            }
+        }
+
 
         /// <summary>
         /// Adds a discovered activity manager to the UI
@@ -467,11 +482,11 @@ namespace ActivityUI
         /// <summary>
         /// Toggles the start menu
         /// </summary>
-        private void ToggleStartMenu()
-        {
-            popActivityManagers.PlacementTarget = btnStart;
-            popActivityManagers.IsOpen = !popActivityManagers.IsOpen;
-        }
+        //private void ToggleStartMenu()
+        //{
+        //    popActivityManagers.PlacementTarget = btnStart;
+        //    popActivityManagers.IsOpen = !popActivityManagers.IsOpen;
+        //}
 
         /// <summary>
         /// Initializes the taskbar
@@ -482,8 +497,41 @@ namespace ActivityUI
             IntPtr handle = new WindowInteropHelper(this).Handle;
 
             //Force glass style
-            ApplyGlass(handle);
+            if(RenderStyle == ActivityUI.RenderStyle.Glass)
+                ApplyGlass(handle);
+
             NooSphere.Platform.Windows.Dock.AppBarFunctions.SetAppBar(this, NooSphere.Platform.Windows.Dock.AppBarPosition.Top);
+        }
+
+        /// <summary>
+        /// Exits the application after cleaning up all resource
+        /// </summary>
+        public void ExitApplication()
+        {
+            //Hide all popUps
+            HideAllPopups();
+
+            //Close the taskbar
+            this.Close();
+
+            //Close the client;
+            client.UnSubscribeAll();
+
+            //Close the host if running
+            if(host.IsRunning)
+                host.Close();
+
+            //Uninitialize the virtual desktop manager
+            VirtualDesktopManager.UninitDesktops();
+
+            //Close the entire environment
+            Environment.Exit(0);
+        }
+
+        private void HideAllPopups()
+        {
+            popUp.Hide();
+            StartMenu.Close();
         }
         #endregion
 
@@ -520,19 +568,11 @@ namespace ActivityUI
         }
         private void b_MouseEnter(object sender, MouseEventArgs e)
         {
-            ((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
-        }
-        private void btnApplyChanges_Click(object sender, RoutedEventArgs e)
-        {
-            HideActivityButtonContextMenu(false);
+            //((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
         }
         private void btnRefresh_Click(object sender, RoutedEventArgs e)
         {
             RunDiscovery();
-        }
-        private void btnDeleteActivity_Click(object sender, RoutedEventArgs e)
-        {
-            DeleteActivity();
         }
         private void chkBroadcast_Click(object sender, RoutedEventArgs e)
         {
@@ -552,6 +592,7 @@ namespace ActivityUI
         {
             if (e.RightButton == MouseButtonState.Pressed)
             {
+                currentButton = (ActivityButton)sender;
                 ShowActivityButtonContextMenu((ActivityButton)sender);
             }
         }
@@ -609,17 +650,11 @@ namespace ActivityUI
         }
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
-            client.UnSubscribeAll();
-            VirtualDesktopManager.UninitDesktops();
-            this.Close();
+            ExitApplication();
         }
         private void popActivityManagers_MouseLeave(object sender, MouseEventArgs e)
         {
             HideStartMenu();
-        }
-        private void popupActivity_MouseLeave(object sender, MouseEventArgs e)
-        {
-            popupActivity.IsOpen = false;
         }
 
         #endregion
@@ -749,5 +784,15 @@ namespace ActivityUI
             }
         }
         #endregion
+
+        private void startButton_Click_1(object sender, RoutedEventArgs e)
+        {
+
+        }
+    }
+    public enum RenderStyle
+    {
+        Glass,
+        Plain
     }
 }

@@ -9,6 +9,7 @@
     			<ResourceDictionary Source="Simple Styles.xaml"/>
     			<ResourceDictionary Source="/ActivityUI;component/Styles/GlassButton.xaml"/>
     			<ResourceDictionary Source="/ActivityUI;component/Styles/ColoredButtons.xaml"/>
+                <ResourceDictionary Source="/ActivityUI;component/Styles/Dark.xaml"/>
     		</ResourceDictionary.MergedDictionaries>
     	</ResourceDictionary>
          

@@ -66,9 +66,11 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="UIAutomationProvider" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="Xaml\App.xaml">
@@ -79,7 +81,17 @@
     <Compile Include="Xaml\ActivityButton.cs" />
     <Compile Include="Xaml\IconToAvgColorBrushConverter.cs" />
     <Compile Include="StartupMode.cs" />
+    <Compile Include="Xaml\PopUp\ActivityPopUpWindow.xaml.cs">
+      <DependentUpon>ActivityPopUpWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Xaml\PopUp\StartMenu.xaml.cs">
+      <DependentUpon>StartMenu.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Xaml\Win7ColorTracking.cs" />
+    <Page Include="Styles\Dark.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Xaml\ActivityBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -102,6 +114,14 @@
     <Page Include="Styles\ColoredButtons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Xaml\PopUp\ActivityPopUpWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Xaml\PopUp\StartMenu.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Xaml\Simple Styles.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -161,6 +181,8 @@
     <Resource Include="Xaml\image.png" />
     <Resource Include="Xaml\Login\arrow_refresh.png" />
     <Resource Include="Xaml\phone.png" />
+    <Resource Include="Xaml\PopUp\DefaultUser.png" />
+    <Resource Include="Xaml\PopUp\frame.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\house.png" />
@@ -177,7 +199,17 @@
   <ItemGroup>
     <Resource Include="Images\activity1.PNG" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\application_xp_terminal.png" />
+    <Resource Include="Images\arrow_undo.png" />
+    <Resource Include="Images\brick.png" />
+    <Resource Include="Images\brick_go.png" />
+    <Resource Include="Images\disk.png" />
+    <Resource Include="Images\door_out.png" />
+    <Resource Include="Images\lightbulb.png" />
+    <Resource Include="Images\package.png" />
+    <Resource Include="Images\wrench.png" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\logo.PNG" />
   </ItemGroup>
