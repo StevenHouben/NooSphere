@@ -489,7 +489,7 @@ namespace ActivityUI
         #endregion
 
         #region Event Handlers
-        void client_FriendRequestReceived(object sender, NooSphere.ActivitySystem.Events.FriendEventArgs e)
+        private void client_FriendRequestReceived(object sender, NooSphere.ActivitySystem.Events.FriendEventArgs e)
         {
             if (MessageBoxResult.Yes == MessageBox.Show("Do you want to add " + e.User.Name + " to your friend list?", "Friend list", MessageBoxButton.YesNo))
             {
@@ -498,11 +498,11 @@ namespace ActivityUI
             else
                 client.RespondToFriendRequest(e.User.Id, false);
         }
-        void client_FriendDeleted(object sender, NooSphere.ActivitySystem.Events.FriendDeletedEventArgs e)
+        private void client_FriendDeleted(object sender, NooSphere.ActivitySystem.Events.FriendDeletedEventArgs e)
         {
 
         }
-        void client_FriendAdded(object sender, NooSphere.ActivitySystem.Events.FriendEventArgs e)
+        private void client_FriendAdded(object sender, NooSphere.ActivitySystem.Events.FriendEventArgs e)
         {
 
         }
@@ -521,7 +521,7 @@ namespace ActivityUI
         }
         private void b_MouseEnter(object sender, MouseEventArgs e)
         {
-            //((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
+            ((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
         }
         private void btnApplyChanges_Click(object sender, RoutedEventArgs e)
         {
@@ -610,12 +610,9 @@ namespace ActivityUI
         }
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
+            client.UnSubscribeAll();
             VirtualDesktopManager.UninitDesktops();
             this.Close();
-        }
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            client.UnSubscribeAll();
         }
         private void popActivityManagers_MouseLeave(object sender, MouseEventArgs e)
         {

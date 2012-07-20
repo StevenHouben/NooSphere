@@ -11,13 +11,12 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
     		<RowDefinition Height="Auto" MinHeight="458"/>
-    		<RowDefinition/>
+    		<RowDefinition Height="Auto"/>
     	</Grid.RowDefinitions>
         <Label Content="Username" Height="28" HorizontalAlignment="Left" Margin="8,113,0,0" x:Name="lblName" VerticalAlignment="Top" />
         <Label Content="Email" Height="28" HorizontalAlignment="Left" Margin="8,145,0,0" x:Name="lblEmail" VerticalAlignment="Top" />
         <TextBox Height="23" Margin="95,115,20,0" x:Name="txtUsername" VerticalAlignment="Top" d:LayoutOverrides="GridBox" />
         <TextBox Height="23" Margin="95,147,20,0" x:Name="txtEmail" VerticalAlignment="Top" d:LayoutOverrides="GridBox" />
-        <Label Content="Device name" Height="28" HorizontalAlignment="Left" Margin="66,353,0,0" x:Name="lblDevicename" VerticalAlignment="Top" />
         <TextBox Height="23" Margin="95,180,20,0" x:Name="txtDevicename" VerticalAlignment="Top" d:LayoutOverrides="GridBox" />
         <Image Height="94" HorizontalAlignment="Left" x:Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="144" Source="/ActivityUI;component/Images/activity1.PNG" />
         <Button Content="Go" Margin="0,0,8,127" Style="{DynamicResource Success}" Foreground="White" FontSize="13.333" HorizontalAlignment="Right" Width="81" RenderTransformOrigin="-0.037,0.75" Height="30" VerticalAlignment="Bottom" Name="btnGo" Click="btnGo_Click" MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" ToolTip="Start the application and connect to the cloud.">
@@ -54,7 +53,7 @@
                 </LinearGradientBrush>
             </Button.Background>
         </Button>
-        <TextBlock Height="22" Margin="21,268,30,0" Name="txtTooltip" Text="" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="12" Foreground="#FF3091FC" TextAlignment="Center" />
+        <TextBlock Height="22" Margin="21,269,30,0" Name="txtTooltip" Text="" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="12" Foreground="#FF3091FC" TextAlignment="Center" />
         <RadioButton Content="I don't know" GroupName="startup" Height="16" HorizontalAlignment="Left" Margin="95,215,0,0" Name="radioButton1" VerticalAlignment="Top" />
         <Image Height="54" HorizontalAlignment="Left" Margin="140,39,0,0" Name="image2" Stretch="None" VerticalAlignment="Top" Width="229" Source="/ActivityUI;component/Images/logo.PNG" />
     </Grid>

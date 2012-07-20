@@ -7,10 +7,9 @@
             d:DesignHeight="50" 
             d:DesignWidth="750" 
             Width="auto"
-            Height="40" Loaded="Window_Loaded" Closed="Window_Closed" BorderThickness="2" WindowStyle="ToolWindow" ShowInTaskbar="False" Topmost="True">
+            Height="40" Loaded="Window_Loaded" BorderThickness="2" WindowStyle="None" ShowInTaskbar="False" Topmost="True">
     <Window.Resources>
         <ResourceDictionary>
- 
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <LinearGradientBrush x:Key="GlossGradient" EndPoint="0.0149999996647239,0.0160000007599592" StartPoint="0.486000001430511,0.723999977111816">
                 <GradientStop Color="#0CFFFFFF"/>
@@ -146,58 +145,6 @@
                     </Trigger>
                 </ControlTemplate.Triggers>
             </ControlTemplate>
-            <Style x:Key="Warning" TargetType="{x:Type Button}">
-            	<Setter Property="Template">
-            		<Setter.Value>
-            			<ControlTemplate TargetType="{x:Type Button}">
-            				<ControlTemplate.Resources>
-            					<Storyboard x:Key="OnMouseEnter1">
-            						<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
-            							<EasingColorKeyFrame KeyTime="0" Value="#FFCC0E0E"/>
-            						</ColorAnimationUsingKeyFrames>
-            					</Storyboard>
-            					<Storyboard x:Key="OnMouseLeave1">
-            						<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
-            							<EasingColorKeyFrame KeyTime="0" Value="#FFE25F5F"/>
-            						</ColorAnimationUsingKeyFrames>
-            					</Storyboard>
-            					<Storyboard x:Key="OnMouseDown1">
-            						<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
-            							<EasingColorKeyFrame KeyTime="0" Value="#FFA50B0B"/>
-            						</ColorAnimationUsingKeyFrames>
-            					</Storyboard>
-            				</ControlTemplate.Resources>
-            				<Grid>
-            					<Rectangle x:Name="rectangle" RadiusY="3.5" RadiusX="3.5" Stroke="#FF428700">
-            						<Rectangle.Fill>
-            							<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-            								<GradientStop Color="#FFE28109" Offset="1"/>
-            								<GradientStop Color="#FFEBBE45" Offset="0.289"/>
-            							</LinearGradientBrush>
-            						</Rectangle.Fill>
-            					</Rectangle>
-            					<ContentPresenter HorizontalAlignment="Right" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="0,0,32.491,0"/>
-            				</Grid>
-            				<ControlTemplate.Triggers>
-            					<EventTrigger RoutedEvent="Mouse.PreviewMouseDown">
-            						<BeginStoryboard x:Name="OnMouseDown1_BeginStoryboard" Storyboard="{StaticResource OnMouseDown1}"/>
-            					</EventTrigger>
-            					<EventTrigger RoutedEvent="Mouse.MouseEnter">
-            						<BeginStoryboard x:Name="OnMouseEnter1_BeginStoryboard" Storyboard="{StaticResource OnMouseEnter1}"/>
-            					</EventTrigger>
-            					<EventTrigger RoutedEvent="Mouse.MouseLeave">
-            						<BeginStoryboard x:Name="OnMouseLeave1_BeginStoryboard" Storyboard="{StaticResource OnMouseLeave1}"/>
-            					</EventTrigger>
-            					<Trigger Property="IsFocused" Value="True"/>
-            					<Trigger Property="IsDefaulted" Value="True"/>
-            					<Trigger Property="IsMouseOver" Value="True"/>
-            					<Trigger Property="IsPressed" Value="True"/>
-            					<Trigger Property="IsEnabled" Value="False"/>
-            				</ControlTemplate.Triggers>
-            			</ControlTemplate>
-            		</Setter.Value>
-            	</Setter>
-            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
@@ -218,7 +165,7 @@
         <Popup x:Name="popActivityManagers" MouseLeave="popActivityManagers_MouseLeave">
         	<TabControl Height="278" Width="575.64">
         		<TabItem Header="My Information">
-        			<Grid Background="#FFE5E5E5">
+        			<Grid Background="#FFE5E5E5" Height="243.04" Width="565.64" d:LayoutOverrides="Width, Height">
         				<TextBox x:Name="txtDeviceName" Margin="101.087,8,8,0" TextWrapping="Wrap" Text="Device name" VerticalAlignment="Top"/>
         				<TextBox x:Name="txtUsername" Margin="101.087,42,8,0" TextWrapping="Wrap" Text="Username" Height="20.96" VerticalAlignment="Top"/>
         				<TextBox x:Name="txtEmail" Margin="101.087,81,8,0" TextWrapping="Wrap" Text="email" VerticalAlignment="Top"/>
@@ -243,7 +190,8 @@
         						</TransformGroup>
         					</Label.RenderTransform>
         				</Label>
-        				<Button x:Name="btnClose" Content="Close Application" HorizontalAlignment="Left" Margin="7,0,0,8" VerticalAlignment="Bottom" Width="175" Click="btnClose_Click" Style="{DynamicResource Danger}" Foreground="White" FontSize="13.333" Height="32.08" />
+        				<Button x:Name="btnClose" Content="Exit" HorizontalAlignment="Left" Margin="0,0,0,8" VerticalAlignment="Bottom" Width="72" Click="btnClose_Click" Style="{DynamicResource Danger}" Foreground="White" FontSize="13.333" Height="32.08" />
+        				<Button x:Name="btnLogOut" Content="Log Out" Margin="0,0,415.64,8" VerticalAlignment="Bottom" Click="btnClose_Click" Style="{DynamicResource Warning}" Foreground="White" FontSize="13.333" Height="32.08" HorizontalAlignment="Right" Width="74" />
         			</Grid>
         		</TabItem>
         		<TabItem x:Name="managers" Header="Discovery">

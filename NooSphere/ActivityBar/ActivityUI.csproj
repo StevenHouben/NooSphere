@@ -160,6 +160,7 @@
     <Resource Include="Images\add.png" />
     <Resource Include="Xaml\computer.png" />
     <Resource Include="Xaml\image.png" />
+    <Resource Include="Xaml\Login\arrow_refresh.png" />
     <Resource Include="Xaml\phone.png" />
   </ItemGroup>
   <ItemGroup>
