@@ -75,7 +75,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Activity\DesktopContext.cs" />
     <Compile Include="Activity\Proxy.cs" />
     <Compile Include="Xaml\ActivityButton.cs" />
     <Compile Include="Xaml\IconToAvgColorBrushConverter.cs" />
@@ -178,9 +177,7 @@
   <ItemGroup>
     <Resource Include="Images\activity1.PNG" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Images\logo.PNG" />
   </ItemGroup>
