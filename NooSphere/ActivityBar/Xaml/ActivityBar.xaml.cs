@@ -197,26 +197,6 @@ namespace ActivityUI
             startingUp = false;
         }
 
-        void client_FriendRequestReceived(object sender, NooSphere.ActivitySystem.Events.FriendEventArgs e)
-        {
-            if (MessageBoxResult.Yes == MessageBox.Show("Do you want to add " + e.User.Name + " to your friend list?", "Friend list", MessageBoxButton.YesNo))
-            {
-                client.RespondToFriendRequest(e.User.Id, true);
-            }
-            else
-                client.RespondToFriendRequest(e.User.Id, false);
-        }
-
-        void client_FriendDeleted(object sender, NooSphere.ActivitySystem.Events.FriendDeletedEventArgs e)
-        {
-           
-        }
-
-        void client_FriendAdded(object sender, NooSphere.ActivitySystem.Events.FriendEventArgs e)
-        {
-            
-        }
-
         /// <summary>
         /// Disable the UI
         /// </summary>
@@ -505,11 +485,27 @@ namespace ActivityUI
             //Force glass style
             //ApplyGlass(handle);
             NooSphere.Platform.Windows.Dock.AppBarFunctions.SetAppBar(this, NooSphere.Platform.Windows.Dock.AppBarPosition.Top);
-            this.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("E5009ABF"));
         }
         #endregion
 
         #region Event Handlers
+        void client_FriendRequestReceived(object sender, NooSphere.ActivitySystem.Events.FriendEventArgs e)
+        {
+            if (MessageBoxResult.Yes == MessageBox.Show("Do you want to add " + e.User.Name + " to your friend list?", "Friend list", MessageBoxButton.YesNo))
+            {
+                client.RespondToFriendRequest(e.User.Id, true);
+            }
+            else
+                client.RespondToFriendRequest(e.User.Id, false);
+        }
+        void client_FriendDeleted(object sender, NooSphere.ActivitySystem.Events.FriendDeletedEventArgs e)
+        {
+
+        }
+        void client_FriendAdded(object sender, NooSphere.ActivitySystem.Events.FriendEventArgs e)
+        {
+
+        }
         private void txtAddFriend_Click(object sender, RoutedEventArgs e)
         {
             client.RequestFriendShip(txtEmailFriend.Text);
