@@ -102,19 +102,6 @@ namespace ActivityUI
             login.LoggedIn += new EventHandler(login_LoggedIn);
             login.Show();
         }
-
-        void MouseHook_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
-        {
-            if (!HitTest(activityWindow, e.Location) && !HitTest(managerWindow, e.Location)&& !HitTest(StartMenu,e.Location))
-                HideAllPopups();
-        }
-        bool HitTest(Window w, System.Drawing.Point p)
-        {
-            if (w.Visibility == Visibility.Hidden)
-                return false;
-            else
-                return (p.X >= w.Left && p.X <= w.Left + w.Width) && (p.Y >= w.Top && p.Y <= w.Top + w.Height);
-        }
         #endregion
 
         #region Public members
@@ -158,6 +145,21 @@ namespace ActivityUI
         #endregion
 
         #region Private Methods
+
+        /// <summary>
+        /// Calculates if a global mouse click is in a given window
+        /// </summary>
+        /// <param name="w">The window</param>
+        /// <param name="p">The global mouse click location</param>
+        /// <returns></returns>
+        private bool HitTest(Window w, System.Drawing.Point p)
+        {
+            if (w.Visibility == Visibility.Hidden)
+                return false;
+            else
+                return (p.X >= w.Left && p.X <= w.Left + w.Width) && (p.Y >= w.Top && p.Y <= w.Top + w.Height);
+        }
+
         /// <summary>
         /// Initializes the device, user and system
         /// </summary>
@@ -580,6 +582,11 @@ namespace ActivityUI
         #endregion
 
         #region Event Handlers
+        private void MouseHook_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (!HitTest(activityWindow, e.Location) && !HitTest(managerWindow, e.Location) && !HitTest(StartMenu, e.Location))
+                HideAllPopups();
+        }
         private void btnManager_Click(object sender, RoutedEventArgs e)
         {
             ShowManagerContextMenu();
