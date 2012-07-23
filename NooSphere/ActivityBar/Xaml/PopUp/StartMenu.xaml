@@ -6,7 +6,7 @@
 	x:Name="Window"
 	Title=""
 	UseLayoutRounding="True" Loaded="OnWindowLoaded"
-    WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="False"  mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" Height="406.001" Width="206.667" Background="White" Style="{DynamicResource WindowStyle1}" Foreground="White">
+    WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="False"  mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" Height="474" Width="405" Background="White" Style="{DynamicResource WindowStyle1}" Foreground="White" Padding="0,5,0,0">
 	<Window.Resources>
 		<ControlTemplate x:Key="WindowTemplateKey" TargetType="{x:Type Window}">
 			<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
@@ -69,64 +69,64 @@
 			</Setter>
 		</Style>
 	</Window.Resources>
-	<Grid Height="398" VerticalAlignment="Top" Loaded="Grid_Loaded" Margin="0,0,2,0">
-		<StackPanel x:Name="pnlButtons" VerticalAlignment="Top" Margin="9,75,0,0" Height="307">
-			<Button x:Name="btnAddActivity" Click="btnAddActivity_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="34" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}">
+	<Grid VerticalAlignment="Top" Loaded="Grid_Loaded" Background="White" HorizontalAlignment="Left" Width="246" Height="466">
+		<StackPanel x:Name="pnlButtons" VerticalAlignment="Top" Margin="9,75,0,0" Height="auto" Background="White">
+			<Button x:Name="btnAddActivity" Click="btnAddActivity_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="auto" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}" Padding="1" Margin="0,5">
 				<StackPanel HorizontalAlignment="Left" Width="Auto" Height="Auto" Orientation="Horizontal">
-					<Image Width="20" Height="20" Stretch="Fill" Source="/ActivityUI;component/Images/Brick.png" />
+                    <Image Width="30" Height="30" Stretch="Fill" Source="/ActivityUI;component/Images/Brick.png" />
 					<TextBlock Margin="5,0,50,0" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" Text="Add New Activity" Foreground="Black"/>
 				</StackPanel>
 			</Button>
-			<Button x:Name="btnLoadActivity" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="34" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}" Click="btnLoadActivity_Click">
+            <Button x:Name="btnLoadActivity" Margin="0,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="auto" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}" Click="btnLoadActivity_Click">
 				<StackPanel Width="Auto" Height="Auto" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Image Width="20" Height="20"  Stretch="Fill" Source="/ActivityUI;component/Images/brick_go.png" />
+                    <Image Width="30" Height="30"  Stretch="Fill" Source="/ActivityUI;component/Images/brick_go.png" />
 					<TextBlock x:Name="___TextBlock___LoadActivity_" Margin="5,0,50,0" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" Text="Load Activity" Foreground="Black"/>
 				</StackPanel>
 			</Button>
-			<Button x:Name="btnSaveActivity" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="34" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}" Click="btnSaveActivity_Click">
+            <Button x:Name="btnSaveActivity" Margin="0,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="auto" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}" Click="btnSaveActivity_Click">
 				<StackPanel Width="Auto" Height="Auto" Orientation="Horizontal" HorizontalAlignment="Left">
-					<Image Width="20" Height="20"  Stretch="Fill" Source="/ActivityUI;component/Images/disk.png" />
+                    <Image Width="30" Height="30"  Stretch="Fill" Source="/ActivityUI;component/Images/disk.png" />
 					<TextBlock x:Name="___TextBlock___LoadActivity_3" Margin="5,0,50,0" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" Text="Save Activity" Foreground="Black"/>
 				</StackPanel>
 			</Button>
-			<Button x:Name="btnChangeWorkspace" Click="btnChangeWorkspace_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="34" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}">
+            <Button x:Name="btnChangeWorkspace" Margin="0,5" Click="btnChangeWorkspace_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="auto" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}">
 				<StackPanel Width="Auto" Height="Auto" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Image Width="20" Height="20"  Stretch="Fill" Source="/ActivityUI;component/Images/package.png" />
+                    <Image Width="30" Height="30"  Stretch="Fill" Source="/ActivityUI;component/Images/package.png" />
 					<TextBlock x:Name="___TextBlock___LoadActivity_1" Margin="5,0,50,0" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" Foreground="Black"><Run Language="nl-be" Text="Change Workspace"/></TextBlock>
 				</StackPanel>
 			</Button>
-			<Button x:Name="btnContext" Click="btnContext_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="34" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}">
+            <Button x:Name="btnContext" Margin="0,5" Click="btnContext_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="auto" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}">
 				<StackPanel Width="Auto" Height="Auto" Orientation="Horizontal" HorizontalAlignment="Left">
-					<Image Width="20" Height="20" Stretch="Fill" Source="/ActivityUI;component/Images/lightbulb.png" />
+                    <Image Width="30" Height="30" Stretch="Fill" Source="/ActivityUI;component/Images/lightbulb.png" />
 					<TextBlock x:Name="___TextBlock___LoadActivity_2" Margin="5,0,50,0" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" Text="Context Processor" Foreground="Black"/>
 				</StackPanel>
 			</Button>
-			<Button x:Name="btnOptions" Click="btnOptions_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="34" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}">
+            <Button x:Name="btnOptions" Margin="0,5" Click="btnOptions_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="auto" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}">
 				<StackPanel HorizontalAlignment="Left" Width="Auto" Height="Auto" Orientation="Horizontal">
-					<Image Width="20" Height="20"  Stretch="Fill" Source="/ActivityUI;component/Images/wrench.png" />
+                    <Image Width="30" Height="30"  Stretch="Fill" Source="/ActivityUI;component/Images/wrench.png" />
 					<TextBlock Margin="5,0,50,0" VerticalAlignment="Center" FontSize="12" Text="Options" TextWrapping="Wrap" Foreground="Black"/>
 				</StackPanel>
 			</Button>
-			<Button x:Name="btnReset" Click="btnReset_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="34" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}">
+            <Button x:Name="btnReset" Margin="0,5" Click="btnReset_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="auto" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}">
 				<StackPanel HorizontalAlignment="Left" Width="Auto" Height="Auto" Orientation="Horizontal">
-					<Image Width="20" Height="20"  Stretch="Fill" Source="/ActivityUI;component/Images/arrow_undo.png" />
+                    <Image Width="30" Height="30"  Stretch="Fill" Source="/ActivityUI;component/Images/arrow_undo.png" />
 					<TextBlock Margin="5,0,50,2" VerticalAlignment="Bottom" FontSize="12" Text="Reset" TextWrapping="Wrap" Foreground="Black"/>
 				</StackPanel>
 			</Button>
-			<Button x:Name="btnLogger" Click="btnLogger_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="34" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}">
+            <Button x:Name="btnLogger" Margin="0,5" Click="btnLogger_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="auto" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}">
 				<StackPanel HorizontalAlignment="Left" Width="Auto" Height="Auto" Orientation="Horizontal">
-					<Image Width="20" Height="20" Stretch="Fill" Source="/ActivityUI;component/Images/application_xp_terminal.png" />
+                    <Image Width="30" Height="30" Stretch="Fill" Source="/ActivityUI;component/Images/application_xp_terminal.png" />
 					<TextBlock Margin="5,0,50,2" VerticalAlignment="Bottom" FontSize="12" Text="Logger (debug)" TextWrapping="Wrap" Foreground="Black"/>
 				</StackPanel>
 			</Button>
-			<Button x:Name="btnExit" Click="Button_Click_1"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="34" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}">
+            <Button x:Name="btnExit" Margin="0,5" Click="Button_Click_1"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="183" Height="auto" Foreground="#FFFFFFFF" Template="{DynamicResource Dark}">
 				<StackPanel HorizontalAlignment="Left" Width="Auto" Height="Auto" Orientation="Horizontal">
-					<Image Width="20" Height="20" Stretch="Fill" Source="/ActivityUI;component/Images/door_out.png" />
+                    <Image Width="30" Height="30" Stretch="Fill" Source="/ActivityUI;component/Images/door_out.png" />
 					<TextBlock Margin="5,0,50,0" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" HorizontalAlignment="Left" Foreground="Black"><Run Language="nl-be" Text="Exit"/></TextBlock>
 				</StackPanel>
 			</Button>
 		</StackPanel>
-        <TextBlock x:Name="lblName" Margin="71,21,8,0" VerticalAlignment="Top" FontSize="12" TextWrapping="Wrap" Text="Unknown" Foreground="White" HorizontalAlignment="Center" Width="120"/>
+        <TextBlock x:Name="lblName" Margin="75,27,0,0" VerticalAlignment="Top" FontSize="12" TextWrapping="Wrap" Text="Unknown" Foreground="White" HorizontalAlignment="Left" Width="120"/>
 		<Path Data="M9,72 L201,72" Height="2" Margin="8,71,8,0" StrokeStartLineCap="Flat" Stretch="Fill" StrokeEndLineCap="Flat" StrokeThickness="3" StrokeMiterLimit="10" StrokeLineJoin="Miter" UseLayoutRounding="False" VerticalAlignment="Top" Fill="Black">
 			<Path.Stroke>
 				<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -145,6 +145,6 @@
 				</LinearGradientBrush>
 			</Path.Stroke>
 		</Path>
-		<Image x:Name="imgMe" Width="49" OpacityMask="White" RenderTransformOrigin="0.5,0" Height="45" Margin="18,15,122,0" VerticalAlignment="Top" d:LayoutOverrides="Height" Source="DefaultUser.png" />
-		<Image x:Name="back" OpacityMask="White" RenderTransformOrigin="0.5,0" Height="57" Margin="9,8,110,0" VerticalAlignment="Top" Source="frame.png" Stretch="None" />
+		<Image x:Name="back" OpacityMask="White" RenderTransformOrigin="0.5,0" Height="57" Margin="9,8,110,0" VerticalAlignment="Top" Source="frame.png" Stretch="None" HorizontalAlignment="Left" />
+		<Image x:Name="imgMe" Width="49" OpacityMask="White" RenderTransformOrigin="0.5,0" Height="45" Margin="16,15,181,0" VerticalAlignment="Top" Source="DefaultUser.png" d:LayoutOverrides="Height" />
 	</Grid></Window>

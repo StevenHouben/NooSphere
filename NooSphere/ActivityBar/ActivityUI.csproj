@@ -81,8 +81,11 @@
     <Compile Include="Xaml\ActivityButton.cs" />
     <Compile Include="Xaml\IconToAvgColorBrushConverter.cs" />
     <Compile Include="StartupMode.cs" />
-    <Compile Include="Xaml\PopUp\ActivityPopUpWindow.xaml.cs">
-      <DependentUpon>ActivityPopUpWindow.xaml</DependentUpon>
+    <Compile Include="Xaml\PopUp\ActivityWindow.xaml.cs">
+      <DependentUpon>ActivityWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Xaml\PopUp\ManagerWindow.xaml.cs">
+      <DependentUpon>ManagerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Xaml\PopUp\StartMenu.xaml.cs">
       <DependentUpon>StartMenu.xaml</DependentUpon>
@@ -115,7 +118,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Xaml\PopUp\ActivityPopUpWindow.xaml">
+    <Page Include="Xaml\PopUp\ActivityWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Xaml\PopUp\ManagerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -179,10 +186,10 @@
     <Resource Include="Images\add.png" />
     <Resource Include="Xaml\computer.png" />
     <Resource Include="Xaml\image.png" />
-    <Resource Include="Xaml\Login\arrow_refresh.png" />
     <Resource Include="Xaml\phone.png" />
     <Resource Include="Xaml\PopUp\DefaultUser.png" />
     <Resource Include="Xaml\PopUp\frame.png" />
+    <Resource Include="Xaml\PopUp\wrench.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\house.png" />

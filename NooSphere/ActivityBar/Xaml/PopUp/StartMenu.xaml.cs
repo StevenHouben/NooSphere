@@ -1,4 +1,18 @@
-﻿using System;
+﻿/// <licence>
+/// 
+/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+/// 
+/// Pervasive Interaction Technology Laboratory (pIT lab)
+/// IT University of Copenhagen
+///
+/// This library is free software; you can redistribute it and/or 
+/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+/// as published by the Free Software Foundation. Check 
+/// http://www.gnu.org/licenses/gpl.html for details.
+/// 
+/// </licence>
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
@@ -183,22 +197,18 @@ namespace ActivityUI
         private MARGINS GetDpiAdjustedMargins(IntPtr windowHandle,
             int left, int right, int top, int bottom)
         {
-            // Get the system DPI. 
-            System.Drawing.Graphics g = System.Drawing.Graphics.FromHwnd(windowHandle);
-            float desktopDpiX = g.DpiX;
-            float desktopDpiY = g.DpiY;
 
-            // Set the margins. 
             MARGINS margins = new MARGINS();
-            margins.cxLeftWidth = Convert.ToInt32(left * (desktopDpiX / 96));
-            margins.cxRightWidth = Convert.ToInt32(right * (desktopDpiX / 96));
-            margins.cyTopHeight = Convert.ToInt32(top * (desktopDpiX / 96));
-            margins.cyBottomHeight = Convert.ToInt32(right * (desktopDpiX / 96));
+            margins.cxLeftWidth = Convert.ToInt32(left);
+            margins.cxRightWidth = Convert.ToInt32(right);
+            margins.cyTopHeight = Convert.ToInt32(top);
+            margins.cyBottomHeight = Convert.ToInt32(bottom);
 
             return margins;
         } 
         private void ApplyGlass()
         {
+            this.Background = Brushes.Transparent;
             if (DwmApi.DwmIsCompositionEnabled())
             {
                 var hwnd = new WindowInteropHelper(this).Handle;
@@ -209,9 +219,10 @@ namespace ActivityUI
 
                 mainWindowSrc.CompositionTarget.BackgroundColor = Color.FromArgb(0, 0, 0, 0);
 
-                MARGINS margins = GetDpiAdjustedMargins(myHwnd, 0, 100, 0, 0);
+                MARGINS margins = GetDpiAdjustedMargins(myHwnd, 0, 145, 0, 0);
 
                 DwmExtendFrameIntoClientArea(myHwnd, ref margins);
+
             }
             else
             {
@@ -230,7 +241,7 @@ namespace ActivityUI
         }
         private void btnAddActivity_Click(object sender, RoutedEventArgs e)
         {
-
+            taskbar.AddEmptyActivity();
         }
         private void btnOptions_Click(object sender, RoutedEventArgs e)
         {

@@ -1,4 +1,18 @@
-﻿using System;
+﻿/// <licence>
+/// 
+/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+/// 
+/// Pervasive Interaction Technology Laboratory (pIT lab)
+/// IT University of Copenhagen
+///
+/// This library is free software; you can redistribute it and/or 
+/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+/// as published by the Free Software Foundation. Check 
+/// http://www.gnu.org/licenses/gpl.html for details.
+/// 
+/// </licence>
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,15 +33,23 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Diagnostics;
 using ActivityUI.PopUp;
+using System.ComponentModel;
 
 namespace ActivityUI.Login
 {
     public partial class LoginWindow : Window
     {
+        #region Events
         public event EventHandler LoggedIn = null;
+        #endregion
+
+        #region Properties
         public Device Device { get; set; }
         public User User { get; set; }
-        public StartUpMode Mode { get; set; } 
+        public StartUpMode Mode { get; set; }
+        #endregion
+
+        #region Constructor
         public LoginWindow()
         {
             SourceInitialized += new EventHandler(LoginWindow_SourceInitialized);
@@ -38,10 +60,9 @@ namespace ActivityUI.Login
             ToolTipService.SetIsEnabled(btnStop, false);
             ToolTipService.SetIsEnabled(btnGo, false);
         }
-        protected override void OnClosed(EventArgs e)
-        {
-            base.OnClosed(e);
-        }
+        #endregion
+
+        #region Private Members
         private void LoadSettings()
         {
             txtUsername.Text = Settings.Default.USER_NAME;
@@ -55,15 +76,23 @@ namespace ActivityUI.Login
             Settings.Default.USER_DEVICENAME = txtDevicename.Text;
             Settings.Default.Save();
         }
-
-        protected void OnLoggedIn()
+        private void CreateUser(string baseUrl)
         {
-            if (LoggedIn != null)
-                LoggedIn(this, new EventArgs());
+            User user = new User();
+            user.Email = txtEmail.Text;
+            user.Name = txtUsername.Text;
+            string added = RestHelper.Post(baseUrl + "Users", user);
+            if (JsonConvert.DeserializeObject<bool>(added))
+            {
+                var result = RestHelper.Get(baseUrl + "Users?email=" + txtEmail.Text);
+                var u = JsonConvert.DeserializeObject<User>(result);
+                this.User = u;
+            }
         }
-        private void btnGo_Click(object sender, RoutedEventArgs e)
+        private void LogIn()
         {
-            string baseUrl = "http://activitycloud-1.apphb.com/Api/";
+            txtTooltip.Text = "Please wait while we check your login.";
+            string baseUrl = Settings.Default.ENVIRONMENT_BASE_URL;
             string result = RestHelper.Get(baseUrl + "Users?email=" + txtEmail.Text);
             User u = JsonConvert.DeserializeObject<User>(result);
             if (u != null)
@@ -79,27 +108,37 @@ namespace ActivityUI.Login
             else
                 this.Mode = StartUpMode.Client;
 
-            if (chkRemember.IsChecked==true)
+            if (chkRemember.IsChecked == true)
                 SaveSettings();
-            OnLoggedIn();
+
+            if (LoggedIn != null)
+                LoggedIn(this, new EventArgs());
         }
-        private void CreateUser(string baseUrl)
+        #endregion
+
+        #region Event Handlers
+        private void btnGo_Click(object sender, RoutedEventArgs e)
         {
-            User user = new User();
-            user.Email = txtEmail.Text;
-            user.Name = txtUsername.Text;
-            string added = RestHelper.Post(baseUrl + "Users", user);
-            if (JsonConvert.DeserializeObject<bool>(added))
-            {
-                var result = RestHelper.Get(baseUrl + "Users?email=" + txtEmail.Text);
-                var u = JsonConvert.DeserializeObject<User>(result);
-                this.User = u;
-            }
+            LogIn();
         }
         private void cancel_Click(object sender, RoutedEventArgs e)
         {
             Environment.Exit(0);
         }
+        private void btnGo_MouseEnter(object sender, MouseEventArgs e)
+        {
+            this.txtTooltip.Foreground = ((Button)sender).BorderBrush;
+            this.txtTooltip.Text = ((Button)sender).ToolTip.ToString();
+        }
+        private void btnGo_MouseLeave(object sender, MouseEventArgs e)
+        {
+            this.txtTooltip.Text = "";
+        }
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(@"http://activitycloud-1.apphb.com/");
+        }
+        #endregion
 
         #region Window Extension
         void LoginWindow_SourceInitialized(object sender, EventArgs e)
@@ -117,22 +156,5 @@ namespace ActivityUI.Login
         [DllImport("user32.dll")]
         private extern static int GetWindowLong(IntPtr hwnd, int index);
         #endregion
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            Process.Start(@"http://activitycloud-1.apphb.com/");
-        }
-
-        private void btnGo_MouseEnter(object sender, MouseEventArgs e)
-        {
-            this.txtTooltip.Foreground = ((Button)sender).BorderBrush;
-            this.txtTooltip.Text = ((Button)sender).ToolTip.ToString();
-        }
-
-        private void btnGo_MouseLeave(object sender, MouseEventArgs e)
-        {
-            this.txtTooltip.Text = "";
-        }
-
     }
 }

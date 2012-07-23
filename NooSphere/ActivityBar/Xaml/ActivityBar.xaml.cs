@@ -54,21 +54,30 @@ namespace ActivityUI
     public partial class ActivityBar : Window
     {
         #region Private Members
+
         private Client client;
         private BasicHost host;
         private DiscoveryManager disc;
         private StartUpMode startMode;
+
         private User owner;
         private Device device;
-        private Dictionary<Guid, Proxy> proxies = new Dictionary<Guid, Proxy>();
         private Activity currentActivity;
+        private Dictionary<Guid, Proxy> proxies = new Dictionary<Guid, Proxy>();
+        private ObservableCollection<User> contactList = new ObservableCollection<User>();
+
         private ActivityButton currentButton;
         private LoginWindow login;
+
+        private ActivityWindow activityWindow;
+        private ManagerWindow managerWindow;
+        private StartMenu StartMenu;
+
+        private bool StartMenuOpened = false; 
         private bool startingUp = true;
-        private PopUpWindow popUp;
+
         public RenderStyle RenderStyle { get; set; }
 
-        private ObservableCollection<User> contactList = new ObservableCollection<User>();
         #endregion
 
         #region Constructor
@@ -78,13 +87,23 @@ namespace ActivityUI
         public ActivityBar()
         {
             InitializeComponent();
-            popUp = new PopUpWindow(this);
-           
+            activityWindow = new ActivityWindow(this);
+            managerWindow = new ManagerWindow(this);
+            StartMenu = new ActivityUI.StartMenu(this);
             DisableUI();
 
             login = new LoginWindow();
             login.LoggedIn += new EventHandler(login_LoggedIn);
             login.Show();
+        }
+        #endregion
+
+        #region Public members
+        public void AddEmptyActivity()
+        {
+            Activity act = GetInitializedActivity();
+            this.AddActivityUI(act);
+            VirtualDesktopManager.CurrentDesktop= proxies[act.Id].Desktop;
         }
         #endregion
 
@@ -120,14 +139,15 @@ namespace ActivityUI
         /// <summary>
         /// Runs the discovery manager to find managers on the local network
         /// </summary>
-        private void RunDiscovery()
+        public void RunDiscovery()
         {
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
                 managerlist.Items.Clear();
             }));
 
-            Thread t = new Thread(()=>{
+            Thread t = new Thread(() =>
+            {
                 disc = new DiscoveryManager();
                 disc.Find();
                 disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
@@ -139,7 +159,7 @@ namespace ActivityUI
         /// <summary>
         /// Starts an activity manager service in an bacic http service host
         /// </summary>
-        private void StartActivityManager()
+        public void StartActivityManager()
         {
             Thread t = new Thread(() =>
             {
@@ -157,7 +177,7 @@ namespace ActivityUI
         /// <summary>
         /// Starts the activity client based on the host address
         /// </summary>
-        private void StartClient()
+        public void StartClient()
         {
             StartClient(host.Address);
         }
@@ -348,25 +368,36 @@ namespace ActivityUI
         /// <summary>
         /// Shows the activity button context menu
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="sender">The activity button that is right clicked</param>
         private void ShowActivityButtonContextMenu(ActivityButton btn)
         {
-            if(popUp.Visibility == System.Windows.Visibility.Visible)
-                popUp.Hide();
+            if(activityWindow.Visibility == System.Windows.Visibility.Visible)
+                activityWindow.Hide();
             GeneralTransform transform = btn.TransformToAncestor(this);
             Point rootPoint = transform.Transform(new Point(0, 0));
 
-            popUp.Show(proxies[btn.ActivityId].Activity, (int)rootPoint.X);
+            activityWindow.Show(proxies[btn.ActivityId].Activity, (int)rootPoint.X);
+        }
 
+        /// <summary>
+        /// Shows the activity manager context menu
+        /// </summary>
+        private void ShowManagerContextMenu()
+        {
+            HideAllPopups();
+            if (managerWindow.Visibility == System.Windows.Visibility.Visible)
+                managerWindow.Hide();
+            GeneralTransform transform = btnManager.TransformToAncestor(this);
+            Point rootPoint = transform.Transform(new Point(0, 0));
 
+            managerWindow.Show((int)rootPoint.X);
         }
 
         /// <summary>
         /// Hides the start menu
         /// </summary>
-        private void HideStartMenu()
+        private void UpdateDiscovery()
         {
-            ToggleStartMenu();
             device.Name = txtDeviceName.Text;
             if (Settings.Default.CHECK_BROADCAST)
                 host.StartBroadcast(device.Name, device.Location);
@@ -403,6 +434,12 @@ namespace ActivityUI
             Guid g = GetProxyFromButton(currentButton).Activity.Id;
             client.RemoveActivity(g);
         }
+
+        /// <summary>
+        /// Edits the content of an activity and
+        /// updates the activity client.
+        /// </summary>
+        /// <param name="ac"></param>
         public void EditActivity(Activity ac)
         {
             currentActivity = proxies[(Guid)currentButton.ActivityId].Activity;
@@ -410,24 +447,14 @@ namespace ActivityUI
             client.UpdateActivity(ac);
         }
 
-        private bool StartMenuOpened = false;
-        private StartMenu StartMenu;
-        private void ToggleStartMenu()
+        /// <summary>
+        /// Toggles the start menu
+        /// </summary>
+        private void ShowStartMenu()
         {
-            if (!StartMenuOpened)
-            {
-                StartMenu = new StartMenu(this);
-                StartMenu.Show();
-                //StartMenu.Title = Settings.Default.AMWorkspace + " (workspace) -> " + ActivityManager.SelectedActivity.Name + " (activity)";
-                StartMenuOpened = true;
-            }
-            else
-            {
-                StartMenu.Close();
-                StartMenuOpened = false;
-            }
+            HideAllPopups();
+            StartMenu.Show();
         }
-
 
         /// <summary>
         /// Adds a discovered activity manager to the UI
@@ -480,15 +507,6 @@ namespace ActivityUI
         }
 
         /// <summary>
-        /// Toggles the start menu
-        /// </summary>
-        //private void ToggleStartMenu()
-        //{
-        //    popActivityManagers.PlacementTarget = btnStart;
-        //    popActivityManagers.IsOpen = !popActivityManagers.IsOpen;
-        //}
-
-        /// <summary>
         /// Initializes the taskbar
         /// </summary>
         private void InitializeTaskbar()
@@ -528,14 +546,22 @@ namespace ActivityUI
             Environment.Exit(0);
         }
 
+        /// <summary>
+        /// Hides all popUps
+        /// </summary>
         private void HideAllPopups()
         {
-            popUp.Hide();
-            StartMenu.Close();
+            activityWindow.Hide();
+            managerWindow.Hide();
+            StartMenu.Hide();
         }
         #endregion
 
         #region Event Handlers
+        private void btnManager_Click(object sender, RoutedEventArgs e)
+        {
+            ShowManagerContextMenu();
+        }
         private void client_FriendRequestReceived(object sender, NooSphere.ActivitySystem.Events.FriendEventArgs e)
         {
             if (MessageBoxResult.Yes == MessageBox.Show("Do you want to add " + e.User.Name + " to your friend list?", "Friend list", MessageBoxButton.YesNo))
@@ -568,7 +594,7 @@ namespace ActivityUI
         }
         private void b_MouseEnter(object sender, MouseEventArgs e)
         {
-            //((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
+            ((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
         }
         private void btnRefresh_Click(object sender, RoutedEventArgs e)
         {
@@ -590,6 +616,7 @@ namespace ActivityUI
         }
         private void b_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            HideAllPopups();
             if (e.RightButton == MouseButtonState.Pressed)
             {
                 currentButton = (ActivityButton)sender;
@@ -642,7 +669,10 @@ namespace ActivityUI
         }
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
-            ToggleStartMenu();
+            bool isShown = (StartMenu.Visibility == System.Windows.Visibility.Visible);
+            HideAllPopups();
+            if(!isShown)
+                ShowStartMenu();
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -654,7 +684,7 @@ namespace ActivityUI
         }
         private void popActivityManagers_MouseLeave(object sender, MouseEventArgs e)
         {
-            HideStartMenu();
+            UpdateDiscovery();
         }
 
         #endregion
@@ -785,10 +815,6 @@ namespace ActivityUI
         }
         #endregion
 
-        private void startButton_Click_1(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
     public enum RenderStyle
     {

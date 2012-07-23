@@ -35,6 +35,7 @@ namespace NooSphere.Core.Devices
     public enum DeviceRole
     {
         Master,
-        Slave
+        Slave,
+        Mediator
     }
 }

@@ -70,7 +70,7 @@ namespace NooSphere.Platform.Windows.Windowing
                 if ((this.Visible) & (User32.GetParent(hWnd).ToInt32() == 0))
                 {
                     // extended options call up
-                    int exStyles = User32.GetWindowLong(hWnd, GWL_EXSTYLE);
+                    int exStyles = (int)User32.GetWindowLong(hWnd, GWL_EXSTYLE);
                     // parents windows examine again:
                     IntPtr ownerWin = User32.GetWindow(hWnd, GW_OWNER);
                     // examining whether:

@@ -1,4 +1,18 @@
-﻿using System;
+﻿/// <licence>
+/// 
+/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+/// 
+/// Pervasive Interaction Technology Laboratory (pIT lab)
+/// IT University of Copenhagen
+///
+/// This library is free software; you can redistribute it and/or 
+/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+/// as published by the Free Software Foundation. Check 
+/// http://www.gnu.org/licenses/gpl.html for details.
+/// 
+/// </licence>
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,44 +27,42 @@ using System.Windows.Shapes;
 using System.Runtime.InteropServices;
 using NooSphere.Core.ActivityModel;
 using System.Windows.Interop;
+using NooSphere.Platform.Windows.Interopt;
 
 namespace ActivityUI.PopUp
 {
     /// <summary>
     /// Interaction logic for PopUpWindow.xaml
     /// </summary>
-    public partial class PopUpWindow : Window
+    public partial class ActivityWindow : Window
     {
-
-        private ActivityBar taskbar;
-        private Activity activity;
-        public PopUpWindow(ActivityBar bar)
-        {
-            InitializeComponent();
-            this.Topmost = true;
-
-            this.MinHeight = this.MaxHeight = this.Height;
-            this.MinWidth = this.MaxWidth = this.Width;
-            this.taskbar = bar;
-        }
-
-        [DllImport("user32.dll")]
-        static extern uint GetWindowLong(IntPtr hWnd, int nIndex);
-
-        [DllImport("user32.dll")]
-        static extern int SetWindowLong(IntPtr hWnd, int nIndex, uint dwNewLong);
+        #region Window Hacks
 
         private const int GWL_STYLE = -16;
-
         private const uint WS_SYSMENU = 0x80000;
 
         protected override void OnSourceInitialized(EventArgs e)
         {
             IntPtr hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-            SetWindowLong(hwnd, GWL_STYLE,
-                GetWindowLong(hwnd, GWL_STYLE) & (0xFFFFFFFF ^ WS_SYSMENU));
+            User32.SetWindowLong(hwnd, GWL_STYLE,
+                User32.GetWindowLong(hwnd, GWL_STYLE) & (0xFFFFFFFF ^ WS_SYSMENU));
 
             base.OnSourceInitialized(e);
+        }
+        #endregion
+
+        private ActivityBar taskbar;
+        private Activity activity;
+        public ActivityWindow(ActivityBar bar)
+        {
+            InitializeComponent();
+            this.Topmost = true;
+            this.ShowInTaskbar = false;
+            this.WindowStyle = System.Windows.WindowStyle.None;
+            this.ResizeMode = System.Windows.ResizeMode.CanResize;
+            this.MinHeight = this.MaxHeight = this.Height;
+            this.MinWidth = this.MaxWidth = this.Width;
+            this.taskbar = bar;
         }
         public void Show(Activity act,int offset)
         {

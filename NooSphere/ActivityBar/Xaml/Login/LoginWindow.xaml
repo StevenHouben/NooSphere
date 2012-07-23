@@ -56,5 +56,6 @@
         <TextBlock Height="22" Margin="21,269,30,0" Name="txtTooltip" Text="" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="12" Foreground="#FF3091FC" TextAlignment="Center" />
         <RadioButton Content="I don't know" GroupName="startup" Height="16" HorizontalAlignment="Left" Margin="95,215,0,0" Name="radioButton1" VerticalAlignment="Top" />
         <Image Height="54" HorizontalAlignment="Left" Margin="140,39,0,0" Name="image2" Stretch="None" VerticalAlignment="Top" Width="229" Source="/ActivityUI;component/Images/logo.PNG" />
+        <ProgressBar Height="22" HorizontalAlignment="Left" Margin="21,269,0,0" Name="progress" VerticalAlignment="Top" Width="314" Visibility="Hidden" />
     </Grid>
 </Window>

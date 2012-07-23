@@ -8,9 +8,6 @@
             d:DesignWidth="750" 
             Width="auto"
             Height="45" Loaded="Window_Loaded" BorderThickness="2" WindowStyle="None" ShowInTaskbar="False" Topmost="True" Background="{DynamicResource NonGlassBrush}">
-    <Window.Resources>
-
-    </Window.Resources>
     <Grid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto" Margin="0,0,124,0">
             <StackPanel Name="Add" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="auto">
@@ -18,6 +15,9 @@
                     <Button x:Name="startButton" Style="{DynamicResource StartButton}" Width="34" Height="34" Background="#FF0461FF" BorderThickness="0" Margin="5,1.5,0,3.5" HorizontalAlignment="Left" VerticalAlignment="Top">
                         <Image x:Name="imgStartButton" Width="30" Height="28" Source="/ActivityUI;component/Images/activity.PNG" />
                     </Button>
+                </Button>
+                <Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnManager" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnManager_Click">
+                	<Image Source="/ActivityUI;component/Images/application_view_tile.png" Width="15" Height="15" Margin="10" Tag="2"/>
                 </Button>
                 <Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnHome" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnHome_Click">
                     <Image Source="..\Images\house.png" Width="15" Height="15" Margin="10" Tag="2"/>

@@ -82,5 +82,17 @@ namespace ActivityUI.Properties {
                 this["USER_LOCATION"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://activitycloud-1.apphb.com/Api/")]
+        public string ENVIRONMENT_BASE_URL {
+            get {
+                return ((string)(this["ENVIRONMENT_BASE_URL"]));
+            }
+            set {
+                this["ENVIRONMENT_BASE_URL"] = value;
+            }
+        }
     }
 }
