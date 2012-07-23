@@ -20,10 +20,10 @@
                     </Button>
                 </Button>
                 <Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnHome" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnHome_Click">
-                    <Image Source="..\Images\house.png" Width="20" Height="20" Margin="10" Tag="2"/>
+                    <Image Source="..\Images\house.png" Width="15" Height="15" Margin="10" Tag="2"/>
                 </Button>
                 <Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnAdd" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch" Click="btnAdd_Click">
-                    <Image Source="..\Images\add.png" Width="20" Height="20" Margin="10" Tag="2"/>
+                    <Image Source="..\Images\add.png" Width="15" Height="15" Margin="10" Tag="2"/>
                 </Button>
             </StackPanel>
             <StackPanel Name="Body" Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto"/>
@@ -89,13 +89,13 @@
         </Popup>
         <DockPanel x:Name="Status" HorizontalAlignment="Right">
         	<Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnPhone" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch">
-        		<Image Source="phone.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
+                <Image Source="phone.png" Width="15" Height="15" Margin="10" Tag="2"/>
         	</Button>
             <Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnDevice" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch">
-        		<Image Source="computer.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
+                <Image Source="computer.png" Width="15" Height="15" Margin="10" Tag="2"/>
         	</Button>
             <Button Template="{DynamicResource Dark}" Height="auto" x:Name="btnTablet" Width="auto" HorizontalAlignment="stretch" VerticalAlignment="Stretch">
-        		<Image Source="image.png" Width="auto" Height="auto" Margin="10" Tag="2"/>
+                <Image Source="image.png" Width="15" Height="15" Margin="10" Tag="2"/>
         	</Button>
         </DockPanel>
         <Separator Margin="0" VerticalAlignment="Bottom" Background="#4CFFFFFF"/>
