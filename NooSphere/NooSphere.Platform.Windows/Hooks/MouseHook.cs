@@ -43,10 +43,7 @@ namespace NooSphere.Platform.Windows.Hooks
             if (nCode < 0)
                 return User32.CallNextHookEx(hHook, nCode, wParam, lParam);
             else
-                if (MouseMove != null)
-                {
                     HandleEvents(wParam, MyMouseHookStruct);
-                }
             return User32.CallNextHookEx(hHook, nCode, wParam, lParam);
         }
 
@@ -56,6 +53,12 @@ namespace NooSphere.Platform.Windows.Hooks
             {
                 case WindowMessage.WM_MOUSEMOVE:
                     MouseMove(new object(), new MouseEventArgs(MouseButtons.None, mouse.wHitTestCode, mouse.pt.x, mouse.pt.y, -1));
+                    break;
+                case WindowMessage.WM_LBUTTONDOWN:
+                    MouseClick(new object(),new MouseEventArgs(MouseButtons.Left,0, mouse.pt.x, mouse.pt.y, -1));
+                    break;
+                case WindowMessage.WM_RBUTTONDOWN:
+                    MouseClick(new object(), new MouseEventArgs(MouseButtons.Left, 0, mouse.pt.x, mouse.pt.y, -1));
                     break;
             }
         }

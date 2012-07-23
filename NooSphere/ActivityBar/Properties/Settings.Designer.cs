@@ -94,5 +94,17 @@ namespace ActivityUI.Properties {
                 this["ENVIRONMENT_BASE_URL"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool DISCOVERY_BROADCAST {
+            get {
+                return ((bool)(this["DISCOVERY_BROADCAST"]));
+            }
+            set {
+                this["DISCOVERY_BROADCAST"] = value;
+            }
+        }
     }
 }

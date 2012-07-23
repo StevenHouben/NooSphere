@@ -25,6 +25,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using NooSphere.Platform.Windows.Interopt;
+using ActivityUI.Properties;
+using System.Threading;
+using NooSphere.ActivitySystem.Discovery.Client;
+using NooSphere.ActivitySystem.Discovery.Primitives;
+using System.Windows.Threading;
 
 namespace ActivityUI.PopUp
 {
@@ -51,7 +56,49 @@ namespace ActivityUI.PopUp
             this.Left = offset;
             this.Top = taskbar.Height + 5;
 
+            this.txtDeviceName.Text = Settings.Default.USER_DEVICENAME;
+            this.txtEmail.Text = Settings.Default.USER_EMAIL;
+            this.txtUsername.Text = Settings.Default.USER_NAME;
+
+            this.chkBroadcast.IsChecked = Settings.Default.CHECK_BROADCAST;
+
+            RunDiscovery();
             this.Show();
+        }
+        public void RunDiscovery()
+        {
+            managerlist.Items.Clear();
+
+            Thread t = new Thread(() =>
+            {
+                DiscoveryManager disc = new DiscoveryManager();
+                disc.Find();
+                disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
+            });
+            t.IsBackground = true;
+            t.Start();
+        }
+        /// <summary>
+        /// Adds a discovered activity manager to the UI
+        /// </summary>
+        /// <param name="serviceInfo">The information of the found service</param>
+        private void AddDiscoveryActivityManagerToUI(ServiceInfo serviceInfo)
+        {
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                managerlist.Items.Add(serviceInfo.Name + " at " + serviceInfo.Address);
+                managerlist.MouseDoubleClick += new MouseButtonEventHandler(managerlist_MouseDoubleClick);
+            }));
+        }
+
+        void managerlist_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            MessageBox.Show(managerlist.SelectedItem.ToString());
+        }
+
+        void disc_DiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
+        {
+            AddDiscoveryActivityManagerToUI(e.ServiceInfo);
         }
 
         #region Window Hacks
@@ -69,24 +116,32 @@ namespace ActivityUI.PopUp
         }
         #endregion
 
-        private void btnClose_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void btnRefresh_Click(object sender, RoutedEventArgs e)
         {
-
+            RunDiscovery();
         }
-
-        private void chkBroadcast_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void btnSend_Click(object sender, RoutedEventArgs e)
         {
-
+            taskbar.SendMessage(txtInput.Text);
         }
+        private void txtAddFriend_Click(object sender, RoutedEventArgs e)
+        {
+            taskbar.AddFriend(txtEmailFriend.Text);
+        }
+
+        private void btnUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            SaveSettings();
+        }
+
+        private void SaveSettings()
+        {
+            Settings.Default.USER_DEVICENAME = txtDeviceName.Text;
+            Settings.Default.USER_NAME = txtUsername.Text;
+            Settings.Default.USER_EMAIL = txtEmail.Text;
+            Settings.Default.DISCOVERY_BROADCAST = (bool)chkBroadcast.IsChecked;
+            Settings.Default.Save();
+        }
+
     }
 }

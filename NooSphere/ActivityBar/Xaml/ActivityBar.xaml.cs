@@ -48,6 +48,7 @@ using NooSphere.Platform.Windows.VDM;
 using ActivityUI.Properties;
 using ActivityUI.Login;
 using ActivityUI.PopUp;
+using NooSphere.Platform.Windows.Hooks;
 
 namespace ActivityUI
 {
@@ -65,6 +66,7 @@ namespace ActivityUI
         private Activity currentActivity;
         private Dictionary<Guid, Proxy> proxies = new Dictionary<Guid, Proxy>();
         private ObservableCollection<User> contactList = new ObservableCollection<User>();
+        private ObservableCollection<ServiceInfo> serviceList = new ObservableCollection<ServiceInfo>();
 
         private ActivityButton currentButton;
         private LoginWindow login;
@@ -73,10 +75,10 @@ namespace ActivityUI
         private ManagerWindow managerWindow;
         private StartMenu StartMenu;
 
-        private bool StartMenuOpened = false; 
         private bool startingUp = true;
 
         public RenderStyle RenderStyle { get; set; }
+        public bool ClickDetected = false;
 
         #endregion
 
@@ -90,11 +92,28 @@ namespace ActivityUI
             activityWindow = new ActivityWindow(this);
             managerWindow = new ManagerWindow(this);
             StartMenu = new ActivityUI.StartMenu(this);
+
+            MouseHook.Register();
+            MouseHook.MouseClick+=new System.Windows.Forms.MouseEventHandler(MouseHook_MouseClick);
+
             DisableUI();
 
             login = new LoginWindow();
             login.LoggedIn += new EventHandler(login_LoggedIn);
             login.Show();
+        }
+
+        void MouseHook_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (!HitTest(activityWindow, e.Location) && !HitTest(managerWindow, e.Location)&& !HitTest(StartMenu,e.Location))
+                HideAllPopups();
+        }
+        bool HitTest(Window w, System.Drawing.Point p)
+        {
+            if (w.Visibility == Visibility.Hidden)
+                return false;
+            else
+                return (p.X >= w.Left && p.X <= w.Left + w.Width) && (p.Y >= w.Top && p.Y <= w.Top + w.Height);
         }
         #endregion
 
@@ -104,6 +123,37 @@ namespace ActivityUI
             Activity act = GetInitializedActivity();
             this.AddActivityUI(act);
             VirtualDesktopManager.CurrentDesktop= proxies[act.Id].Desktop;
+        }
+        /// <summary>
+        /// Sends a message to the activity manager
+        /// </summary>
+        /// <param name="message">Message that needs to be send to the activity manager</param>
+        public void SendMessage(string message)
+        {
+            client.SendMessage(message);
+            txtInput.Text = "";
+        }
+
+        public void AddFriend(string email)
+        {
+            client.RequestFriendShip(email);
+        }
+
+        /// <summary>
+        /// Runs the discovery manager to find managers on the local network
+        /// </summary>
+        private  void RunDiscovery()
+        {
+            serviceList.Clear();
+
+            Thread t = new Thread(() =>
+            {
+                disc = new DiscoveryManager();
+                disc.Find();
+                disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
+            });
+            t.IsBackground = true;
+            t.Start();
         }
         #endregion
 
@@ -134,26 +184,6 @@ namespace ActivityUI
                 chkBroadcast.IsChecked = chkBroadcast.IsEnabled = false;
                 Settings.Default.CHECK_BROADCAST = false;
             }
-        }
-
-        /// <summary>
-        /// Runs the discovery manager to find managers on the local network
-        /// </summary>
-        public void RunDiscovery()
-        {
-            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
-            {
-                managerlist.Items.Clear();
-            }));
-
-            Thread t = new Thread(() =>
-            {
-                disc = new DiscoveryManager();
-                disc.Find();
-                disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
-            });
-            t.IsBackground = true;
-            t.Start();
         }
 
         /// <summary>
@@ -416,15 +446,7 @@ namespace ActivityUI
                     host.StopBroadcast();
         }
 
-        /// <summary>
-        /// Sends a message to the activity manager
-        /// </summary>
-        /// <param name="message">Message that needs to be send to the activity manager</param>
-        private void SendMessage(string message)
-        {
-            client.SendMessage(message);
-            txtInput.Text = "";
-        }
+
 
         /// <summary>
         /// Deletes the activity
@@ -581,7 +603,7 @@ namespace ActivityUI
         }
         private void txtAddFriend_Click(object sender, RoutedEventArgs e)
         {
-            client.RequestFriendShip(txtEmailFriend.Text);
+            
         }
         private void client_ActivityChanged(object sender, NooSphere.ActivitySystem.Events.ActivityEventArgs e)
         {
@@ -594,7 +616,7 @@ namespace ActivityUI
         }
         private void b_MouseEnter(object sender, MouseEventArgs e)
         {
-            ((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
+            //((ActivityButton)sender).RenderMode = RenderMode.ImageAndText;
         }
         private void btnRefresh_Click(object sender, RoutedEventArgs e)
         {

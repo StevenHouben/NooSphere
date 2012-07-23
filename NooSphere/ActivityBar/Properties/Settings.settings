@@ -20,5 +20,8 @@
     <Setting Name="ENVIRONMENT_BASE_URL" Type="System.String" Scope="User">
       <Value Profile="(Default)">http://activitycloud-1.apphb.com/Api/</Value>
     </Setting>
+    <Setting Name="DISCOVERY_BROADCAST" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

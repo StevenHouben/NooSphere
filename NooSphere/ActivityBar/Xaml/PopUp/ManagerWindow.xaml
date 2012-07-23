@@ -151,9 +151,9 @@
     				</LinearGradientBrush>
     			</TabItem.Background>
     			<Grid Background="White" Margin="0">
-    				<TextBox x:Name="txtDeviceName" Margin="101.087,8,8,0" TextWrapping="Wrap" Text="Device name" VerticalAlignment="Top"/>
-    				<TextBox x:Name="txtUsername" Margin="101.087,42,8,0" TextWrapping="Wrap" Text="Username" Height="20.96" VerticalAlignment="Top"/>
-    				<TextBox x:Name="txtEmail" Margin="101.087,81,8,0" TextWrapping="Wrap" Text="email" VerticalAlignment="Top"/>
+    				<TextBox x:Name="txtDeviceName" Margin="101.087,8,8,0" TextWrapping="Wrap" Text="Device name" VerticalAlignment="Top"  DataContext="{Binding}" />
+    				<TextBox x:Name="txtUsername" Margin="101.087,42,8,0" TextWrapping="Wrap" Text="Username" Height="20.96" VerticalAlignment="Top"  />
+    				<TextBox x:Name="txtEmail" Margin="101.087,78,8,0" TextWrapping="Wrap" Text="Email" VerticalAlignment="Top" />
     				<Label Content="Device Name" HorizontalAlignment="Left" Margin="7,5,0,0" VerticalAlignment="Top"/>
     				<Label Content="Username" HorizontalAlignment="Left" Margin="6.8,37.007,0,0" RenderTransformOrigin="0.73,0.513" Height="26.849" VerticalAlignment="Top">
     					<Label.RenderTransform>
@@ -165,7 +165,7 @@
     						</TransformGroup>
     					</Label.RenderTransform>
     				</Label>
-    				<Label Content="Email" HorizontalAlignment="Left" Margin="11,78,0,0" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Top">
+    				<Label Content="Email" HorizontalAlignment="Left" Margin="11,75,0,0" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Top">
     					<Label.RenderTransform>
     						<TransformGroup>
     							<ScaleTransform/>
@@ -175,8 +175,7 @@
     						</TransformGroup>
     					</Label.RenderTransform>
     				</Label>
-    				<Button x:Name="btnClose" Content="Exit" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="72" Click="btnClose_Click" Style="{DynamicResource Danger}" Foreground="White" FontSize="13.333" Height="30" Margin="8,0,0,3" />
-    				<Button x:Name="btnLogOut" Content="Log Out" VerticalAlignment="Bottom" Click="btnClose_Click" Style="{DynamicResource Warning}" Foreground="White" FontSize="13.333" Height="30" HorizontalAlignment="Right" Width="74" d:LayoutOverrides="HorizontalAlignment" Margin="0,0,8,3" />
+    				<Button Content="Update" HorizontalAlignment="Right" Margin="0,0,7.44,3.04" VerticalAlignment="Bottom" Width="75" x:Name="btnUpdate" IsDefault="True" IsCancel="True" FontSize="13.333" Foreground="White" Style="{DynamicResource Success}" Height="30" Click="btnUpdate_Click" />
     			</Grid>
     		</TabItem>
     		<TabItem x:Name="managers" Header="Discovery">
@@ -203,7 +202,7 @@
     				</LinearGradientBrush>
     			</TabItem.Background>
     			<Grid Background="White">
-    				<CheckBox x:Name="chkBroadcast" Content="Broadcast Local Service" Margin="8,8,210.75,0" IsChecked="True" Height="15.96" VerticalAlignment="Top" Click="chkBroadcast_Click" />
+    				<CheckBox x:Name="chkBroadcast" Content="Broadcast Local Service" Margin="8,8,210.75,0" IsChecked="True" Height="15.96" VerticalAlignment="Top" />
     			</Grid>
     		</TabItem>
     		<TabItem x:Name="NetEvents" Header="Network Events">
@@ -233,7 +232,7 @@
     			<Grid x:Name="tabFriends" Background="White">
     				<ListBox x:Name="friendList" Margin="8,8,8,46"/>
     				<TextBox x:Name="txtEmailFriend" Margin="8,0,92.667,8" TextWrapping="Wrap" Height="22.04" VerticalAlignment="Bottom" AcceptsReturn="False" />
-    				<Button Content="Add Friend" HorizontalAlignment="Right" Margin="0,0,8,3" VerticalAlignment="Bottom" Width="75" x:Name="txtAddFriend" IsDefault="True" Foreground="White" FontSize="13.333" Style="{DynamicResource Success}" Height="30"/>
+    				<Button Content="Add Friend" HorizontalAlignment="Right" Margin="0,0,8,3" VerticalAlignment="Bottom" Width="75" x:Name="btnAddFriend" IsDefault="True" Foreground="White" FontSize="13.333" Style="{DynamicResource Success}" Height="30" Click="txtAddFriend_Click" />
     			</Grid>
     		</TabItem>
     	</TabControl>
