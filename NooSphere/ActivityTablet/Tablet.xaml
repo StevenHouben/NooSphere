@@ -3,18 +3,209 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:s="http://schemas.microsoft.com/surface/2008"
     Title="ActivityTablet" mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" d:Height="1280" d:Width="800
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" d:Height="1024" d:Width="687
                  
-                 " SizeToContent="WidthAndHeight" Closing="SurfaceWindow_Closing">
+                 " SizeToContent="WidthAndHeight"  WindowStyle="None" WindowState="Maximized" Width="1024" Height="687">
+	<Window.Resources>
+		<Style x:Key="Success" TargetType="{x:Type Button}">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Button}">
+						<ControlTemplate.Resources>
+							<Storyboard x:Key="OnMouseEnter1">
+								<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+									<EasingColorKeyFrame KeyTime="0" Value="#FF3ECC0E"/>
+								</ColorAnimationUsingKeyFrames>
+							</Storyboard>
+							<Storyboard x:Key="OnMouseLeave1">
+								<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+									<EasingColorKeyFrame KeyTime="0" Value="#FF80E25F"/>
+								</ColorAnimationUsingKeyFrames>
+							</Storyboard>
+							<Storyboard x:Key="OnMouseDown1">
+								<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+									<EasingColorKeyFrame KeyTime="0" Value="#FF33A50B"/>
+								</ColorAnimationUsingKeyFrames>
+							</Storyboard>
+						</ControlTemplate.Resources>
+						<Grid>
+							<Rectangle x:Name="rectangle" RadiusY="3.5" RadiusX="3.5" Stroke="#FF428700">
+								<Rectangle.Fill>
+									<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+										<GradientStop Color="#FF4B9F2C" Offset="1"/>
+										<GradientStop Color="#FF80E25F" Offset="0.289"/>
+									</LinearGradientBrush>
+								</Rectangle.Fill>
+							</Rectangle>
+							<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						</Grid>
+						<ControlTemplate.Triggers>
+							<EventTrigger RoutedEvent="Mouse.PreviewMouseUp">
+								<BeginStoryboard Storyboard="{StaticResource OnMouseEnter1}"/>
+							</EventTrigger>
+							<EventTrigger RoutedEvent="Mouse.PreviewMouseDown">
+								<BeginStoryboard x:Name="OnMouseDown1_BeginStoryboard" Storyboard="{StaticResource OnMouseDown1}"/>
+							</EventTrigger>
+							<EventTrigger RoutedEvent="Mouse.MouseEnter">
+								<BeginStoryboard x:Name="OnMouseEnter1_BeginStoryboard" Storyboard="{StaticResource OnMouseEnter1}"/>
+							</EventTrigger>
+							<EventTrigger RoutedEvent="Mouse.MouseLeave">
+								<BeginStoryboard x:Name="OnMouseLeave1_BeginStoryboard" Storyboard="{StaticResource OnMouseLeave1}"/>
+							</EventTrigger>
+							<Trigger Property="IsFocused" Value="True"/>
+							<Trigger Property="IsDefaulted" Value="True"/>
+							<Trigger Property="IsMouseOver" Value="True"/>
+							<Trigger Property="IsPressed" Value="True"/>
+							<Trigger Property="IsEnabled" Value="False"/>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<Style x:Key="Danger" TargetType="{x:Type Button}">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Button}">
+						<ControlTemplate.Resources>
+							<Storyboard x:Key="OnMouseEnter1">
+								<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+									<EasingColorKeyFrame KeyTime="0" Value="#FFCC0E0E"/>
+								</ColorAnimationUsingKeyFrames>
+							</Storyboard>
+							<Storyboard x:Key="OnMouseLeave1">
+								<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+									<EasingColorKeyFrame KeyTime="0" Value="#FFE25F5F"/>
+								</ColorAnimationUsingKeyFrames>
+							</Storyboard>
+							<Storyboard x:Key="OnMouseDown1">
+								<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+									<EasingColorKeyFrame KeyTime="0" Value="#FFA50B0B"/>
+								</ColorAnimationUsingKeyFrames>
+							</Storyboard>
+						</ControlTemplate.Resources>
+						<Grid>
+							<Rectangle x:Name="rectangle" RadiusY="3.5" RadiusX="3.5" Stroke="#FF870000">
+								<Rectangle.Fill>
+									<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+										<GradientStop Color="#FF9F2C2C" Offset="1"/>
+										<GradientStop Color="#FFE25F5F" Offset="0.289"/>
+									</LinearGradientBrush>
+								</Rectangle.Fill>
+							</Rectangle>
+							<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						</Grid>
+						<ControlTemplate.Triggers>
+							<EventTrigger RoutedEvent="Mouse.PreviewMouseUp">
+								<BeginStoryboard Storyboard="{StaticResource OnMouseEnter1}"/>
+							</EventTrigger>
+							<EventTrigger RoutedEvent="Mouse.PreviewMouseDown">
+								<BeginStoryboard x:Name="OnMouseDown1_BeginStoryboard" Storyboard="{StaticResource OnMouseDown1}"/>
+							</EventTrigger>
+							<EventTrigger RoutedEvent="Mouse.MouseEnter">
+								<BeginStoryboard x:Name="OnMouseEnter1_BeginStoryboard" Storyboard="{StaticResource OnMouseEnter1}"/>
+							</EventTrigger>
+							<EventTrigger RoutedEvent="Mouse.MouseLeave">
+								<BeginStoryboard x:Name="OnMouseLeave1_BeginStoryboard" Storyboard="{StaticResource OnMouseLeave1}"/>
+							</EventTrigger>
+							<Trigger Property="IsFocused" Value="True"/>
+							<Trigger Property="IsDefaulted" Value="True"/>
+							<Trigger Property="IsMouseOver" Value="True"/>
+							<Trigger Property="IsPressed" Value="True"/>
+							<Trigger Property="IsEnabled" Value="False"/>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<Style x:Key="Action" TargetType="{x:Type Button}">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Button}">
+						<ControlTemplate.Resources>
+							<Storyboard x:Key="OnMouseEnter1">
+								<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+									<EasingColorKeyFrame KeyTime="0" Value="#FF0E71CC"/>
+								</ColorAnimationUsingKeyFrames>
+							</Storyboard>
+							<Storyboard x:Key="OnMouseLeave1">
+								<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+									<EasingColorKeyFrame KeyTime="0" Value="#FF5F85E2"/>
+								</ColorAnimationUsingKeyFrames>
+							</Storyboard>
+							<Storyboard x:Key="OnMouseDown1">
+								<ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+									<EasingColorKeyFrame KeyTime="0" Value="#FF0B2AA5"/>
+								</ColorAnimationUsingKeyFrames>
+							</Storyboard>
+						</ControlTemplate.Resources>
+						<Grid>
+							<Rectangle x:Name="rectangle" RadiusY="3.5" RadiusX="3.5" Stroke="#FF100C8D">
+								<Rectangle.Fill>
+									<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+										<GradientStop Color="#FF2C389F" Offset="1"/>
+										<GradientStop Color="#FF5F85E2" Offset="0.289"/>
+									</LinearGradientBrush>
+								</Rectangle.Fill>
+							</Rectangle>
+							<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						</Grid>
+						<ControlTemplate.Triggers>
+							<EventTrigger RoutedEvent="Mouse.PreviewMouseDown">
+								<BeginStoryboard x:Name="OnMouseDown1_BeginStoryboard" Storyboard="{StaticResource OnMouseDown1}"/>
+							</EventTrigger>
+							<EventTrigger RoutedEvent="Mouse.MouseEnter">
+								<BeginStoryboard x:Name="OnMouseEnter1_BeginStoryboard" Storyboard="{StaticResource OnMouseEnter1}"/>
+							</EventTrigger>
+							<EventTrigger RoutedEvent="Mouse.MouseLeave">
+								<BeginStoryboard x:Name="OnMouseLeave1_BeginStoryboard" Storyboard="{StaticResource OnMouseLeave1}"/>
+							</EventTrigger>
+							<Trigger Property="IsFocused" Value="True"/>
+							<Trigger Property="IsDefaulted" Value="True"/>
+							<Trigger Property="IsMouseOver" Value="True"/>
+							<Trigger Property="IsPressed" Value="True"/>
+							<Trigger Property="IsEnabled" Value="False"/>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</Window.Resources>
     <Grid Name="grid" Background="White" Height="800" Width="1280">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="200"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-            <WrapPanel Name="panel" Orientation="Horizontal" Height="auto" Width="auto">
-            </WrapPanel>
+    	<Canvas x:Name="cvLogin">
+    		<Canvas.Background>
+    			<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+    				<GradientStop Color="#FF08D4FB" Offset="0"/>
+    				<GradientStop Color="#FF005BD6" Offset="1"/>
+    			</LinearGradientBrush>
+    		</Canvas.Background>
+    		<Image Height="180" Width="289.091" Source="activity_trans.png" Canvas.Left="828.5" Canvas.Top="548.5" RenderTransformOrigin="0.5,0.5">
+    			<Image.RenderTransform>
+    				<TransformGroup>
+    					<ScaleTransform ScaleX="-1"/>
+    					<SkewTransform/>
+    					<RotateTransform/>
+    					<TranslateTransform/>
+    				</TransformGroup>
+    			</Image.RenderTransform>
+    		</Image>
+    		<Canvas x:Name="pnlLogin" Height="428" Width="468" Background="White" Canvas.Left="272.5" Canvas.Top="99.5">
+                <Label Content="Username" Height="35.782" x:Name="lblName" Canvas.Left="6" Canvas.Top="148" Width="99" FontSize="17" FontFamily="Segoe360" />
+    			<Label Content="Email" Height="35.783" x:Name="lblEmail" Canvas.Left="6" Canvas.Top="191" Width="86" FontSize="17" FontFamily="Segoe360" />
+    			<TextBox Height="29.392" x:Name="txtUsername" Canvas.Left="115.945" Canvas.Top="146.964" Width="324.646" />
+                <TextBox  Height="29.393" x:Name="txtEmail" Canvas.Left="115.945" Canvas.Top="187.858" Width="324.646" />
+                <TextBox  Height="29.393" x:Name="txtDevicename" Canvas.Left="115.945" Canvas.Top="230.03" Width="324.646" />
+    			<Image Height="120.127" x:Name="image1" Stretch="Fill" Width="175.748" Source="activity13.PNG" Canvas.Left="4" Canvas.Top="4" />
+                <Button Content="Go" Style="{DynamicResource Success}" Foreground="White" FontSize="13.333" Width="98.858" RenderTransformOrigin="-0.037,0.75" Height="38.338" x:Name="btnGo" Click="btnGo_Click" MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" ToolTip="Start the application and connect to the cloud." Canvas.Left="356.378" Canvas.Top="384.662" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
+    			<Button Content="Stop" Style="{DynamicResource Danger}" Foreground="White" FontSize="13.333" Width="98.858" RenderTransformOrigin="-0.037,0.75" Height="38.338" Click="cancel_Click" MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" ToolTip="Stop the login process and exit the application." x:Name="btnStop" Canvas.Left="252.638" Canvas.Top="384.662" HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                <RadioButton Content="Client and Host" Height="20.447" HorizontalAlignment="Left" x:Name="rbClientAndHost" VerticalAlignment="Top" GroupName="startup" IsChecked="True" Canvas.Left="279" Canvas.Top="275" Width="161" />
+    			<RadioButton Content="Client" GroupName="startup" Height="20.447" HorizontalAlignment="Left" x:Name="rbClient" VerticalAlignment="Top" Canvas.Left="194" Canvas.Top="275" Width="125" />
+                <CheckBox Height="20.447" HorizontalAlignment="Right" x:Name="chkRemember" VerticalAlignment="Top" IsChecked="True" Width="231.598" Content="Remember my details." Canvas.Left="57" Canvas.Top="309" Margin="0" />
+    			<Label Content="Device name" Height="35.783" x:Name="label1" Width="111" Canvas.Left="4" Canvas.Top="233" FontSize="17" FontFamily="Segoe360" />
+                <Button Content="Info" FontSize="13.333" Foreground="White" Height="38.338" RenderTransformOrigin="-0.037,0.75" Style="{DynamicResource Action}" Width="98.858" Click="Button_Click" ToolTip="This will launch a website in you favorit browser." MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" x:Name="btnInfo" Canvas.Left="9.764" Canvas.Top="384.662" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
+    			<TextBlock Height="28.115" x:Name="txtTooltip" Text="" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="12" Foreground="#FF3091FC" TextAlignment="Center" Canvas.Left="25.63" Canvas.Top="343.767" Width="402.756" />
+    			<RadioButton Content="I don't know" GroupName="startup" Height="20.447" x:Name="radioButton1" VerticalAlignment="Top" Canvas.Left="56" Canvas.Top="275" Width="132" />
+    			<Image Height="60.064" x:Name="imgLogo" Stretch="None" Source="logo.PNG" Canvas.Left="130.591" Canvas.Top="44.728" Width="334.409" />
+    		</Canvas>
+    	</Canvas>
     </Grid>
 </Window>

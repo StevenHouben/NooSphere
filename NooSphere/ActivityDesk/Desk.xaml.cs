@@ -17,11 +17,14 @@ using System.Windows.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using NooSphere.ActivitySystem.ActivityService.ActivityManagement;
-using NooSphere.ActivitySystem.Contracts;
+
 using NooSphere.Core.ActivityModel;
+using NooSphere.ActivitySystem.ActivityClient;
+using NooSphere.ActivitySystem.Events;
 using NooSphere.ActivitySystem.Host;
-using NooSphere.ActivitySystem.Client;
+using NooSphere.ActivitySystem.Contracts;
+using NooSphere.ActivitySystem.ActivityManager;
+
 namespace ActivityDesk
 {
     /// <summary>
@@ -33,12 +36,14 @@ namespace ActivityDesk
         /// <summary>
         /// NooSphere Rest Client
         /// </summary>
-        private BasicClient client;
+        private Client client;
 
         /// <summary>
         /// NooSphere Activity Manager Host
         /// </summary>
         private BasicHost host;
+
+        private User user;
 
         /// <summary>
         /// Indicates if the table supports object tracking
@@ -72,7 +77,7 @@ namespace ActivityDesk
             tagsAreSupported = InteractiveSurface.PrimarySurfaceDevice.IsTagRecognitionSupported;
 
             //Starts the activity manager host
-            StartHost();
+            //StartHost();
         }
         #endregion
 
@@ -160,7 +165,7 @@ namespace ActivityDesk
             ac.Meta.Data = "added meta data";
 
             User u = GetInitializedParticipant();
-            ac.Participants.Add(u.Id, "Owner");
+            ac.Participants.Add(u);
 
             NooSphere.Core.ActivityModel.Action act = new NooSphere.Core.ActivityModel.Action();
             //act.Resources.Add(new Resource(new FileInfo(@"c:/test/sas.pdf")));
@@ -180,7 +185,7 @@ namespace ActivityDesk
             {
                 host = new BasicHost();
                 host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
-                host.Open(new ActivityManager(), typeof(IActivityManager),"desk");
+                host.Open(new ActivityManager(GetInitializedParticipant()), typeof(IActivityManager),"desk");
 
             });
             t.Start();
@@ -199,15 +204,7 @@ namespace ActivityDesk
         /// </summary>
         void StartClient()
         {
-            client = new BasicClient(host.Address);
-            client.ConnectionEstablished += new NooSphere.ActivitySystem.Client.Events.ConnectionEstablishedHandler(client_ConnectionEstablished);
-        }
-
-        /// <summary>
-        /// 4--- if client connection is established build the UI
-        /// </summary>
-        void client_ConnectionEstablished(object sender, EventArgs e)
-        {
+            client = new Client(host.Address);
             client.Register(); ;
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ActivityEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ComEvents);
@@ -215,31 +212,31 @@ namespace ActivityDesk
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.FileEvents);
 
             // Set current participant on client
-            client.CurrentParticipant = GetInitializedParticipant();
+            client.CurrentUser = GetInitializedParticipant();
 
-            client.ActivityAdded += new NooSphere.ActivitySystem.Client.Events.ActivityAddedHandler(client_ActivityAdded);
-            client.ActivityRemoved += new NooSphere.ActivitySystem.Client.Events.ActivityRemovedHandler(client_ActivityRemoved);
-            client.MessageReceived += new NooSphere.ActivitySystem.Client.Events.MessageReceivedHandler(client_MessageReceived);
-            client.DeviceAdded += new NooSphere.ActivitySystem.Client.Events.DeviceAddedHandler(client_DeviceAdded);
+            client.ActivityAdded += new ActivityAddedHandler(client_ActivityAdded);
+            client.ActivityRemoved += new ActivityRemovedHandler(client_ActivityRemoved);
+            client.MessageReceived += new MessageReceivedHandler(client_MessageReceived);
+            client.DeviceAdded += new DeviceAddedHandler(client_DeviceAdded);
             InitializeUI();
         }
 
-        void client_ActivityAdded(object sender, NooSphere.ActivitySystem.Client.Events.ActivityEventArgs e)
+        void client_ActivityAdded(object sender, ActivityEventArgs e)
         {
             AddActivityUI(e.Activity);
         }
 
-        void client_DeviceAdded(object sender, NooSphere.ActivitySystem.Client.Events.DeviceEventArgs e)
+        void client_DeviceAdded(object sender, DeviceEventArgs e)
         {
-            MessageBox.Show(e.Device.Identity.ToString());
+            MessageBox.Show(e.Device.Id.ToString());
         }
 
-        void client_MessageReceived(object sender, NooSphere.ActivitySystem.Client.Events.ComEventArgs e)
+        void client_MessageReceived(object sender, ComEventArgs e)
         {
             MessageBox.Show(e.Message);
         }
 
-        void client_ActivityRemoved(object sender, NooSphere.ActivitySystem.Client.Events.ActivityRemovedEventArgs e)
+        void client_ActivityRemoved(object sender, ActivityRemovedEventArgs e)
         {
             RemoveActivityUI(e.ID);
         }

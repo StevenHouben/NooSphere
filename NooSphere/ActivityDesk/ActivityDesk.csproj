@@ -151,25 +151,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.ActivityManager\NooSphere.ActivitySystem.ActivityService.csproj">
-      <Project>{12742CAB-ABDF-4B4B-A6F6-6646A524E0E8}</Project>
-      <Name>NooSphere.ActivitySystem.ActivityService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.Client\NooSphere.ActivitySystem.Client.csproj">
-      <Project>{83D5B7DD-EC47-4E5D-931C-6A6004751AA1}</Project>
-      <Name>NooSphere.ActivitySystem.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.Contracts\NooSphere.ActivitySystem.Contracts.csproj">
-      <Project>{95CA0E6D-F44A-484A-B066-D5AA0DDA08E2}</Project>
-      <Name>NooSphere.ActivitySystem.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.Discovery\NooSphere.ActivitySystem.DiscoveryService.csproj">
-      <Project>{4B3AEB33-9F3F-4C1F-AD68-5B6F620D94F6}</Project>
-      <Name>NooSphere.ActivitySystem.DiscoveryService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.Host\NooSphere.ActivitySystem.Host.csproj">
-      <Project>{E09A47AF-5F60-4E3C-B853-50C8B182E4C5}</Project>
-      <Name>NooSphere.ActivitySystem.Host</Name>
+    <ProjectReference Include="..\NooSphere.ActivitySystem\NooSphere.ActivitySystem.csproj">
+      <Project>{5CD6DD93-3EA1-425F-89D7-A80FD23BBC71}</Project>
+      <Name>NooSphere.ActivitySystem</Name>
     </ProjectReference>
     <ProjectReference Include="..\NooSphere.Core\NooSphere.Core.csproj">
       <Project>{03C072A4-5960-4A5D-B0CC-98EBD854E970}</Project>
