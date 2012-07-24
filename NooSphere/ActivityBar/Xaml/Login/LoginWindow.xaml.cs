@@ -103,10 +103,10 @@ namespace ActivityUI.Login
             this.Device = new Device();
             this.Device.Name = txtDevicename.Text;
 
-            if (rbClientAndHost.IsChecked == true)
-                this.Mode = StartUpMode.Host;
-            else
+            if (rbClient.IsChecked == true)
                 this.Mode = StartUpMode.Client;
+            else
+                this.Mode = StartUpMode.Host;
 
             if (chkRemember.IsChecked == true)
                 SaveSettings();
