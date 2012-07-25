@@ -247,7 +247,8 @@ namespace NooSphere.ActivitySystem.ActivityClient
         /// <returns>A list of retrieved activities</returns>
         public List<Activity> GetActivities()
         {
-            return JsonConvert.DeserializeObject<List<Activity>>(RestHelper.Get(ServiceAddress + Url.activities));
+            var res = RestHelper.Get(ServiceAddress + Url.activities);
+            return JsonConvert.DeserializeObject<List<Activity>>(res);
         }
 
         /// <summary>

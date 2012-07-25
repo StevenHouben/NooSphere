@@ -5,7 +5,7 @@
     Title="ActivityTablet" mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" d:Height="1024" d:Width="687
                  
-                 " SizeToContent="WidthAndHeight"  WindowStyle="None" WindowState="Maximized" Width="1024" Height="687">
+                 " SizeToContent="WidthAndHeight"  WindowStyle="None" WindowState="Maximized" Width="1024" Height="687" ResizeMode="NoResize" Loaded="Window_Loaded">
 	<Window.Resources>
 		<Style x:Key="Success" TargetType="{x:Type Button}">
 			<Setter Property="Template">
@@ -169,43 +169,61 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
+		<Style x:Key="ActivityTouchButton" TargetType="{x:Type Button}">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Button}">
+						<Grid>
+							<Rectangle Fill="#57F4F4F5" RadiusY="10" RadiusX="10" Stroke="Black" StrokeThickness="4"/>
+							<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						</Grid>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsFocused" Value="True"/>
+							<Trigger Property="IsDefaulted" Value="True"/>
+							<Trigger Property="IsMouseOver" Value="True"/>
+							<Trigger Property="IsPressed" Value="True"/>
+							<Trigger Property="IsEnabled" Value="False"/>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 	</Window.Resources>
-    <Grid Name="grid" Background="White" Height="800" Width="1280">
+    <Grid Name="grid" Background="White" Width="1024" Height="687">
+    	<Image Source="pack://siteoforigin:,,,/back.png" Stretch="None"/>
     	<Canvas x:Name="cvLogin">
-    		<Canvas.Background>
-    			<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-    				<GradientStop Color="#FF08D4FB" Offset="0"/>
-    				<GradientStop Color="#FF005BD6" Offset="1"/>
-    			</LinearGradientBrush>
-    		</Canvas.Background>
-    		<Image Height="180" Width="289.091" Source="activity_trans.png" Canvas.Left="828.5" Canvas.Top="548.5" RenderTransformOrigin="0.5,0.5">
-    			<Image.RenderTransform>
-    				<TransformGroup>
-    					<ScaleTransform ScaleX="-1"/>
-    					<SkewTransform/>
-    					<RotateTransform/>
-    					<TranslateTransform/>
-    				</TransformGroup>
-    			</Image.RenderTransform>
-    		</Image>
-    		<Canvas x:Name="pnlLogin" Height="428" Width="468" Background="White" Canvas.Left="272.5" Canvas.Top="99.5">
-                <Label Content="Username" Height="35.782" x:Name="lblName" Canvas.Left="6" Canvas.Top="148" Width="99" FontSize="17" FontFamily="Segoe360" />
-    			<Label Content="Email" Height="35.783" x:Name="lblEmail" Canvas.Left="6" Canvas.Top="191" Width="86" FontSize="17" FontFamily="Segoe360" />
-    			<TextBox Height="29.392" x:Name="txtUsername" Canvas.Left="115.945" Canvas.Top="146.964" Width="324.646" />
-                <TextBox  Height="29.393" x:Name="txtEmail" Canvas.Left="115.945" Canvas.Top="187.858" Width="324.646" />
-                <TextBox  Height="29.393" x:Name="txtDevicename" Canvas.Left="115.945" Canvas.Top="230.03" Width="324.646" />
-    			<Image Height="120.127" x:Name="image1" Stretch="Fill" Width="175.748" Source="activity13.PNG" Canvas.Left="4" Canvas.Top="4" />
-                <Button Content="Go" Style="{DynamicResource Success}" Foreground="White" FontSize="13.333" Width="98.858" RenderTransformOrigin="-0.037,0.75" Height="38.338" x:Name="btnGo" Click="btnGo_Click" MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" ToolTip="Start the application and connect to the cloud." Canvas.Left="356.378" Canvas.Top="384.662" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
-    			<Button Content="Stop" Style="{DynamicResource Danger}" Foreground="White" FontSize="13.333" Width="98.858" RenderTransformOrigin="-0.037,0.75" Height="38.338" Click="cancel_Click" MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" ToolTip="Stop the login process and exit the application." x:Name="btnStop" Canvas.Left="252.638" Canvas.Top="384.662" HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                <RadioButton Content="Client and Host" Height="20.447" HorizontalAlignment="Left" x:Name="rbClientAndHost" VerticalAlignment="Top" GroupName="startup" IsChecked="True" Canvas.Left="279" Canvas.Top="275" Width="161" />
-    			<RadioButton Content="Client" GroupName="startup" Height="20.447" HorizontalAlignment="Left" x:Name="rbClient" VerticalAlignment="Top" Canvas.Left="194" Canvas.Top="275" Width="125" />
-                <CheckBox Height="20.447" HorizontalAlignment="Right" x:Name="chkRemember" VerticalAlignment="Top" IsChecked="True" Width="231.598" Content="Remember my details." Canvas.Left="57" Canvas.Top="309" Margin="0" />
-    			<Label Content="Device name" Height="35.783" x:Name="label1" Width="111" Canvas.Left="4" Canvas.Top="233" FontSize="17" FontFamily="Segoe360" />
-                <Button Content="Info" FontSize="13.333" Foreground="White" Height="38.338" RenderTransformOrigin="-0.037,0.75" Style="{DynamicResource Action}" Width="98.858" Click="Button_Click" ToolTip="This will launch a website in you favorit browser." MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" x:Name="btnInfo" Canvas.Left="9.764" Canvas.Top="384.662" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
-    			<TextBlock Height="28.115" x:Name="txtTooltip" Text="" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="12" Foreground="#FF3091FC" TextAlignment="Center" Canvas.Left="25.63" Canvas.Top="343.767" Width="402.756" />
-    			<RadioButton Content="I don't know" GroupName="startup" Height="20.447" x:Name="radioButton1" VerticalAlignment="Top" Canvas.Left="56" Canvas.Top="275" Width="132" />
-    			<Image Height="60.064" x:Name="imgLogo" Stretch="None" Source="logo.PNG" Canvas.Left="130.591" Canvas.Top="44.728" Width="334.409" />
-    		</Canvas>
+    		<Canvas x:Name="pnlLogin" Height="383.757" Width="468" Background="White" Canvas.Left="272.5" Canvas.Top="98.673">
+                <Rectangle Fill="Black" Height="36.666" Stroke="Black" Width="468" Canvas.Top="285.664"/>
+                <Label Content="Username" Height="35.782" x:Name="lblName" Canvas.Left="15" Canvas.Top="148" Width="99" FontSize="17" FontFamily="Segoe360" />
+    			<Label Content="Email" Height="35.783" x:Name="lblEmail" Canvas.Left="15" Canvas.Top="191" Width="86" FontSize="17" FontFamily="Segoe360" />
+                <s:SurfaceTextBox Height="29.392" x:Name="txtUsername" Canvas.Left="131" Canvas.Top="146.964" Width="310" />
+                <s:SurfaceTextBox  Height="29.393" x:Name="txtEmail" Canvas.Left="130" Canvas.Top="187.858" Width="310" />
+                <s:SurfaceTextBox  Height="29.393" x:Name="txtDevicename" Canvas.Left="131" Canvas.Top="230.03" Width="310" />
+    			<Image Height="120.127" x:Name="image1" Stretch="Fill" Width="175.748" Source="/ActivityTablet;component/activity1.PNG" Canvas.Left="4" Canvas.Top="4" />
+                <s:SurfaceButton Content="Go" Style="{DynamicResource Success}" Foreground="White" FontSize="13.333" Width="98.858" RenderTransformOrigin="-0.037,0.75" Height="38.338" x:Name="btnGo" Click="btnGo_Click" MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" ToolTip="Start the application and connect to the cloud." Canvas.Left="355.614" Canvas.Top="332.783" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0" />
+                <s:SurfaceButton Content="Stop" Style="{DynamicResource Danger}" Foreground="White" FontSize="13.333" Width="98.858" RenderTransformOrigin="-0.037,0.75" Height="38.338" Click="cancel_Click" MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" ToolTip="Stop the login process and exit the application." x:Name="btnStop" Canvas.Left="251.874" Canvas.Top="332.783" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="0"/>
+                <Label Content="Device name" Height="35.783" x:Name="label1" Width="111" Canvas.Left="13" Canvas.Top="233" FontSize="17" FontFamily="Segoe360" />
+                <s:SurfaceButton Content="Info" FontSize="13.333" Foreground="White" Height="38.338" RenderTransformOrigin="-0.037,0.75" Style="{DynamicResource Action}" Width="98.858" Click="Button_Click" ToolTip="This will launch a website in you favorit browser." MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" x:Name="btnInfo" Canvas.Left="9" Canvas.Top="332.783" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0" />
+                <Image Height="60.064" x:Name="imgLogo" Stretch="None" Source="/ActivityTablet;component/logo.PNG" Canvas.Left="130.591" Canvas.Top="44.728" Width="334.409" />
+                <s:SurfaceRadioButton Canvas.Left="361.579" Canvas.Top="290.783" Content="Client" Height="16" x:Name="chkClient" GroupName="start" Margin="0" Background="#00000000" Foreground="#CCFFFFFF" />
+                <s:SurfaceRadioButton Canvas.Left="195.579" Canvas.Top="290.783" Content="Host and Client" Height="16" x:Name="chkHostClient" GroupName="start" Margin="0" Background="#00000000" Foreground="#CCFFFFFF" IsChecked="True" />
+                <s:SurfaceRadioButton Canvas.Left="66.579" Canvas.Top="290.783" Content="I don't know" Height="16" x:Name="chkNo" GroupName="start" Margin="0" Background="#00000000" Foreground="#CCFFFFFF" />
+
+            </Canvas>
+    		<Border BorderBrush="Black" BorderThickness="8" Height="399" Width="482.333" Canvas.Left="265.167" Canvas.Top="91.5" CornerRadius="10"/>
     	</Canvas>
+    	<Canvas x:Name="cvActivityManager" Visibility="Visible">
+            <s:SurfaceScrollViewer Height="671" Canvas.Top="8" 
+                                   Width="150" VerticalContentAlignment="Center" 
+                                   HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Hidden" >
+    			<StackPanel Orientation="Vertical" Name="ActivityDock">
+    			</StackPanel>
+            </s:SurfaceScrollViewer>
+            <s:SurfaceButton Content="Quit" Style="{DynamicResource Danger}" Foreground="White" 
+                             FontSize="13.333" Width="98.858" RenderTransformOrigin="-0.037,0.75" Height="38.338" 
+                             ToolTip="Stop the login process and exit the application." x:Name="btnQuit" 
+                             Canvas.Left="917.142" Canvas.Top="640.662" HorizontalContentAlignment="Center" 
+                             VerticalContentAlignment="Center" Margin="0" Click="btnQuit_Click" />
+        </Canvas>
     </Grid>
 </Window>

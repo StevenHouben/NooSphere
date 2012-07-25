@@ -448,8 +448,6 @@ namespace ActivityUI
                     host.StopBroadcast();
         }
 
-
-
         /// <summary>
         /// Deletes the activity
         /// </summary>
