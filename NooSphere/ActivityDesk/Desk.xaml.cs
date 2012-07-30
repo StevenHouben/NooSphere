@@ -33,24 +33,13 @@ namespace ActivityDesk
     public partial class Desk : SurfaceWindow
     {
         #region Members
-        /// <summary>
-        /// NooSphere Rest Client
-        /// </summary>
+
         private Client client;
-
-        /// <summary>
-        /// NooSphere Activity Manager Host
-        /// </summary>
         private BasicHost host;
-
         private User user;
 
-        /// <summary>
-        /// Indicates if the table supports object tracking
-        /// </summary>
         private bool tagsAreSupported;
 
-        private Dictionary<Guid, Activity> activities = new Dictionary<Guid, Activity>();
         private Dictionary<Guid, SurfaceButton> proxies = new Dictionary<Guid,SurfaceButton>();
 
         #endregion
