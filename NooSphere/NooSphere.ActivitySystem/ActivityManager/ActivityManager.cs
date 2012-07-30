@@ -48,7 +48,9 @@ namespace NooSphere.ActivitySystem.ActivityManager
 
         #endregion
 
+        #region Public Members
         public User Owner { get; set; }
+        #endregion
 
         #region Constructor
         public ActivityManager(User owner)
@@ -317,9 +319,14 @@ namespace NooSphere.ActivitySystem.ActivityManager
         public Guid Register(Device device)
         {
             ConnectedClient cc = new ConnectedClient(device.Name, device.BaseAddress, device);
-            Registry.ConnectedClients.Add(device.Id.ToString(), cc);
-            publisher.Publish(EventType.DeviceEvents, DeviceEvent.DeviceAdded.ToString(), device);
-            return device.Id;
+            if (!Registry.ConnectedClients.ContainsKey(device.Id.ToString()))
+            {
+                Registry.ConnectedClients.Add(device.Id.ToString(), cc);
+                publisher.Publish(EventType.DeviceEvents, DeviceEvent.DeviceAdded.ToString(), device);
+                return device.Id;
+            }
+            else
+                return new Guid("null");
         }
         public void Subscribe(string id, EventType type,int callbackPort)
         {
@@ -349,5 +356,4 @@ namespace NooSphere.ActivitySystem.ActivityManager
         }
         #endregion
     }
-
 }
