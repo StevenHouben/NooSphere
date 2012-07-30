@@ -106,6 +106,7 @@ namespace ActivityUI.Login
 
             this.Device = new Device();
             this.Device.Name = txtDevicename.Text;
+            this.Device.DeviceType = (DeviceType)cbType.SelectedValue;
 
             if (rbClient.IsChecked == true)
                 this.Mode = StartUpMode.Client;

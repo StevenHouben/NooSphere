@@ -28,6 +28,7 @@ using System.Runtime.InteropServices;
 using NooSphere.Core.ActivityModel;
 using System.Windows.Interop;
 using NooSphere.Platform.Windows.Interopt;
+using NooSphere.Core.Devices;
 
 namespace ActivityUI.PopUp
 {
@@ -63,7 +64,7 @@ namespace ActivityUI.PopUp
             this.MinWidth = this.MaxWidth = this.Width;
             this.taskbar = bar;
         }
-        public void Show(int offset)
+        public void Show(int offset,List<Device> devices)
         {
             if (offset + this.Width > System.Windows.SystemParameters.PrimaryScreenWidth)
                 this.Left = System.Windows.SystemParameters.PrimaryScreenWidth-this.Width;
@@ -71,6 +72,27 @@ namespace ActivityUI.PopUp
                 this.Left = offset;
             this.Top = taskbar.Height+5;
             this.Show();
+            VisualizeDevices(devices);
+        }
+        
+        private void VisualizeDevices(List<Device> devices)
+        {
+            btnTabletop.Visibility = System.Windows.Visibility.Hidden;
+            btnPhone.Visibility = System.Windows.Visibility.Hidden;
+            btnLaptop.Visibility = System.Windows.Visibility.Hidden;
+            btnTablet.Visibility = System.Windows.Visibility.Hidden;
+
+            foreach (Device dev in devices)
+            {
+                if (dev.DeviceType == DeviceType.Tabletop)
+                    btnTabletop.Visibility = System.Windows.Visibility.Visible;
+                else if (dev.DeviceType == DeviceType.SmartPhone)
+                    btnPhone.Visibility = System.Windows.Visibility.Visible;
+                else if (dev.DeviceType == DeviceType.Laptop)
+                    btnLaptop.Visibility = System.Windows.Visibility.Visible;
+                else if (dev.DeviceType == DeviceType.Tablet)
+                    btnTablet.Visibility = System.Windows.Visibility.Visible;
+            }
         }
         private void btnDone_Click(object sender, RoutedEventArgs e)
         {

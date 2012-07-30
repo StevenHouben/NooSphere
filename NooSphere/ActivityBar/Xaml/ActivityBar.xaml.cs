@@ -185,6 +185,8 @@ namespace ActivityUI
         {
             device = login.Device;
             device.Location = "pIT lab";
+
+            this.deviceList.Add(device);
             owner = login.User;
             startMode = login.Mode;
             InitializeNetwork();
@@ -436,7 +438,7 @@ namespace ActivityUI
             GeneralTransform transform = btn.TransformToAncestor(this);
             Point rootPoint = transform.Transform(new Point(0, 0));
 
-            deviceWindow.Show((int)rootPoint.X);
+            deviceWindow.Show((int)rootPoint.X, deviceList.ToList());
 
         }
 
@@ -689,6 +691,7 @@ namespace ActivityUI
         }
         private void client_DeviceRemoved(object sender, NooSphere.ActivitySystem.Events.DeviceEventArgs e)
         {
+            deviceList.Remove(e.Device);
             AddToLog("Device Removed\n");
         }
         private void client_DeviceAdded(object sender, NooSphere.ActivitySystem.Events.DeviceEventArgs e)
