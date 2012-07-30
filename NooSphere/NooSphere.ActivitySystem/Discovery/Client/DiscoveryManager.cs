@@ -33,14 +33,14 @@ namespace NooSphere.ActivitySystem.Discovery.Client
 
         #region Properties
         public List<ServiceInfo> ActivityServices { get; set; }
-        public Collection<EndpointDiscoveryMetadata> RawEndPointMetaData { get; set; }
+        public List<EndpointDiscoveryMetadata> RawEndPointMetaData { get; set; }
         #endregion
 
         #region Constructor
         public DiscoveryManager()
         { 
             ActivityServices = new List<ServiceInfo>();
-            RawEndPointMetaData = new Collection<EndpointDiscoveryMetadata>();
+            RawEndPointMetaData = new List<EndpointDiscoveryMetadata>();
         }
         #endregion
 
@@ -92,7 +92,9 @@ namespace NooSphere.ActivitySystem.Discovery.Client
         void discoveryClient_FindCompleted(object sender, FindCompletedEventArgs e)
         {
             RawEndPointMetaData.Clear();
-            RawEndPointMetaData = e.Result.Endpoints;
+            RawEndPointMetaData = e.Result.Endpoints.ToList();
+
+            OnDiscoveryFinished(new DiscoveryEventArgs());
         }
         #endregion
 

@@ -26,6 +26,7 @@ using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.ActivityManager;
 using NooSphere.ActivitySystem.Discovery.Client;
 using System.Windows.Controls;
+using NooSphere.Core.Devices;
 
 namespace ActivityDesk
 {
@@ -40,6 +41,7 @@ namespace ActivityDesk
         private BasicHost host;
         private DiscoveryManager disc;
         private User user;
+        private Device device;
         private DeskState DeskState;
 
         private bool tagsAreSupported;
@@ -71,6 +73,13 @@ namespace ActivityDesk
 
             SetDeskState(DeskState.Ready);
 
+            device = new Device()
+            {
+                DevicePortability = DevicePortability.Stationary,
+                DeviceRole = DeviceRole.Mediator,
+                DeviceType = DeviceType.Tabletop,
+                Name = "Surface"
+            };
         }
 
         private void SetDeskState(ActivityDesk.DeskState deskState)
@@ -85,7 +94,7 @@ namespace ActivityDesk
                         this.Background = (ImageBrush)this.Resources["green"];
                         break;
                     case ActivityDesk.DeskState.Locked:
-                        this.Background = (ImageBrush)this.Resources["orange"];
+                        this.Background = (ImageBrush)this.Resources["red"];
                         break;
                     case ActivityDesk.DeskState.Occupied:
                         this.Background = (ImageBrush)this.Resources["yellow"];
@@ -165,9 +174,16 @@ namespace ActivityDesk
                 disc = new DiscoveryManager();
                 disc.Find();
                 disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
+                disc.DiscoveryFinished += new DiscoveryFinishedHander(disc_DiscoveryFinished);
             });
             t.IsBackground = true;
             t.Start();
+        }
+
+        void disc_DiscoveryFinished(object o, DiscoveryEventArgs e)
+        {
+            if (disc.ActivityServices.Count == 0)
+                SetDeskState(ActivityDesk.DeskState.Locked);
         }
 
         void disc_DiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
@@ -207,7 +223,7 @@ namespace ActivityDesk
         void StartClient(string addr)
         {
             client = new Client(addr);
-            client.Register(); ;
+            client.Register(device);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ActivityEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ComEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.DeviceEvents);
@@ -384,9 +400,12 @@ namespace ActivityDesk
         {
             if(Visualizer.ActiveVisualizations.Count ==0)
                 SetDeskState(ActivityDesk.DeskState.Ready);
-            client.UnSubscribeAll();
-            client.Unregister();
-            client = null;
+            if (client != null)
+            {
+                client.UnSubscribeAll();
+                client.Unregister();
+                client = null;
+            }
 
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {

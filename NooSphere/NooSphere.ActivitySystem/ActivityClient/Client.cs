@@ -159,6 +159,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
         /// <param name="d">The device that needs to be registered with the activity client</param>
         public void Register(Device d)
         {
+            d.BaseAddress = NetHelper.GetIP(IPType.All);
             DeviceID = JsonConvert.DeserializeObject<String>(RestHelper.Post(ServiceAddress + Url.devices, d));
             Console.WriteLine("BasicClient: Received device id: " + DeviceID);
         }
