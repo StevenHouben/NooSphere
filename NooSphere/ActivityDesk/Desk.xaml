@@ -7,39 +7,29 @@
     Title="Activity Desk" mc:Ignorable="d"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    d:DesignHeight="294" d:DesignWidth="717" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-  <s:TagVisualizer x:Name="Visualizer" tve:TagVisualizerEvents.Mode="Auto" Background="#FFA7A2A2">
-    <Grid Name="grid" Background="White">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="200"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <s:SurfaceScrollViewer Grid.RowSpan="1">
-                <StackPanel Name="panel" Orientation="Horizontal">
-                </StackPanel>
-            </s:SurfaceScrollViewer>
-            <s:ScatterView Name="view" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#00000000" Margin="227,0,0,0">  
-      <s:ScatterViewItem
-          x:Name="Square"
-          Width="120"
-          Height="120"
-          CanScale="True"
-          Orientation="10"
-          tve:TagVisualizerEvents.VisualizationEnter="OnVisualizationEnter"
-          tve:TagVisualizerEvents.VisualizationLeave="OnVisualizationLeave">
-                    <ContentControl Style="{StaticResource TagHighlightStyle}">
-                        <Image Width="120" Height="120" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Source="/ActivityDesk;component/Images/document.PNG"></Image>
-                    </ContentControl>
-                </s:ScatterViewItem>
-            <s:SurfaceButton
-            Width="120"
-            Height="120" Content="Add Activity" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Name="btnAddActivity" Click="btnAddActivity_Click">
-                </s:SurfaceButton>
+    d:DesignHeight="294" d:DesignWidth="717" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" WindowState="Normal" WindowStyle="None">
+    <s:SurfaceWindow.Background>
+        <ImageBrush />
+    </s:SurfaceWindow.Background>
+    <s:SurfaceWindow.Resources>
+        <ImageBrush x:Key="blue" ImageSource="/ActivityDesk;component/Images/blue.jpg" />
+        <ImageBrush x:Key="red" ImageSource="/ActivityDesk;component/Images/red.jpg" />
+        <ImageBrush x:Key="green" ImageSource="/ActivityDesk;component/Images/green.jpg" />
+        <ImageBrush x:Key="yellow" ImageSource="/ActivityDesk;component/Images/yellow.jpg" />
+    </s:SurfaceWindow.Resources>
+    <s:TagVisualizer x:Name="Visualizer" tve:TagVisualizerEvents.Mode="Auto" VisualizationAdded="Visualizer_VisualizationAdded" VisualizationRemoved="Visualizer_VisualizationRemoved">
+    <Grid Name="grid">
+            <s:ScatterView Name="view">
+                <s:ScatterView.Background>
+                    <SolidColorBrush />
+                </s:ScatterView.Background>
             </s:ScatterView>
+            <Grid.Background>
+                <SolidColorBrush />
+            </Grid.Background>
         </Grid>
-        
+        <s:TagVisualizer.Background>
+            <SolidColorBrush />
+        </s:TagVisualizer.Background>
     </s:TagVisualizer>
 </s:SurfaceWindow>

@@ -50,6 +50,7 @@
     </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Surface.Presentation.Generic, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -73,9 +74,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DeskState.cs" />
     <Compile Include="Helper\Pdf\PDFConverter.cs" />
     <Compile Include="Visualizer\Definitions\SmartPhoneDefinition.cs" />
     <Compile Include="Visualizer\Definitions\TabletDefinition.cs" />
+    <Compile Include="Visualizer\Visualizations\SmartPhone.xaml.cs">
+      <DependentUpon>SmartPhone.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Visualizer\Visualizations\VisualizationTablet.xaml.cs">
       <DependentUpon>VisualizationTablet.xaml</DependentUpon>
     </Compile>
@@ -101,6 +106,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Visualizer\Visualizations\SmartPhone.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Visualizer\Visualizations\VisualizationSmartPhone.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -163,6 +172,14 @@
       <Project>{6424191D-5C04-43E6-B610-FD4B41E8A340}</Project>
       <Name>NooSphere.Helpers</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\blue.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\green.jpg" />
+    <Resource Include="Images\red.jpg" />
+    <Resource Include="Images\yellow.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

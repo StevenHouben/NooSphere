@@ -24,6 +24,8 @@ using NooSphere.ActivitySystem.Events;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.ActivityManager;
+using NooSphere.ActivitySystem.Discovery.Client;
+using System.Windows.Controls;
 
 namespace ActivityDesk
 {
@@ -36,7 +38,9 @@ namespace ActivityDesk
 
         private Client client;
         private BasicHost host;
+        private DiscoveryManager disc;
         private User user;
+        private DeskState DeskState;
 
         private bool tagsAreSupported;
 
@@ -65,8 +69,32 @@ namespace ActivityDesk
             // Check the hardware, and modify the UI based on the supported capabilities.
             tagsAreSupported = InteractiveSurface.PrimarySurfaceDevice.IsTagRecognitionSupported;
 
-            //Starts the activity manager host
-            //StartHost();
+            SetDeskState(DeskState.Ready);
+
+        }
+
+        private void SetDeskState(ActivityDesk.DeskState deskState)
+        {
+            this.DeskState = deskState;
+
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                switch (deskState)
+                {
+                    case ActivityDesk.DeskState.Active:
+                        this.Background = (ImageBrush)this.Resources["green"];
+                        break;
+                    case ActivityDesk.DeskState.Locked:
+                        this.Background = (ImageBrush)this.Resources["orange"];
+                        break;
+                    case ActivityDesk.DeskState.Occupied:
+                        this.Background = (ImageBrush)this.Resources["yellow"];
+                        break;
+                    case ActivityDesk.DeskState.Ready:
+                        this.Background = (ImageBrush)this.Resources["blue"];
+                        break;
+                }
+            }));
         }
         #endregion
 
@@ -76,11 +104,12 @@ namespace ActivityDesk
         /// </summary>
         private void InitializeUI()
         {
-            AddResourceWindow();
-            foreach (Activity act in client.GetActivities())
+            SetDeskState(ActivityDesk.DeskState.Occupied);
+            foreach (Activity ac in client.GetActivities())
             {
-                AddActivityUI(act);
+                AddActivityUI(ac);
             }
+
         }
 
         private void AddResourceWindow()
@@ -102,8 +131,7 @@ namespace ActivityDesk
                 b.Width = 300;
                 b.Height = Double.NaN;
                 b.Content = activity.Name;
-                panel.Children.Add(b);
-                proxies.Add(activity.Id, b);
+                view.Items.Add(b);
             }));
         }
 
@@ -117,7 +145,7 @@ namespace ActivityDesk
         private void InitializeTags()
         {
             TagVisualizationDefinition definition = new SmartPhoneDefinition();
-            definition.Source = new Uri("Visualizer/Visualizations/VisualizationSmartPhone.xaml", UriKind.Relative);
+            definition.Source = new Uri("Visualizer/Visualizations/SmartPhone.xaml", UriKind.Relative);
             definition.LostTagTimeout = 500;
 
             TagVisualizationDefinition definition2 = new TabletDefinition();
@@ -129,39 +157,24 @@ namespace ActivityDesk
         }
         #endregion
 
-        void GeneratedummyActivities()
+        private void RunDiscovery()
         {
-            for (int i = 0; i < 10; i++)
-                client.AddActivity(GetInitializedActivity());
+
+            Thread t = new Thread(() =>
+            {
+                disc = new DiscoveryManager();
+                disc.Find();
+                disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
+            });
+            t.IsBackground = true;
+            t.Start();
         }
-        public User GetInitializedParticipant()
+
+        void disc_DiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
-            User p = new User();
-            p.Email = "pitlabcloud@gmail.com";
-
-            return p;
+            StartClient(e.ServiceInfo.Address);
         }
 
-
-        public Activity GetInitializedActivity()
-        {
-            Activity ac = new Activity();
-            ac.Name = "test activity - " + DateTime.Now;
-            ac.Description = "This is the description of the test activity - " + DateTime.Now;
-            ac.Uri = "http://tempori.org/" + ac.Id;
-
-            ac.Context = "random context model here";
-            ac.Meta.Data = "added meta data";
-
-            User u = GetInitializedParticipant();
-            ac.Participants.Add(u);
-
-            NooSphere.Core.ActivityModel.Action act = new NooSphere.Core.ActivityModel.Action();
-            //act.Resources.Add(new Resource(new FileInfo(@"c:/test/sas.pdf")));
-            ac.Actions.Add(act);
-
-            return ac;
-        }
 
         #region NooSphere
 
@@ -174,7 +187,7 @@ namespace ActivityDesk
             {
                 host = new BasicHost();
                 host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
-                host.Open(new ActivityManager(GetInitializedParticipant()), typeof(IActivityManager),"desk");
+                host.Open(new ActivityManager(new User()), typeof(IActivityManager),"desk");
 
             });
             t.Start();
@@ -185,15 +198,15 @@ namespace ActivityDesk
         /// </summary>
         void host_HostLaunched(object sender, EventArgs e)
         {
-            StartClient();
+            StartClient(host.Address);
         }
 
         /// <summary>
         /// 3--- Start theclient
         /// </summary>
-        void StartClient()
+        void StartClient(string addr)
         {
-            client = new Client(host.Address);
+            client = new Client(addr);
             client.Register(); ;
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ActivityEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ComEvents);
@@ -201,7 +214,7 @@ namespace ActivityDesk
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.FileEvents);
 
             // Set current participant on client
-            client.CurrentUser = GetInitializedParticipant();
+            client.CurrentUser = this.user;
 
             client.ActivityAdded += new ActivityAddedHandler(client_ActivityAdded);
             client.ActivityRemoved += new ActivityRemovedHandler(client_ActivityRemoved);
@@ -232,12 +245,7 @@ namespace ActivityDesk
 
         private void RemoveActivityUI(Guid guid)
         {
-            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
-            {
-                panel.Children.Remove(proxies[guid]);
-            }));
 
-            proxies.Remove(guid);
         }
         #endregion
 
@@ -269,7 +277,7 @@ namespace ActivityDesk
         /// <param name="e"></param>
         private void OnVisualizationEnter(object sender, TagVisualizationEnterLeaveEventArgs e)
         {
-            ((BaseVisualization)e.Visualization).Enter();
+            //((BaseVisualization)e.Visualization).Enter();
         }
 
         /// <summary>
@@ -279,7 +287,7 @@ namespace ActivityDesk
         /// <param name="e"></param>
         private void OnVisualizationLeave(object sender, TagVisualizationEnterLeaveEventArgs e)
         {
-            ((BaseVisualization)e.Visualization).Leave();
+            //((BaseVisualization)e.Visualization).Leave();
         }
 
         #endregion
@@ -363,7 +371,27 @@ namespace ActivityDesk
 
         private void btnAddActivity_Click(object sender, RoutedEventArgs e)
         {
-            client.AddActivity(GetInitializedActivity());
+            
+        }
+
+        private void Visualizer_VisualizationAdded(object sender, TagVisualizerEventArgs e)
+        {
+            RunDiscovery();
+            SetDeskState(ActivityDesk.DeskState.Active);
+        }
+
+        private void Visualizer_VisualizationRemoved(object sender, TagVisualizerEventArgs e)
+        {
+            if(Visualizer.ActiveVisualizations.Count ==0)
+                SetDeskState(ActivityDesk.DeskState.Ready);
+            client.UnSubscribeAll();
+            client.Unregister();
+            client = null;
+
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                view.Items.Clear();
+            }));
         }
     }
 }
