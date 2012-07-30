@@ -29,4 +29,13 @@ namespace NooSphere.ActivitySystem.Events
             this.Device = device;
         }
     }
+    public class DeviceRemovedEventArgs
+    {
+        public string Id { get; set; }
+        public DeviceRemovedEventArgs() { }
+        public DeviceRemovedEventArgs(string id)
+        {
+            this.Id = id;
+        }
+    }
 }

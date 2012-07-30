@@ -25,7 +25,7 @@ namespace NooSphere.ActivitySystem.Events
 
     public delegate void DeviceRoleChangedHandler(Object sender, DeviceEventArgs e);
     public delegate void DeviceAddedHandler(Object sender, DeviceEventArgs e);
-    public delegate void DeviceRemovedHandler(Object sender, DeviceEventArgs e);
+    public delegate void DeviceRemovedHandler(Object sender, DeviceRemovedEventArgs e);
 
     public delegate void FileChangedHandler(Object sender, FileEventArgs e);
     public delegate void FileAddedHandler(Object sender, FileEventArgs e);

@@ -69,7 +69,7 @@ namespace ActivityUI
         private Dictionary<Guid, Proxy> proxies = new Dictionary<Guid, Proxy>();
         private ObservableCollection<User> contactList = new ObservableCollection<User>();
         private ObservableCollection<ServiceInfo> serviceList = new ObservableCollection<ServiceInfo>();
-        private ObservableCollection<Device> deviceList = new ObservableCollection<Device>();
+        private Dictionary<string, Device> deviceList = new Dictionary<string, Device>();
 
         private List<Window> PopUpWindows = new List<Window>();
 
@@ -186,7 +186,7 @@ namespace ActivityUI
             device = login.Device;
             device.Location = "pIT lab";
 
-            this.deviceList.Add(device);
+            this.deviceList.Add(device.Id.ToString(),device);
             owner = login.User;
             startMode = login.Mode;
             InitializeNetwork();
@@ -245,7 +245,7 @@ namespace ActivityUI
             client = new Client(activityManagerHttpAddress);
 
             //Register the current device with the activity manager we are connecting to
-            client.Register();
+            client.Register(this.device);
 
             //Set the current user
             client.CurrentUser = owner;
@@ -261,7 +261,7 @@ namespace ActivityUI
             client.DeviceAdded += new NooSphere.ActivitySystem.Events.DeviceAddedHandler(client_DeviceAdded);
             client.ActivityAdded += new NooSphere.ActivitySystem.Events.ActivityAddedHandler(client_ActivityAdded);
             client.ActivityChanged += new NooSphere.ActivitySystem.Events.ActivityChangedHandler(client_ActivityChanged);
-            client.DeviceRemoved += new NooSphere.ActivitySystem.Events.DeviceRemovedHandler(client_DeviceRemoved);
+            client.DeviceRemoved +=new NooSphere.ActivitySystem.Events.DeviceRemovedHandler(client_DeviceRemoved);
             client.ActivityRemoved += new NooSphere.ActivitySystem.Events.ActivityRemovedHandler(client_ActivityRemoved);
             client.MessageReceived += new NooSphere.ActivitySystem.Events.MessageReceivedHandler(client_MessageReceived);
 
@@ -438,7 +438,7 @@ namespace ActivityUI
             GeneralTransform transform = btn.TransformToAncestor(this);
             Point rootPoint = transform.Transform(new Point(0, 0));
 
-            deviceWindow.Show((int)rootPoint.X, deviceList.ToList());
+            deviceWindow.Show((int)rootPoint.X, deviceList.Values.ToList());
 
         }
 
@@ -689,14 +689,14 @@ namespace ActivityUI
             AddDiscoveryActivityManagerToUI(e.ServiceInfo);
 
         }
-        private void client_DeviceRemoved(object sender, NooSphere.ActivitySystem.Events.DeviceEventArgs e)
+        private void client_DeviceRemoved(object sender, NooSphere.ActivitySystem.Events.DeviceRemovedEventArgs e)
         {
-            deviceList.Remove(e.Device);
+            deviceList.Remove(e.Id);
             AddToLog("Device Removed\n");
         }
         private void client_DeviceAdded(object sender, NooSphere.ActivitySystem.Events.DeviceEventArgs e)
         {
-            deviceList.Add(e.Device);
+            deviceList.Add(e.Device.Id.ToString(),e.Device);
             AddToLog("Device Added\n");
         }
         private void client_MessageReceived(object sender, NooSphere.ActivitySystem.Events.ComEventArgs e)

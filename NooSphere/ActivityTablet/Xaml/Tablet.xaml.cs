@@ -187,7 +187,7 @@ namespace ActivityTablet
             client.DeviceAdded += new NooSphere.ActivitySystem.Events.DeviceAddedHandler(client_DeviceAdded);
             client.ActivityAdded += new NooSphere.ActivitySystem.Events.ActivityAddedHandler(client_ActivityAdded);
             //client.ActivityChanged += new NooSphere.ActivitySystem.Events.ActivityChangedHandler(client_ActivityChanged);
-            client.DeviceRemoved += new NooSphere.ActivitySystem.Events.DeviceRemovedHandler(client_DeviceRemoved);
+
             client.ActivityRemoved += new NooSphere.ActivitySystem.Events.ActivityRemovedHandler(client_ActivityRemoved);
             client.MessageReceived += new NooSphere.ActivitySystem.Events.MessageReceivedHandler(client_MessageReceived);
 
@@ -201,10 +201,8 @@ namespace ActivityTablet
         #endregion
 
         #region Public Methods
-        private void client_DeviceRemoved(object sender, NooSphere.ActivitySystem.Events.DeviceEventArgs e)
-        {
 
-        }
+
         private void client_DeviceAdded(object sender, NooSphere.ActivitySystem.Events.DeviceEventArgs e)
         {
 
