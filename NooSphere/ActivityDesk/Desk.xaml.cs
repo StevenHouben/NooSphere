@@ -291,7 +291,7 @@ namespace ActivityDesk
             // The ScatterViewItem moved, so synchronize visualizations appropriately.
             // Note that doing so is unnecessary when TagVisualizerEvents.Mode is set
             // to Auto.
-            TagVisualizerEvents.Synchronize();
+            //TagVisualizerEvents.Synchronize();
 
             // It's not necessary to check "is auto-update active?" and only call
             // Synchronize() if it isn't, because the Synchronize() method is smart
