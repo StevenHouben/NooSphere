@@ -104,12 +104,15 @@ namespace ActivityTablet
             {
                 cvLogin.Visibility = System.Windows.Visibility.Hidden;
                 cvActivityManager.Visibility = System.Windows.Visibility.Visible;
+                contentBrowser.Navigate(@"http://itu.dk/people/shou/pubs/SituatedActivityModelMODIQUITOUS2012.pdf");
             }));
             List<Activity> lac = client.GetActivities();
             foreach (Activity ac in lac)
             {
                 AddActivityUI(ac);
             }
+
+      
 
         }
         private void AddActivityUI(Activity ac)
