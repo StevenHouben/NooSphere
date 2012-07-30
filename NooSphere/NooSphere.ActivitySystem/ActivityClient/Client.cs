@@ -173,6 +173,14 @@ namespace NooSphere.ActivitySystem.ActivityClient
         }
 
         /// <summary>
+        /// Unregister main device from the activity client
+        /// </summary>
+        public void Unregister()
+        {
+            RestHelper.Delete(ServiceAddress + Url.devices, this.DeviceID);
+        }
+
+        /// <summary>
         /// Subscribe the activity client to an activity manager event
         /// </summary>
         /// <param name="type">The type of event for which the client needs to subscribe</param>
@@ -199,10 +207,14 @@ namespace NooSphere.ActivitySystem.ActivityClient
                 id = DeviceID,
                 type = type
             };
-            RestHelper.Delete(ServiceAddress + Url.subscribers, unSubscription);
+
             Type t = TypeFromEnum(type);
-            callbackServices[t].Close();
-            callbackServices.Remove(t);
+            if (callbackServices.ContainsKey(t))
+            {
+                callbackServices[t].Close();
+                callbackServices.Remove(t);
+                RestHelper.Delete(ServiceAddress + Url.subscribers, unSubscription);
+            }
         }
 
         /// <summary>
