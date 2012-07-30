@@ -59,6 +59,8 @@ namespace ActivityUI.Login
             ToolTipService.SetIsEnabled(btnInfo, false);
             ToolTipService.SetIsEnabled(btnStop, false);
             ToolTipService.SetIsEnabled(btnGo, false);
+
+            this.cbType.ItemsSource = Enum.GetValues(typeof(DeviceType)).Cast<DeviceType>();
         }
         #endregion
 
@@ -67,13 +69,15 @@ namespace ActivityUI.Login
         {
             txtUsername.Text = Settings.Default.USER_NAME;
             txtEmail.Text = Settings.Default.USER_EMAIL;
-            txtDevicename.Text = Settings.Default.USER_DEVICENAME;
+            txtDevicename.Text = Settings.Default.DEVICE_NAME;
+            cbType.SelectedValue = Settings.Default.DEVICE_TYPE;
         }
         private void SaveSettings()
         {
             Settings.Default.USER_NAME = txtUsername.Text;
             Settings.Default.USER_EMAIL = txtEmail.Text;
-            Settings.Default.USER_DEVICENAME = txtDevicename.Text;
+            Settings.Default.DEVICE_NAME = txtDevicename.Text;
+            Settings.Default.DEVICE_TYPE = (DeviceType)cbType.SelectedValue;
             Settings.Default.Save();
         }
         private void CreateUser(string baseUrl)

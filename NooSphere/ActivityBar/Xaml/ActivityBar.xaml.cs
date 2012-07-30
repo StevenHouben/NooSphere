@@ -59,18 +59,21 @@ namespace ActivityUI
         private Client client;
         private BasicHost host;
         private DiscoveryManager disc;
+
         private StartUpMode startMode;
 
         private User owner;
         private Device device;
         private Activity currentActivity;
+
         private Dictionary<Guid, Proxy> proxies = new Dictionary<Guid, Proxy>();
         private ObservableCollection<User> contactList = new ObservableCollection<User>();
         private ObservableCollection<ServiceInfo> serviceList = new ObservableCollection<ServiceInfo>();
+        private ObservableCollection<Device> deviceList = new ObservableCollection<Device>();
 
         private ActivityButton currentButton;
-        private LoginWindow login;
 
+        private LoginWindow login;
         private ActivityWindow activityWindow;
         private ManagerWindow managerWindow;
         private StartMenu StartMenu;

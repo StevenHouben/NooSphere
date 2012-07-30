@@ -11,7 +11,7 @@
     <Setting Name="USER_EMAIL" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="USER_DEVICENAME" Type="System.String" Scope="User">
+    <Setting Name="DEVICE_NAME" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="USER_LOCATION" Type="System.String" Scope="User">
@@ -22,6 +22,9 @@
     </Setting>
     <Setting Name="DISCOVERY_BROADCAST" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="DEVICE_TYPE" Type="NooSphere.Core.Devices.DeviceType" Scope="User">
+      <Value Profile="(Default)">Laptop</Value>
     </Setting>
   </Settings>
 </SettingsFile>

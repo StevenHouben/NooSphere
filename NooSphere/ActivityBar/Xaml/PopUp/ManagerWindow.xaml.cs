@@ -56,7 +56,7 @@ namespace ActivityUI.PopUp
             this.Left = offset;
             this.Top = taskbar.Height + 5;
 
-            this.txtDeviceName.Text = Settings.Default.USER_DEVICENAME;
+            this.txtDeviceName.Text = Settings.Default.DEVICE_NAME;
             this.txtEmail.Text = Settings.Default.USER_EMAIL;
             this.txtUsername.Text = Settings.Default.USER_NAME;
 
@@ -136,7 +136,7 @@ namespace ActivityUI.PopUp
 
         private void SaveSettings()
         {
-            Settings.Default.USER_DEVICENAME = txtDeviceName.Text;
+            Settings.Default.DEVICE_NAME = txtDeviceName.Text;
             Settings.Default.USER_NAME = txtUsername.Text;
             Settings.Default.USER_EMAIL = txtEmail.Text;
             Settings.Default.DISCOVERY_BROADCAST = (bool)chkBroadcast.IsChecked;
