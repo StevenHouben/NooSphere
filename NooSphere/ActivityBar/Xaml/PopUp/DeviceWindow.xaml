@@ -1,4 +1,11 @@
 ﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="ActivityUI.PopUp.DeviceWindow"
-        Title=" " Height="186" Width="440" WindowState="Normal" WindowStyle="None" Closing="Window_Closing" ShowInTaskbar="False"></Window>
+        Title=" " Height="131" Width="440" WindowState="Normal" WindowStyle="None" Closing="Window_Closing" ShowInTaskbar="False">
+	<Grid>
+		<Rectangle x:Name="recTable" Fill="#FF329B0D" Margin="8,82,8,8" Stroke="Black"/>
+		<Rectangle x:Name="recMain" Fill="#FFCEB300" Margin="8,8,0,0" Stroke="Black" HorizontalAlignment="Left" Width="70" Height="70" VerticalAlignment="Top" d:LayoutOverrides="Height"/>
+		<Rectangle x:Name="recPhone" Fill="#FF0000D8" Margin="177,8,177,0" Stroke="Black" Height="70" VerticalAlignment="Top" d:LayoutOverrides="Height"/>
+		<Rectangle x:Name="recTablet" Fill="#FFAB0000" Margin="0,8,8,0" Stroke="Black" Height="70" HorizontalAlignment="Right" Width="70" VerticalAlignment="Top" d:LayoutOverrides="Height"/>
+	</Grid>
+</Window>

@@ -52,7 +52,6 @@ namespace ActivityUI.PopUp
         #endregion
 
         private ActivityBar taskbar;
-        private Activity activity;
         public DeviceWindow(ActivityBar bar)
         {
             InitializeComponent();
@@ -64,21 +63,18 @@ namespace ActivityUI.PopUp
             this.MinWidth = this.MaxWidth = this.Width;
             this.taskbar = bar;
         }
-        public void Show(Activity act,int offset)
+        public void Show(int offset)
         {
-            this.activity = act;
-            this.Left = offset;
+            if (offset + this.Width > System.Windows.SystemParameters.PrimaryScreenWidth)
+                this.Left = System.Windows.SystemParameters.PrimaryScreenWidth-this.Width;
+            else
+                this.Left = offset;
             this.Top = taskbar.Height+5;
-
-
-
             this.Show();
         }
         private void btnDone_Click(object sender, RoutedEventArgs e)
         {
 
-            //other stuff
-            taskbar.EditActivity(activity);
             this.Hide();
         }
 

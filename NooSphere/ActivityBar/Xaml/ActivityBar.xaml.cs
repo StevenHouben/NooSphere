@@ -71,10 +71,13 @@ namespace ActivityUI
         private ObservableCollection<ServiceInfo> serviceList = new ObservableCollection<ServiceInfo>();
         private ObservableCollection<Device> deviceList = new ObservableCollection<Device>();
 
+        private List<Window> PopUpWindows = new List<Window>();
+
         private ActivityButton currentButton;
 
         private LoginWindow login;
         private ActivityWindow activityWindow;
+        private DeviceWindow deviceWindow;
         private ManagerWindow managerWindow;
         private StartMenu StartMenu;
 
@@ -93,8 +96,13 @@ namespace ActivityUI
         {
             InitializeComponent();
             activityWindow = new ActivityWindow(this);
+            PopUpWindows.Add(activityWindow);
             managerWindow = new ManagerWindow(this);
+            PopUpWindows.Add(managerWindow);
             StartMenu = new ActivityUI.StartMenu(this);
+            PopUpWindows.Add(StartMenu);
+            deviceWindow = new DeviceWindow(this);
+            PopUpWindows.Add(deviceWindow);
 
             MouseHook.Register();
             MouseHook.MouseClick+=new System.Windows.Forms.MouseEventHandler(MouseHook_MouseClick);
@@ -161,6 +169,13 @@ namespace ActivityUI
                 return false;
             else
                 return (p.X >= w.Left && p.X <= w.Left + w.Width) && (p.Y >= w.Top && p.Y <= w.Top + w.Height);
+        }
+        private bool HitTestAllPopWindow(System.Drawing.Point location)
+        {
+            foreach (Window w in PopUpWindows)
+                if (HitTest(w, location))
+                    return true;
+            return false;
         }
 
         /// <summary>
@@ -414,6 +429,17 @@ namespace ActivityUI
             activityWindow.Show(proxies[btn.ActivityId].Activity, (int)rootPoint.X);
         }
 
+        private void ShowDeviceMenu(Button btn)
+        {
+            if (deviceWindow.Visibility == System.Windows.Visibility.Visible)
+                activityWindow.Hide();
+            GeneralTransform transform = btn.TransformToAncestor(this);
+            Point rootPoint = transform.Transform(new Point(0, 0));
+
+            deviceWindow.Show((int)rootPoint.X);
+
+        }
+
         /// <summary>
         /// Shows the activity manager context menu
         /// </summary>
@@ -576,18 +602,17 @@ namespace ActivityUI
         /// </summary>
         private void HideAllPopups()
         {
-            activityWindow.Hide();
-            managerWindow.Hide();
-            StartMenu.Hide();
+            PopUpWindows.ForEach( w => w.Hide());
         }
         #endregion
 
         #region Event Handlers
         private void MouseHook_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            if (!HitTest(activityWindow, e.Location) && !HitTest(managerWindow, e.Location) && !HitTest(StartMenu, e.Location))
+            if(!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
         }
+
         private void btnManager_Click(object sender, RoutedEventArgs e)
         {
             ShowManagerContextMenu();
@@ -668,7 +693,7 @@ namespace ActivityUI
         }
         private void client_DeviceAdded(object sender, NooSphere.ActivitySystem.Events.DeviceEventArgs e)
         {
-            
+            deviceList.Add(e.Device);
             AddToLog("Device Added\n");
         }
         private void client_MessageReceived(object sender, NooSphere.ActivitySystem.Events.ComEventArgs e)
@@ -844,6 +869,12 @@ namespace ActivityUI
             }
         }
         #endregion
+
+        private void btnPhone_Click(object sender, RoutedEventArgs e)
+        {
+            HideAllPopups();
+            ShowDeviceMenu((Button)sender);
+        }
 
     }
     public enum RenderStyle
