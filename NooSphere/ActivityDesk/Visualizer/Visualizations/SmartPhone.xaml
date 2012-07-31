@@ -17,9 +17,6 @@
             </Ellipse>
             <s:SurfaceButton Name="PinButton" Height="38" Click="PinButton_Click">
                 <Rectangle Fill="Black" />
-                <s:SurfaceButton.Background>
-                    <ImageBrush ImageSource="/ActivityDesk;component/Images/pin.ico" />
-                </s:SurfaceButton.Background>
             </s:SurfaceButton>
         </WrapPanel>
     </Grid>
