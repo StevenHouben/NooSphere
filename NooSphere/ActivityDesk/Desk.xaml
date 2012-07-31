@@ -7,7 +7,7 @@
     Title="Activity Desk" mc:Ignorable="d"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    d:DesignHeight="294" d:DesignWidth="717" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" WindowState="Normal" WindowStyle="SingleBorderWindow">
+    d:DesignHeight="294" d:DesignWidth="717" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" WindowState="Normal" WindowStyle="None" ResizeMode="NoResize">
     <s:SurfaceWindow.Background>
         <ImageBrush />
     </s:SurfaceWindow.Background>
@@ -17,7 +17,7 @@
         <ImageBrush x:Key="green" ImageSource="/ActivityDesk;component/Images/green.jpg" />
         <ImageBrush x:Key="yellow" ImageSource="/ActivityDesk;component/Images/yellow.jpg" />
     </s:SurfaceWindow.Resources>
-    <s:TagVisualizer x:Name="Visualizer" tve:TagVisualizerEvents.Mode="Auto" VisualizationAdded="Visualizer_VisualizationAdded" VisualizationRemoved="Visualizer_VisualizationRemoved" VisualizationMoved="Visualizer_VisualizationMoved" Loaded="Visualizer_Loaded">
+    <s:TagVisualizer x:Name="Visualizer" tve:TagVisualizerEvents.Mode="Off" VisualizationAdded="Visualizer_VisualizationAdded" VisualizationRemoved="Visualizer_VisualizationRemoved" VisualizationMoved="Visualizer_VisualizationMoved" Loaded="Visualizer_Loaded">
     <Grid Name="grid">
             <s:ScatterView Name="view">
                 <s:ScatterView.Background>

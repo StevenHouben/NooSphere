@@ -113,19 +113,19 @@ namespace ActivityDesk
         {
             var img = e.Image.ThresholdToZero(new Gray(175));
 
-            //BlobTrackerAutoParam<Rgb> param = new BlobTrackerAutoParam<Rgb>();
-            //param.FGDetector = new FGDetector<Rgb>(Emgu.CV.CvEnum.FORGROUND_DETECTOR_TYPE.FGD);
-            //param.FGTrainFrames = 10;
-            //BlobTrackerAuto<Rgb> tracker = new BlobTrackerAuto<Rgb>(param);
+            BlobTrackerAutoParam<Rgb> param = new BlobTrackerAutoParam<Rgb>();
+            param.FGDetector = new FGDetector<Rgb>(Emgu.CV.CvEnum.FORGROUND_DETECTOR_TYPE.FGD);
+            param.FGTrainFrames = 10;
+            BlobTrackerAuto<Rgb> tracker = new BlobTrackerAuto<Rgb>(param);
 
-            //var colImg = img.Convert<Rgb, byte>();
-            //tracker.Process(colImg);
-            //Image<Gray, Byte> res = tracker.ForgroundMask;
+            var colImg = img.Convert<Rgb, byte>();
+            tracker.Process(colImg);
+            Image<Gray, Byte> res = tracker.ForgroundMask;
 
-            //foreach (MCvBlob blob in tracker)
-            //{
-            //    res.Draw(System.Drawing.Rectangle.Round(new RectangleF(blob.Center, blob.Size)), new Gray(255.0), 2);
-            //}
+            foreach (MCvBlob blob in tracker)
+            {
+                res.Draw(System.Drawing.Rectangle.Round(new RectangleF(blob.Center, blob.Size)), new Gray(255.0), 2);
+            }
 
 
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
@@ -515,7 +515,7 @@ namespace ActivityDesk
 
         private void Visualizer_Loaded(object sender, RoutedEventArgs e)
         {
-            InitializeTracker();
+            //InitializeTracker();
         }
     }
 }

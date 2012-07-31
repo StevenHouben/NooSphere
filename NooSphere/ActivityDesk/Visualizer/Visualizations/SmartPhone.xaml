@@ -15,7 +15,12 @@
                     </RadialGradientBrush>
                 </Ellipse.Fill>
             </Ellipse>
-            <s:SurfaceButton Name="PinButton" Height="38" Background="#FF030303" Click="PinButton_Click" />
+            <s:SurfaceButton Name="PinButton" Height="38" Click="PinButton_Click">
+                <Rectangle Fill="Black" />
+                <s:SurfaceButton.Background>
+                    <ImageBrush ImageSource="/ActivityDesk;component/Images/pin.ico" />
+                </s:SurfaceButton.Background>
+            </s:SurfaceButton>
         </WrapPanel>
     </Grid>
 </s:TagVisualization>
