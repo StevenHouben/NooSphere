@@ -36,6 +36,10 @@ namespace NooSphere.ActivitySystem.Discovery.Client
         public List<EndpointDiscoveryMetadata> RawEndPointMetaData { get; set; }
         #endregion
 
+        #region Private Members
+        DiscoveryClient discoveryClient;
+        #endregion
+
         #region Constructor
         public DiscoveryManager()
         { 
@@ -53,11 +57,16 @@ namespace NooSphere.ActivitySystem.Discovery.Client
         {
             ActivityServices.Clear();
 
-            DiscoveryClient discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
+            discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
             discoveryClient.FindProgressChanged += new EventHandler<FindProgressChangedEventArgs>(discoveryClient_FindProgressChanged);
             discoveryClient.FindCompleted += new EventHandler<FindCompletedEventArgs>(discoveryClient_FindCompleted);
             discoveryClient.FindAsync(new FindCriteria(typeof(NooSphere.ActivitySystem.Contracts.IDiscovery)));
 
+        }
+        public void Close()
+        {
+            if (discoveryClient != null)
+                discoveryClient.Close();
         }
         #endregion
 

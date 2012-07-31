@@ -45,5 +45,10 @@ namespace ActivityDesk.Visualizer.Visualizations
         {
             //TODO: customize SmartPhone's UI based on this.VisualizedTag here
         }
+
+        private void PinButton_Click(object sender, RoutedEventArgs e)
+        {
+           
+        }
     }
 }

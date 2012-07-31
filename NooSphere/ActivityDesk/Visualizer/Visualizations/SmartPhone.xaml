@@ -15,7 +15,7 @@
                     </RadialGradientBrush>
                 </Ellipse.Fill>
             </Ellipse>
-            <s:SurfaceButton Name="PinButton" Height="38" Background="#FF030303" />
+            <s:SurfaceButton Name="PinButton" Height="38" Background="#FF030303" Click="PinButton_Click" />
         </WrapPanel>
     </Grid>
 </s:TagVisualization>

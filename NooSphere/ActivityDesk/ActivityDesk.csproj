@@ -50,6 +50,25 @@
     </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Emgu.CV">
+      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface\EmguCvSurface\bin\Debug\Emgu.CV.dll</HintPath>
+    </Reference>
+    <Reference Include="Emgu.CV.GPU">
+      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface2\EmguCvSurface\bin\Debug\Emgu.CV.GPU.dll</HintPath>
+    </Reference>
+    <Reference Include="Emgu.CV.ML">
+      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface2\EmguCvSurface\bin\Debug\Emgu.CV.ML.dll</HintPath>
+    </Reference>
+    <Reference Include="Emgu.CV.OCR">
+      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface2\EmguCvSurface\bin\Debug\Emgu.CV.OCR.dll</HintPath>
+    </Reference>
+    <Reference Include="Emgu.CV.UI">
+      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface\EmguCvSurface\bin\Debug\Emgu.CV.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="Emgu.Util">
+      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface\EmguCvSurface\bin\Debug\Emgu.Util.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Surface.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Surface.Presentation.Generic, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -57,6 +76,7 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
@@ -64,6 +84,9 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="Microsoft.Surface" />
     <Reference Include="Microsoft.Surface.Presentation" />
+    <Reference Include="ZedGraph">
+      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface\EmguCvSurface\bin\Debug\ZedGraph.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -76,6 +99,8 @@
     </Compile>
     <Compile Include="DeskState.cs" />
     <Compile Include="Helper\Pdf\PDFConverter.cs" />
+    <Compile Include="Helper\Surface\SurfaceCapture.cs" />
+    <Compile Include="Helper\Surface\SurfaceImageEventArgs.cs" />
     <Compile Include="Visualizer\Definitions\SmartPhoneDefinition.cs" />
     <Compile Include="Visualizer\Definitions\TabletDefinition.cs" />
     <Compile Include="Visualizer\Visualizations\SmartPhone.xaml.cs">

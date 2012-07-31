@@ -41,6 +41,16 @@ using NooSphere.ActivitySystem.ActivityManager;
 using NooSphere.ActivitySystem.Discovery.Client;
 using System.Windows.Controls;
 using NooSphere.Core.Devices;
+using ActivityDesk.Helper.Surface;
+using System.Windows.Interop;
+using System.Windows.Media.Imaging;
+using Emgu.CV.Structure;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using Emgu.CV;
+using Emgu.CV.UI;
+using Emgu.CV.VideoSurveillance;
+using System.Drawing;
 
 namespace ActivityDesk
 {
@@ -58,7 +68,7 @@ namespace ActivityDesk
         private Device device;
         private DeskState DeskState;
 
-        private bool tagsAreSupported;
+        private Thread discoveryThread;
 
         private Dictionary<Guid, SurfaceButton> proxies = new Dictionary<Guid,SurfaceButton>();
 
@@ -82,9 +92,6 @@ namespace ActivityDesk
             //Initializes tag definitions
             InitializeTags();
 
-            // Check the hardware, and modify the UI based on the supported capabilities.
-            tagsAreSupported = InteractiveSurface.PrimarySurfaceDevice.IsTagRecognitionSupported;
-
             SetDeskState(DeskState.Ready);
 
             device = new Device()
@@ -94,6 +101,71 @@ namespace ActivityDesk
                 DeviceType = DeviceType.Tabletop,
                 Name = "Surface"
             };
+        }
+
+        private void InitializeTracker()
+        {
+            SurfaceCapture cap = new SurfaceCapture(this);
+            cap.Image += new EventHandler<SurfaceImageEventArgs>(cap_Image);
+        }
+
+        void cap_Image(object sender, SurfaceImageEventArgs e)
+        {
+            var img = e.Image.ThresholdToZero(new Gray(175));
+
+            //BlobTrackerAutoParam<Rgb> param = new BlobTrackerAutoParam<Rgb>();
+            //param.FGDetector = new FGDetector<Rgb>(Emgu.CV.CvEnum.FORGROUND_DETECTOR_TYPE.FGD);
+            //param.FGTrainFrames = 10;
+            //BlobTrackerAuto<Rgb> tracker = new BlobTrackerAuto<Rgb>(param);
+
+            //var colImg = img.Convert<Rgb, byte>();
+            //tracker.Process(colImg);
+            //Image<Gray, Byte> res = tracker.ForgroundMask;
+
+            //foreach (MCvBlob blob in tracker)
+            //{
+            //    res.Draw(System.Drawing.Rectangle.Round(new RectangleF(blob.Center, blob.Size)), new Gray(255.0), 2);
+            //}
+
+
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                this.Background = new ImageBrush(ToBitmapSource(img.ToBitmap()));
+            }));
+            img.Dispose();
+            img = null;
+        }
+
+        public BitmapSource ToBitmapSource(System.Drawing.Bitmap source)
+        {
+            BitmapSource bitSrc = null;
+
+            var hBitmap = source.GetHbitmap();
+
+            try
+            {
+                bitSrc = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                    hBitmap,
+                    IntPtr.Zero,
+                    Int32Rect.Empty,
+                    BitmapSizeOptions.FromEmptyOptions());
+            }
+            catch (Win32Exception)
+            {
+                bitSrc = null;
+            }
+            finally
+            {
+                NativeMethods.DeleteObject(hBitmap);
+            }
+
+            return bitSrc;
+        }
+        internal static class NativeMethods
+        {
+            [DllImport("gdi32.dll")]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            internal static extern bool DeleteObject(IntPtr hObject);
         }
 
         private void SetDeskState(ActivityDesk.DeskState deskState)
@@ -149,7 +221,7 @@ namespace ActivityDesk
                 SurfaceButton b = new SurfaceButton();
                 b.HorizontalContentAlignment = System.Windows.HorizontalAlignment.Center;
                 b.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
-                b.Background = Brushes.Gray;
+                b.Background = System.Windows.Media.Brushes.Gray;
                 b.Click += new RoutedEventHandler(b_Click);
                 b.Width = 300;
                 b.Height = Double.NaN;
@@ -169,11 +241,12 @@ namespace ActivityDesk
         {
             TagVisualizationDefinition definition = new SmartPhoneDefinition();
             definition.Source = new Uri("Visualizer/Visualizations/SmartPhone.xaml", UriKind.Relative);
-            definition.LostTagTimeout = 500;
+            definition.TagRemovedBehavior = TagRemovedBehavior.Disappear;
+            definition.LostTagTimeout = 1000;
 
             TagVisualizationDefinition definition2 = new TabletDefinition();
             definition2.Source = new Uri("Visualizer/Visualizations/VisualizationTablet.xaml", UriKind.Relative);
-            definition2.LostTagTimeout = 500;
+            definition2.LostTagTimeout = 1000;
 
             Visualizer.Definitions.Add(definition);
             Visualizer.Definitions.Add(definition2);
@@ -182,22 +255,24 @@ namespace ActivityDesk
 
         private void RunDiscovery()
         {
-
-            Thread t = new Thread(() =>
+            discoveryThread = new Thread(() =>
             {
                 disc = new DiscoveryManager();
                 disc.Find();
                 disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
                 disc.DiscoveryFinished += new DiscoveryFinishedHander(disc_DiscoveryFinished);
             });
-            t.IsBackground = true;
-            t.Start();
+            discoveryThread.IsBackground = true;
+            discoveryThread.Start();
         }
 
         void disc_DiscoveryFinished(object o, DiscoveryEventArgs e)
         {
             if (disc.ActivityServices.Count == 0)
-                SetDeskState(ActivityDesk.DeskState.Locked);
+                if(Visualizer.ActiveVisualizations.Count ==0)
+                    SetDeskState(ActivityDesk.DeskState.Ready);
+                else
+                    SetDeskState(ActivityDesk.DeskState.Locked);
         }
 
         void disc_DiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
@@ -278,7 +353,6 @@ namespace ActivityDesk
 
         }
         #endregion
-
 
         #region UI Events
         /// <summary>
@@ -406,14 +480,20 @@ namespace ActivityDesk
 
         private void Visualizer_VisualizationAdded(object sender, TagVisualizerEventArgs e)
         {
-            RunDiscovery();
-            SetDeskState(ActivityDesk.DeskState.Active);
+            if (Visualizer.ActiveVisualizations.Count == 1)
+            {
+                RunDiscovery();
+                SetDeskState(ActivityDesk.DeskState.Active);
+            }
         }
 
         private void Visualizer_VisualizationRemoved(object sender, TagVisualizerEventArgs e)
         {
-            if(Visualizer.ActiveVisualizations.Count ==0)
+            if (Visualizer.ActiveVisualizations.Count == 0)
+            {
                 SetDeskState(ActivityDesk.DeskState.Ready);
+                discoveryThread.Abort();
+            }
             if (client != null)
             {
                 client.UnSubscribeAll();
@@ -421,10 +501,21 @@ namespace ActivityDesk
                 client = null;
             }
 
+
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
                 view.Items.Clear();
             }));
+        }
+
+        private void Visualizer_VisualizationMoved(object sender, TagVisualizerEventArgs e)
+        {
+
+        }
+
+        private void Visualizer_Loaded(object sender, RoutedEventArgs e)
+        {
+            InitializeTracker();
         }
     }
 }
