@@ -49,10 +49,18 @@ namespace NooSphere.Helpers
             message.Method = method;
             message.RequestUri = new Uri(url);
 
-            HttpResponseMessage response = client.SendAsync(message).Result;
-            if (response.StatusCode == HttpStatusCode.InternalServerError | response.StatusCode == HttpStatusCode.BadRequest)
-                throw (new Exception(response.ToString()));
-            return response.Content.ReadAsStringAsync().Result;
+            try
+            {
+                HttpResponseMessage response = client.SendAsync(message).Result;
+                if (response.StatusCode == HttpStatusCode.InternalServerError | response.StatusCode == HttpStatusCode.BadRequest)
+                    throw (new Exception(response.ToString()));
+                return response.Content.ReadAsStringAsync().Result;
+            }
+            catch (HttpRequestException e)
+            {
+                return e.ToString();
+                
+            }
         }
 
         /// <summary>

@@ -340,12 +340,17 @@ namespace NooSphere.ActivitySystem.ActivityManager
         }
         public void UnSubscribe(string id, EventType type)
         {
-           subscriber.UnSubscribe(id,type);
+            if(id !=null)
+                subscriber.UnSubscribe(id,type);
         }
         public void UnRegister(string id)
         {
-            publisher.Publish(EventType.DeviceEvents, DeviceEvent.DeviceRemoved.ToString(), id);
-            Registry.ConnectedClients.Remove(id);
+            if(id != null)
+                if(Registry.ConnectedClients.ContainsKey(id))
+                {
+                    publisher.Publish(EventType.DeviceEvents, DeviceEvent.DeviceRemoved.ToString(), id);
+                    Registry.ConnectedClients.Remove(id);
+                }
         }
         #endregion
 
