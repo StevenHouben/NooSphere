@@ -51,22 +51,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Emgu.CV">
-      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface\EmguCvSurface\bin\Debug\Emgu.CV.dll</HintPath>
+      <HintPath>..\Libs\Emgu.CV.dll</HintPath>
     </Reference>
     <Reference Include="Emgu.CV.GPU">
-      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface2\EmguCvSurface\bin\Debug\Emgu.CV.GPU.dll</HintPath>
+      <HintPath>..\Libs\Emgu.CV.GPU.dll</HintPath>
     </Reference>
     <Reference Include="Emgu.CV.ML">
-      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface2\EmguCvSurface\bin\Debug\Emgu.CV.ML.dll</HintPath>
+      <HintPath>..\Libs\Emgu.CV.ML.dll</HintPath>
     </Reference>
     <Reference Include="Emgu.CV.OCR">
-      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface2\EmguCvSurface\bin\Debug\Emgu.CV.OCR.dll</HintPath>
+      <HintPath>..\Libs\Emgu.CV.OCR.dll</HintPath>
     </Reference>
     <Reference Include="Emgu.CV.UI">
-      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface\EmguCvSurface\bin\Debug\Emgu.CV.UI.dll</HintPath>
+      <HintPath>..\Libs\Emgu.CV.UI.dll</HintPath>
     </Reference>
     <Reference Include="Emgu.Util">
-      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface\EmguCvSurface\bin\Debug\Emgu.Util.dll</HintPath>
+      <HintPath>..\Libs\Emgu.Util.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Surface.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Surface.Presentation.Generic, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
