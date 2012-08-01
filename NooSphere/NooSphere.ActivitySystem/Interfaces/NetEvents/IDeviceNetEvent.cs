@@ -31,7 +31,7 @@ namespace NooSphere.ActivitySystem.Contracts.NetEvents
 
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "DeviceRemoved", Method = "POST")]
-        void DeviceNetRemoved(Device dev);
+        void DeviceNetRemoved(string id);
 
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "DeviceRoleChanged", Method = "POST")]

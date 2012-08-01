@@ -100,6 +100,9 @@ namespace NooSphere.Platform.Windows.Interopt
         public static extern IntPtr GetParent(IntPtr hwnd);
 
         [DllImport(user32, CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern uint GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [DllImport(user32, CharSet = CharSet.Auto, SetLastError = true)]
         public static extern int GetWindowModuleFileName(IntPtr hwnd, ref System.Text.StringBuilder lpszFileName, int cchFileNameMax);
 
         [DllImport(user32, CharSet = CharSet.Ansi, SetLastError = true)]
@@ -119,9 +122,6 @@ namespace NooSphere.Platform.Windows.Interopt
 
         [DllImport(user32, CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool GetWindowInfo(IntPtr hwnd, ref WININFO info);
-
-        [DllImport(user32, CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern int GetWindowLong(IntPtr hwnd, int nIndex);
 
         [DllImport(user32, CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
@@ -188,6 +188,9 @@ namespace NooSphere.Platform.Windows.Interopt
 
         [DllImport(user32, CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool SetForegroundWindow(IntPtr hwnd);
+
+        [DllImport(user32, CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern int SetWindowLong(IntPtr hWnd, int nIndex, uint dwNewLong);
 
         [DllImport(user32, CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool SetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);

@@ -24,10 +24,23 @@ namespace NooSphere.Core.Devices
     {
         public DeviceType DeviceType { get; set; }
         public DeviceRole DeviceRole { get; set; }
+        public DevicePortability DevicePortability { get; set; }
+
         public string Location { get; set; }
         public string BaseAddress { get; set; }
     }
     public enum DeviceType
+    {
+        Desktop,
+        Laptop,
+        SmartPhone,
+        Tablet,
+        Tabletop,
+        WallDisplay,
+        Custom,
+        Unknown
+    }
+    public enum DevicePortability
     {
         Stationary,
         Mobile
@@ -35,6 +48,7 @@ namespace NooSphere.Core.Devices
     public enum DeviceRole
     {
         Master,
-        Slave
+        Slave,
+        Mediator
     }
 }

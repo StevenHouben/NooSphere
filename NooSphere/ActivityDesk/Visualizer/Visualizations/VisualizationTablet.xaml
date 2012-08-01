@@ -6,8 +6,8 @@
     x:Class="BaseVis.VisualizationTablet" mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" d:DesignHeight="989" d:DesignWidth="671">
     <WrapPanel HorizontalAlignment="Stretch">
         <Rectangle x:Name="Glow" 
-           Width="630" 
-           Height="987" RenderTransformOrigin="0.5,0.5" Fill="#FF004799" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></Rectangle>
+           Width="530" 
+           Height="887" RenderTransformOrigin="0.5,0.5" Fill="#FF004799" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></Rectangle>
         <s:SurfaceButton Click="SurfaceButton_Click" Name="PinButton" Height="38" Background="#FF030303" />
     </WrapPanel>
 </my:BaseVisualization>

@@ -2,23 +2,24 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="ActivityUI.Login.LoginWindow"
-        Title="Activity Cloud V1" Height="328" Width="387" Icon="/ActivityUI;component/Images/application_view_tile.png" UseLayoutRounding="True" SnapsToDevicePixels="False" WindowStartupLocation="CenterScreen" Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize" WindowStyle="SingleBorderWindow">
+        Title="Activity Cloud V1" Height="414" Width="418" Icon="/ActivityUI;component/Images/application_view_tile.png" UseLayoutRounding="True" SnapsToDevicePixels="False" WindowStartupLocation="CenterScreen" Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize" WindowStyle="SingleBorderWindow">
 	<Window.Resources>
 	</Window.Resources>
     <Grid>
-    	<Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.722*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
     		<RowDefinition Height="Auto" MinHeight="458"/>
-    		<RowDefinition/>
+    		<RowDefinition Height="Auto"/>
     	</Grid.RowDefinitions>
-        <Label Content="Username" Height="28" HorizontalAlignment="Left" Margin="21,104,0,0" x:Name="lblName" VerticalAlignment="Top" />
-        <Label Content="Email" Height="28" HorizontalAlignment="Left" Margin="21,138,0,0" x:Name="lblEmail" VerticalAlignment="Top" />
-        <TextBox Height="23" Margin="110,106,20,0" x:Name="txtUsername" VerticalAlignment="Top" />
-        <TextBox Height="23" Margin="110,140,20,0" x:Name="txtEmail" VerticalAlignment="Top" />
-        <Label Content="Device name" Height="28" HorizontalAlignment="Left" Margin="66,353,0,0" x:Name="lblDevicename" VerticalAlignment="Top" />
-        <TextBox Height="23" Margin="110,177,20,0" x:Name="txtDevicename" VerticalAlignment="Top" />
+        <Label Content="Username" Height="28" HorizontalAlignment="Left" Margin="8,113,0,0" x:Name="lblName" VerticalAlignment="Top" />
+        <Label Content="Email" Height="28" HorizontalAlignment="Left" Margin="8,145,0,0" x:Name="lblEmail" VerticalAlignment="Top" />
+        <TextBox Height="23" Margin="95,115,20,0" x:Name="txtUsername" VerticalAlignment="Top" d:LayoutOverrides="GridBox" />
+        <TextBox Height="23" Margin="95,147,20,0" x:Name="txtEmail" VerticalAlignment="Top" d:LayoutOverrides="GridBox" />
+        <TextBox Height="23" Margin="95,180,20,0" x:Name="txtDevicename" VerticalAlignment="Top" d:LayoutOverrides="GridBox" />
         <Image Height="94" HorizontalAlignment="Left" x:Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="144" Source="/ActivityUI;component/Images/activity1.PNG" />
-        <TextBlock Height="66" HorizontalAlignment="Left" Margin="166,23,0,0" x:Name="textBlock1" Text="Welcome to activity cloud. Please provide your details to login." VerticalAlignment="Top" Width="185" TextWrapping="Wrap" />
-        <Button Content="Go" Margin="0,0,20,181" Style="{DynamicResource Success}" Foreground="White" FontSize="13.333" HorizontalAlignment="Right" Width="81" RenderTransformOrigin="-0.037,0.75" Height="30" VerticalAlignment="Bottom" Name="btnGo" Click="btnGo_Click">
+        <Button Content="Go" Margin="0,0,8,89" Style="{DynamicResource Success}" Foreground="White" FontSize="13.333" HorizontalAlignment="Right" Width="81" RenderTransformOrigin="-0.037,0.75" Height="30" VerticalAlignment="Bottom" Name="btnGo" Click="btnGo_Click" MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" ToolTip="Start the application and connect to the cloud.">
         	<Button.Background>
         		<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
         			<GradientStop Color="#FFF3F3F3" Offset="0"/>
@@ -28,7 +29,7 @@
         		</LinearGradientBrush>
         	</Button.Background>
         </Button>
-        <Button Content="Stop" Margin="0,0,107,181" Style="{DynamicResource Danger}" Foreground="White" FontSize="13.333" HorizontalAlignment="Right" Width="81" RenderTransformOrigin="-0.037,0.75" Height="30" VerticalAlignment="Bottom" Click="cancel_Click">
+        <Button Content="Stop" Margin="0,0,93,89" Style="{DynamicResource Danger}" Foreground="White" FontSize="13.333" HorizontalAlignment="Right" Width="81" RenderTransformOrigin="-0.037,0.75" Height="30" VerticalAlignment="Bottom" Click="cancel_Click" MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" ToolTip="Stop the login process and exit the application." Name="btnStop">
         	<Button.Background>
         		<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
         			<GradientStop Color="#FFF3F3F3" Offset="0"/>
@@ -38,9 +39,25 @@
         		</LinearGradientBrush>
         	</Button.Background>
         </Button>
-        <RadioButton Content="Client and Host" Height="16" HorizontalAlignment="Left" Margin="247,215,0,0" Name="rbClientAndHost" VerticalAlignment="Top" GroupName="startup" IsChecked="True" />
-        <RadioButton Content="Client" GroupName="startup" Height="16" HorizontalAlignment="Left" Margin="187,215,0,0" Name="rbClient" VerticalAlignment="Top" />
-        <CheckBox Content="Remember me" Height="16" HorizontalAlignment="Left" Margin="21,245,0,0" Name="chkRemember" VerticalAlignment="Top" IsChecked="True" />
-        <Label Content="Device name" Height="28" HorizontalAlignment="Left" Margin="21,175,0,0" Name="label1" VerticalAlignment="Top" Width="83" />
+        <RadioButton Content="Client and Host" Height="16" HorizontalAlignment="Left" Margin="158,248,0,0" Name="rbClientAndHost" VerticalAlignment="Top" GroupName="startup" IsChecked="True" />
+        <RadioButton Content="Client" GroupName="startup" Height="16" HorizontalAlignment="Left" Margin="98,248,0,0" Name="rbClient" VerticalAlignment="Top" />
+        <CheckBox Height="16" HorizontalAlignment="Right" Margin="0,285,209,0" Name="chkRemember" VerticalAlignment="Top" IsChecked="True" Width="166" Content="Remember my details." />
+        <Label Content="Device name" Height="28" HorizontalAlignment="Left" Margin="8,177,0,0" Name="label1" VerticalAlignment="Top" Width="83" />
+        <Button Content="Info" FontSize="13.333" Foreground="White" Height="30" HorizontalAlignment="Left" Margin="8,0,0,89" RenderTransformOrigin="-0.037,0.75" Style="{DynamicResource Action}" VerticalAlignment="Bottom" Width="81" Click="Button_Click" ToolTip="This will launch a website in you favorit browser." MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" Name="btnInfo">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                    <GradientStop Color="#FFF3F3F3" Offset="0" />
+                    <GradientStop Color="#FFEBEBEB" Offset="0.5" />
+                    <GradientStop Color="#FFDDDDDD" Offset="0.5" />
+                    <GradientStop Color="#FFCDCDCD" Offset="1" />
+                </LinearGradientBrush>
+            </Button.Background>
+        </Button>
+        <TextBlock Height="22" Margin="21,307,30,0" Name="txtTooltip" Text="" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="12" Foreground="#FF3091FC" TextAlignment="Center" />
+        <RadioButton Content="I don't know" GroupName="startup" Height="16" HorizontalAlignment="Left" Margin="270,248,0,0" Name="radioButton1" VerticalAlignment="Top" />
+        <Image Height="47" x:Name="imgLogo" Stretch="None" VerticalAlignment="Top" Source="/ActivityUI;component/Images/logo.PNG" Margin="107,35,0,0" />
+        <Label Content="Device type" Height="28" HorizontalAlignment="Left" Margin="8,211,0,0" Name="label2" VerticalAlignment="Top" Width="83" />
+        <Label Content="Connection" Height="28" HorizontalAlignment="Left" Margin="8,243,0,0" Name="label3" VerticalAlignment="Top" Width="83" />
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="95,211,0,0" Name="cbType" VerticalAlignment="Top" Width="281" ItemsSource="{Binding}" Tag="Unknown" />
     </Grid>
 </Window>

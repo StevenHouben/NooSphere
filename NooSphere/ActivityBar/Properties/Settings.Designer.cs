@@ -62,12 +62,12 @@ namespace ActivityUI.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string USER_DEVICENAME {
+        public string DEVICE_NAME {
             get {
-                return ((string)(this["USER_DEVICENAME"]));
+                return ((string)(this["DEVICE_NAME"]));
             }
             set {
-                this["USER_DEVICENAME"] = value;
+                this["DEVICE_NAME"] = value;
             }
         }
         
@@ -80,6 +80,42 @@ namespace ActivityUI.Properties {
             }
             set {
                 this["USER_LOCATION"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://activitycloud-1.apphb.com/Api/")]
+        public string ENVIRONMENT_BASE_URL {
+            get {
+                return ((string)(this["ENVIRONMENT_BASE_URL"]));
+            }
+            set {
+                this["ENVIRONMENT_BASE_URL"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool DISCOVERY_BROADCAST {
+            get {
+                return ((bool)(this["DISCOVERY_BROADCAST"]));
+            }
+            set {
+                this["DISCOVERY_BROADCAST"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Laptop")]
+        public global::NooSphere.Core.Devices.DeviceType DEVICE_TYPE {
+            get {
+                return ((global::NooSphere.Core.Devices.DeviceType)(this["DEVICE_TYPE"]));
+            }
+            set {
+                this["DEVICE_TYPE"] = value;
             }
         }
     }

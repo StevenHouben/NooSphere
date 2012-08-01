@@ -1,7 +1,7 @@
 ﻿<Application x:Class="ActivityTablet.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    StartupUri="Tablet.xaml"
+    StartupUri="Xaml/Tablet.xaml"
     >
     <Application.Resources>
       <ResourceDictionary>

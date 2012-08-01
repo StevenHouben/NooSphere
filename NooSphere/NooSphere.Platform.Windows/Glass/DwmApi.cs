@@ -122,15 +122,15 @@ namespace NooSphere.Platform.Windows.Glass
             }
         }
     }
-    internal class VistaApi
+    public class GlassApi
     {
         [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
-        internal static extern void DwmExtendFrameIntoClientArea(System.IntPtr hWnd, ref Margins pMargins);
+        public static extern void DwmExtendFrameIntoClientArea(System.IntPtr hWnd, ref Margins pMargins);
 
         [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
-        internal static extern void DwmIsCompositionEnabled(ref bool isEnabled);
+        public static extern void DwmIsCompositionEnabled(ref bool isEnabled);
 
-        internal struct Margins
+        public struct Margins
         {
             public int Left, Right, Top, Bottom;
         }

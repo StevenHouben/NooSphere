@@ -33,14 +33,18 @@ namespace NooSphere.ActivitySystem.Discovery.Client
 
         #region Properties
         public List<ServiceInfo> ActivityServices { get; set; }
-        public Collection<EndpointDiscoveryMetadata> RawEndPointMetaData { get; set; }
+        public List<EndpointDiscoveryMetadata> RawEndPointMetaData { get; set; }
+        #endregion
+
+        #region Private Members
+        DiscoveryClient discoveryClient;
         #endregion
 
         #region Constructor
         public DiscoveryManager()
         { 
             ActivityServices = new List<ServiceInfo>();
-            RawEndPointMetaData = new Collection<EndpointDiscoveryMetadata>();
+            RawEndPointMetaData = new List<EndpointDiscoveryMetadata>();
         }
         #endregion
 
@@ -53,11 +57,16 @@ namespace NooSphere.ActivitySystem.Discovery.Client
         {
             ActivityServices.Clear();
 
-            DiscoveryClient discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
+            discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
             discoveryClient.FindProgressChanged += new EventHandler<FindProgressChangedEventArgs>(discoveryClient_FindProgressChanged);
             discoveryClient.FindCompleted += new EventHandler<FindCompletedEventArgs>(discoveryClient_FindCompleted);
             discoveryClient.FindAsync(new FindCriteria(typeof(NooSphere.ActivitySystem.Contracts.IDiscovery)));
 
+        }
+        public void Close()
+        {
+            if (discoveryClient != null)
+                discoveryClient.Close();
         }
         #endregion
 
@@ -92,7 +101,9 @@ namespace NooSphere.ActivitySystem.Discovery.Client
         void discoveryClient_FindCompleted(object sender, FindCompletedEventArgs e)
         {
             RawEndPointMetaData.Clear();
-            RawEndPointMetaData = e.Result.Endpoints;
+            RawEndPointMetaData = e.Result.Endpoints.ToList();
+
+            OnDiscoveryFinished(new DiscoveryEventArgs());
         }
         #endregion
 

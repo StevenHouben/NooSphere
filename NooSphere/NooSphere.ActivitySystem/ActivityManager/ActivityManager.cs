@@ -48,7 +48,9 @@ namespace NooSphere.ActivitySystem.ActivityManager
 
         #endregion
 
+        #region Public Members
         public User Owner { get; set; }
+        #endregion
 
         #region Constructor
         public ActivityManager(User owner)
@@ -317,9 +319,14 @@ namespace NooSphere.ActivitySystem.ActivityManager
         public Guid Register(Device device)
         {
             ConnectedClient cc = new ConnectedClient(device.Name, device.BaseAddress, device);
-            Registry.ConnectedClients.Add(device.Id.ToString(), cc);
-            publisher.Publish(EventType.DeviceEvents, DeviceEvent.DeviceAdded.ToString(), device);
-            return device.Id;
+            if (!Registry.ConnectedClients.ContainsKey(device.Id.ToString()))
+            {
+                Registry.ConnectedClients.Add(device.Id.ToString(), cc);
+                publisher.Publish(EventType.DeviceEvents, DeviceEvent.DeviceAdded.ToString(), device);
+                return device.Id;
+            }
+            else
+                return new Guid("null");
         }
         public void Subscribe(string id, EventType type,int callbackPort)
         {
@@ -333,12 +340,17 @@ namespace NooSphere.ActivitySystem.ActivityManager
         }
         public void UnSubscribe(string id, EventType type)
         {
-           subscriber.UnSubscribe(id,type);
+            if(id !=null)
+                subscriber.UnSubscribe(id,type);
         }
         public void UnRegister(string id)
         {
-            publisher.Publish(EventType.DeviceEvents, DeviceEvent.DeviceRemoved.ToString(), id);
-            Registry.ConnectedClients.Remove(id);
+            if(id != null)
+                if(Registry.ConnectedClients.ContainsKey(id))
+                {
+                    publisher.Publish(EventType.DeviceEvents, DeviceEvent.DeviceRemoved.ToString(), id);
+                    Registry.ConnectedClients.Remove(id);
+                }
         }
         #endregion
 
@@ -348,6 +360,26 @@ namespace NooSphere.ActivitySystem.ActivityManager
             publisher.Publish(EventType.ComEvents, ComEvent.MessageReceived.ToString(), message);
         }
         #endregion
-    }
 
+
+        public void AddFile(Resource resource, File file, bool sync)
+        {
+            ActivityCloudConnector.UploadFile(resource
+        }
+
+        public void RemoveFile(Resource resource, bool sync)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateFile(Resource resource, File file, bool sync)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<Resource> Sync()
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
