@@ -23,11 +23,12 @@ using NooSphere.Core.Devices;
 using NooSphere.ActivitySystem.Contracts.NetEvents;
 using System.ServiceModel.Web;
 using System.IO;
+using NooSphere.ActivitySystem.Interfaces.FileService;
 
 namespace NooSphere.ActivitySystem.Contracts
 {
     [ServiceContract]
-    public interface IActivityManager : IMessenger
+    public interface IActivityManager : IMessenger,IFileService
     {
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "POST")]

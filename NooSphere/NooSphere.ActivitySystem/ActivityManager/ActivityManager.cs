@@ -360,5 +360,26 @@ namespace NooSphere.ActivitySystem.ActivityManager
             publisher.Publish(EventType.ComEvents, ComEvent.MessageReceived.ToString(), message);
         }
         #endregion
+
+
+        public void AddFile(Resource resource, File file, bool sync)
+        {
+            ActivityCloudConnector.UploadFile(resource
+        }
+
+        public void RemoveFile(Resource resource, bool sync)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateFile(Resource resource, File file, bool sync)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<Resource> Sync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
