@@ -94,6 +94,7 @@ namespace ActivityTablet
             {
                 host = new BasicHost();
                 host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
+                host.StartBroadcast("Tablet");
                 host.Open(new ActivityManager(user), typeof(IActivityManager), "Tablet manager");
             });
             t.Start();
@@ -168,7 +169,7 @@ namespace ActivityTablet
         }
         private void StartClient(string addr)
         {
-            client = new Client(addr);
+            client = new Client(addr, @"c:/abc/");
 
             //Register the current device with the activity manager we are connecting to
             client.Register();

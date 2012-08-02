@@ -242,7 +242,7 @@ namespace ActivityUI
         {
 
             //Build a new client that connects to an activity manager on the given address
-            client = new Client(activityManagerHttpAddress);
+            client = new Client(activityManagerHttpAddress, @"c:/abc/");
 
             //Register the current device with the activity manager we are connecting to
             client.Register(this.device);
@@ -765,12 +765,19 @@ namespace ActivityUI
 
             ac.Owner = owner;
 
-            NooSphere.Core.ActivityModel.Action act = new NooSphere.Core.ActivityModel.Action();
-            ac.Actions.Add(act);
-
             User part = new User();
             part.Email = "test@test.dk";
 
+            NooSphere.Core.ActivityModel.Action act = new NooSphere.Core.ActivityModel.Action();
+            Resource res = new Resource();
+            res.RelativePath = "/abc.txt";
+            res.Name = "abc.txt";
+            res.ActivityId = ac.Id;
+            res.ActionId = act.Id;
+            act.Resources.Add(res);
+
+
+            ac.Actions.Add(act);
             ac.Participants.Add(part);
             return ac;
         }

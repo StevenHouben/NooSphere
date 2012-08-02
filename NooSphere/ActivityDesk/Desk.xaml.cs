@@ -311,7 +311,7 @@ namespace ActivityDesk
         /// </summary>
         void StartClient(string addr)
         {
-            client = new Client(addr);
+            client = new Client(addr,@"c:/abc/");
             client.Register(device);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ActivityEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ComEvents);

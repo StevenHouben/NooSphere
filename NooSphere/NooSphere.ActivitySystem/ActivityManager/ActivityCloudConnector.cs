@@ -38,7 +38,6 @@ namespace NooSphere.ActivitySystem.ActivityManager
     {
         #region Private Members
         private string baseUrl;
-        private string baseDir;
         private Connection connection;
         #endregion
 
@@ -68,10 +67,9 @@ namespace NooSphere.ActivitySystem.ActivityManager
         #endregion
 
         #region Constructor
-        public ActivityCloudConnector(string baseUrl, string baseDir, User user)
+        public ActivityCloudConnector(string baseUrl,User user)
         {
             this.baseUrl = baseUrl;
-            this.baseDir = baseDir;
             this.connection = new Connection(baseUrl + "Connect");
             Connect(user);
         }
@@ -128,33 +126,19 @@ namespace NooSphere.ActivitySystem.ActivityManager
            var res=JsonConvert.DeserializeObject<List<User>>(bare);
            return res;
         }
-        public void DownloadFile(Resource resource)
+        public byte[] GetResource(Resource resource)
         {
-            string AbsolutePath = Path.Combine(baseDir, resource.RelativePath);
-
-            FileStream fs = new FileStream(AbsolutePath, FileMode.Create);
-            string result = RestHelper.SendRequest(baseUrl + Id(resource.ActivityId, resource.ActionId, resource.Id), HttpMethod.Get, null, connection.ConnectionId);
-            byte[] bytestream = JsonConvert.DeserializeObject<byte[]>(result);
-            fs.Write(bytestream, 0, resource.Sizes);
-            fs.Close();
-
-            File.SetCreationTimeUtc(AbsolutePath, DateTime.Parse(resource.CreationTime));
-            File.SetLastWriteTimeUtc(AbsolutePath, DateTime.Parse(resource.LastWriteTime));
+            return JsonConvert.DeserializeObject<byte[]>( RestHelper.SendRequest(baseUrl + Id(resource.ActivityId, resource.ActionId, 
+                resource.Id), HttpMethod.Get, null, connection.ConnectionId));
         }
-        public void UploadFile(Resource resource)
+        public void AddResource(Resource resource,byte[] buffer)
         {
-            FileInfo fi = new FileInfo(baseDir + resource.RelativePath);
-            byte[] buffer = new byte[fi.Length];
-
-            using (FileStream fs = new FileStream(Path.Combine(baseDir, resource.RelativePath), FileMode.Open, FileAccess.Read, FileShare.Read))
-                fs.Read(buffer, 0, (int)fs.Length);
-
             RestHelper.SendRequest(baseUrl + Id(resource.ActivityId, resource.ActionId, resource.Id) + "?size=" + resource.Size.ToString() + "&creationTime=" + resource.CreationTime
-                + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), HttpMethod.Post, buffer, connection.ConnectionId);
+            + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), HttpMethod.Post, buffer, connection.ConnectionId);
         }
         public void DeleteFile(Resource resource)
         {
-            File.Delete(baseDir + resource.RelativePath);
+            //File.Delete(resource.RelativePath);
         }
         public void RequestFriendShip(Guid userId,Guid friendId)
         {

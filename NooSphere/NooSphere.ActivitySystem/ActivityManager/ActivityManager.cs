@@ -31,6 +31,7 @@ using NooSphere.Core.Devices;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Contracts.NetEvents;
 using NooSphere.ActivitySystem.PubSub;
+using NooSphere.ActivitySystem.FileServer;
 
 namespace NooSphere.ActivitySystem.ActivityManager
 {
@@ -40,11 +41,13 @@ namespace NooSphere.ActivitySystem.ActivityManager
         #region Private Members
         private RestSubscriber subscriber;
         private RestPublisher publisher;
-        private ActivityCloudConnector ActivityCloudConnector;
+        private ActivityCloudConnector activityCloudConnector;
 
-        private bool useActivityCloud = true;
+        private bool useActivityCloud = false;
         private bool useLocalCloud = false;
         private bool connectionActive = false;
+
+        private FileStore fileServer;
 
         #endregion
 
@@ -55,14 +58,15 @@ namespace NooSphere.ActivitySystem.ActivityManager
         #region Constructor
         public ActivityManager(User owner)
         {
+            Registry.Initialize();
             subscriber = new RestSubscriber();
             publisher = new RestPublisher();
-         
-            Registry.Register(EventType.ActivityEvents);
-            Registry.Register(EventType.ComEvents);
-            Registry.Register(EventType.DeviceEvents);
-            Registry.Register(EventType.FileEvents);
-            Registry.Register(EventType.UserEvent);
+        
+            fileServer = new FileStore(@"C:/Files");
+            fileServer.FileAdded +=new Events.FileAddedHandler(fileServer_FileAdded);
+            fileServer.FileChanged +=new Events.FileChangedHandler(fileServer_FileChanged);
+            fileServer.FileRemoved +=new Events.FileRemovedHandler(fileServer_FileRemoved);
+            fileServer.FileDownloadedFromCloud += new Events.FileDownloadedHandler(fileServer_FileDownloaded);
 
             if(useActivityCloud)
                 ConnectToCloud(useLocalCloud,owner);
@@ -85,25 +89,47 @@ namespace NooSphere.ActivitySystem.ActivityManager
             else
                 serviceAddress = "http://activitycloud-1.apphb.com";
 
-            ActivityCloudConnector = new ActivityCloudConnector(serviceAddress + "/Api/", @"C:\abc\", owner);
-            ActivityCloudConnector.ConnectionSetup += new EventHandler(ActivityCloudConnector_ConnectionSetup);
-            ActivityCloudConnector.ActivityAdded += new ActivitySystem.Events.ActivityAddedHandler(ActivityCloudConnector_ActivityAdded);
-            ActivityCloudConnector.ActivityDeleted += new ActivitySystem.Events.ActivityRemovedHandler(ActivityCloudConnector_ActivityDeleted);
-            ActivityCloudConnector.ActivityUpdated += new ActivitySystem.Events.ActivityChangedHandler(ActivityCloudConnector_ActivityUpdated);
+            activityCloudConnector = new ActivityCloudConnector(serviceAddress + "/Api/", owner);
+            activityCloudConnector.ConnectionSetup += new EventHandler(ActivityCloudConnector_ConnectionSetup);
+            activityCloudConnector.ActivityAdded += new ActivitySystem.Events.ActivityAddedHandler(ActivityCloudConnector_ActivityAdded);
+            activityCloudConnector.ActivityDeleted += new ActivitySystem.Events.ActivityRemovedHandler(ActivityCloudConnector_ActivityDeleted);
+            activityCloudConnector.ActivityUpdated += new ActivitySystem.Events.ActivityChangedHandler(ActivityCloudConnector_ActivityUpdated);
 
-            ActivityCloudConnector.FileDeleted += new Events.FileDeletedHandler(ActivityCloudConnector_FileDeleted);
-            ActivityCloudConnector.FileDownloaded += new Events.FileDownloadedHandler(ActivityCloudConnector_FileDownloaded);
-            ActivityCloudConnector.FileUploaded += new Events.FileUploadedHandler(ActivityCloudConnector_FileUploaded);
-            ActivityCloudConnector.FriendDeleted += new Events.FriendDeletedHandler(ActivityCloudConnector_FriendDeleted);
-            ActivityCloudConnector.FriendAdded += new Events.FriendAddedHandler(ActivityCloudConnector_FriendAdded);
-            ActivityCloudConnector.FriendRequestReceived += new Events.FriendRequestReceivedHandler(ActivityCloudConnector_FriendRequestReceived);
-            ActivityCloudConnector.ParticipantAdded += new Events.ParticipantAddedHandler(ActivityCloudConnector_ParticipantAdded);
-            ActivityCloudConnector.ParticipantRemoved += new Events.ParticipantRemovedHandler(ActivityCloudConnector_ParticipantRemoved);
+            activityCloudConnector.FileDeleted += new Events.FileDeletedHandler(ActivityCloudConnector_FileDeleted);
+            activityCloudConnector.FileDownloaded += new Events.FileDownloadedHandler(ActivityCloudConnector_FileDownloaded);
+            activityCloudConnector.FileUploaded += new Events.FileUploadedHandler(ActivityCloudConnector_FileUploaded);
+            activityCloudConnector.FriendDeleted += new Events.FriendDeletedHandler(ActivityCloudConnector_FriendDeleted);
+            activityCloudConnector.FriendAdded += new Events.FriendAddedHandler(ActivityCloudConnector_FriendAdded);
+            activityCloudConnector.FriendRequestReceived += new Events.FriendRequestReceivedHandler(ActivityCloudConnector_FriendRequestReceived);
+            activityCloudConnector.ParticipantAdded += new Events.ParticipantAddedHandler(ActivityCloudConnector_ParticipantAdded);
+            activityCloudConnector.ParticipantRemoved += new Events.ParticipantRemovedHandler(ActivityCloudConnector_ParticipantRemoved);
 
             Console.WriteLine("Local Activity Manager: Attempting to connect to: " + serviceAddress);
         }
 
         #region Net Handlers
+        private void fileServer_FileDownloaded(object sender, Events.FileEventArgs e)
+        {
+            publisher.Publish(EventType.FileEvents, FileEvent.FileAdded.ToString(), e.Resource);
+        }
+        private void fileServer_FileRemoved(object sender, Events.FileEventArgs e)
+        {
+            publisher.Publish(EventType.FileEvents, FileEvent.FileAdded.ToString(), e.Resource);
+            if (useActivityCloud && connectionActive)
+                activityCloudConnector.DeleteFile(e.Resource);
+        }
+        private void fileServer_FileChanged(object sender, Events.FileEventArgs e)
+        {
+            publisher.Publish(EventType.FileEvents, FileEvent.FileChanged.ToString(), e.Resource);
+            if (useActivityCloud && connectionActive)
+                activityCloudConnector.AddResource(e.Resource, fileServer.UploadToStream(e.Resource));
+        }
+        private void fileServer_FileAdded(object sender, Events.FileEventArgs e)
+        {
+            publisher.Publish(EventType.FileEvents, FileEvent.FileAdded.ToString(), e.Resource);
+            if (useActivityCloud && connectionActive)
+                activityCloudConnector.AddResource(e.Resource, fileServer.UploadToStream(e.Resource));
+        }
         private void ActivityCloudConnector_ParticipantRemoved(object sender, Events.ParticipantEventArgs e)
         {
             ActivityStore.Activities[e.ActivityId].Participants.Remove(e.Participant);
@@ -138,11 +164,11 @@ namespace NooSphere.ActivitySystem.ActivityManager
         }
         private void ActivityCloudConnector_FileUploaded(object sender, Events.FileEventArgs e)
         {
-            publisher.Publish(EventType.FileEvents, FileEvent.FileAdded.ToString(), e.Resource);
+            fileServer.DownloadToFile(e.Resource,activityCloudConnector.GetResource(e.Resource));
         }
         private void ActivityCloudConnector_FileDownloaded(object sender, Events.FileEventArgs e)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
         private void ActivityCloudConnector_FileDeleted(object sender, Events.FileEventArgs e)
         {
@@ -192,7 +218,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         public Activity GetActivity(Guid id)
         {
             if (useActivityCloud)
-                return ActivityCloudConnector.GetActivity(id);
+                return activityCloudConnector.GetActivity(id);
             else
                 return ActivityStore.Activities[id];
         }
@@ -205,7 +231,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         public Activity GetActivity(string id)
         {
             if (useActivityCloud)
-                return ActivityCloudConnector.GetActivity(new Guid(id));
+                return activityCloudConnector.GetActivity(new Guid(id));
             else
                 return ActivityStore.Activities[new Guid(id)];
         }
@@ -217,7 +243,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         public List<Activity> GetActivities()
         {
             if (useActivityCloud)
-                return ActivityCloudConnector.GetActivities();
+                return activityCloudConnector.GetActivities();
             else
                 return ActivityStore.Activities.Values.ToList();
         }
@@ -229,7 +255,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         public void AddActivity(Activity act)
         {
             if (useActivityCloud && connectionActive)
-                ActivityCloudConnector.AddActivity(act);
+                activityCloudConnector.AddActivity(act);
             ActivityStore.Activities.Add(act.Id, act);
             publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityAdded.ToString(), act);
         }
@@ -241,7 +267,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         public void RemoveActivity(string id)
         {
             if (useActivityCloud && connectionActive)
-                ActivityCloudConnector.DeleteActivity(new Guid(id));
+                activityCloudConnector.DeleteActivity(new Guid(id));
             ActivityStore.Activities.Remove(new Guid(id));
             publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityRemoved.ToString(), id);
         }
@@ -253,7 +279,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         public void UpdateActivity(Activity act)
         {
             if (useActivityCloud && connectionActive)
-                ActivityCloudConnector.UpdateActivity(act);
+                activityCloudConnector.UpdateActivity(act);
             ActivityStore.Activities[act.Id] = act;
             publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityChanged.ToString(), act);
         }
@@ -263,13 +289,13 @@ namespace NooSphere.ActivitySystem.ActivityManager
         public void AddParticipant(Activity a, User u)
         {
             if (useActivityCloud && connectionActive)
-                ActivityCloudConnector.AddParticipant(a.Id, u.Id);
+                activityCloudConnector.AddParticipant(a.Id, u.Id);
             ParticipantStore.Participants.Add(u.Id, u);
         }
         public void RemoveParticipant(Activity a, string id)
         {
             if (useActivityCloud && connectionActive)
-                ActivityCloudConnector.RemoveParticipant(a.Id, new Guid(id));
+                activityCloudConnector.RemoveParticipant(a.Id, new Guid(id));
             ParticipantStore.Participants.Remove(new Guid(id));
         }
         #endregion
@@ -282,7 +308,10 @@ namespace NooSphere.ActivitySystem.ActivityManager
         /// <returns>A list with all users in the friendlist</returns>
         public List<User> GetUsers()
         {
-            return ActivityCloudConnector.GetUsers(Owner.Id);
+            if(useActivityCloud && connectionActive)
+                return activityCloudConnector.GetUsers(Owner.Id);
+            else
+                return null;
         }
 
         /// <summary>
@@ -291,7 +320,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         /// <param name="email">The email of the user that needs to be friended</param>
         public void RequestFriendShip(string email)
         {
-            ActivityCloudConnector.RequestFriendShip(Owner.Id, ActivityCloudConnector.GetIdFromUserEmail(email));
+            activityCloudConnector.RequestFriendShip(Owner.Id, activityCloudConnector.GetIdFromUserEmail(email));
         }
 
         /// <summary>
@@ -300,7 +329,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         /// <param name="friendId">The id of the friend that needs to be removed</param>
         public void RemoveFriend(Guid friendId)
         {
-            ActivityCloudConnector.RemoveFriend(Owner.Id, friendId);
+            activityCloudConnector.RemoveFriend(Owner.Id, friendId);
         }
 
         /// <summary>
@@ -310,7 +339,7 @@ namespace NooSphere.ActivitySystem.ActivityManager
         /// <param name="approval">Bool that indicates if the friendship was approved</param>
         public void RespondToFriendRequest(Guid friendId, bool approval)
         {
-            ActivityCloudConnector.RespondToFriendRequest(Owner.Id, friendId,approval);
+            activityCloudConnector.RespondToFriendRequest(Owner.Id, friendId,approval);
         }
 
         #endregion
@@ -361,25 +390,26 @@ namespace NooSphere.ActivitySystem.ActivityManager
         }
         #endregion
 
-
-        public void AddFile(Resource resource, File file, bool sync)
+        #region File Server
+        public void AddFile(FileWrapper wrap)
         {
-            ActivityCloudConnector.UploadFile(resource
+            fileServer.AddFile(wrap.Resource, wrap.Data);
         }
 
-        public void RemoveFile(Resource resource, bool sync)
+        public void RemoveFile(Resource resource)
         {
-            throw new NotImplementedException();
+            fileServer.RemoveFile(resource);
         }
 
-        public void UpdateFile(Resource resource, File file, bool sync)
+        public void UpdateFile(Resource resource, byte[] fileInBytes)
         {
-            throw new NotImplementedException();
+            fileServer.Updatefile(resource, fileInBytes);
         }
 
         public List<Resource> Sync()
         {
-            throw new NotImplementedException();
+            return new List<Resource>();
         }
+        #endregion
     }
 }

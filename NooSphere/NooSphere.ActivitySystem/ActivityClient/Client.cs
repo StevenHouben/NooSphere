@@ -33,6 +33,7 @@ using NooSphere.Helpers;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NooSphere.ActivitySystem.FileServer;
 
 namespace NooSphere.ActivitySystem.ActivityClient
 {
@@ -45,6 +46,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
 
         #region Private Members
         private Dictionary<Type, ServiceHost> callbackServices = new Dictionary<Type, ServiceHost>();
+        private string localDirectory;
         #endregion
 
         #region Properties
@@ -60,9 +62,10 @@ namespace NooSphere.ActivitySystem.ActivityClient
         /// Default constructor
         /// </summary>
         /// <param name="address">The address of the service the client needs to connect to</param>
-        public Client(string address)
+        public Client(string address,string localFileDirectory)
         {
             Connect(address);
+            localDirectory = localFileDirectory;
         }
         #endregion
 
@@ -89,30 +92,6 @@ namespace NooSphere.ActivitySystem.ActivityClient
         {
             this.IP = NetHelper.GetIP(IPType.All);
             TestConnection(address);
-        }
-
-        /// <summary>
-        /// Converts an enumeration into a service type
-        /// </summary>
-        /// <param name="type">The EventType enumerator</param>
-        /// <returns>The type that is represented by the emum</returns>
-        private Type TypeFromEnum(EventType type)
-        {
-            switch (type)
-            {
-                case EventType.ActivityEvents:
-                    return typeof(IActivityNetEvent);
-                case EventType.ComEvents:
-                    return typeof(IComNetEvent);
-                case EventType.DeviceEvents:
-                    return typeof(IDeviceNetEvent);
-                case EventType.FileEvents:
-                    return typeof(IFileNetEvent);
-                case EventType.UserEvent:
-                    return typeof(IUserEvent);
-                default:
-                    return null;
-            }
         }
 
         /// <summary>
@@ -187,7 +166,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
         /// <param name="type">The type of event for which the client needs to subscribe</param>
         public void Subscribe(EventType type)
         {
-            int port = StartCallbackService(TypeFromEnum(type));
+            int port = StartCallbackService(EventTypeConverter.TypeFromEnum(type));
             var subscription = new
             {
                 id = DeviceID,
@@ -209,7 +188,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
                 type = type
             };
 
-            Type t = TypeFromEnum(type);
+            Type t = EventTypeConverter.TypeFromEnum(type);
             if (callbackServices.ContainsKey(t))
             {
                 callbackServices[t].Close();
@@ -233,7 +212,25 @@ namespace NooSphere.ActivitySystem.ActivityClient
         /// <param name="act">The activity that needs to be included in the request</param>
         public void AddActivity(Activity act)
         {
+            foreach (Resource res in act.GetResources())
+            {
+                FileWrapper wrap = new FileWrapper();
+                wrap.Resource = res;
+                wrap.Data = StreamFile(res);
+                RestHelper.Post(ServiceAddress + Url.files, wrap);
+            }
             RestHelper.Post(ServiceAddress + Url.activities, act);
+        }
+
+        private byte[] StreamFile(Resource resource)
+        {
+            FileInfo fi = new FileInfo(localDirectory + resource.RelativePath);
+            byte[] buffer = new byte[fi.Length];
+
+            using (FileStream fs = new FileStream(localDirectory + resource.RelativePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                fs.Read(buffer, 0, (int)fs.Length);
+            return buffer;
+
         }
 
         /// <summary>
@@ -354,6 +351,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
         devices,
         subscribers,
         messages,
-        users
+        users,
+        files
     }
 }
