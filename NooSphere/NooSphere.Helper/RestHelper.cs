@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using System.Web;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.Serialization.Json;
 
 namespace NooSphere.Helpers
 {
@@ -43,7 +44,8 @@ namespace NooSphere.Helpers
                 message.Headers.Authorization = AuthenticationHeaderValue.Parse(connectionId);
             if (content != null)
             {
-                message.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(content)));
+                string json = JsonConvert.SerializeObject(content);
+                message.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(json));
                 message.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
             }
             message.Method = method;

@@ -12,6 +12,14 @@ namespace NooSphere.ActivitySystem.PubSub
     {
         #region Public Methods
         /// <summary>
+        /// Initializes  the store with Event enumerator
+        /// </summary>
+        public static void Initialize()
+        {
+            foreach (EventType et in Enum.GetValues(typeof(EventType)))
+                Register(et);
+        }
+        /// <summary>
         /// Adds an event type to the registry store
         /// </summary>
         /// <param name="eventType"></param>

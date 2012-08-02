@@ -33,14 +33,16 @@ namespace NooSphere.ActivitySystem.Contracts.NetEvents
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "FileRemoved", Method = "POST")]
         void FileNetRemoved(Resource resource);
 
+
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "FileLocked", Method = "POST")]
-        void FileNetLocked(Resource resource);
+        void FileNetChanged(Resource resource);
     }
     public enum FileEvent
     {
         FileAdded,
         FileRemoved,
-        FileLocked
+        FileLocked,
+        FileChanged
     }
 }

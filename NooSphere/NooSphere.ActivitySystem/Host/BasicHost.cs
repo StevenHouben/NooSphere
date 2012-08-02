@@ -24,6 +24,7 @@ using System.Xml.Linq;
 using NooSphere.Helpers;
 using NooSphere.ActivitySystem.Discovery.Host;
 using System.Threading;
+using System.ServiceModel.Channels;
 
 namespace NooSphere.ActivitySystem.Host
 {
