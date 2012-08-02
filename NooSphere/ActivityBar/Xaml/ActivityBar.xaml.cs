@@ -770,8 +770,8 @@ namespace ActivityUI
 
             NooSphere.Core.ActivityModel.Action act = new NooSphere.Core.ActivityModel.Action();
             Resource res = new Resource();
-            res.RelativePath = "/abc.txt";
-            res.Name = "abc.txt";
+            res.RelativePath = "/abc.jpg";
+            res.Name = "abc.jpg";
             res.ActivityId = ac.Id;
             res.ActionId = act.Id;
             act.Resources.Add(res);

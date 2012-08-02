@@ -99,6 +99,7 @@
     <Compile Include="Host\BasicHost.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Host\app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

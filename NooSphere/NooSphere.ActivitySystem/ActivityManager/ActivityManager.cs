@@ -391,8 +391,9 @@ namespace NooSphere.ActivitySystem.ActivityManager
         #endregion
 
         #region File Server
-        public void AddFile(FileWrapper wrap)
+        public void AddFile(string json)
         {
+            FileWrapper wrap = JsonConvert.DeserializeObject<FileWrapper>(json);
             fileServer.AddFile(wrap.Resource, wrap.Data);
         }
 

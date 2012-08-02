@@ -217,7 +217,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
                 FileWrapper wrap = new FileWrapper();
                 wrap.Resource = res;
                 wrap.Data = StreamFile(res);
-                RestHelper.Post(ServiceAddress + Url.files, wrap);
+                RestHelper.Post(ServiceAddress + Url.files, JsonConvert.SerializeObject( wrap));
             }
             RestHelper.Post(ServiceAddress + Url.activities, act);
         }

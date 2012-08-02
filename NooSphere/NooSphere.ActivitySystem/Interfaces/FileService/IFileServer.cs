@@ -13,10 +13,13 @@ namespace NooSphere.ActivitySystem.Interfaces.FileService
     [ServiceContract]
     public interface IFileServer
     {
-
+        /// <summary>
+        /// Because the internal json converter incorrectly converts byte arrays
+        /// </summary>
+        /// <param name="json"></param>
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "files", Method = "POST")]
-        void AddFile(FileWrapper wrap);
+        void AddFile(string json);
 
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "files", Method = "DELETE")]

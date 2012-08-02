@@ -141,16 +141,26 @@ namespace NooSphere.ActivitySystem.Host
             Console.WriteLine("BasicHost: Found IP "+this.IP);
             host = new ServiceHost(implementation);
 
-            serviceEndpoint = host.AddServiceEndpoint(description, new WebHttpBinding(), NetHelper.GetUrl(this.IP, this.Port, ""));
+            WebHttpBinding binding = new WebHttpBinding();
+            binding.MaxReceivedMessageSize = 5000000;
+ 
+
+            serviceEndpoint = host.AddServiceEndpoint(description, binding, NetHelper.GetUrl(this.IP, this.Port, ""));
             serviceEndpoint.Behaviors.Add(new WebHttpBehavior());
 
             host.Faulted += new EventHandler(host_Faulted);
+            host.UnknownMessageReceived += new EventHandler<UnknownMessageReceivedEventArgs>(host_UnknownMessageReceived);
             host.Open();
 
             Console.WriteLine("BasicHost: Host opened at " + NetHelper.GetUrl(this.IP, this.Port, ""));
             IsRunning = true;
 
             OnHostLaunchedEvent(new EventArgs());
+        }
+
+        private void host_UnknownMessageReceived(object sender, UnknownMessageReceivedEventArgs e)
+        {
+            Console.WriteLine("Unknow message:" + e.Message.ToString());
         }
 
         /// <summary>
