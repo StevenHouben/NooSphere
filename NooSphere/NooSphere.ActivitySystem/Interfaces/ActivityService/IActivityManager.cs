@@ -28,7 +28,7 @@ using NooSphere.ActivitySystem.Interfaces.FileService;
 namespace NooSphere.ActivitySystem.Contracts
 {
     [ServiceContract]
-    public interface IActivityManager : IMessenger,IFileService
+    public interface IActivityManager : IMessenger,IFileServer
     {
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "POST")]

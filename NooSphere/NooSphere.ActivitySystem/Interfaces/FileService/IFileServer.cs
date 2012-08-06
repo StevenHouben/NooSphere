@@ -6,27 +6,24 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.IO;
 using NooSphere.Core.ActivityModel;
+using NooSphere.ActivitySystem.FileServer;
 
 namespace NooSphere.ActivitySystem.Interfaces.FileService
 {
     [ServiceContract]
-    public interface IFileService
+    public interface IFileServer
     {
         [OperationContract]
-        [WebGet(ResponseFormat = WebMessageFormat.Json, UriTemplate = "")]
-        bool Alive();
-
-        [OperationContract]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "files", Method = "POST")]
-        void AddFile(Resource resource,File file,bool sync);
+        [WebInvoke(UriTemplate = "files/{activityId}/{resourceId}", Method = "POST")]
+        void AddFile(string activityId,string resourceId, Stream stream);
 
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "files", Method = "DELETE")]
-        void RemoveFile(Resource resource,bool sync);
+        void RemoveFile(Resource resource);
 
         [OperationContract]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "files", Method = "PUT")]
-        void UpdateFile(Resource resource, File file, bool sync);
+        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "files", Method = "PUT")]
+        void UpdateFile(Resource resource, byte[] file);
 
         [OperationContract]
         [WebGet(ResponseFormat = WebMessageFormat.Json, UriTemplate = "files")]

@@ -209,21 +209,20 @@
 
             </Canvas>
     		<Border BorderBrush="Black" BorderThickness="8" Height="399" Width="482.333" Canvas.Left="265.167" Canvas.Top="91.5" CornerRadius="10"/>
-            <s:SurfaceButton Content="Quit" Style="{DynamicResource Danger}" Foreground="White" FontSize="13.333" Width="98.858" RenderTransformOrigin="-0.037,0.75" Height="38.338" ToolTip="Stop the login process and exit the application." x:Name="btnQuit" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="btnQuit_Click" Canvas.Left="5" Canvas.Top="538" />
-            <s:SurfaceButton Content="Info" FontSize="13.333" Foreground="White" Height="38.338" RenderTransformOrigin="-0.037,0.75" Style="{DynamicResource Action}" Width="98.858" Click="Button_Click" ToolTip="This will launch a website in you favorit browser." MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" x:Name="btnInfo" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Canvas.Left="5" Canvas.Top="495" />
         </Canvas>
     	<Canvas x:Name="cvActivityManager" Margin="8" Visibility="Hidden">
             <s:SurfaceScrollViewer x:Name="activityDockScroller" Height="507.324" 
                                    Width="150" VerticalContentAlignment="Center" 
                                    HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Hidden" Canvas.Left="8" Canvas.Top="8" >
-    			<StackPanel Orientation="Vertical" Name="ActivityDock">
-    			</StackPanel>
+    			<StackPanel Orientation="Vertical" x:Name="ActivityDock"/>
             </s:SurfaceScrollViewer>
             <s:SurfaceScrollViewer x:Name="ContentScroller" Height="592" 
             	Width="792" VerticalContentAlignment="Center" 
             	HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Hidden" Canvas.Left="162" Canvas.Top="8" >
-            	<WebBrowser Width="auto" OpacityMask="#02FFFFFF" Name="contentBrowser" />
+            	<WebBrowser Width="auto" OpacityMask="#02FFFFFF" x:Name="contentBrowser" />
             </s:SurfaceScrollViewer>
         </Canvas>
+    	<s:SurfaceButton Content="Quit" Style="{DynamicResource Danger}" Foreground="White" FontSize="13.333" Width="98.858" RenderTransformOrigin="-0.037,0.75" Height="38.338" ToolTip="Stop the login process and exit the application." x:Name="btnQuit" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="btnQuit_Click" HorizontalAlignment="Left" Margin="8,0,0,8" VerticalAlignment="Bottom" />
+    	<s:SurfaceButton Content="Info" FontSize="13.333" Foreground="White" Height="38.338" RenderTransformOrigin="-0.037,0.75" Style="{DynamicResource Action}" Width="98.858" Click="Button_Click" ToolTip="This will launch a website in you favorit browser." MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" x:Name="btnInfo" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="8,0,0,51" VerticalAlignment="Bottom" />
     </Grid>
 </Window>

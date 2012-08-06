@@ -292,7 +292,7 @@ namespace ActivityDesk
             {
                 host = new BasicHost();
                 host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
-                host.Open(new ActivityManager(new User()), typeof(IActivityManager),"desk");
+                host.Open(new ActivityManager(new User(),"c:/files/"), typeof(IActivityManager),"desk");
 
             });
             t.Start();
@@ -311,7 +311,7 @@ namespace ActivityDesk
         /// </summary>
         void StartClient(string addr)
         {
-            client = new Client(addr);
+            client = new Client(addr,@"c:/abc/");
             client.Register(device);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ActivityEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ComEvents);

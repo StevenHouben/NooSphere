@@ -33,11 +33,12 @@ using NooSphere.Helpers;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NooSphere.ActivitySystem.FileServer;
 
 namespace NooSphere.ActivitySystem.ActivityClient
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-    public class Client : NetEventHandler
+    public class Client : NetEventHandler,IFileHandler
     {
         #region Events
         public event ConnectionEstablishedHandler ConnectionEstablished = null;
@@ -53,6 +54,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
         public string DeviceID { get; private set; }
         public string ServiceAddress { get; set; }
         public User CurrentUser { get; set; }
+        public string LocalPath { get; private set; }
         #endregion
 
         #region Constructor
@@ -60,9 +62,10 @@ namespace NooSphere.ActivitySystem.ActivityClient
         /// Default constructor
         /// </summary>
         /// <param name="address">The address of the service the client needs to connect to</param>
-        public Client(string address)
+        public Client(string address,string localFileDirectory)
         {
             Connect(address);
+            LocalPath = localFileDirectory;
         }
         #endregion
 
@@ -89,30 +92,6 @@ namespace NooSphere.ActivitySystem.ActivityClient
         {
             this.IP = NetHelper.GetIP(IPType.All);
             TestConnection(address);
-        }
-
-        /// <summary>
-        /// Converts an enumeration into a service type
-        /// </summary>
-        /// <param name="type">The EventType enumerator</param>
-        /// <returns>The type that is represented by the emum</returns>
-        private Type TypeFromEnum(EventType type)
-        {
-            switch (type)
-            {
-                case EventType.ActivityEvents:
-                    return typeof(IActivityNetEvent);
-                case EventType.ComEvents:
-                    return typeof(IComNetEvent);
-                case EventType.DeviceEvents:
-                    return typeof(IDeviceNetEvent);
-                case EventType.FileEvents:
-                    return typeof(IFileNetEvent);
-                case EventType.UserEvent:
-                    return typeof(IUserEvent);
-                default:
-                    return null;
-            }
         }
 
         /// <summary>
@@ -187,7 +166,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
         /// <param name="type">The type of event for which the client needs to subscribe</param>
         public void Subscribe(EventType type)
         {
-            int port = StartCallbackService(TypeFromEnum(type));
+            int port = StartCallbackService(EventTypeConverter.TypeFromEnum(type));
             var subscription = new
             {
                 id = DeviceID,
@@ -209,7 +188,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
                 type = type
             };
 
-            Type t = TypeFromEnum(type);
+            Type t = EventTypeConverter.TypeFromEnum(type);
             if (callbackServices.ContainsKey(t))
             {
                 callbackServices[t].Close();
@@ -234,6 +213,20 @@ namespace NooSphere.ActivitySystem.ActivityClient
         public void AddActivity(Activity act)
         {
             RestHelper.Post(ServiceAddress + Url.activities, act);
+            foreach (Resource res in act.GetResources())
+            {
+                RestHelper.SendStreamingRequest(ServiceAddress+"Files/"+res.ActivityId+"/"+res.Id,LocalPath+ res.RelativePath);
+            }
+        }
+        private byte[] StreamFile(Resource resource)
+        {
+            FileInfo fi = new FileInfo(LocalPath + resource.RelativePath);
+            byte[] buffer = new byte[fi.Length];
+
+            using (FileStream fs = new FileStream(LocalPath + resource.RelativePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                fs.Read(buffer, 0, (int)fs.Length);
+            return buffer;
+
         }
 
         /// <summary>
@@ -346,7 +339,6 @@ namespace NooSphere.ActivitySystem.ActivityClient
             Connect(e.EndpointDiscoveryMetadata.Address.ToString());
         }
         #endregion
-
     }
     public enum Url
     {
@@ -354,6 +346,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
         devices,
         subscribers,
         messages,
-        users
+        users,
+        files
     }
 }
