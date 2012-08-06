@@ -99,10 +99,10 @@ namespace NooSphere.ActivitySystem.ActivityClient
                 DeviceAdded(this, new DeviceEventArgs(dev));
 
         }
-        public void DeviceNetRemoved(Core.Devices.Device dev)
+        public void DeviceNetRemoved(string id)
         {
             if (DeviceRemoved != null)
-                DeviceRemoved(this, new DeviceEventArgs(dev));
+                DeviceRemoved(this, new DeviceRemovedEventArgs(id));
         }
         public void DeviceNetRoleChanged(Core.Devices.Device dev)
         {

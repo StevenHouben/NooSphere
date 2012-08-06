@@ -35,6 +35,10 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <Utf8Output>true</Utf8Output>
+    <ExpressionBlendVersion>4.0.20525.0</ExpressionBlendVersion>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -55,9 +59,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Surface, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="Microsoft.Surface.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="Microsoft.Surface.Presentation, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.7\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -66,6 +79,8 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="UIAutomationTypes" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -75,15 +90,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Tablet.xaml">
+    <Page Include="Xaml\Tablet.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Xaml\ActivityButton.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Tablet.xaml.cs">
+    <Compile Include="Proxy.cs" />
+    <Compile Include="Xaml\Tablet.xaml.cs">
       <DependentUpon>Tablet.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -107,6 +124,10 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="back.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -144,32 +165,27 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.ActivityManager\NooSphere.ActivitySystem.ActivityService.csproj">
-      <Project>{12742CAB-ABDF-4B4B-A6F6-6646A524E0E8}</Project>
-      <Name>NooSphere.ActivitySystem.ActivityService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.Client\NooSphere.ActivitySystem.Client.csproj">
-      <Project>{83D5B7DD-EC47-4E5D-931C-6A6004751AA1}</Project>
-      <Name>NooSphere.ActivitySystem.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.Contracts\NooSphere.ActivitySystem.Contracts.csproj">
-      <Project>{95CA0E6D-F44A-484A-B066-D5AA0DDA08E2}</Project>
-      <Name>NooSphere.ActivitySystem.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.Discovery\NooSphere.ActivitySystem.DiscoveryService.csproj">
-      <Project>{4B3AEB33-9F3F-4C1F-AD68-5B6F620D94F6}</Project>
-      <Name>NooSphere.ActivitySystem.DiscoveryService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.Host\NooSphere.ActivitySystem.Host.csproj">
-      <Project>{E09A47AF-5F60-4E3C-B853-50C8B182E4C5}</Project>
-      <Name>NooSphere.ActivitySystem.Host</Name>
+    <Resource Include="Images\activity.PNG" />
+    <Resource Include="activity1.PNG" />
+    <Resource Include="activity_trans.png" />
+    <Resource Include="logo.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NooSphere.ActivitySystem\NooSphere.ActivitySystem.csproj">
+      <Project>{5CD6DD93-3EA1-425F-89D7-A80FD23BBC71}</Project>
+      <Name>NooSphere.ActivitySystem</Name>
     </ProjectReference>
     <ProjectReference Include="..\NooSphere.Core\NooSphere.Core.csproj">
       <Project>{03C072A4-5960-4A5D-B0CC-98EBD854E970}</Project>
       <Name>NooSphere.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NooSphere.Helper\NooSphere.Helpers.csproj">
+      <Project>{6424191D-5C04-43E6-B610-FD4B41E8A340}</Project>
+      <Name>NooSphere.Helpers</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

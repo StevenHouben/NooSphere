@@ -50,12 +50,33 @@
     </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Emgu.CV">
+      <HintPath>..\Libs\Emgu.CV.dll</HintPath>
+    </Reference>
+    <Reference Include="Emgu.CV.GPU">
+      <HintPath>..\Libs\Emgu.CV.GPU.dll</HintPath>
+    </Reference>
+    <Reference Include="Emgu.CV.ML">
+      <HintPath>..\Libs\Emgu.CV.ML.dll</HintPath>
+    </Reference>
+    <Reference Include="Emgu.CV.OCR">
+      <HintPath>..\Libs\Emgu.CV.OCR.dll</HintPath>
+    </Reference>
+    <Reference Include="Emgu.CV.UI">
+      <HintPath>..\Libs\Emgu.CV.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="Emgu.Util">
+      <HintPath>..\Libs\Emgu.Util.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Surface.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Surface.Presentation.Generic, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
@@ -63,6 +84,9 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="Microsoft.Surface" />
     <Reference Include="Microsoft.Surface.Presentation" />
+    <Reference Include="ZedGraph">
+      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface\EmguCvSurface\bin\Debug\ZedGraph.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -73,9 +97,15 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DeskState.cs" />
     <Compile Include="Helper\Pdf\PDFConverter.cs" />
+    <Compile Include="Helper\Surface\SurfaceCapture.cs" />
+    <Compile Include="Helper\Surface\SurfaceImageEventArgs.cs" />
     <Compile Include="Visualizer\Definitions\SmartPhoneDefinition.cs" />
     <Compile Include="Visualizer\Definitions\TabletDefinition.cs" />
+    <Compile Include="Visualizer\Visualizations\SmartPhone.xaml.cs">
+      <DependentUpon>SmartPhone.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Visualizer\Visualizations\VisualizationTablet.xaml.cs">
       <DependentUpon>VisualizationTablet.xaml</DependentUpon>
     </Compile>
@@ -101,6 +131,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Visualizer\Visualizations\SmartPhone.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Visualizer\Visualizations\VisualizationSmartPhone.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -151,25 +185,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.ActivityManager\NooSphere.ActivitySystem.ActivityService.csproj">
-      <Project>{12742CAB-ABDF-4B4B-A6F6-6646A524E0E8}</Project>
-      <Name>NooSphere.ActivitySystem.ActivityService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.Client\NooSphere.ActivitySystem.Client.csproj">
-      <Project>{83D5B7DD-EC47-4E5D-931C-6A6004751AA1}</Project>
-      <Name>NooSphere.ActivitySystem.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.Contracts\NooSphere.ActivitySystem.Contracts.csproj">
-      <Project>{95CA0E6D-F44A-484A-B066-D5AA0DDA08E2}</Project>
-      <Name>NooSphere.ActivitySystem.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.Discovery\NooSphere.ActivitySystem.DiscoveryService.csproj">
-      <Project>{4B3AEB33-9F3F-4C1F-AD68-5B6F620D94F6}</Project>
-      <Name>NooSphere.ActivitySystem.DiscoveryService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NooSphere.ActivitySystem.Host\NooSphere.ActivitySystem.Host.csproj">
-      <Project>{E09A47AF-5F60-4E3C-B853-50C8B182E4C5}</Project>
-      <Name>NooSphere.ActivitySystem.Host</Name>
+    <ProjectReference Include="..\NooSphere.ActivitySystem\NooSphere.ActivitySystem.csproj">
+      <Project>{5CD6DD93-3EA1-425F-89D7-A80FD23BBC71}</Project>
+      <Name>NooSphere.ActivitySystem</Name>
     </ProjectReference>
     <ProjectReference Include="..\NooSphere.Core\NooSphere.Core.csproj">
       <Project>{03C072A4-5960-4A5D-B0CC-98EBD854E970}</Project>
@@ -179,6 +197,14 @@
       <Project>{6424191D-5C04-43E6-B610-FD4B41E8A340}</Project>
       <Name>NooSphere.Helpers</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\blue.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\green.jpg" />
+    <Resource Include="Images\red.jpg" />
+    <Resource Include="Images\yellow.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="ActivityClient\Client.cs" />
     <Compile Include="ActivityClient\NetEventHandler.cs" />
+    <Compile Include="ActivityClient\StartupMode.cs" />
     <Compile Include="ActivityManager\ActivityCloudConnector.cs" />
     <Compile Include="ActivityManager\ActivityManager.cs" />
     <Compile Include="ActivityManager\ActivityStore.cs" />
@@ -67,6 +68,8 @@
     <Compile Include="Events\FileEventArgs.cs" />
     <Compile Include="Events\ParticipantsEventArgs.cs" />
     <Compile Include="Events\FriendEventArgs.cs" />
+    <Compile Include="FileServer\FileStore.cs" />
+    <Compile Include="Interfaces\FileService\IFileService.cs" />
     <Compile Include="Interfaces\NetEvents\IUserEvent.cs" />
     <Compile Include="PubSub\Concurrency.cs" />
     <Compile Include="ActivityManager\ConnectedClient.cs" />
