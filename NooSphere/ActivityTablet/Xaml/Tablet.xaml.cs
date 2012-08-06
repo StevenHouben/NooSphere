@@ -24,6 +24,7 @@ using ActivityTablet.Properties;
 using NooSphere.Helpers;
 using NooSphere.Core.Devices;
 using NooSphere.ActivitySystem.Discovery.Client;
+using NooSphere.ActivitySystem.Discovery;
 
 namespace ActivityTablet
 {
@@ -82,7 +83,7 @@ namespace ActivityTablet
             Thread t = new Thread(() =>
             {
                 DiscoveryManager disc = new DiscoveryManager();
-                disc.Find();
+                disc.Find(DiscoveryType.ZEROCONF);
                 disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
             });
             t.IsBackground = true;

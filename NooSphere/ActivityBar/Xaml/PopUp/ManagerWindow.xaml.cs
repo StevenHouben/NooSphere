@@ -30,6 +30,7 @@ using System.Threading;
 using NooSphere.ActivitySystem.Discovery.Client;
 using NooSphere.ActivitySystem.Discovery.Primitives;
 using System.Windows.Threading;
+using NooSphere.ActivitySystem.Discovery;
 
 namespace ActivityUI.PopUp
 {
@@ -72,7 +73,7 @@ namespace ActivityUI.PopUp
             Thread t = new Thread(() =>
             {
                 DiscoveryManager disc = new DiscoveryManager();
-                disc.Find();
+                disc.Find(DiscoveryType.ZEROCONF);
                 disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
             });
             t.IsBackground = true;

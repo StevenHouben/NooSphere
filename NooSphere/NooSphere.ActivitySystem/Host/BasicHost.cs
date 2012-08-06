@@ -22,9 +22,10 @@ using System.ServiceModel.Web;
 using System.ServiceModel.Description;
 using System.Xml.Linq;
 using NooSphere.Helpers;
-using NooSphere.ActivitySystem.Discovery.Host;
+using NooSphere.ActivitySystem.Discovery.Broadcast;
 using System.Threading;
 using System.ServiceModel.Channels;
+using NooSphere.ActivitySystem.Discovery;
 
 namespace NooSphere.ActivitySystem.Host
 {
@@ -111,7 +112,7 @@ namespace NooSphere.ActivitySystem.Host
             Thread t = new Thread(() =>
             {
                 StopBroadcast();
-                broadcast.Start(hostName, location, NetHelper.GetUrl(this.IP, this.Port, ""));
+                broadcast.Start(DiscoveryType.ZEROCONF, hostName, location, NetHelper.GetUrl(this.IP, this.Port, ""));
             });
             t.IsBackground = true;
             t.Start();

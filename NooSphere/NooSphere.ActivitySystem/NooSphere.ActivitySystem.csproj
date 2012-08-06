@@ -33,6 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mono.Zeroconf, Version=4.0.0.90, Culture=neutral, PublicKeyToken=e60c4f4a95e1099e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Mono.Zeroconf.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Zeroconf.Providers.Bonjour, Version=4.0.0.90, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Mono.Zeroconf.Providers.Bonjour.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.7\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -61,6 +69,7 @@
     <Compile Include="ActivityManager\ActivityManager.cs" />
     <Compile Include="ActivityManager\ActivityStore.cs" />
     <Compile Include="ActivityManager\ParticipantStore.cs" />
+    <Compile Include="Discovery\DiscoveryType.cs" />
     <Compile Include="Events\ActivityEventArgs.cs" />
     <Compile Include="Events\CloudEvents.cs" />
     <Compile Include="Events\ComEventArgs.cs" />
@@ -90,8 +99,7 @@
     <Compile Include="Discovery\Client\DiscoveryAddressAddedEventArgs.cs" />
     <Compile Include="Discovery\Client\DiscoveryEventArgs.cs" />
     <Compile Include="Discovery\Client\DiscoveryManager.cs" />
-    <Compile Include="Discovery\Host\BroadcastService.cs" />
-    <Compile Include="Discovery\Host\DiscoveyService.cs" />
+    <Compile Include="Discovery\Broadcast\BroadcastService.cs" />
     <Compile Include="Discovery\Primitives\ServiceInfo.cs" />
     <Compile Include="PubSub\Registry.cs" />
     <Compile Include="PubSub\RestPublisher.cs" />
