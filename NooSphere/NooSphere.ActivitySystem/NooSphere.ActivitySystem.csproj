@@ -70,6 +70,7 @@
     <Compile Include="Events\FileEventArgs.cs" />
     <Compile Include="Events\ParticipantsEventArgs.cs" />
     <Compile Include="Events\FriendEventArgs.cs" />
+    <Compile Include="FileServer\IFileHandler.cs" />
     <Compile Include="FileServer\FileStore.cs" />
     <Compile Include="FileServer\FileWrapper.cs" />
     <Compile Include="Interfaces\FileService\IFileServer.cs" />

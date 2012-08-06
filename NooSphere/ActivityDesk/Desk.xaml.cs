@@ -292,7 +292,7 @@ namespace ActivityDesk
             {
                 host = new BasicHost();
                 host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
-                host.Open(new ActivityManager(new User()), typeof(IActivityManager),"desk");
+                host.Open(new ActivityManager(new User(),"c:/files/"), typeof(IActivityManager),"desk");
 
             });
             t.Start();

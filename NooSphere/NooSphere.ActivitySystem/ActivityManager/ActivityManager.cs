@@ -36,14 +36,14 @@ using NooSphere.ActivitySystem.FileServer;
 namespace NooSphere.ActivitySystem.ActivityManager
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Single, IncludeExceptionDetailInFaults = true)]
-    public class ActivityManager : IActivityManager
+    public class ActivityManager : IActivityManager,IFileHandler
     {
         #region Private Members
         private RestSubscriber subscriber;
         private RestPublisher publisher;
         private ActivityCloudConnector activityCloudConnector;
 
-        private bool useActivityCloud = false;
+        private bool useActivityCloud = true;
         private bool useLocalCloud = false;
         private bool connectionActive = false;
 
@@ -53,25 +53,38 @@ namespace NooSphere.ActivitySystem.ActivityManager
 
         #region Public Members
         public User Owner { get; set; }
+        public string LocalPath { get; private set; }
         #endregion
 
         #region Constructor
-        public ActivityManager(User owner)
+        public ActivityManager(User owner,string localPath)
+        {
+            this.Owner = owner;
+
+            IntializeEventSystem();
+            InitializeFileService(localPath);
+            InitializeActivityService(Owner);
+        }
+        private void InitializeActivityService(User owner)
+        {
+            if (useActivityCloud)
+                ConnectToCloud(useLocalCloud, owner);
+        }
+        private void InitializeFileService(string localPath)
+        {
+            this.LocalPath = localPath;
+
+            fileServer = new FileStore(LocalPath); ;
+            fileServer.FileAdded += new Events.FileAddedHandler(fileServer_FileAdded);
+            fileServer.FileChanged += new Events.FileChangedHandler(fileServer_FileChanged);
+            fileServer.FileRemoved += new Events.FileRemovedHandler(fileServer_FileRemoved);
+            fileServer.FileDownloadedFromCloud += new Events.FileDownloadedHandler(fileServer_FileDownloaded);
+        }
+        private void IntializeEventSystem()
         {
             Registry.Initialize();
             subscriber = new RestSubscriber();
             publisher = new RestPublisher();
-        
-            fileServer = new FileStore(@"C:/Files");
-            fileServer.FileAdded +=new Events.FileAddedHandler(fileServer_FileAdded);
-            fileServer.FileChanged +=new Events.FileChangedHandler(fileServer_FileChanged);
-            fileServer.FileRemoved +=new Events.FileRemovedHandler(fileServer_FileRemoved);
-            fileServer.FileDownloadedFromCloud += new Events.FileDownloadedHandler(fileServer_FileDownloaded);
-
-            if(useActivityCloud)
-                ConnectToCloud(useLocalCloud,owner);
-
-            this.Owner = owner;
         }
         #endregion
 
@@ -103,8 +116,21 @@ namespace NooSphere.ActivitySystem.ActivityManager
             activityCloudConnector.FriendRequestReceived += new Events.FriendRequestReceivedHandler(ActivityCloudConnector_FriendRequestReceived);
             activityCloudConnector.ParticipantAdded += new Events.ParticipantAddedHandler(ActivityCloudConnector_ParticipantAdded);
             activityCloudConnector.ParticipantRemoved += new Events.ParticipantRemovedHandler(ActivityCloudConnector_ParticipantRemoved);
+        }
 
-            Console.WriteLine("Local Activity Manager: Attempting to connect to: " + serviceAddress);
+        private void ConstructActivityCache()
+        {
+            Thread t = new Thread(() =>
+            {
+                foreach (Activity act in activityCloudConnector.GetActivities())
+                {
+                    ActivityStore.Activities.Add(act.Id, act);
+                    foreach (Resource res in act.GetResources())
+                        fileServer.DownloadToFile(res, activityCloudConnector.GetResource(res));
+                }
+            });
+            t.IsBackground = true;
+            t.Start();
         }
 
         #region Net Handlers
@@ -122,13 +148,13 @@ namespace NooSphere.ActivitySystem.ActivityManager
         {
             publisher.Publish(EventType.FileEvents, FileEvent.FileChanged.ToString(), e.Resource);
             if (useActivityCloud && connectionActive)
-                activityCloudConnector.AddResource(e.Resource, fileServer.UploadToStream(e.Resource));
+                activityCloudConnector.AddResource(e.Resource, fileServer.StreamToBuffer(e.Resource));
         }
         private void fileServer_FileAdded(object sender, Events.FileEventArgs e)
         {
             publisher.Publish(EventType.FileEvents, FileEvent.FileAdded.ToString(), e.Resource);
             if (useActivityCloud && connectionActive)
-                activityCloudConnector.AddResource(e.Resource, fileServer.UploadToStream(e.Resource));
+                activityCloudConnector.AddResource(e.Resource, fileServer.StreamToBuffer(e.Resource));
         }
         private void ActivityCloudConnector_ParticipantRemoved(object sender, Events.ParticipantEventArgs e)
         {
@@ -177,6 +203,8 @@ namespace NooSphere.ActivitySystem.ActivityManager
         private void ActivityCloudConnector_ConnectionSetup(object sender, EventArgs e)
         {
             connectionActive = true;
+
+            ConstructActivityCache();
         }
         private void ActivityCloudConnector_ActivityUpdated(object sender, ActivitySystem.Events.ActivityEventArgs e)
         {
@@ -391,10 +419,31 @@ namespace NooSphere.ActivitySystem.ActivityManager
         #endregion
 
         #region File Server
-        public void AddFile(string json)
+        public void AddFile(string activityId, string resourceId, Stream stream)
         {
-            FileWrapper wrap = JsonConvert.DeserializeObject<FileWrapper>(json);
-            fileServer.AddFile(wrap.Resource, wrap.Data);
+            byte[] buffer = new byte[32768];
+            MemoryStream ms = new MemoryStream();
+            int bytesRead, totalBytesRead = 0;
+            do
+            {
+                bytesRead = stream.Read(buffer, 0, buffer.Length);
+                totalBytesRead += bytesRead;
+
+                ms.Write(buffer, 0, bytesRead);
+            } while (bytesRead > 0);
+
+            Resource res = GetResourceFromId(activityId, resourceId);
+            fileServer.AddFile(res, ms.GetBuffer());
+            ms.Close();
+            Console.WriteLine("Uploaded file {0} with {1} bytes", res.Name, totalBytesRead); 
+        }
+
+        private Resource GetResourceFromId(string aId, string resId)
+        {
+            foreach (Resource res in ActivityStore.Activities[new Guid(aId)].GetResources())
+                if ((res.Id.ToString() == resId) && (res.ActivityId.ToString() == aId))
+                        return res;
+            return null;
         }
 
         public void RemoveFile(Resource resource)

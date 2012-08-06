@@ -217,7 +217,7 @@ namespace ActivityUI
             {
                 host = new BasicHost();
                 host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
-                host.Open(new ActivityManager(owner), typeof(IActivityManager), device.Name);
+                host.Open(new ActivityManager(owner,"c:/files/"), typeof(IActivityManager), device.Name);
                 if(Settings.Default.CHECK_BROADCAST)
                     host.StartBroadcast(device.Name, device.Location);
 
@@ -770,8 +770,9 @@ namespace ActivityUI
 
             NooSphere.Core.ActivityModel.Action act = new NooSphere.Core.ActivityModel.Action();
             Resource res = new Resource();
-            res.RelativePath = "/abc.jpg";
-            res.Name = "abc.jpg";
+            res.RelativePath = "/abc.txt";
+            res.Size = (int)new FileInfo(client.LocalPath + res.RelativePath).Length;
+            res.Name = "abc.txt";
             res.ActivityId = ac.Id;
             res.ActionId = act.Id;
             act.Resources.Add(res);

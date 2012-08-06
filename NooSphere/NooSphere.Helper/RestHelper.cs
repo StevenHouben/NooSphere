@@ -66,6 +66,44 @@ namespace NooSphere.Helpers
         }
 
         /// <summary>
+        /// Sends a stream request over http
+        /// </summary>
+        /// <param name="customUrl">The url</param>
+        /// <param name="filePath"></param>
+        public static void SendStreamingRequest(string customUrl,string filePath)
+        {
+            if (File.Exists(filePath))
+                try
+                {
+                    // Create the REST request. 
+                    string requestUrl = customUrl;
+
+                    HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
+                    request.Method = "POST";
+                    request.ContentType = "text/plain";
+
+                    byte[] fileToSend = File.ReadAllBytes(filePath);
+                    request.ContentLength = fileToSend.Length;
+
+                    using (Stream requestStream = request.GetRequestStream())
+                    {
+                        // Send the file as body request. 
+                        requestStream.Write(fileToSend, 0, fileToSend.Length);
+                        requestStream.Close();
+                    }
+
+                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                        Console.WriteLine("HTTP/{0} {1} {2}", response.ProtocolVersion, (int)response.StatusCode, response.StatusDescription);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            else
+                throw new FileNotFoundException("File at path: "+ filePath + " does not exist.");
+        }
+
+        /// <summary>
         /// Get JSON response string through a HTTP GET request
         /// </summary>
         /// <param name="uri">Uri to the webservice</param>

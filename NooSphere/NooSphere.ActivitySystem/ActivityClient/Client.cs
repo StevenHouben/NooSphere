@@ -38,7 +38,7 @@ using NooSphere.ActivitySystem.FileServer;
 namespace NooSphere.ActivitySystem.ActivityClient
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-    public class Client : NetEventHandler
+    public class Client : NetEventHandler,IFileHandler
     {
         #region Events
         public event ConnectionEstablishedHandler ConnectionEstablished = null;
@@ -46,7 +46,6 @@ namespace NooSphere.ActivitySystem.ActivityClient
 
         #region Private Members
         private Dictionary<Type, ServiceHost> callbackServices = new Dictionary<Type, ServiceHost>();
-        private string localDirectory;
         #endregion
 
         #region Properties
@@ -55,6 +54,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
         public string DeviceID { get; private set; }
         public string ServiceAddress { get; set; }
         public User CurrentUser { get; set; }
+        public string LocalPath { get; private set; }
         #endregion
 
         #region Constructor
@@ -65,7 +65,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
         public Client(string address,string localFileDirectory)
         {
             Connect(address);
-            localDirectory = localFileDirectory;
+            LocalPath = localFileDirectory;
         }
         #endregion
 
@@ -212,22 +212,18 @@ namespace NooSphere.ActivitySystem.ActivityClient
         /// <param name="act">The activity that needs to be included in the request</param>
         public void AddActivity(Activity act)
         {
+            RestHelper.Post(ServiceAddress + Url.activities, act);
             foreach (Resource res in act.GetResources())
             {
-                FileWrapper wrap = new FileWrapper();
-                wrap.Resource = res;
-                wrap.Data = StreamFile(res);
-                RestHelper.Post(ServiceAddress + Url.files, JsonConvert.SerializeObject( wrap));
+                RestHelper.SendStreamingRequest(ServiceAddress+"Files/"+res.ActivityId+"/"+res.Id,LocalPath+ res.RelativePath);
             }
-            RestHelper.Post(ServiceAddress + Url.activities, act);
         }
-
         private byte[] StreamFile(Resource resource)
         {
-            FileInfo fi = new FileInfo(localDirectory + resource.RelativePath);
+            FileInfo fi = new FileInfo(LocalPath + resource.RelativePath);
             byte[] buffer = new byte[fi.Length];
 
-            using (FileStream fs = new FileStream(localDirectory + resource.RelativePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (FileStream fs = new FileStream(LocalPath + resource.RelativePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 fs.Read(buffer, 0, (int)fs.Length);
             return buffer;
 
@@ -343,7 +339,6 @@ namespace NooSphere.ActivitySystem.ActivityClient
             Connect(e.EndpointDiscoveryMetadata.Address.ToString());
         }
         #endregion
-
     }
     public enum Url
     {

@@ -95,7 +95,7 @@ namespace ActivityTablet
                 host = new BasicHost();
                 host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
                 host.StartBroadcast("Tablet");
-                host.Open(new ActivityManager(user), typeof(IActivityManager), "Tablet manager");
+                host.Open(new ActivityManager(user, "c:/files/"), typeof(IActivityManager), "Tablet manager");
             });
             t.Start();
         }

@@ -16,11 +16,11 @@ namespace NooSphere.ActivitySystem.FileServer
         public event FileAddedHandler FileAdded;
         public event FileChangedHandler FileChanged;
         public event FileRemovedHandler FileRemoved;
-        public event FileDownloadedHandler FileDownloadedFromCloud;
+        public event FileDownloadedHandler FileDownloadedFromCloud;     
         #endregion
 
         #region Properties
-        public string BasePath { get; set; }    //local file server folder
+        public string BasePath { get; set; }
         #endregion
 
         #region Private Members
@@ -36,8 +36,8 @@ namespace NooSphere.ActivitySystem.FileServer
         {
             Thread t = new Thread(() =>
             {
-                UploadFile(fileInBytes, resource);
-                files.Add(resource.Id, resource); ;
+                SaveToDisk(fileInBytes, resource);
+                files.Add(resource.Id, resource);
                 if (FileAdded != null)
                     FileAdded(this, new FileEventArgs(resource));
             });
@@ -51,7 +51,7 @@ namespace NooSphere.ActivitySystem.FileServer
             if (FileRemoved != null)
                 FileRemoved(this, new FileEventArgs(resource));
         }
-        public byte[] UploadToStream(Resource resource)
+        public byte[] StreamToBuffer(Resource resource)
         { 
             FileInfo fi = new FileInfo(BasePath+ resource.RelativePath);
             byte[] buffer = new byte[fi.Length];
@@ -84,7 +84,7 @@ namespace NooSphere.ActivitySystem.FileServer
             Thread t = new Thread(() =>
             {
                 files[resource.Id] = resource;
-                UploadFile(fileInBytes,resource);
+                SaveToDisk(fileInBytes,resource);
                 if (FileChanged != null)
                     FileChanged(this, new FileEventArgs(resource));
             });
@@ -94,13 +94,12 @@ namespace NooSphere.ActivitySystem.FileServer
         #endregion
 
         #region Private Methods
-        private void UploadFile(byte[] fileInBytes, Resource resource)
+        private void SaveToDisk(byte[] fileInBytes, Resource resource)
         {
             try
             {
                 using (FileStream fileToupload = new FileStream(this.BasePath + resource.RelativePath, FileMode.Create))
                 {
-
                     fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
                     fileToupload.Close();
                     fileToupload.Dispose();
