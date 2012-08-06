@@ -21,7 +21,7 @@ using System.IO;
 
 namespace NooSphere.Core.ActivityModel
 {
-    public class Resource : Identity
+    public class Resource : Base
     {
         public Resource()
             : base()

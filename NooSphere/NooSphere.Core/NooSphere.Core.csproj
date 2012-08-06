@@ -67,8 +67,7 @@
     <Compile Include="ContextModel\ComponentModel\IView.cs" />
     <Compile Include="ContextModel\ComponentModel\ILifecycle.cs" />
     <Compile Include="Parser\Parser.cs" />
-    <Compile Include="Primitives\Identity.cs" />
-    <Compile Include="Primitives\IEntity.cs" />
+    <Compile Include="Primitives\Base.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ContextModel\ComponentModel\ITool.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
