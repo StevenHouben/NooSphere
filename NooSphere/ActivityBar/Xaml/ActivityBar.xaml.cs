@@ -118,9 +118,7 @@ namespace ActivityUI
         #region Public members
         public void AddEmptyActivity()
         {
-            Activity act = GetInitializedActivity();
-            this.AddActivityUI(act);
-            VirtualDesktopManager.CurrentDesktop= proxies[act.Id].Desktop;
+            client.AddActivity(GetInitializedActivity());
         }
         /// <summary>
         /// Sends a message to the activity manager
