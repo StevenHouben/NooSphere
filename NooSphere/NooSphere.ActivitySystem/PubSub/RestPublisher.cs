@@ -8,7 +8,7 @@ using System.ServiceModel;
 using Newtonsoft.Json;
 using System.Net;
 using System.IO;
-using NooSphere.ActivitySystem.Contracts.NetEvents;
+using NooSphere.ActivitySystem.Contracts;
 using NooSphere.Helpers;
 
 namespace NooSphere.ActivitySystem.PubSub
@@ -32,7 +32,7 @@ namespace NooSphere.ActivitySystem.PubSub
                     {
                         try
                         {
-                            RestHelper.Post(entry.Value.ToString() + publishUrl, netObject);
+                            Rest.Post(entry.Value.ToString() + publishUrl, netObject);
                         }
                         catch (FaultException ex)
                         {

@@ -16,20 +16,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.ComponentModel;
-using NooSphere.Core.Primitives;
 
-namespace NooSphere.Core.ActivityModel
+
+using NooSphere.Core.ActivityModel;
+
+namespace NooSphere.ActivitySystem
 {
-    public class Workflow : Base
+    public class ActivityEventArgs
     {
-        public List<Action> Actions{get ;set; }
-
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged(string propertyName)
+        public Activity Activity { get; set; }
+        public ActivityEventArgs() { }
+        public ActivityEventArgs(Activity activity)
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            this.Activity = activity;
+        }
+    }
+    public class ActivityRemovedEventArgs
+    {
+        public Guid ID { get; set; }
+        public ActivityRemovedEventArgs() { }
+        public ActivityRemovedEventArgs(Guid id)
+        {
+            this.ID = id;
         }
     }
 }

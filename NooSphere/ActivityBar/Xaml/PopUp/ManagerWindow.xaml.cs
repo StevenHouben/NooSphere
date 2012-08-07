@@ -27,8 +27,6 @@ using System.Windows.Shapes;
 using NooSphere.Platform.Windows.Interopt;
 using ActivityUI.Properties;
 using System.Threading;
-using NooSphere.ActivitySystem.Discovery.Client;
-using NooSphere.ActivitySystem.Discovery.Primitives;
 using System.Windows.Threading;
 using NooSphere.ActivitySystem.Discovery;
 

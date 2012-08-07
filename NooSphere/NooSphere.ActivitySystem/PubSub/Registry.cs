@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NooSphere.ActivitySystem.Contracts.NetEvents;
+using NooSphere.ActivitySystem.Contracts;
 using NooSphere.Core.Devices;
-using NooSphere.ActivitySystem.ActivityManager;
 
 namespace NooSphere.ActivitySystem.PubSub
 {

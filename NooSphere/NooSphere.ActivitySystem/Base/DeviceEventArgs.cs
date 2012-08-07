@@ -16,20 +16,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.ComponentModel;
-using NooSphere.Core.Primitives;
+using NooSphere.Core.Devices;
 
-namespace NooSphere.Core.ActivityModel
+namespace NooSphere.ActivitySystem
 {
-    public class Workflow : Base
+    public class DeviceEventArgs
     {
-        public List<Action> Actions{get ;set; }
-
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged(string propertyName)
+        public Device Device { get; set; }
+        public DeviceEventArgs() { }
+        public DeviceEventArgs(Device device)
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            this.Device = device;
+        }
+    }
+    public class DeviceRemovedEventArgs
+    {
+        public string Id { get; set; }
+        public DeviceRemovedEventArgs() { }
+        public DeviceRemovedEventArgs(string id)
+        {
+            this.Id = id;
         }
     }
 }

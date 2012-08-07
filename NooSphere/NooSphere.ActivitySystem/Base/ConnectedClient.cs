@@ -16,20 +16,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.ComponentModel;
-using NooSphere.Core.Primitives;
+using NooSphere.Core.Devices;
 
-namespace NooSphere.Core.ActivityModel
+namespace NooSphere.ActivitySystem
 {
-    public class Workflow : Base
+    public class ConnectedClient
     {
-        public List<Action> Actions{get ;set; }
-
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged(string propertyName)
+        public string Name { get; private set; }
+        public string IP { get; private set; }
+        public Device Device { get; set; }
+        public ConnectedClient(string name, string ip, Device devi) 
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            this.Name = name;
+            this.IP = ip;
+            this.Device = devi; 
+        }
+        public override string ToString()
+        {
+            return IP;
         }
     }
 }

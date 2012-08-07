@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using NooSphere.Core.ActivityModel;
-using NooSphere.ActivitySystem.ActivityManager;
-using NooSphere.ActivitySystem.Events;
+using NooSphere.ActivitySystem;
 using System.Threading;
 
 namespace NooSphere.ActivitySystem.FileServer
@@ -16,7 +15,7 @@ namespace NooSphere.ActivitySystem.FileServer
         public event FileAddedHandler FileAdded;
         public event FileChangedHandler FileChanged;
         public event FileRemovedHandler FileRemoved;
-        public event FileDownloadedHandler FileDownloadedFromCloud;     
+        public event FileDownloadRequestHandler FileDownloadedFromCloud;     
         #endregion
 
         #region Properties
@@ -32,14 +31,24 @@ namespace NooSphere.ActivitySystem.FileServer
         {
             this.BasePath = path;
         }
-        public void AddFile(Resource resource, byte[] fileInBytes)
+        public void AddFile(Resource resource, byte[] fileInBytes,FileSource source)
         {
             Thread t = new Thread(() =>
             {
                 SaveToDisk(fileInBytes, resource);
                 files.Add(resource.Id, resource);
-                if (FileAdded != null)
-                    FileAdded(this, new FileEventArgs(resource));
+
+                if (source == FileSource.Cloud)
+                {
+                    if (FileDownloadedFromCloud != null)
+                        FileDownloadedFromCloud(this, new FileEventArgs(resource));
+                }
+                else if (source == FileSource.Local)
+                {
+                    if (FileAdded != null)
+                        FileAdded(this, new FileEventArgs(resource));
+                }
+                Console.WriteLine("FileStore: Added file {0} to store", resource.Name); 
             });
             t.IsBackground = true;
             t.Start();
@@ -50,34 +59,17 @@ namespace NooSphere.ActivitySystem.FileServer
             File.Delete(BasePath+resource.RelativePath);
             if (FileRemoved != null)
                 FileRemoved(this, new FileEventArgs(resource));
+            Console.WriteLine("FileStore: Removed file {0} from store", resource.Name); 
         }
-        public byte[] StreamToBuffer(Resource resource)
-        { 
-            FileInfo fi = new FileInfo(BasePath+ resource.RelativePath);
+        public byte[] GetFile(Resource resource)
+        {
+            FileInfo fi = new FileInfo(BasePath + resource.RelativePath);
             byte[] buffer = new byte[fi.Length];
 
             using (FileStream fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
                 fs.Read(buffer, 0, (int)fs.Length);
 
             return buffer;
-        }
-        public void DownloadToFile(Resource resource, byte[] byteStream)
-        {
-            Thread t = new Thread(() =>
-            {
-                string AbsolutePath = Path.Combine(BasePath, resource.RelativePath);
-                FileStream fs = new FileStream(AbsolutePath, FileMode.Create);
-                fs.Write(byteStream, 0, resource.Size);
-                fs.Close();
-
-                File.SetCreationTimeUtc(AbsolutePath, DateTime.Parse(resource.CreationTime));
-                File.SetLastWriteTimeUtc(AbsolutePath, DateTime.Parse(resource.LastWriteTime));
-
-                if (FileDownloadedFromCloud != null)
-                    FileDownloadedFromCloud(this, new FileEventArgs(resource));
-            });
-            t.IsBackground = true;
-            t.Start();
         }
         public void Updatefile(Resource resource, byte[] fileInBytes)
         {
@@ -87,6 +79,7 @@ namespace NooSphere.ActivitySystem.FileServer
                 SaveToDisk(fileInBytes,resource);
                 if (FileChanged != null)
                     FileChanged(this, new FileEventArgs(resource));
+                Console.WriteLine("FileStore: Updated file {0} in store", resource.Name); 
             });
             t.IsBackground = true;
             t.Start();
@@ -98,11 +91,16 @@ namespace NooSphere.ActivitySystem.FileServer
         {
             try
             {
-                using (FileStream fileToupload = new FileStream(this.BasePath + resource.RelativePath, FileMode.Create))
+                string path = this.BasePath + resource.RelativePath;
+                using (FileStream fileToupload = new FileStream(path, FileMode.Create))
                 {
                     fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
                     fileToupload.Close();
                     fileToupload.Dispose();
+
+                    File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
+                    File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
+                    Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,path); 
                 }
             }
             catch (Exception ex)

@@ -16,20 +16,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.ComponentModel;
-using NooSphere.Core.Primitives;
+using System.ServiceModel;
+using System.ServiceModel.Web;
 
-namespace NooSphere.Core.ActivityModel
+namespace NooSphere.ActivitySystem.Contracts
 {
-    public class Workflow : Base
+    [ServiceContract]
+    public interface IComNetEvent : IEvent
     {
-        public List<Action> Actions{get ;set; }
-
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
+        [OperationContract]
+        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "MessageReceived", Method = "POST")]
+        void MessageNetReceived(string msg);
+    }
+    public enum ComEvent
+    {
+        MessageReceived
     }
 }

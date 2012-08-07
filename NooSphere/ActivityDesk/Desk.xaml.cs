@@ -33,12 +33,10 @@ using System.Collections.Generic;
 using System.IO;
 
 using NooSphere.Core.ActivityModel;
-using NooSphere.ActivitySystem.ActivityClient;
-using NooSphere.ActivitySystem.Events;
+using NooSphere.ActivitySystem;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.ActivitySystem.Contracts;
-using NooSphere.ActivitySystem.ActivityManager;
-using NooSphere.ActivitySystem.Discovery.Client;
+using NooSphere.ActivitySystem.Discovery;
 using System.Windows.Controls;
 using NooSphere.Core.Devices;
 using ActivityDesk.Helper.Surface;
@@ -51,7 +49,6 @@ using Emgu.CV;
 using Emgu.CV.UI;
 using Emgu.CV.VideoSurveillance;
 using System.Drawing;
-using NooSphere.ActivitySystem.Discovery;
 
 namespace ActivityDesk
 {
@@ -62,7 +59,7 @@ namespace ActivityDesk
     {
         #region Members
 
-        private Client client;
+        private ActivityClient client;
         private BasicHost host;
         private DiscoveryManager disc;
         private User user;
@@ -312,12 +309,12 @@ namespace ActivityDesk
         /// </summary>
         void StartClient(string addr)
         {
-            client = new Client(addr,@"c:/abc/");
+            client = new ActivityClient(addr,@"c:/abc/");
             client.Register(device);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ActivityEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ComEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.DeviceEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.FileEvents);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.ActivityEvents);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.ComEvents);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.DeviceEvents);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.FileEvents);
 
             // Set current participant on client
             client.CurrentUser = this.user;

@@ -18,9 +18,7 @@ using System.Linq;
 using System.Text;
 using NooSphere.Core;
 using System.ComponentModel;
-using NooSphere.Core.ContextModel;
 using NooSphere.Core.Primitives;
-using NooSphere.Core.ContextModel.ComponentModel;
 
 
 namespace NooSphere.Core.ActivityModel

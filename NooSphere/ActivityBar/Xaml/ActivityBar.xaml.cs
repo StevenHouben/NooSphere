@@ -33,12 +33,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 
-using NooSphere.ActivitySystem.ActivityClient;
-using NooSphere.ActivitySystem.ActivityManager;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Discovery;
-using NooSphere.ActivitySystem.Discovery.Client;
-using NooSphere.ActivitySystem.Discovery.Primitives;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
@@ -49,6 +45,7 @@ using ActivityUI.Properties;
 using ActivityUI.Login;
 using ActivityUI.PopUp;
 using NooSphere.Platform.Windows.Hooks;
+using NooSphere.ActivitySystem;
 
 namespace ActivityUI
 {
@@ -56,7 +53,7 @@ namespace ActivityUI
     {
         #region Private Members
 
-        private Client client;
+        private ActivityClient client;
         private BasicHost host;
         private DiscoveryManager disc;
 
@@ -168,6 +165,12 @@ namespace ActivityUI
             else
                 return (p.X >= w.Left && p.X <= w.Left + w.Width) && (p.Y >= w.Top && p.Y <= w.Top + w.Height);
         }
+
+        /// <summary>
+        /// Runs a hittest on all registered windows
+        /// </summary>
+        /// <param name="location">The click point</param>
+        /// <returns>Bool that indicates if a popup window was hit</returns>
         private bool HitTestAllPopWindow(System.Drawing.Point location)
         {
             foreach (Window w in PopUpWindows)
@@ -240,7 +243,7 @@ namespace ActivityUI
         {
 
             //Build a new client that connects to an activity manager on the given address
-            client = new Client(activityManagerHttpAddress, @"c:/abc/");
+            client = new ActivityClient(activityManagerHttpAddress, @"c:/abc/");
 
             //Register the current device with the activity manager we are connecting to
             client.Register(this.device);
@@ -249,26 +252,45 @@ namespace ActivityUI
             client.CurrentUser = owner;
 
             //Subscribe to the activity manager events
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ActivityEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ComEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.DeviceEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.FileEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.UserEvent);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.ActivityEvents);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.ComEvents);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.DeviceEvents);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.FileEvents);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.UserEvent);
 
             //Subcribe to the callback events of the activity manager
-            client.DeviceAdded += new NooSphere.ActivitySystem.Events.DeviceAddedHandler(client_DeviceAdded);
-            client.ActivityAdded += new NooSphere.ActivitySystem.Events.ActivityAddedHandler(client_ActivityAdded);
-            client.ActivityChanged += new NooSphere.ActivitySystem.Events.ActivityChangedHandler(client_ActivityChanged);
-            client.DeviceRemoved +=new NooSphere.ActivitySystem.Events.DeviceRemovedHandler(client_DeviceRemoved);
-            client.ActivityRemoved += new NooSphere.ActivitySystem.Events.ActivityRemovedHandler(client_ActivityRemoved);
-            client.MessageReceived += new NooSphere.ActivitySystem.Events.MessageReceivedHandler(client_MessageReceived);
+            client.DeviceAdded += new NooSphere.ActivitySystem.DeviceAddedHandler(client_DeviceAdded);
+            client.ActivityAdded += new NooSphere.ActivitySystem.ActivityAddedHandler(client_ActivityAdded);
+            client.ActivityChanged += new NooSphere.ActivitySystem.ActivityChangedHandler(client_ActivityChanged);
+            client.DeviceRemoved +=new NooSphere.ActivitySystem.DeviceRemovedHandler(client_DeviceRemoved);
+            client.ActivityRemoved += new NooSphere.ActivitySystem.ActivityRemovedHandler(client_ActivityRemoved);
+            client.MessageReceived += new NooSphere.ActivitySystem.MessageReceivedHandler(client_MessageReceived);
 
-            client.FriendAdded += new NooSphere.ActivitySystem.Events.FriendAddedHandler(client_FriendAdded);
-            client.FriendDeleted += new NooSphere.ActivitySystem.Events.FriendDeletedHandler(client_FriendDeleted);
-            client.FriendRequestReceived += new NooSphere.ActivitySystem.Events.FriendRequestReceivedHandler(client_FriendRequestReceived);
+            client.FriendAdded += new NooSphere.ActivitySystem.FriendAddedHandler(client_FriendAdded);
+            client.FriendDeleted += new NooSphere.ActivitySystem.FriendDeletedHandler(client_FriendDeleted);
+            client.FriendRequestReceived += new NooSphere.ActivitySystem.FriendRequestReceivedHandler(client_FriendRequestReceived);
 
+            client.FileUploadRequest += new NooSphere.ActivitySystem.FileUploadRequestHandler(client_FileUploadRequest);
+            client.FileDownloadRequest += new NooSphere.ActivitySystem.FileDownloadRequestHandler(client_FileDownloadRequest);
+            client.FileDeleteRequest += new NooSphere.ActivitySystem.FileDeleteRequestHandler(client_FileDeleteRequest);
+            
             BuildUI();
             startingUp = false;
+        }
+
+        void client_FileDeleteRequest(object sender, NooSphere.ActivitySystem.FileEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        void client_FileDownloadRequest(object sender, NooSphere.ActivitySystem.FileEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        void client_FileUploadRequest(object sender, NooSphere.ActivitySystem.FileEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -305,32 +327,12 @@ namespace ActivityUI
         /// </summary>
         private void BuildUI()
         {
-            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
-            {
-                BuildDiscoveryUI();
-            }));
-
-
-            List<Activity> loc = client.GetActivities();
-            if (loc != null)
-            {
-                foreach (Activity activity in loc)
-                    AddActivityUI(activity);
-            }
             EnableUI();
             VirtualDesktopManager.InitDesktops(1);
 
             List<User> users = client.GetUsers();
             if(users != null)
                 contactList = new ObservableCollection<User>(users );
-
-            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
-            {
-                friendList.ItemsSource = contactList;
-            }));
-
-            //DEBUG_AddActivities(50);
-            //DEBUG_DeleteAllActivities();
         }
 
         /// <summary>
@@ -351,15 +353,6 @@ namespace ActivityUI
                 client.AddActivity(GetInitializedActivity());
         }
 
-        /// <summary>
-        /// Builds the discovery UI
-        /// </summary>
-        private void BuildDiscoveryUI()
-        {
-            txtDeviceName.Text = device.Name;
-            txtEmail.Text = owner.Email;
-            txtUsername.Text = owner.Name;
-        }
 
         /// <summary>
         /// Removes an activity button from the activity bar
@@ -617,7 +610,7 @@ namespace ActivityUI
         {
             ShowManagerContextMenu();
         }
-        private void client_FriendRequestReceived(object sender, NooSphere.ActivitySystem.Events.FriendEventArgs e)
+        private void client_FriendRequestReceived(object sender, NooSphere.ActivitySystem.FriendEventArgs e)
         {
             if (MessageBoxResult.Yes == MessageBox.Show("Do you want to add " + e.User.Name + " to your friend list?", "Friend list", MessageBoxButton.YesNo))
             {
@@ -626,11 +619,11 @@ namespace ActivityUI
             else
                 client.RespondToFriendRequest(e.User.Id, false);
         }
-        private void client_FriendDeleted(object sender, NooSphere.ActivitySystem.Events.FriendDeletedEventArgs e)
+        private void client_FriendDeleted(object sender, NooSphere.ActivitySystem.FriendDeletedEventArgs e)
         {
 
         }
-        private void client_FriendAdded(object sender, NooSphere.ActivitySystem.Events.FriendEventArgs e)
+        private void client_FriendAdded(object sender, NooSphere.ActivitySystem.FriendEventArgs e)
         {
 
         }
@@ -638,7 +631,7 @@ namespace ActivityUI
         {
             
         }
-        private void client_ActivityChanged(object sender, NooSphere.ActivitySystem.Events.ActivityEventArgs e)
+        private void client_ActivityChanged(object sender, NooSphere.ActivitySystem.ActivityEventArgs e)
         {
             proxies[e.Activity.Id].Activity = e.Activity;
             proxies[e.Activity.Id].Button.Text = e.Activity.Name; 
@@ -687,26 +680,26 @@ namespace ActivityUI
             AddDiscoveryActivityManagerToUI(e.ServiceInfo);
 
         }
-        private void client_DeviceRemoved(object sender, NooSphere.ActivitySystem.Events.DeviceRemovedEventArgs e)
+        private void client_DeviceRemoved(object sender, NooSphere.ActivitySystem.DeviceRemovedEventArgs e)
         {
             deviceList.Remove(e.Id);
             AddToLog("Device Removed\n");
         }
-        private void client_DeviceAdded(object sender, NooSphere.ActivitySystem.Events.DeviceEventArgs e)
+        private void client_DeviceAdded(object sender, NooSphere.ActivitySystem.DeviceEventArgs e)
         {
             deviceList.Add(e.Device.Id.ToString(),e.Device);
             AddToLog("Device Added\n");
         }
-        private void client_MessageReceived(object sender, NooSphere.ActivitySystem.Events.ComEventArgs e)
+        private void client_MessageReceived(object sender, NooSphere.ActivitySystem.ComEventArgs e)
         {
             AddToLog(e.Message+"\n");
         }
-        private void client_ActivityRemoved(object sender, NooSphere.ActivitySystem.Events.ActivityRemovedEventArgs e)
+        private void client_ActivityRemoved(object sender, NooSphere.ActivitySystem.ActivityRemovedEventArgs e)
         {
             RemoveActivityUI(e.ID);
             AddToLog("Activity Removed\n");
         }
-        private void client_ActivityAdded(object obj, NooSphere.ActivitySystem.Events.ActivityEventArgs e)
+        private void client_ActivityAdded(object obj, NooSphere.ActivitySystem.ActivityEventArgs e)
         {
             AddActivityUI(e.Activity);
             AddToLog("Activity Added\n");
@@ -767,14 +760,30 @@ namespace ActivityUI
             part.Email = "test@test.dk";
 
             NooSphere.Core.ActivityModel.Action act = new NooSphere.Core.ActivityModel.Action();
-            Resource res = new Resource();
-            res.RelativePath = "/abc.txt";
-            res.Size = (int)new FileInfo(client.LocalPath + res.RelativePath).Length;
-            res.Name = "abc.txt";
-            res.ActivityId = ac.Id;
-            res.ActionId = act.Id;
-            act.Resources.Add(res);
 
+            Resource textFile = new Resource();
+            textFile.RelativePath = "/abc.txt";
+            textFile.Size = (int)new FileInfo(client.LocalPath + textFile.RelativePath).Length;
+            textFile.Name = "abc.txt";
+            textFile.ActivityId = ac.Id;
+            textFile.ActionId = act.Id;
+            act.Resources.Add(textFile);
+
+            Resource image = new Resource();
+            image.RelativePath = "/abc.jpg";
+            image.Size = (int)new FileInfo(client.LocalPath + image.RelativePath).Length;
+            image.Name = "abc.jpg";
+            image.ActivityId = ac.Id;
+            image.ActionId = act.Id;
+            act.Resources.Add(image);
+
+            Resource video = new Resource();
+            video.RelativePath = "/abc.wmv";
+            video.Size = (int)new FileInfo(client.LocalPath + image.RelativePath).Length;
+            video.Name = "abc.wmv";
+            video.ActivityId = ac.Id;
+            video.ActionId = act.Id;
+            act.Resources.Add(video);
 
             ac.Actions.Add(act);
             ac.Participants.Add(part);

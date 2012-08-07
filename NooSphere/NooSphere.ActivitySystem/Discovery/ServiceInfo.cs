@@ -16,20 +16,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.ComponentModel;
-using NooSphere.Core.Primitives;
 
-namespace NooSphere.Core.ActivityModel
+namespace NooSphere.ActivitySystem.Discovery
 {
-    public class Workflow : Base
+    public class ServiceInfo
     {
-        public List<Action> Actions{get ;set; }
-
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged(string propertyName)
+        public string Address { get; set; }
+        public string Name { get; set; }
+        public string Location { get; set; }
+        public ServiceInfo() { }
+        public ServiceInfo(string name,string location, string addr)
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            this.Name = name;
+            this.Location = location;
+            this.Address = addr;
         }
     }
 }

@@ -57,9 +57,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NetHelper.cs" />
-    <Compile Include="ObjectToXmlHelper.cs" />
-    <Compile Include="RestHelper.cs" />
+    <Compile Include="Net.cs" />
+    <Compile Include="XML.cs" />
+    <Compile Include="Rest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
