@@ -246,7 +246,10 @@ namespace NooSphere.ActivitySystem
         /// Help function that allows the client to "ping" the service.
         /// </summary>
         /// <returns></returns>
-        public bool Alive() { return true; }
+        public bool Alive() 
+        { 
+            return connectionActive; 
+        }
         #endregion
 
         #region Activity Management
@@ -295,10 +298,12 @@ namespace NooSphere.ActivitySystem
         /// <param name="act">The activity that needs to be added to the cloud</param>
         public void AddActivity(Activity act)
         {
-            if (act.GetResources().Count > 0)
-                ProcessActivity(act);
+            //if (act.GetResources().Count > 0)
+            //    ProcessActivity(act);
             PublishActivity(act);
         }
+
+        #region WIP
         private void ProcessActivity(Activity act)
         {
             activityBuffer.Add(act.Id, act);
@@ -311,6 +316,7 @@ namespace NooSphere.ActivitySystem
             publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityAdded.ToString(), act);
         }
         private Dictionary<Guid, Activity> activityBuffer = new Dictionary<Guid, Activity>();
+        #endregion
 
         /// <summary>
         /// Removes an activity from the cloud

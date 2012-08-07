@@ -32,6 +32,7 @@ using NooSphere.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NooSphere.ActivitySystem.FileServer;
+using System.Threading;
 
 namespace NooSphere.ActivitySystem
 {
@@ -65,6 +66,7 @@ namespace NooSphere.ActivitySystem
         {
             Connect(address);
             LocalPath = localFileDirectory;
+            OnInitializedEvent(new EventArgs());
         }
         #endregion
 
@@ -76,11 +78,22 @@ namespace NooSphere.ActivitySystem
         /// <param name="addr">The address of the service</param>
         private void TestConnection(string addr)
         {
-            Console.WriteLine("BasicClient: Found running service at " + addr);
-            ServiceAddress = addr;
-            bool res = JsonConvert.DeserializeObject<bool>(Rest.Get(ServiceAddress));
-            Console.WriteLine("BasicClient: Service active? -> " + res);
-
+            Console.WriteLine("BasicClient: Attempt to connect to " + addr);
+            bool res= false;
+            int attempts = 0;
+            int max_attemps = 20;
+            do
+            {
+                ServiceAddress = addr;
+                res = JsonConvert.DeserializeObject<bool>(Rest.Get(ServiceAddress));
+                Console.WriteLine("BasicClient: Service active? -> " + res);
+                Thread.Sleep(100);
+            }
+            while (res == false && attempts<max_attemps);
+            if (res == true)
+                OnConnectionEstablishedEvent(new EventArgs());
+            else
+                throw new Exception("Could not connect to: " + addr);
         }
 
         /// <summary>
@@ -348,8 +361,6 @@ namespace NooSphere.ActivitySystem
             Connect(e.EndpointDiscoveryMetadata.Address.ToString());
         }
         #endregion
-
-
 
     }
     public enum Url
