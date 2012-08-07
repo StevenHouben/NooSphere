@@ -1,10 +1,20 @@
-﻿using System;
+﻿/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using NooSphere.Core.ActivityModel;
-using NooSphere.ActivitySystem;
+using NooSphere.ActivitySystem.Base;
 using System.Threading;
 
 namespace NooSphere.ActivitySystem.FileServer
@@ -23,20 +33,20 @@ namespace NooSphere.ActivitySystem.FileServer
         #endregion
 
         #region Private Members
-        private Dictionary<Guid, Resource> files = new Dictionary<Guid, Resource>();
+        private readonly Dictionary<Guid, Resource> _files = new Dictionary<Guid, Resource>();
         #endregion
 
         #region Public Methods
         public FileStore(string path)
         {
-            this.BasePath = path;
+            BasePath = path;
         }
         public void AddFile(Resource resource, byte[] fileInBytes,FileSource source)
         {
-            Thread t = new Thread(() =>
+            var t = new Thread(() =>
             {
                 SaveToDisk(fileInBytes, resource);
-                files.Add(resource.Id, resource);
+                _files.Add(resource.Id, resource);
 
                 if (source == FileSource.Cloud)
                 {
@@ -49,13 +59,12 @@ namespace NooSphere.ActivitySystem.FileServer
                         FileAdded(this, new FileEventArgs(resource));
                 }
                 Console.WriteLine("FileStore: Added file {0} to store", resource.Name); 
-            });
-            t.IsBackground = true;
+            }) {IsBackground = true};
             t.Start();
         }
         public void RemoveFile(Resource resource)
         {
-            files.Remove(resource.Id);
+            _files.Remove(resource.Id);
             File.Delete(BasePath+resource.RelativePath);
             if (FileRemoved != null)
                 FileRemoved(this, new FileEventArgs(resource));
@@ -63,25 +72,24 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         public byte[] GetFile(Resource resource)
         {
-            FileInfo fi = new FileInfo(BasePath + resource.RelativePath);
-            byte[] buffer = new byte[fi.Length];
+            var fi = new FileInfo(BasePath + resource.RelativePath);
+            var buffer = new byte[fi.Length];
 
-            using (FileStream fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
                 fs.Read(buffer, 0, (int)fs.Length);
 
             return buffer;
         }
         public void Updatefile(Resource resource, byte[] fileInBytes)
         {
-            Thread t = new Thread(() =>
+            var t = new Thread(() =>
             {
-                files[resource.Id] = resource;
+                _files[resource.Id] = resource;
                 SaveToDisk(fileInBytes,resource);
                 if (FileChanged != null)
                     FileChanged(this, new FileEventArgs(resource));
                 Console.WriteLine("FileStore: Updated file {0} in store", resource.Name); 
-            });
-            t.IsBackground = true;
+            }) {IsBackground = true};
             t.Start();
         }
         #endregion
@@ -91,8 +99,8 @@ namespace NooSphere.ActivitySystem.FileServer
         {
             try
             {
-                string path = this.BasePath + resource.RelativePath;
-                using (FileStream fileToupload = new FileStream(path, FileMode.Create))
+                string path = BasePath + resource.RelativePath;
+                using (var fileToupload = new FileStream(path, FileMode.Create))
                 {
                     fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
                     fileToupload.Close();

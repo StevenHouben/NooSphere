@@ -79,9 +79,7 @@
     <Compile Include="Base\ParticipantsEventArgs.cs" />
     <Compile Include="Base\FriendEventArgs.cs" />
     <Compile Include="FileServer\FileSource.cs" />
-    <Compile Include="FileServer\IFileHandler.cs" />
     <Compile Include="FileServer\FileStore.cs" />
-    <Compile Include="FileServer\FileWrapper.cs" />
     <Compile Include="Base\IActivityNode.cs" />
     <Compile Include="Contracts\IFileServer.cs" />
     <Compile Include="Contracts\IUserEvent.cs" />
@@ -108,7 +106,6 @@
     <Compile Include="Host\BasicHost.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Host\app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

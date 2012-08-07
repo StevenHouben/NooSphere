@@ -1,27 +1,22 @@
-﻿/// <licence>
-/// 
-/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
-/// 
-/// Pervasive Interaction Technology Laboratory (pIT lab)
-/// IT University of Copenhagen
-///
-/// This library is free software; you can redistribute it and/or 
-/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
-/// as published by the Free Software Foundation. Check 
-/// http://www.gnu.org/licenses/gpl.html for details.
-/// 
-/// </licence>
+﻿/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
 using NooSphere.Core.ActivityModel;
 using System.ServiceModel;
 using NooSphere.ActivitySystem.Contracts;
-using NooSphere.ActivitySystem;
 
-namespace NooSphere.ActivitySystem
+namespace NooSphere.ActivitySystem.Base
 {
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Single, InstanceContextMode = InstanceContextMode.Single, UseSynchronizationContext = false)]
     public class NetEventHandler : IActivityNetEvent,IDeviceNetEvent,IFileNetEvent,IComNetEvent,IUserEvent
@@ -50,9 +45,21 @@ namespace NooSphere.ActivitySystem
 
         public event EventHandler UserOnline;
         public event EventHandler UserOffline;
+
         #endregion
 
         #region Net Event handlers
+        protected void OnUserOffline(EventArgs e)
+        {
+            if (UserOffline != null) 
+                UserOffline(this, e);
+        }
+
+        protected void OnUserOnline(EventArgs e)
+        {
+            if (UserOnline != null) 
+                UserOnline(this, e);
+        }
         public void ActivityNetAdded(Activity act)
         {
             if (ActivityAdded != null)

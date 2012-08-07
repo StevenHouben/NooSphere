@@ -1,24 +1,19 @@
-/// <licence>
-/// 
-/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
-/// 
-/// Pervasive Interaction Technology Laboratory (pIT lab)
-/// IT University of Copenhagen
-///
-/// This library is free software; you can redistribute it and/or 
-/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
-/// as published by the Free Software Foundation. Check 
-/// http://www.gnu.org/licenses/gpl.html for details.
-/// 
-/// </licence>
+/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Globalization;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.IO;
 using System.Threading;
 using System.Web;
 
@@ -30,13 +25,13 @@ using Newtonsoft.Json;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Helpers;
 
-namespace NooSphere.ActivitySystem
+namespace NooSphere.ActivitySystem.Base
 {
     public class ActivityCloudConnector
     {
         #region Private Members
-        private string baseUrl;
-        private Connection connection;
+        private readonly string _baseUrl;
+        private readonly Connection _connection;
         #endregion
 
         #region Events
@@ -67,72 +62,72 @@ namespace NooSphere.ActivitySystem
         #region Constructor
         public ActivityCloudConnector(string baseUrl,User user)
         {
-            this.baseUrl = baseUrl;
-            this.connection = new Connection(baseUrl + "Connect");
+            _baseUrl = baseUrl;
+            _connection = new Connection(baseUrl + "Connect");
             Connect(user);
         }
         ~ActivityCloudConnector()
         {
-            this.Disconnect();
+            Disconnect();
         }
         #endregion
 
         #region Public Members
         public void AddParticipant(Guid activityId, Guid userId)
         {
-            Rest.SendRequest(baseUrl + "Activities/" + activityId + "/Participants/" + userId, HttpMethod.Post, null, connection.ConnectionId);
+            Rest.SendRequest(_baseUrl + "Activities/" + activityId + "/Participants/" + userId, HttpMethod.Post, null, _connection.ConnectionId);
         }
         public void RemoveParticipant(Guid activityId, Guid userId)
         {
-            Rest.SendRequest(baseUrl + "Activities/" + activityId + "/Participants/" + userId, HttpMethod.Delete, null, connection.ConnectionId);
+            Rest.SendRequest(_baseUrl + "Activities/" + activityId + "/Participants/" + userId, HttpMethod.Delete, null, _connection.ConnectionId);
         }
         public void Register(Guid userId)
         {
-            Rest.SendRequest(baseUrl + "Users/" + userId + "/Device", HttpMethod.Post, null, connection.ConnectionId);
+            Rest.SendRequest(_baseUrl + "Users/" + userId + "/Device", HttpMethod.Post, null, _connection.ConnectionId);
         }
         public void Unregister(Guid userId)
         {
-            Rest.SendRequest(baseUrl + "Users/" + userId + "/Device", HttpMethod.Delete, null, connection.ConnectionId);
+            Rest.SendRequest(_baseUrl + "Users/" + userId + "/Device", HttpMethod.Delete, null, _connection.ConnectionId);
         }
         public List<Activity> GetActivities()
         {
-            return JsonConvert.DeserializeObject<List<Activity>>(Rest.SendRequest(baseUrl + "Activities", HttpMethod.Get, null, connection.ConnectionId));
+            return JsonConvert.DeserializeObject<List<Activity>>(Rest.SendRequest(_baseUrl + "Activities", HttpMethod.Get, null, _connection.ConnectionId));
         }
         public Activity GetActivity(Guid activityId)
         {
-            return JsonConvert.DeserializeObject<Activity>(Rest.SendRequest(baseUrl + "Activities/" + activityId, HttpMethod.Get, null, connection.ConnectionId));
+            return JsonConvert.DeserializeObject<Activity>(Rest.SendRequest(_baseUrl + "Activities/" + activityId, HttpMethod.Get, null, _connection.ConnectionId));
         }
         public void AddActivity(Activity activity)
         {
-            Rest.SendRequest(baseUrl + "Activities/", HttpMethod.Post, activity, connection.ConnectionId);
+            Rest.SendRequest(_baseUrl + "Activities/", HttpMethod.Post, activity, _connection.ConnectionId);
         }
         public void UpdateActivity(Activity activity)
         {
-            Rest.SendRequest(baseUrl + "Activities/" + activity.Id, HttpMethod.Put, activity, connection.ConnectionId);
+            Rest.SendRequest(_baseUrl + "Activities/" + activity.Id, HttpMethod.Put, activity, _connection.ConnectionId);
         }
         public void DeleteActivity(Guid activityId)
         {
-            Rest.SendRequest(baseUrl + "Activities/" + activityId, HttpMethod.Delete, null, connection.ConnectionId);
+            Rest.SendRequest(_baseUrl + "Activities/" + activityId, HttpMethod.Delete, null, _connection.ConnectionId);
         }
         public Guid GetIdFromUserEmail(string email)
         {
-            return JsonConvert.DeserializeObject<User>(Rest.Get(baseUrl + "Users?email=" + email)).Id;
+            return JsonConvert.DeserializeObject<User>(Rest.Get(_baseUrl + "Users?email=" + email)).Id;
         }
         public List<User> GetUsers(Guid userId)
         {
-           var bare =Rest.SendRequest(baseUrl + "Users/"+userId+"/Friends/", HttpMethod.Get, null, connection.ConnectionId);
+           var bare =Rest.SendRequest(_baseUrl + "Users/"+userId+"/Friends/", HttpMethod.Get, null, _connection.ConnectionId);
            var res=JsonConvert.DeserializeObject<List<User>>(bare);
            return res;
         }
         public byte[] GetResource(Resource resource)
         {
-            return JsonConvert.DeserializeObject<byte[]>( Rest.SendRequest(baseUrl + Id(resource.ActivityId, resource.ActionId, 
-                resource.Id), HttpMethod.Get, null, connection.ConnectionId));
+            return JsonConvert.DeserializeObject<byte[]>( Rest.SendRequest(_baseUrl + ConstructId(resource.ActivityId, resource.ActionId, 
+                resource.Id), HttpMethod.Get, null, _connection.ConnectionId));
         }
         public void AddResource(Resource resource,byte[] buffer)
         {
-            Rest.SendRequest(baseUrl + Id(resource.ActivityId, resource.ActionId, resource.Id) + "?size=" + resource.Size.ToString() + "&creationTime=" + resource.CreationTime
-            + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), HttpMethod.Post, buffer, connection.ConnectionId);
+            Rest.SendRequest(_baseUrl + ConstructId(resource.ActivityId, resource.ActionId, resource.Id) + "?size=" + resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" + resource.CreationTime
+            + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), HttpMethod.Post, buffer, _connection.ConnectionId);
         }
         public void DeleteFile(Resource resource)
         {
@@ -140,49 +135,52 @@ namespace NooSphere.ActivitySystem
         }
         public void RequestFriendShip(Guid userId,Guid friendId)
         {
-            Rest.SendRequest(baseUrl + "Users/" + userId + "/Friends/" + friendId, HttpMethod.Post, null, connection.ConnectionId);
+            Rest.SendRequest(_baseUrl + "Users/" + userId + "/Friends/" + friendId, HttpMethod.Post, null, _connection.ConnectionId);
         }
         public void RemoveFriend(Guid userId,Guid friendId)
         {
-            Rest.SendRequest(baseUrl + "Users/" + userId + "/Friends/" + friendId, HttpMethod.Delete, null, connection.ConnectionId);
+            Rest.SendRequest(_baseUrl + "Users/" + userId + "/Friends/" + friendId, HttpMethod.Delete, null, _connection.ConnectionId);
         }
         public void RespondToFriendRequest(Guid userId,Guid friendId,bool approve)
         {
-            Rest.SendRequest(baseUrl + "Users/" + userId + "/Friends/" + friendId+"?approve="+approve, HttpMethod.Post, null, connection.ConnectionId);
+            Rest.SendRequest(_baseUrl + "Users/" + userId + "/Friends/" + friendId+"?approve="+approve, HttpMethod.Post, null, _connection.ConnectionId);
         }
         #endregion
 
         #region Private Members
         private void Connect(User user)
         {
-            connection.Start().ContinueWith(task =>
+            _connection.Start().ContinueWith(task =>
             {
                 if (task.IsFaulted)
-                    Console.WriteLine("Failed to start: {0}", task.Exception.GetBaseException());
+                {
+                    if (task.Exception != null)
+                        Console.WriteLine("Failed to start: {0}", task.Exception.GetBaseException());
+                }
                 else
                 {
                     Register(user.Id);
                     if (ConnectionSetup != null)
                         ConnectionSetup(this, new EventArgs());
-                    connection.Received += SignalRecieved;
+                    _connection.Received += SignalRecieved;
                 }
             });
         }
         private void Disconnect()
         {
-            if(connection != null)
-                connection.Stop();
+            if(_connection != null)
+                _connection.Stop();
         }
        
         private void SignalRecieved(string obj)
         {
             if (obj == "Connected")
                 return;
-            JObject content = JsonConvert.DeserializeObject<JObject>(obj);
-            string eventType = content["Event"].ToString();
-            object data = content["Data"].ToObject<object>();
+            var content = JsonConvert.DeserializeObject<JObject>(obj);
+            var eventType = content["Event"].ToString();
+            var data = content["Data"].ToObject<object>();
 
-            Thread t = new Thread(()=>
+            var t = new Thread(()=>
             {
                 switch (eventType)
                 {
@@ -247,7 +245,7 @@ namespace NooSphere.ActivitySystem
                     case "ParticipantAdded":
                         if (ParticipantAdded != null)
                         {
-                            JObject res = JsonConvert.DeserializeObject<JObject>(data.ToString());
+                            var res = JsonConvert.DeserializeObject<JObject>(data.ToString());
                             ParticipantAdded(this, new
                                 ParticipantEventArgs(res["Participant"].ToObject<User>(),res["ActivityId"].ToObject<Guid>()));
                         }
@@ -255,25 +253,24 @@ namespace NooSphere.ActivitySystem
                     case "ParticipantRemoved":
                         if (ParticipantRemoved != null)
                         {
-                            JObject res = JsonConvert.DeserializeObject<JObject>(data.ToString());
+                            var res = JsonConvert.DeserializeObject<JObject>(data.ToString());
                             ParticipantRemoved(this, new
                                 ParticipantEventArgs(res["Participant"].ToObject<User>(), res["ActivityId"].ToObject<Guid>()));
                         }
                         break;
-                    //case "UserOnline":
-                    //    if (UserOnline != null)
-                    //        UserOnline(this, new DataEventArgs(data));
-                    //    break;
-                    //case "UserOffline":
-                    //    if (UserOffline != null)
-                    //        UserOffline(this, new DataEventArgs(data));
+                    case "UserOnline":
+                        if (UserOnline != null)
+                            UserOnline(this, new EventArgs());
+                        break;
+                    case "UserOffline":
+                        if (UserOffline != null)
+                            UserOffline(this, new EventArgs());
                         break;
                 }
-            });
-            t.IsBackground = true;
+            }) {IsBackground = true};
             t.Start();
         }
-        private string Id(Guid activityId, Guid actionId, Guid resourceId)
+        private string ConstructId(Guid activityId, Guid actionId, Guid resourceId)
         {
             return "Activities/" + activityId + "/Actions/" + actionId + "/Resources/" + resourceId;
         }

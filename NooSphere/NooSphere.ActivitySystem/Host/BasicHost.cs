@@ -1,49 +1,47 @@
-﻿/// <licence>
-/// 
-/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
-/// 
-/// Pervasive Interaction Technology Laboratory (pIT lab)
-/// IT University of Copenhagen
-///
-/// This library is free software; you can redistribute it and/or 
-/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
-/// as published by the Free Software Foundation. Check 
-/// http://www.gnu.org/licenses/gpl.html for details.
-/// 
-/// </licence>
+﻿/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ServiceModel;
-using System.ServiceModel.Discovery;
-using System.ServiceModel.Web;
 using System.ServiceModel.Description;
-using System.Xml.Linq;
-using NooSphere.Helpers;
 using System.Threading;
-using System.ServiceModel.Channels;
 using NooSphere.ActivitySystem.Discovery;
+using NooSphere.Helpers;
 
 namespace NooSphere.ActivitySystem.Host
 {
-    public delegate void HostLaunchedHandler(object sender,EventArgs e);
-    public delegate void HostClosedHandler(object sender,EventArgs e);
+    public delegate void HostLaunchedHandler(object sender, EventArgs e);
+
+    public delegate void HostClosedHandler(object sender, EventArgs e);
+
     public class BasicHost
     {
         #region Events
+
         public event HostLaunchedHandler HostLaunched = null;
-        public event HostClosedHandler HostClosed = null; 
+        public event HostClosedHandler HostClosed = null;
+
         #endregion
 
         #region Members
-        private ServiceHost host;
-        private BroadcastService broadcast = new BroadcastService();
-        private ServiceEndpoint serviceEndpoint;
+
+        private readonly BroadcastService _broadcast = new BroadcastService();
+        private ServiceHost _host;
+        private ServiceEndpoint _serviceEndpoint;
+
         #endregion
 
         #region Properties
+
         /// <summary>
         /// Local callback address
         /// </summary>
@@ -55,7 +53,7 @@ namespace NooSphere.ActivitySystem.Host
         /// <summary>
         /// Client IP
         /// </summary>
-        private string IP { get; set; }
+        private string Ip { get; set; }
 
         /// <summary>
         /// Local callback port
@@ -66,54 +64,63 @@ namespace NooSphere.ActivitySystem.Host
         /// Indicates if the service is running
         /// </summary>
         public bool IsRunning { get; set; }
+
         #endregion
 
         #region Constructor-Destructor
+
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="clientName">The name of the client.</param>
         public BasicHost()
         {
-            this.IP = Net.GetIP(IPType.All);
-            this.Port = Net.FindPort();
+            Ip = Net.GetIp(IPType.All);
+            Port = Net.FindPort();
 
-            this.Address = "http://" + this.IP + ":" + this.Port + "/";
+            Address = "http://" + Ip + ":" + Port + "/";
         }
 
         /// <summary>
         /// Destructor
         /// </summary>
-        ~BasicHost() { this.Close(); }
+        ~BasicHost()
+        {
+            Close();
+        }
+
         #endregion
 
         #region Local Handler
+
         protected void OnHostLaunchedEvent(EventArgs e)
         {
             if (HostLaunched != null)
                 HostLaunched(this, e);
         }
+
         protected void OnHostClosedEvent(EventArgs e)
         {
             if (HostClosed != null)
                 HostClosed(this, e);
         }
+
         #endregion
 
         #region Public Methods
+
         /// <summary>
         /// Starts a broadcast service for the current service
         /// </summary>
         /// <param name="hostName">The name of the service that needs to be broadcasted</param>
         /// <param name="location">The physical location of the service that needs to be broadcasted</param>
-        public void StartBroadcast(string hostName, string location="undefined")
+        public void StartBroadcast(string hostName, string location = "undefined")
         {
-            Thread t = new Thread(() =>
-            {
-                StopBroadcast();
-                broadcast.Start(DiscoveryType.ZEROCONF, hostName, location, Net.GetUrl(this.IP, this.Port, ""));
-            });
-            t.IsBackground = true;
+            var t = new Thread(() =>
+                                   {
+                                       StopBroadcast();
+                                       _broadcast.Start(DiscoveryType.Zeroconf, hostName, location,
+                                                        Net.GetUrl(Ip, Port, ""));
+                                   }) {IsBackground = true};
             t.Start();
         }
 
@@ -122,9 +129,9 @@ namespace NooSphere.ActivitySystem.Host
         /// </summary>
         public void StopBroadcast()
         {
-            if (broadcast != null)
-                if (broadcast.IsRunning)
-                    broadcast.Stop();
+            if (_broadcast != null)
+                if (_broadcast.IsRunning)
+                    _broadcast.Stop();
         }
 
         /// <summary>
@@ -133,26 +140,25 @@ namespace NooSphere.ActivitySystem.Host
         /// <param name="implementation">The concrete initialized single instance service</param>
         /// <param name="description">The interface or contract of initialized single instance service</param>
         /// <param name="name">The name the service</param>
-        public void Open(object implementation,Type description,string name)
+        public void Open(object implementation, Type description, string name)
         {
             Console.WriteLine("BasicHost: Attemting to find an IP for endPoint");
-            this.IP = Net.GetIP(IPType.All);
+            Ip = Net.GetIp(IPType.All);
 
-            Console.WriteLine("BasicHost: Found IP "+this.IP);
-            host = new ServiceHost(implementation);
+            Console.WriteLine("BasicHost: Found IP " + Ip);
+            _host = new ServiceHost(implementation);
 
-            WebHttpBinding binding = new WebHttpBinding();
-            binding.MaxReceivedMessageSize = 5000000;
- 
+            var binding = new WebHttpBinding {MaxReceivedMessageSize = 5000000};
 
-            serviceEndpoint = host.AddServiceEndpoint(description, binding, Net.GetUrl(this.IP, this.Port, ""));
-            serviceEndpoint.Behaviors.Add(new WebHttpBehavior());
 
-            host.Faulted += new EventHandler(host_Faulted);
-            host.UnknownMessageReceived += new EventHandler<UnknownMessageReceivedEventArgs>(host_UnknownMessageReceived);
-            host.Open();
+            _serviceEndpoint = _host.AddServiceEndpoint(description, binding, Net.GetUrl(Ip, Port, ""));
+            _serviceEndpoint.Behaviors.Add(new WebHttpBehavior());
 
-            Console.WriteLine("BasicHost: Host opened at " + Net.GetUrl(this.IP, this.Port, ""));
+            _host.Faulted += host_Faulted;
+            _host.UnknownMessageReceived += host_UnknownMessageReceived;
+            _host.Open();
+
+            Console.WriteLine("BasicHost: Host opened at " + Net.GetUrl(Ip, Port, ""));
             IsRunning = true;
 
             OnHostLaunchedEvent(new EventArgs());
@@ -160,7 +166,7 @@ namespace NooSphere.ActivitySystem.Host
 
         private void host_UnknownMessageReceived(object sender, UnknownMessageReceivedEventArgs e)
         {
-            Console.WriteLine("Unknow message:" + e.Message.ToString());
+            Console.WriteLine("Unknow message:" + e.Message);
         }
 
         /// <summary>
@@ -173,23 +179,24 @@ namespace NooSphere.ActivitySystem.Host
                 try
                 {
                     OnHostClosedEvent(new EventArgs());
-                    host.Close();
+                    _host.Close();
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("BasicHost: Problem closing connection: " + ex.StackTrace);
                 }
             }
-                
         }
+
         #endregion
 
         #region Event Handlers
+
         private void host_Faulted(object sender, EventArgs e)
         {
-            Console.WriteLine("BasicHost: Faulted: " + e.ToString());
+            Console.WriteLine("BasicHost: Faulted: " + e);
         }
-        #endregion
 
+        #endregion
     }
 }

@@ -71,7 +71,7 @@ namespace ActivityUI.PopUp
             Thread t = new Thread(() =>
             {
                 DiscoveryManager disc = new DiscoveryManager();
-                disc.Find(DiscoveryType.ZEROCONF);
+                disc.Find(DiscoveryType.Zeroconf);
                 disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
             });
             t.IsBackground = true;

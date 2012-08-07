@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.IO;
 using System.Threading;
+using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Contracts;
@@ -171,7 +172,7 @@ namespace ActivityTablet
             client = new ActivityClient(addr, @"c:/abc/");
 
             //Register the current device with the activity manager we are connecting to
-            client.Register();
+            client.Register(new Device());
 
             //Set the current user
             client.CurrentUser = user;
@@ -184,12 +185,12 @@ namespace ActivityTablet
             client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.UserEvent);
 
             //Subcribe to the callback events of the activity manager
-            client.DeviceAdded += new NooSphere.ActivitySystem.DeviceAddedHandler(client_DeviceAdded);
-            client.ActivityAdded += new NooSphere.ActivitySystem.ActivityAddedHandler(client_ActivityAdded);
+            client.DeviceAdded += new DeviceAddedHandler(client_DeviceAdded);
+            client.ActivityAdded += new ActivityAddedHandler(client_ActivityAdded);
             //client.ActivityChanged += new NooSphere.ActivitySystem.Events.ActivityChangedHandler(client_ActivityChanged);
 
-            client.ActivityRemoved += new NooSphere.ActivitySystem.ActivityRemovedHandler(client_ActivityRemoved);
-            client.MessageReceived += new NooSphere.ActivitySystem.MessageReceivedHandler(client_MessageReceived);
+            client.ActivityRemoved += new ActivityRemovedHandler(client_ActivityRemoved);
+            client.MessageReceived += new MessageReceivedHandler(client_MessageReceived);
 
             //client.FriendAdded += new NooSphere.ActivitySystem.Events.FriendAddedHandler(client_FriendAdded);
             //client.FriendDeleted += new NooSphere.ActivitySystem.Events.FriendDeletedHandler(client_FriendDeleted);
@@ -203,17 +204,17 @@ namespace ActivityTablet
         #region Public Methods
 
 
-        private void client_DeviceAdded(object sender, NooSphere.ActivitySystem.DeviceEventArgs e)
+        private void client_DeviceAdded(object sender, DeviceEventArgs e)
         {
 
         }
-        private void client_MessageReceived(object sender, NooSphere.ActivitySystem.ComEventArgs e)
+        private void client_MessageReceived(object sender, ComEventArgs e)
         {
         }
-        private void client_ActivityRemoved(object sender, NooSphere.ActivitySystem.ActivityRemovedEventArgs e)
+        private void client_ActivityRemoved(object sender, ActivityRemovedEventArgs e)
         {
         }
-        private void client_ActivityAdded(object obj, NooSphere.ActivitySystem.ActivityEventArgs e)
+        private void client_ActivityAdded(object obj, ActivityEventArgs e)
         {
         }
         private void b_Click(object sender, RoutedEventArgs e)

@@ -84,9 +84,6 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="Microsoft.Surface" />
     <Reference Include="Microsoft.Surface.Presentation" />
-    <Reference Include="ZedGraph">
-      <HintPath>..\..\..\..\..\Desktop\EmguCvSurface\EmguCvSurface\bin\Debug\ZedGraph.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

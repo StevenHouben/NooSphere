@@ -1,28 +1,22 @@
-﻿/// <licence>
-/// 
-/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
-/// 
-/// Pervasive Interaction Technology Laboratory (pIT lab)
-/// IT University of Copenhagen
-///
-/// This library is free software; you can redistribute it and/or 
-/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
-/// as published by the Free Software Foundation. Check 
-/// http://www.gnu.org/licenses/gpl.html for details.
-/// 
-/// </licence>
+/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and S�ren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net;
 using System.IO;
-using Newtonsoft.Json;
-using System.Web;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.Serialization.Json;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace NooSphere.Helpers
 {
@@ -38,8 +32,8 @@ namespace NooSphere.Helpers
         /// <returns></returns>
         public static string SendRequest(string url, HttpMethod method, object content = null, string connectionId = null)
         {
-            HttpClient client = new HttpClient();
-            HttpRequestMessage message = new HttpRequestMessage();
+            var client = new HttpClient();
+            var message = new HttpRequestMessage();
             if(connectionId != null)
                 message.Headers.Authorization = AuthenticationHeaderValue.Parse(connectionId);
             if (content != null)
@@ -78,7 +72,7 @@ namespace NooSphere.Helpers
                     // Create the REST request. 
                     string requestUrl = customUrl;
 
-                    HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
+                    var request = (HttpWebRequest)WebRequest.Create(requestUrl);
                     request.Method = "POST";
                     request.ContentType = "text/plain";
 
@@ -92,7 +86,7 @@ namespace NooSphere.Helpers
                         requestStream.Close();
                     }
 
-                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                    using (var response = (HttpWebResponse)request.GetResponse())
                         Console.WriteLine("HTTP/{0} {1} {2}", response.ProtocolVersion, (int)response.StatusCode, response.StatusDescription);
                 }
                 catch (Exception ex)

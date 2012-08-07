@@ -31,7 +31,7 @@ using System.Windows.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-
+using NooSphere.ActivitySystem.Base;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem;
 using NooSphere.ActivitySystem.Host;
