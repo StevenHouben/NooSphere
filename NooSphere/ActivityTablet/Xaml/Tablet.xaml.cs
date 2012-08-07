@@ -24,6 +24,7 @@ using ActivityTablet.Properties;
 using NooSphere.Helpers;
 using NooSphere.Core.Devices;
 using NooSphere.ActivitySystem.Discovery.Client;
+using NooSphere.ActivitySystem.Discovery;
 
 namespace ActivityTablet
 {
@@ -82,7 +83,7 @@ namespace ActivityTablet
             Thread t = new Thread(() =>
             {
                 DiscoveryManager disc = new DiscoveryManager();
-                disc.Find();
+                disc.Find(DiscoveryType.ZEROCONF);
                 disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
             });
             t.IsBackground = true;
@@ -94,7 +95,8 @@ namespace ActivityTablet
             {
                 host = new BasicHost();
                 host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
-                host.Open(new ActivityManager(user), typeof(IActivityManager), "Tablet manager");
+                host.StartBroadcast("Tablet");
+                host.Open(new ActivityManager(user, "c:/files/"), typeof(IActivityManager), "Tablet manager");
             });
             t.Start();
         }
@@ -168,7 +170,7 @@ namespace ActivityTablet
         }
         private void StartClient(string addr)
         {
-            client = new Client(addr);
+            client = new Client(addr, @"c:/abc/");
 
             //Register the current device with the activity manager we are connecting to
             client.Register();

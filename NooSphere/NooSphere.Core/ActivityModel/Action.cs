@@ -22,7 +22,7 @@ using System.ComponentModel;
 
 namespace NooSphere.Core.ActivityModel
 {
-    public class Action : Identity, INotifyPropertyChanged
+    public class Action : Base, INotifyPropertyChanged
     {
         public Action() : base()
         {

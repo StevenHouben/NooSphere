@@ -19,6 +19,7 @@ using System.Text;
 using System.ServiceModel.Discovery;
 using System.Collections.ObjectModel;
 using NooSphere.ActivitySystem.Discovery.Primitives;
+using Mono.Zeroconf;
 
 namespace NooSphere.ActivitySystem.Discovery.Client
 {
@@ -33,18 +34,13 @@ namespace NooSphere.ActivitySystem.Discovery.Client
 
         #region Properties
         public List<ServiceInfo> ActivityServices { get; set; }
-        public List<EndpointDiscoveryMetadata> RawEndPointMetaData { get; set; }
-        #endregion
-
-        #region Private Members
-        DiscoveryClient discoveryClient;
+        public DiscoveryType DiscoveryType { get; private set; }
         #endregion
 
         #region Constructor
         public DiscoveryManager()
         { 
             ActivityServices = new List<ServiceInfo>();
-            RawEndPointMetaData = new List<EndpointDiscoveryMetadata>();
         }
         #endregion
 
@@ -53,20 +49,31 @@ namespace NooSphere.ActivitySystem.Discovery.Client
         /// <summary>
         /// Starts a discovery process
         /// </summary>
-        public void Find()
+        public void Find(DiscoveryType type)
         {
             ActivityServices.Clear();
 
-            discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
-            discoveryClient.FindProgressChanged += new EventHandler<FindProgressChangedEventArgs>(discoveryClient_FindProgressChanged);
-            discoveryClient.FindCompleted += new EventHandler<FindCompletedEventArgs>(discoveryClient_FindCompleted);
-            discoveryClient.FindAsync(new FindCriteria(typeof(NooSphere.ActivitySystem.Contracts.IDiscovery)));
+            if (type == Discovery.DiscoveryType.WS_DISCOVERY)
+            {
+                using (DiscoveryClient ws_browser = new DiscoveryClient(new UdpDiscoveryEndpoint()))
+                {
+                    ws_browser.FindProgressChanged += new EventHandler<FindProgressChangedEventArgs>(ws_browser_FindProgressChanged);
+                    ws_browser.FindCompleted += new EventHandler<FindCompletedEventArgs>(ws_browser_FindCompleted);
+                    ws_browser.FindAsync(new FindCriteria(typeof(NooSphere.ActivitySystem.Contracts.IDiscovery)));
+                }
+            }
+            else if (type == Discovery.DiscoveryType.ZEROCONF)
+            {
+                ServiceBrowser zc_browser = new ServiceBrowser();
+                zc_browser.ServiceAdded += delegate(object o, ServiceBrowseEventArgs args)
+                {
+                    args.Service.Resolved += new ServiceResolvedEventHandler(zc_browser_Service_Resolved);
+                    args.Service.Resolve();
+                };
+                    zc_browser.Browse("_am._tcp", "local");
+            }
 
-        }
-        public void Close()
-        {
-            if (discoveryClient != null)
-                discoveryClient.Close();
+
         }
         #endregion
 
@@ -75,12 +82,18 @@ namespace NooSphere.ActivitySystem.Discovery.Client
         /// Adds a discovered service to the service list and send a DiscoverAddressAdded event
         /// </summary>
         /// <param name="metaData">The meta data of the service</param>
-        private void AddFoundService(EndpointDiscoveryMetadata metaData)
+        private void AddFoundServiceFromWSMetaData(EndpointDiscoveryMetadata metaData)
         {
             ServiceInfo sst = new ServiceInfo(
                 Helpers.ObjectToXmlHelper.FromXElement<string>(metaData.Extensions[0]),
                 Helpers.ObjectToXmlHelper.FromXElement<string>(metaData.Extensions[1]),
                 Helpers.ObjectToXmlHelper.FromXElement<string>(metaData.Extensions[2]));
+            ActivityServices.Add(sst);
+            OnDiscoveryAddressAdded(new DiscoveryAddressAddedEventArgs(sst));
+        }
+        private void AddFoundServiceFromSCResolvedData(IResolvableService metaData)
+        {
+            ServiceInfo sst = new ServiceInfo(metaData.FullName, "no", metaData.TxtRecord["addr"].ToString());
             ActivityServices.Add(sst);
             OnDiscoveryAddressAdded(new DiscoveryAddressAddedEventArgs(sst));
         }
@@ -98,19 +111,20 @@ namespace NooSphere.ActivitySystem.Discovery.Client
                 DiscoveryAddressAdded(this, e);
         }
 
-        void discoveryClient_FindCompleted(object sender, FindCompletedEventArgs e)
+        void ws_browser_FindCompleted(object sender, FindCompletedEventArgs e)
         {
-            RawEndPointMetaData.Clear();
-            RawEndPointMetaData = e.Result.Endpoints.ToList();
-
             OnDiscoveryFinished(new DiscoveryEventArgs());
         }
         #endregion
 
         #region Event Handlers
-        private void discoveryClient_FindProgressChanged(object sender, FindProgressChangedEventArgs e)
+        private void ws_browser_FindProgressChanged(object sender, FindProgressChangedEventArgs e)
         {
-            AddFoundService(e.EndpointDiscoveryMetadata);
+            AddFoundServiceFromWSMetaData(e.EndpointDiscoveryMetadata);
+        }
+        private void zc_browser_Service_Resolved(object o, ServiceResolvedEventArgs args)
+        {
+            AddFoundServiceFromSCResolvedData((IResolvableService)args.Service);
         }
         #endregion
     }

@@ -19,9 +19,9 @@ using System.Text;
 
 namespace NooSphere.Core.Primitives
 {
-    public class Identity
+    public class Base
     {
-        public Identity()
+        public Base()
         {
             this.Name = "default";
             this.Id = Guid.NewGuid();
@@ -31,7 +31,7 @@ namespace NooSphere.Core.Primitives
         public string Name { get; set; }
         public string Description { get; set; }
         public string Uri { get; set; }
-        public bool Equals(Identity id)
+        public bool Equals(Base id)
         {
             return this.Id == id.Id;
         }

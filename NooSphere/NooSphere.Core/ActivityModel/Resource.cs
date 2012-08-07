@@ -21,11 +21,25 @@ using System.IO;
 
 namespace NooSphere.Core.ActivityModel
 {
-    public class Resource : Identity
+    public class Resource : Base
     {
         public Resource()
             : base()
         {
+            InitializeTimeStamps();
+        }
+        public Resource(string filePath,string name)
+            : base()
+        {
+            InitializeTimeStamps();
+            this.Name = name;
+            this.RelativePath = filePath;
+        }
+
+        private void InitializeTimeStamps()
+        {
+            this.CreationTime = DateTime.Now.ToString();
+            this.LastWriteTime = DateTime.Now.ToString();
         }
 
         public Guid ActivityId { get; set; }

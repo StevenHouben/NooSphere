@@ -51,6 +51,7 @@ using Emgu.CV;
 using Emgu.CV.UI;
 using Emgu.CV.VideoSurveillance;
 using System.Drawing;
+using NooSphere.ActivitySystem.Discovery;
 
 namespace ActivityDesk
 {
@@ -258,7 +259,7 @@ namespace ActivityDesk
             discoveryThread = new Thread(() =>
             {
                 disc = new DiscoveryManager();
-                disc.Find();
+                disc.Find(DiscoveryType.ZEROCONF);
                 disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
                 disc.DiscoveryFinished += new DiscoveryFinishedHander(disc_DiscoveryFinished);
             });
@@ -292,7 +293,7 @@ namespace ActivityDesk
             {
                 host = new BasicHost();
                 host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
-                host.Open(new ActivityManager(new User()), typeof(IActivityManager),"desk");
+                host.Open(new ActivityManager(new User(),"c:/files/"), typeof(IActivityManager),"desk");
 
             });
             t.Start();
@@ -311,7 +312,7 @@ namespace ActivityDesk
         /// </summary>
         void StartClient(string addr)
         {
-            client = new Client(addr);
+            client = new Client(addr,@"c:/abc/");
             client.Register(device);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ActivityEvents);
             client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ComEvents);

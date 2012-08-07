@@ -28,7 +28,7 @@ namespace NooSphere.Core.ActivityModel
     /// <summary>
     /// Activity Base Class
     /// </summary>
-    public class Activity : Identity, INotifyPropertyChanged
+    public class Activity : Base, INotifyPropertyChanged
     {
         #region Constructors
         public Activity() : base()

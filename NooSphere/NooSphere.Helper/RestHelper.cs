@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using System.Web;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.Serialization.Json;
 
 namespace NooSphere.Helpers
 {
@@ -43,7 +44,8 @@ namespace NooSphere.Helpers
                 message.Headers.Authorization = AuthenticationHeaderValue.Parse(connectionId);
             if (content != null)
             {
-                message.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(content)));
+                string json = JsonConvert.SerializeObject(content);
+                message.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(json));
                 message.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
             }
             message.Method = method;
@@ -61,6 +63,44 @@ namespace NooSphere.Helpers
                 return e.ToString();
                 
             }
+        }
+
+        /// <summary>
+        /// Sends a stream request over http
+        /// </summary>
+        /// <param name="customUrl">The url</param>
+        /// <param name="filePath"></param>
+        public static void SendStreamingRequest(string customUrl,string filePath)
+        {
+            if (File.Exists(filePath))
+                try
+                {
+                    // Create the REST request. 
+                    string requestUrl = customUrl;
+
+                    HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
+                    request.Method = "POST";
+                    request.ContentType = "text/plain";
+
+                    byte[] fileToSend = File.ReadAllBytes(filePath);
+                    request.ContentLength = fileToSend.Length;
+
+                    using (Stream requestStream = request.GetRequestStream())
+                    {
+                        // Send the file as body request. 
+                        requestStream.Write(fileToSend, 0, fileToSend.Length);
+                        requestStream.Close();
+                    }
+
+                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                        Console.WriteLine("HTTP/{0} {1} {2}", response.ProtocolVersion, (int)response.StatusCode, response.StatusDescription);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            else
+                throw new FileNotFoundException("File at path: "+ filePath + " does not exist.");
         }
 
         /// <summary>

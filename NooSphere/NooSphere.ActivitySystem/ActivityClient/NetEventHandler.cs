@@ -39,6 +39,7 @@ namespace NooSphere.ActivitySystem.ActivityClient
         public event FileAddedHandler FileAdded = null;
         public event FileChangedHandler FileChanged = null;
         public event FileRemovedHandler FileRemoved = null;
+        public event FileLockedHandler FileLocked=null;
 
         public event MessageReceivedHandler MessageReceived = null;
 
@@ -89,6 +90,11 @@ namespace NooSphere.ActivitySystem.ActivityClient
                 FileAdded(this, new FileEventArgs(r));
         }
         public void FileNetLocked(Resource r)
+        {
+            if (FileLocked != null)
+                FileLocked(this, new FileEventArgs(r));
+        }
+        public void FileNetChanged(Resource r)
         {
             if (FileChanged != null)
                 FileChanged(this, new FileEventArgs(r));

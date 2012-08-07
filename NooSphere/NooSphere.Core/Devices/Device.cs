@@ -20,7 +20,7 @@ using NooSphere.Core.Primitives;
 
 namespace NooSphere.Core.Devices
 {
-    public class Device : Identity
+    public class Device : Base
     {
         public DeviceType DeviceType { get; set; }
         public DeviceRole DeviceRole { get; set; }

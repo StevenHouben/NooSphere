@@ -26,7 +26,7 @@ using NooSphere.Helpers;
 
 namespace NooSphere.Core.ActivityModel
 {
-    public class User : Identity
+    public class User : Base
     {
         #region Constructors
         public User() : base()

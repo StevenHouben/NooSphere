@@ -33,6 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mono.Zeroconf, Version=4.0.0.90, Culture=neutral, PublicKeyToken=e60c4f4a95e1099e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Mono.Zeroconf.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Zeroconf.Providers.Bonjour, Version=4.0.0.90, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Mono.Zeroconf.Providers.Bonjour.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.7\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -54,22 +62,27 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActivityClient\Client.cs" />
+    <Compile Include="ActivityClient\FileUpload.cs" />
     <Compile Include="ActivityClient\NetEventHandler.cs" />
     <Compile Include="ActivityClient\StartupMode.cs" />
     <Compile Include="ActivityManager\ActivityCloudConnector.cs" />
     <Compile Include="ActivityManager\ActivityManager.cs" />
     <Compile Include="ActivityManager\ActivityStore.cs" />
     <Compile Include="ActivityManager\ParticipantStore.cs" />
+    <Compile Include="Discovery\DiscoveryType.cs" />
     <Compile Include="Events\ActivityEventArgs.cs" />
     <Compile Include="Events\CloudEvents.cs" />
     <Compile Include="Events\ComEventArgs.cs" />
     <Compile Include="Events\DeviceEventArgs.cs" />
     <Compile Include="Events\Events.cs" />
+    <Compile Include="Events\EventTypeConverter.cs" />
     <Compile Include="Events\FileEventArgs.cs" />
     <Compile Include="Events\ParticipantsEventArgs.cs" />
     <Compile Include="Events\FriendEventArgs.cs" />
+    <Compile Include="FileServer\IFileHandler.cs" />
     <Compile Include="FileServer\FileStore.cs" />
-    <Compile Include="Interfaces\FileService\IFileService.cs" />
+    <Compile Include="FileServer\FileWrapper.cs" />
+    <Compile Include="Interfaces\FileService\IFileServer.cs" />
     <Compile Include="Interfaces\NetEvents\IUserEvent.cs" />
     <Compile Include="PubSub\Concurrency.cs" />
     <Compile Include="ActivityManager\ConnectedClient.cs" />
@@ -86,8 +99,7 @@
     <Compile Include="Discovery\Client\DiscoveryAddressAddedEventArgs.cs" />
     <Compile Include="Discovery\Client\DiscoveryEventArgs.cs" />
     <Compile Include="Discovery\Client\DiscoveryManager.cs" />
-    <Compile Include="Discovery\Host\BroadcastService.cs" />
-    <Compile Include="Discovery\Host\DiscoveyService.cs" />
+    <Compile Include="Discovery\Broadcast\BroadcastService.cs" />
     <Compile Include="Discovery\Primitives\ServiceInfo.cs" />
     <Compile Include="PubSub\Registry.cs" />
     <Compile Include="PubSub\RestPublisher.cs" />
@@ -96,6 +108,7 @@
     <Compile Include="Host\BasicHost.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Host\app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

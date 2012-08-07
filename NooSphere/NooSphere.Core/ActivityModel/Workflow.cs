@@ -22,7 +22,7 @@ using NooSphere.Core.Primitives;
 
 namespace NooSphere.Core.ActivityModel
 {
-    public class Workflow : Identity
+    public class Workflow : Base
     {
         public List<Action> Actions{get ;set; }
 

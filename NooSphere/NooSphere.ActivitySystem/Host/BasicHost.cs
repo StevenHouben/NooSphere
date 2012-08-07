@@ -22,8 +22,10 @@ using System.ServiceModel.Web;
 using System.ServiceModel.Description;
 using System.Xml.Linq;
 using NooSphere.Helpers;
-using NooSphere.ActivitySystem.Discovery.Host;
+using NooSphere.ActivitySystem.Discovery.Broadcast;
 using System.Threading;
+using System.ServiceModel.Channels;
+using NooSphere.ActivitySystem.Discovery;
 
 namespace NooSphere.ActivitySystem.Host
 {
@@ -110,7 +112,7 @@ namespace NooSphere.ActivitySystem.Host
             Thread t = new Thread(() =>
             {
                 StopBroadcast();
-                broadcast.Start(hostName, location, NetHelper.GetUrl(this.IP, this.Port, ""));
+                broadcast.Start(DiscoveryType.ZEROCONF, hostName, location, NetHelper.GetUrl(this.IP, this.Port, ""));
             });
             t.IsBackground = true;
             t.Start();
@@ -140,16 +142,26 @@ namespace NooSphere.ActivitySystem.Host
             Console.WriteLine("BasicHost: Found IP "+this.IP);
             host = new ServiceHost(implementation);
 
-            serviceEndpoint = host.AddServiceEndpoint(description, new WebHttpBinding(), NetHelper.GetUrl(this.IP, this.Port, ""));
+            WebHttpBinding binding = new WebHttpBinding();
+            binding.MaxReceivedMessageSize = 5000000;
+ 
+
+            serviceEndpoint = host.AddServiceEndpoint(description, binding, NetHelper.GetUrl(this.IP, this.Port, ""));
             serviceEndpoint.Behaviors.Add(new WebHttpBehavior());
 
             host.Faulted += new EventHandler(host_Faulted);
+            host.UnknownMessageReceived += new EventHandler<UnknownMessageReceivedEventArgs>(host_UnknownMessageReceived);
             host.Open();
 
             Console.WriteLine("BasicHost: Host opened at " + NetHelper.GetUrl(this.IP, this.Port, ""));
             IsRunning = true;
 
             OnHostLaunchedEvent(new EventArgs());
+        }
+
+        private void host_UnknownMessageReceived(object sender, UnknownMessageReceivedEventArgs e)
+        {
+            Console.WriteLine("Unknow message:" + e.Message.ToString());
         }
 
         /// <summary>

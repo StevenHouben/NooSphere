@@ -20,7 +20,7 @@ using NooSphere.Core.Primitives;
 
 namespace NooSphere.Core.ContextModel.ComponentModel
 {
-    public interface ITool:IEntity
+    public interface ITool
     {
         ToolType Type { get; set; }
         ToolState State { get; set; }
