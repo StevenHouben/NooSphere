@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Web;
@@ -121,13 +122,13 @@ namespace NooSphere.ActivitySystem.Base
         }
         public byte[] GetResource(Resource resource)
         {
-            return JsonConvert.DeserializeObject<byte[]>( Rest.SendRequest(_baseUrl + ConstructId(resource.ActivityId, resource.ActionId, 
-                resource.Id), HttpMethod.Get, null, _connection.ConnectionId));
+            return Rest.DownloadFromHttpStream(_baseUrl + ConstructId(resource.ActivityId, resource.ActionId,resource.Id),
+                                               resource.Size, _connection.ConnectionId);
         }
-        public void AddResource(Resource resource,byte[] buffer)
+        public void AddResource(Resource resource,Stream stream)
         {
-            Rest.SendRequest(_baseUrl + ConstructId(resource.ActivityId, resource.ActionId, resource.Id) + "?size=" + resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" + resource.CreationTime
-            + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), HttpMethod.Post, buffer, _connection.ConnectionId);
+            Rest.UploadToHttpStream(_baseUrl + ConstructId(resource.ActivityId, resource.ActionId, resource.Id) + "?size=" + resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" + resource.CreationTime
+            + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), stream,resource.Size, _connection.ConnectionId);
         }
         public void DeleteFile(Resource resource)
         {

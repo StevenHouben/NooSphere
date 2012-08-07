@@ -70,7 +70,19 @@ namespace NooSphere.ActivitySystem.FileServer
                 FileRemoved(this, new FileEventArgs(resource));
             Console.WriteLine("FileStore: Removed file {0} from store", resource.Name); 
         }
-        public byte[] GetFile(Resource resource)
+        public Stream GetStreamFromFile(Resource resource)
+        {
+            var fi = new FileInfo(BasePath + resource.RelativePath);
+            var buffer = new byte[fi.Length];
+            var mem = new MemoryStream();
+            using (var fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                fs.Read(buffer, 0, (int) fs.Length);
+            }
+            mem.Write(buffer,0,buffer.Length);
+            return mem;
+        }
+        public byte[] GetBytesFromFile(Resource resource)
         {
             var fi = new FileInfo(BasePath + resource.RelativePath);
             var buffer = new byte[fi.Length];
