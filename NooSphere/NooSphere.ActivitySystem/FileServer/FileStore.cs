@@ -1,11 +1,20 @@
-﻿using System;
+﻿/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using NooSphere.Core.ActivityModel;
-using NooSphere.ActivitySystem.ActivityManager;
-using NooSphere.ActivitySystem.Events;
+using NooSphere.ActivitySystem.Base;
 using System.Threading;
 
 namespace NooSphere.ActivitySystem.FileServer
@@ -16,7 +25,7 @@ namespace NooSphere.ActivitySystem.FileServer
         public event FileAddedHandler FileAdded;
         public event FileChangedHandler FileChanged;
         public event FileRemovedHandler FileRemoved;
-        public event FileDownloadedHandler FileDownloadedFromCloud;     
+        public event FileDownloadRequestHandler FileDownloadedFromCloud;     
         #endregion
 
         #region Properties
@@ -24,71 +33,63 @@ namespace NooSphere.ActivitySystem.FileServer
         #endregion
 
         #region Private Members
-        private Dictionary<Guid, Resource> files = new Dictionary<Guid, Resource>();
+        private readonly Dictionary<Guid, Resource> _files = new Dictionary<Guid, Resource>();
         #endregion
 
         #region Public Methods
         public FileStore(string path)
         {
-            this.BasePath = path;
+            BasePath = path;
         }
-        public void AddFile(Resource resource, byte[] fileInBytes)
+        public void AddFile(Resource resource, byte[] fileInBytes,FileSource source)
         {
-            Thread t = new Thread(() =>
+            var t = new Thread(() =>
             {
                 SaveToDisk(fileInBytes, resource);
-                files.Add(resource.Id, resource);
-                if (FileAdded != null)
-                    FileAdded(this, new FileEventArgs(resource));
-            });
-            t.IsBackground = true;
+                _files.Add(resource.Id, resource);
+
+                if (source == FileSource.Cloud)
+                {
+                    if (FileDownloadedFromCloud != null)
+                        FileDownloadedFromCloud(this, new FileEventArgs(resource));
+                }
+                else if (source == FileSource.Local)
+                {
+                    if (FileAdded != null)
+                        FileAdded(this, new FileEventArgs(resource));
+                }
+                Console.WriteLine("FileStore: Added file {0} to store", resource.Name); 
+            }) {IsBackground = true};
             t.Start();
         }
         public void RemoveFile(Resource resource)
         {
-            files.Remove(resource.Id);
+            _files.Remove(resource.Id);
             File.Delete(BasePath+resource.RelativePath);
             if (FileRemoved != null)
                 FileRemoved(this, new FileEventArgs(resource));
+            Console.WriteLine("FileStore: Removed file {0} from store", resource.Name); 
         }
-        public byte[] StreamToBuffer(Resource resource)
-        { 
-            FileInfo fi = new FileInfo(BasePath+ resource.RelativePath);
-            byte[] buffer = new byte[fi.Length];
+        public byte[] GetFile(Resource resource)
+        {
+            var fi = new FileInfo(BasePath + resource.RelativePath);
+            var buffer = new byte[fi.Length];
 
-            using (FileStream fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
                 fs.Read(buffer, 0, (int)fs.Length);
 
             return buffer;
         }
-        public void DownloadToFile(Resource resource, byte[] byteStream)
-        {
-            Thread t = new Thread(() =>
-            {
-                string AbsolutePath = Path.Combine(BasePath, resource.RelativePath);
-                FileStream fs = new FileStream(AbsolutePath, FileMode.Create);
-                fs.Write(byteStream, 0, resource.Size);
-                fs.Close();
-
-                File.SetCreationTimeUtc(AbsolutePath, DateTime.Parse(resource.CreationTime));
-                File.SetLastWriteTimeUtc(AbsolutePath, DateTime.Parse(resource.LastWriteTime));
-
-                if (FileDownloadedFromCloud != null)
-                    FileDownloadedFromCloud(this, new FileEventArgs(resource));
-            });
-            t.IsBackground = true;
-            t.Start();
-        }
         public void Updatefile(Resource resource, byte[] fileInBytes)
         {
-            Thread t = new Thread(() =>
+            var t = new Thread(() =>
             {
-                files[resource.Id] = resource;
+                _files[resource.Id] = resource;
                 SaveToDisk(fileInBytes,resource);
                 if (FileChanged != null)
                     FileChanged(this, new FileEventArgs(resource));
-            });
-            t.IsBackground = true;
+                Console.WriteLine("FileStore: Updated file {0} in store", resource.Name); 
+            }) {IsBackground = true};
             t.Start();
         }
         #endregion
@@ -98,11 +99,16 @@ namespace NooSphere.ActivitySystem.FileServer
         {
             try
             {
-                using (FileStream fileToupload = new FileStream(this.BasePath + resource.RelativePath, FileMode.Create))
+                string path = BasePath + resource.RelativePath;
+                using (var fileToupload = new FileStream(path, FileMode.Create))
                 {
                     fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
                     fileToupload.Close();
                     fileToupload.Dispose();
+
+                    File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
+                    File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
+                    Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,path); 
                 }
             }
             catch (Exception ex)

@@ -1,20 +1,16 @@
-﻿/// <licence>
-/// 
-/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
-/// 
-/// Pervasive Interaction Technology Laboratory (pIT lab)
-/// IT University of Copenhagen
-///
-/// This library is free software; you can redistribute it and/or 
-/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
-/// as published by the Free Software Foundation. Check 
-/// http://www.gnu.org/licenses/gpl.html for details.
-/// 
-/// </licence>
+﻿/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
 using System.Xml.Serialization;
@@ -35,20 +31,18 @@ namespace NooSphere.Core.Parser
         {
             try
             {
-                String XmlizedString = null;
-                MemoryStream memoryStream = new MemoryStream();
-                XmlSerializer xs = new XmlSerializer(typeof(Activity));
-                XmlTextWriter xmlTextWriter = new XmlTextWriter(memoryStream, Encoding.UTF8);
-                xmlTextWriter.Formatting = Formatting.Indented;
+                var memoryStream = new MemoryStream();
+                var xs = new XmlSerializer(typeof(Activity));
+                var xmlTextWriter = new XmlTextWriter(memoryStream, Encoding.UTF8) {Formatting = Formatting.Indented};
 
                 xs.Serialize(xmlTextWriter, act);
                 memoryStream = (MemoryStream)xmlTextWriter.BaseStream;
-                XmlizedString = UTF8ByteArrayToString(memoryStream.ToArray());
-                return XmlizedString;
+                string xmlizedString = UTF8ByteArrayToString(memoryStream.ToArray());
+                return xmlizedString;
             }
             catch (Exception e)
             {
-                System.Console.WriteLine(e);
+                Console.WriteLine(e);
                 return null;
             }
         }
@@ -60,9 +54,8 @@ namespace NooSphere.Core.Parser
         /// <returns>C# open activity</returns>
         public static Activity XmlToActivity(string xml)
         {
-            XmlSerializer xs = new XmlSerializer(typeof(Activity));
-            MemoryStream memoryStream = new MemoryStream(StringToUTF8ByteArray(xml));
-            XmlTextWriter xmlTextWriter = new XmlTextWriter(memoryStream, Encoding.UTF8);
+            var xs = new XmlSerializer(typeof(Activity));
+            var memoryStream = new MemoryStream(StringToUTF8ByteArray(xml));
 
             return (Activity)xs.Deserialize(memoryStream);
         }
@@ -78,8 +71,8 @@ namespace NooSphere.Core.Parser
         /// <returns>String converted from Unicode Byte Array</returns>
         private static String UTF8ByteArrayToString(Byte[] characters)
         {
-            UTF8Encoding encoding = new UTF8Encoding();
-            String constructedString = encoding.GetString(characters);
+            var encoding = new UTF8Encoding();
+            var constructedString = encoding.GetString(characters);
             return (constructedString);
         }
 

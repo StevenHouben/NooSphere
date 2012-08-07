@@ -25,6 +25,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Runtime.InteropServices;
+using ActivityUI.Xaml;
 using NooSphere.Core.ActivityModel;
 using System.Windows.Interop;
 using NooSphere.Platform.Windows.Interopt;

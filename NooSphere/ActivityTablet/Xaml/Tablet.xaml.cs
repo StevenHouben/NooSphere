@@ -14,23 +14,23 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.IO;
 using System.Threading;
-using NooSphere.ActivitySystem.ActivityClient;
+using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Host;
-using NooSphere.ActivitySystem.ActivityManager;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Contracts;
 using Newtonsoft.Json;
 using ActivityTablet.Properties;
 using NooSphere.Helpers;
 using NooSphere.Core.Devices;
-using NooSphere.ActivitySystem.Discovery.Client;
+using NooSphere.ActivitySystem.Discovery;
+using NooSphere.ActivitySystem;
 
 namespace ActivityTablet
 {
     public partial class Tablet : Window
     {
         #region Private Members
-        private Client client;
+        private ActivityClient client;
         private BasicHost host;
         private User user;
         private Device device;
@@ -52,7 +52,7 @@ namespace ActivityTablet
             try
             {
                 string baseUrl = Settings.Default.ENVIRONMENT_BASE_URL;
-                string result = RestHelper.Get(baseUrl + "Users?email=" + txtEmail.Text);
+                string result = Rest.Get(baseUrl + "Users?email=" + txtEmail.Text);
                 User u = JsonConvert.DeserializeObject<User>(result);
                 if (u != null)
                     this.user = u;
@@ -82,7 +82,7 @@ namespace ActivityTablet
             Thread t = new Thread(() =>
             {
                 DiscoveryManager disc = new DiscoveryManager();
-                disc.Find();
+                disc.Find(DiscoveryType.ZEROCONF);
                 disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
             });
             t.IsBackground = true;
@@ -159,38 +159,38 @@ namespace ActivityTablet
             User user = new User();
             user.Email = txtEmail.Text;
             user.Name = txtUsername.Text;
-            string added = RestHelper.Post(baseUrl + "Users", user);
+            string added = Rest.Post(baseUrl + "Users", user);
             if (JsonConvert.DeserializeObject<bool>(added))
             {
-                var result = RestHelper.Get(baseUrl + "Users?email=" + txtEmail.Text);
+                var result = Rest.Get(baseUrl + "Users?email=" + txtEmail.Text);
                 var u = JsonConvert.DeserializeObject<User>(result);
                 this.user = u;
             }
         }
         private void StartClient(string addr)
         {
-            client = new Client(addr, @"c:/abc/");
+            client = new ActivityClient(addr, @"c:/abc/");
 
             //Register the current device with the activity manager we are connecting to
-            client.Register();
+            client.Register(new Device());
 
             //Set the current user
             client.CurrentUser = user;
 
             //Subscribe to the activity manager events
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ActivityEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.ComEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.DeviceEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.FileEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.NetEvents.EventType.UserEvent);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.ActivityEvents);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.ComEvents);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.DeviceEvents);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.FileEvents);
+            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.UserEvent);
 
             //Subcribe to the callback events of the activity manager
-            client.DeviceAdded += new NooSphere.ActivitySystem.Events.DeviceAddedHandler(client_DeviceAdded);
-            client.ActivityAdded += new NooSphere.ActivitySystem.Events.ActivityAddedHandler(client_ActivityAdded);
+            client.DeviceAdded += new DeviceAddedHandler(client_DeviceAdded);
+            client.ActivityAdded += new ActivityAddedHandler(client_ActivityAdded);
             //client.ActivityChanged += new NooSphere.ActivitySystem.Events.ActivityChangedHandler(client_ActivityChanged);
 
-            client.ActivityRemoved += new NooSphere.ActivitySystem.Events.ActivityRemovedHandler(client_ActivityRemoved);
-            client.MessageReceived += new NooSphere.ActivitySystem.Events.MessageReceivedHandler(client_MessageReceived);
+            client.ActivityRemoved += new ActivityRemovedHandler(client_ActivityRemoved);
+            client.MessageReceived += new MessageReceivedHandler(client_MessageReceived);
 
             //client.FriendAdded += new NooSphere.ActivitySystem.Events.FriendAddedHandler(client_FriendAdded);
             //client.FriendDeleted += new NooSphere.ActivitySystem.Events.FriendDeletedHandler(client_FriendDeleted);
@@ -204,17 +204,17 @@ namespace ActivityTablet
         #region Public Methods
 
 
-        private void client_DeviceAdded(object sender, NooSphere.ActivitySystem.Events.DeviceEventArgs e)
+        private void client_DeviceAdded(object sender, DeviceEventArgs e)
         {
 
         }
-        private void client_MessageReceived(object sender, NooSphere.ActivitySystem.Events.ComEventArgs e)
+        private void client_MessageReceived(object sender, ComEventArgs e)
         {
         }
-        private void client_ActivityRemoved(object sender, NooSphere.ActivitySystem.Events.ActivityRemovedEventArgs e)
+        private void client_ActivityRemoved(object sender, ActivityRemovedEventArgs e)
         {
         }
-        private void client_ActivityAdded(object obj, NooSphere.ActivitySystem.Events.ActivityEventArgs e)
+        private void client_ActivityAdded(object obj, ActivityEventArgs e)
         {
         }
         private void b_Click(object sender, RoutedEventArgs e)

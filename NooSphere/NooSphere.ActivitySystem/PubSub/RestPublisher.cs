@@ -1,14 +1,18 @@
-﻿using System;
+﻿/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Reflection;
-using System.ServiceModel;
-using Newtonsoft.Json;
-using System.Net;
-using System.IO;
-using NooSphere.ActivitySystem.Contracts.NetEvents;
+using NooSphere.ActivitySystem.Contracts;
 using NooSphere.Helpers;
 
 namespace NooSphere.ActivitySystem.PubSub
@@ -23,21 +27,20 @@ namespace NooSphere.ActivitySystem.PubSub
         /// <param name="netObject">The object that needs to be published</param>
         public void Publish(EventType type,string publishUrl, object netObject)
         {
-            Thread t = new Thread(() =>
+            var t = new Thread(() =>
             {
-                List<string> toRemove = new List<string>();
-                lock (Concurrency._SubscriberLock)
+                var toRemove = new List<string>();
+                lock (Concurrency.SubscriberLock)
                 {
-                    foreach (KeyValuePair<string, object> entry in Registry.Store[type])
+                    foreach (var entry in Registry.Store[type])
                     {
                         try
                         {
-                            RestHelper.Post(entry.Value.ToString() + publishUrl, netObject);
+                            Rest.Post(entry.Value + publishUrl, netObject);
                         }
-                        catch (FaultException ex)
+                        catch
                         {
-                            if (ex == null)
-                                toRemove.Add(entry.Key);
+                            toRemove.Add(entry.Key);
                         }
                     }
                     if (toRemove.Count > 0)
