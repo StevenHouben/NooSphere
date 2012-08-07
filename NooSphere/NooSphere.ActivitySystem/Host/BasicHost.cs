@@ -148,7 +148,7 @@ namespace NooSphere.ActivitySystem.Host
             Console.WriteLine("BasicHost: Found IP " + Ip);
             _host = new ServiceHost(implementation);
 
-            var binding = new WebHttpBinding {MaxReceivedMessageSize = 5000000};
+            var binding = new WebHttpBinding {MaxReceivedMessageSize = Int32.MaxValue};
 
 
             _serviceEndpoint = _host.AddServiceEndpoint(description, binding, Net.GetUrl(Ip, Port, ""));

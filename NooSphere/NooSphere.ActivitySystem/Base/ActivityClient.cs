@@ -10,6 +10,7 @@
  http://www.gnu.org/licenses/gpl.html for details.
 ****************************************************************************/
 
+using System.IO;
 using System.ServiceModel;
 using System;
 using System.Collections.Generic;
@@ -56,6 +57,13 @@ namespace NooSphere.ActivitySystem.Base
             Connect(address);
             LocalPath = localFileDirectory;
             OnInitializedEvent(new EventArgs());
+
+            FileUploadRequest += new FileUploadRequestHandler(ActivityClientFileUploadRequest);
+        }
+
+        private void ActivityClientFileUploadRequest(object sender, FileEventArgs e)
+        {
+            Rest.SendStreamingRequest(ServiceAddress + "Files/" + e.Resource.ActivityId + "/" + e.Resource.Id, LocalPath + e.Resource.RelativePath);
         }
         #endregion
 
@@ -69,7 +77,7 @@ namespace NooSphere.ActivitySystem.Base
         {
             Console.WriteLine("Activity Client Attempt to connect to {0}",addr);
             bool res;
-            int attempts = 0;
+            var attempts = 0;
             const int maxAttemps = 20;
             do
             {
@@ -195,7 +203,7 @@ namespace NooSphere.ActivitySystem.Base
             Rest.Post(ServiceAddress + Url.Activities, act);
         }
 
-/*
+
         /// <summary>
         /// Get the file byte array from the resource
         /// </summary>
@@ -204,13 +212,13 @@ namespace NooSphere.ActivitySystem.Base
         private byte[] GetFile(Resource resource)
         {
             var fi = new FileInfo(LocalPath + resource.RelativePath);
-            byte[] buffer = new byte[fi.Length];
+            var buffer = new byte[fi.Length];
 
             using (var fs = new FileStream(LocalPath + resource.RelativePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 fs.Read(buffer, 0, (int)fs.Length);
             return buffer;
         }
-*/
+
 
         /// <summary>
         /// Sends a "Remove activity" request to the activity manager

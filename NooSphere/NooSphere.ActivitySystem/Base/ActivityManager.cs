@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.ServiceModel;
 using System.Threading;
@@ -153,8 +154,9 @@ namespace NooSphere.ActivitySystem.Base
         private void FileServerFileAdded(object sender, FileEventArgs e)
         {
             _publisher.Publish(EventType.FileEvents, FileEvent.FileDownloadRequest.ToString(), e.Resource);
-            if (_connectionActive && _useCloud)
-                _activityCloudConnector.AddResource(e.Resource, _fileServer.GetFile(e.Resource));
+            ResourceTracker(e.Resource);
+            //if (_connectionActive && _useCloud)
+            //    _activityCloudConnector.AddResource(e.Resource, _fileServer.GetFile(e.Resource));
         }
 
         private void ActivityCloudConnector_FileDownloadRequest(object sender, FileEventArgs e)
@@ -280,17 +282,110 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="act">The activity that needs to be added to the cloud</param>
         public void AddActivity(Activity act)
         {
-            PublishActivity(act);
-        }
-
-        #region WIP
-
-        private void PublishActivity(Activity act)
-        {
-            if (_useLocalCloud && _connectionActive)
-                _activityCloudConnector.AddActivity(act);
+            if(_useCloud)
+                if (act.GetResources().Count > 0)
+                {
+                    KeepActivity(act);
+                    Console.WriteLine("ActivityManager: Received activity with {0} resources",act.GetResources().Count);
+                }
+                else
+                {
+                    Console.WriteLine("ActivityManager: Received activity with 0 resources");
+                    if (!_useLocalCloud && _connectionActive)
+                        _activityCloudConnector.AddActivity(act);
+                }
             ActivityStore.Activities.Add(act.Id, act);
             _publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityAdded.ToString(), act);
+        }
+        private void PublishActivityToCloud(Activity act)
+        {
+            Console.WriteLine("ActivityManager: Publishing activity {0} to cloud", act.Name);
+            if (!_useLocalCloud && _connectionActive)
+                _activityCloudConnector.AddActivity(act);
+        }
+
+        private void KeepActivity(Activity act)
+        {
+            Console.WriteLine("ActivityManager: Keeping activity {0} in buffer", act);
+            _buffer.Add(act.Id,act);
+            _counters.Add(act.Id,new Point(0,act.GetResources().Count));
+            foreach (var resource in act.GetResources())
+            {
+                _publisher.Publish(EventType.FileEvents, FileEvent.FileUploadRequest.ToString(),resource);
+            }
+        }
+        private void ResourceTracker(Resource res)
+        {
+            if (_buffer.Count == 0)
+                return;
+            foreach (var activity in _buffer.Values)
+            {
+                foreach (var resource in activity.GetResources())
+                {
+                    if (res.Id == resource.Id)
+                    {
+                        var counter = _counters[activity.Id];
+                        counter.X++;
+                        if (counter.X == counter.Y)
+                        {
+                            _counters.Remove(activity.Id);
+                            _buffer.Remove(activity.Id);
+                            PublishActivityToCloud(activity);
+                            return;
+                        }
+                        _counters[activity.Id] = counter;
+                    }
+                }
+            }
+
+            //debug loop
+            foreach (var pair in _counters)
+            {
+                Console.WriteLine("Tracking_debug. Guid: {0} |  #received: {1} | #total: {2}",pair.Key,pair.Value.X,pair.Value.Y);
+            }
+        }
+
+        private Dictionary<Guid,Point> _counters = new Dictionary<Guid, Point>(); 
+        private Dictionary<Guid, Activity> _buffer = new Dictionary<Guid, Activity>();
+
+        #region File Server
+        public void AddFile(string activityId, string resourceId, Stream stream)
+        {
+            var resource = GetResourceFromId(activityId, resourceId);
+            var buffer = new byte[resource.Size];
+            var ms = new MemoryStream();
+            int bytesRead, totalBytesRead = 0;
+            do
+            {
+                bytesRead = stream.Read(buffer, 0, buffer.Length);
+                totalBytesRead += bytesRead;
+
+                ms.Write(buffer, 0, bytesRead);
+            } while (bytesRead > 0);
+            _fileServer.AddFile(resource, buffer, FileSource.Local);
+            ms.Close();
+            Console.WriteLine("ActivityManager: Streamed file {0} into {1} bytes", resource.Name, totalBytesRead);
+        }
+
+        private Resource GetResourceFromId(string aId, string resId)
+        {
+            return ActivityStore.Activities[new Guid(aId)].GetResources().FirstOrDefault(
+                res => (res.Id.ToString() == resId) && (res.ActivityId.ToString() == aId));
+        }
+
+        public void RemoveFile(Resource resource)
+        {
+            _fileServer.RemoveFile(resource);
+        }
+
+        public void UpdateFile(Resource resource, byte[] fileInBytes)
+        {
+            _fileServer.Updatefile(resource, fileInBytes);
+        }
+
+        public List<Resource> Sync()
+        {
+            return new List<Resource>();
         }
         #endregion
 
@@ -416,47 +511,6 @@ namespace NooSphere.ActivitySystem.Base
         public void SendMessage(string id, string message)
         {
             _publisher.Publish(EventType.ComEvents, ComEvent.MessageReceived.ToString(), message);
-        }
-        #endregion
-
-        #region File Server
-        public void AddFile(string activityId, string resourceId, Stream stream)
-        {
-            var resource = GetResourceFromId(activityId, resourceId);
-            var buffer = new byte[resource.Size];
-            var ms = new MemoryStream();
-            int bytesRead, totalBytesRead = 0;
-            do
-            {
-                bytesRead = stream.Read(buffer, 0, buffer.Length);
-                totalBytesRead += bytesRead;
-
-                ms.Write(buffer, 0, bytesRead);
-            } while (bytesRead > 0);
-            _fileServer.AddFile(resource, buffer,FileSource.Local);
-            ms.Close();
-            Console.WriteLine("ActivityManager: Streamed file {0} into {1} bytes", resource.Name, totalBytesRead);
-        }
-
-        private Resource GetResourceFromId(string aId, string resId)
-        {
-            return ActivityStore.Activities[new Guid(aId)].GetResources().FirstOrDefault(
-                res => (res.Id.ToString() == resId) && (res.ActivityId.ToString() == aId));
-        }
-
-        public void RemoveFile(Resource resource)
-        {
-            _fileServer.RemoveFile(resource);
-        }
-
-        public void UpdateFile(Resource resource, byte[] fileInBytes)
-        {
-            _fileServer.Updatefile(resource, fileInBytes);
-        }
-
-        public List<Resource> Sync()
-        {
-            return new List<Resource>();
         }
         #endregion
     }

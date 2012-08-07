@@ -20,15 +20,15 @@ namespace NooSphere.ActivitySystem.Contracts
     public interface IFileNetEvent : IEvent
     {
         [OperationContract]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "FileAdded", Method = "POST")]
+        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "FileDownloadRequest", Method = "POST")]
         void FileNetDownloadRequest(Resource resource);
 
         [OperationContract]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "FileRemoved", Method = "POST")]
+        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "FileDeleteRequest", Method = "POST")]
         void FileNetDeleteRequest(Resource resource);
 
         [OperationContract]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "FileLocked", Method = "POST")]
+        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "FileUploadRequest", Method = "POST")]
         void FileNetUploadRequest(Resource resource);
     }
     public enum FileEvent

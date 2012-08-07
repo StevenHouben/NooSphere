@@ -31,6 +31,7 @@ using System.IO;
 
 using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
+using ActivityUI.Xaml;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Platform.Windows.Glass;
 
