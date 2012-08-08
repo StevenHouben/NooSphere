@@ -149,7 +149,7 @@ namespace NooSphere.ActivitySystem.Base
         {
             _publisher.Publish(EventType.FileEvents, FileEvent.FileDownloadRequest.ToString(), e.Resource);
             if (_connectionActive && _useCloud)
-                _activityCloudConnector.AddResource(e.Resource, _fileServer.GetStreamFromFile(e.Resource));
+                _activityCloudConnector.AddResource(e.Resource, _fileServer.BasePath + e.Resource.RelativePath);
         }
         private void FileServerFileAdded(object sender, FileEventArgs e)
         {
@@ -206,7 +206,7 @@ namespace NooSphere.ActivitySystem.Base
         }
         private void ActivityCloudConnectorFileUploadRequest(object sender, FileEventArgs e)
         {
-            _activityCloudConnector.AddResource(e.Resource, _fileServer.GetStreamFromFile(e.Resource));
+            _activityCloudConnector.AddResource(e.Resource, _fileServer.BasePath +e.Resource.RelativePath);
         }
         private void ActivityCloudConnectorActivityUpdated(object sender, ActivityEventArgs e)
         {
