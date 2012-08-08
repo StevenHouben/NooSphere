@@ -30,6 +30,9 @@ namespace NooSphere.ActivitySystem.Base
     public class ActivityManager : IActivityManager
     {
         #region Private Members
+        private readonly Dictionary<Guid, Point> _counters = new Dictionary<Guid, Point>();
+        private readonly Dictionary<Guid, Activity> _buffer = new Dictionary<Guid, Activity>();
+
         private RestSubscriber _subscriber;
         private RestPublisher _publisher;
         private ActivityCloudConnector _activityCloudConnector;
@@ -58,12 +61,20 @@ namespace NooSphere.ActivitySystem.Base
         #endregion
 
         #region Initializers
+        /// <summary>
+        /// Initializes the Activity Service
+        /// </summary>
+        /// <param name="owner">User that owns this activity manager</param>
         private void InitializeActivityService(User owner)
         {
             if(_useCloud)
                 ConnectToCloud(owner);
         }
 
+        /// <summary>
+        /// Initializes the File Service
+        /// </summary>
+        /// <param name="localPath">Path where the file service stores files</param>
         private void InitializeFileService(string localPath)
         {
             _fileServer = new FileStore(localPath);
@@ -74,6 +85,9 @@ namespace NooSphere.ActivitySystem.Base
             Console.WriteLine("ActivityManager: FileStore initialized at {0}", _fileServer.BasePath);
         }
 
+        /// <summary>
+        /// Initializes the Event Services (pub/sub)
+        /// </summary>
         private void IntializeEventSystem()
         {
             Registry.Initialize();
@@ -101,7 +115,7 @@ namespace NooSphere.ActivitySystem.Base
             _activityCloudConnector.ActivityUpdated += ActivityCloudConnectorActivityUpdated;
 
             _activityCloudConnector.FileDeleteRequest += ActivityCloudConnectorFileDeleteRequest;
-            _activityCloudConnector.FileDownloadRequest += ActivityCloudConnector_FileDownloadRequest;
+            _activityCloudConnector.FileDownloadRequest += ActivityCloudConnectorFileDownloadRequest;
             _activityCloudConnector.FileUploadRequest += ActivityCloudConnectorFileUploadRequest;
 
             _activityCloudConnector.FriendDeleted += ActivityCloudConnectorFriendDeleted;
@@ -123,13 +137,71 @@ namespace NooSphere.ActivitySystem.Base
                 foreach (var act in _activityCloudConnector.GetActivities())
                 {
                     ActivityStore.Activities.Add(act.Id, act);
-                    foreach (var res in act.GetResources())
-                        if (res != null)
-                            _fileServer.AddFile(res, _activityCloudConnector.GetResource(res),FileSource.Cloud);
                     _publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityAdded.ToString(), act);
                 }
                 Console.WriteLine("ActivityManager: Activity Store intialized"); 
             }) {IsBackground = true};
+            t.Start();
+        }
+
+        /// <summary>
+        /// Publish activity to cloud
+        /// </summary>
+        /// <param name="act">Activity that needs to be published</param>
+        private void PublishActivityToCloud(Activity act)
+        {
+            Console.WriteLine("ActivityManager: Publishing activity {0} to cloud", act.Name);
+            if (!_useCloud && _connectionActive)
+                _activityCloudConnector.AddActivity(act);
+        }
+
+        /// <summary>
+        /// Buffer activity locally until resources are uploaded
+        /// </summary>
+        /// <param name="act">Activity that needs to be buffered</param>
+        private void KeepActivity(Activity act)
+        {
+            Console.WriteLine("ActivityManager: Keeping activity {0} in buffer", act);
+            _buffer.Add(act.Id, act);
+            _counters.Add(act.Id, new Point(0, act.GetResources().Count));
+            foreach (var resource in act.GetResources())
+            {
+                _publisher.Publish(EventType.FileEvents, FileEvent.FileUploadRequest.ToString(), resource);
+            }
+        }
+
+        /// <summary>
+        /// Track uploaded resources
+        /// </summary>
+        /// <param name="res">Resource that needs to be checked against activity buffer</param>
+        private void ResourceTracker(Resource res)
+        {
+            var t = new Thread(() =>
+            {
+                if (_buffer.Count == 0)
+                    return;
+                //debug loop
+                foreach (var activity in _buffer.Values)
+                {
+                    foreach (var resource in activity.GetResources())
+                    {
+                        if (res.Id == resource.Id)
+                        {
+                            var counter = _counters[activity.Id];
+                            counter.X++;
+                            if (counter.X == counter.Y)
+                            {
+                                _counters.Remove(activity.Id);
+                                _buffer.Remove(activity.Id);
+                                PublishActivityToCloud(activity);
+
+                                return;
+                            }
+                            _counters[activity.Id] = counter;
+                        }
+                    }
+                }
+            }) { IsBackground = true };
             t.Start();
         }
         #endregion
@@ -138,37 +210,41 @@ namespace NooSphere.ActivitySystem.Base
         private void FileServerFileDownloaded(object sender, FileEventArgs e)
         {
             _publisher.Publish(EventType.FileEvents, FileEvent.FileDownloadRequest.ToString(), e.Resource);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.FileEvents,FileEvent.FileDownloadRequest); 
         }
         private void FileServerFileRemoved(object sender, FileEventArgs e)
         {
             _publisher.Publish(EventType.FileEvents, FileEvent.FileDeleteRequest.ToString(), e.Resource);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.FileEvents, FileEvent.FileDeleteRequest); 
             if (_connectionActive && _useCloud)
                 _activityCloudConnector.DeleteFile(e.Resource);
         }
         private void FileServerFileChanged(object sender, FileEventArgs e)
         {
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.FileEvents, FileEvent.FileDownloadRequest); 
             _publisher.Publish(EventType.FileEvents, FileEvent.FileDownloadRequest.ToString(), e.Resource);
             if (_connectionActive && _useCloud)
                 _activityCloudConnector.AddResource(e.Resource, _fileServer.BasePath + e.Resource.RelativePath);
         }
         private void FileServerFileAdded(object sender, FileEventArgs e)
         {
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.FileEvents, FileEvent.FileDownloadRequest); 
             _publisher.Publish(EventType.FileEvents, FileEvent.FileDownloadRequest.ToString(), e.Resource);
             ResourceTracker(e.Resource);
-            //if (_connectionActive && _useCloud)
-            //    _activityCloudConnector.AddResource(e.Resource, _fileServer.GetFile(e.Resource));
         }
-
-        private void ActivityCloudConnector_FileDownloadRequest(object sender, FileEventArgs e)
+        private void ActivityCloudConnectorFileDownloadRequest(object sender, FileEventArgs e)
         {
-           Console.WriteLine("Cloud download request from file: " +e.Resource.RelativePath);
+            Console.WriteLine("ActivityManager: Cloud download request from file: " + e.Resource.RelativePath);
+             _fileServer.AddFile(e.Resource, _activityCloudConnector.GetResource(e.Resource), FileSource.Cloud);
         }
         private void ActivityCloudConnectorFileDeleteRequest(object sender, FileEventArgs e)
         {
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.FileEvents, FileEvent.FileDeleteRequest); 
             _publisher.Publish(EventType.FileEvents, FileEvent.FileDeleteRequest.ToString(), e.Resource);
         }
         private void ActivityCloudConnectorConnectionSetup(object sender, EventArgs e)
         {
+            Console.WriteLine("ActivityManager: Connection Setup "); 
             _connectionActive = true;
             ConstructActivityCache();
         }
@@ -180,7 +256,8 @@ namespace NooSphere.ActivitySystem.Base
                 u = e.Participant,
                 activityId = e.ActivityId
             };
-            _publisher.Publish(EventType.UserEvent, UserEvents.ParticipantAdded.ToString(), participantRemovedToActivity);
+            _publisher.Publish(EventType.UserEvent, UserEvents.FriendRemoved.ToString(), participantRemovedToActivity);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.UserEvent, UserEvents.FriendRemoved); 
         }
         private void ActivityCloudConnectorParticipantAdded(object sender, ParticipantEventArgs e)
         {
@@ -191,32 +268,39 @@ namespace NooSphere.ActivitySystem.Base
                 activityId = e.ActivityId
             };
             _publisher.Publish(EventType.UserEvent, UserEvents.ParticipantAdded.ToString(), participantAddedToActivity);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.UserEvent, UserEvents.ParticipantAdded); 
         }
         private void ActivityCloudConnectorFriendRequestReceived(object sender, FriendEventArgs e)
         {
             _publisher.Publish(EventType.UserEvent, UserEvents.FriendRequest.ToString(), e.User);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.UserEvent, UserEvents.FriendRequest);
         }
         private void ActivityCloudConnectorFriendAdded(object sender, FriendEventArgs e)
         {
             _publisher.Publish(EventType.UserEvent, UserEvents.FriendAdded.ToString(), e.User);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.UserEvent, UserEvents.FriendAdded);
         }
         private void ActivityCloudConnectorFriendDeleted(object sender, FriendDeletedEventArgs e)
         {
             _publisher.Publish(EventType.UserEvent, UserEvents.FriendRemoved.ToString(), e.Id);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.UserEvent, UserEvents.FriendRemoved);
         }
         private void ActivityCloudConnectorFileUploadRequest(object sender, FileEventArgs e)
         {
             _activityCloudConnector.AddResource(e.Resource, _fileServer.BasePath +e.Resource.RelativePath);
+            Console.WriteLine("ActivityManager: Cloud upload request from file: " + e.Resource.RelativePath);
         }
         private void ActivityCloudConnectorActivityUpdated(object sender, ActivityEventArgs e)
         {
             ActivityStore.Activities[e.Activity.Id] = e.Activity;
             _publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityChanged.ToString(), e.Activity);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents, ActivityEvent.ActivityChanged);
         }
         private void ActivityCloudConnectorActivityDeleted(object sender, ActivityRemovedEventArgs e)
         {
             ActivityStore.Activities.Remove(e.Id);
             _publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityRemoved.ToString(), e.Id);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents, ActivityEvent.ActivityRemoved);
         }
         private void ActivityCloudConnectorActivityAdded(object sender, ActivityEventArgs e)
         {
@@ -224,6 +308,7 @@ namespace NooSphere.ActivitySystem.Base
             {
                 ActivityStore.Activities.Add(e.Activity.Id, e.Activity);
                 _publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityAdded.ToString(), e.Activity);
+                Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents, ActivityEvent.ActivityAdded);
             }
         }
 
@@ -290,108 +375,13 @@ namespace NooSphere.ActivitySystem.Base
                 else
                 {
                     Console.WriteLine("ActivityManager: Received activity with 0 resources");
-                    if (!_useLocalCloud && _connectionActive)
+                    if (_connectionActive)
                         _activityCloudConnector.AddActivity(act);
                 }
             ActivityStore.Activities.Add(act.Id, act);
             _publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityAdded.ToString(), act);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents, ActivityEvent.ActivityAdded);
         }
-        private void PublishActivityToCloud(Activity act)
-        {
-            Console.WriteLine("ActivityManager: Publishing activity {0} to cloud", act.Name);
-            if (!_useLocalCloud && _connectionActive)
-                _activityCloudConnector.AddActivity(act);
-        }
-
-        private void KeepActivity(Activity act)
-        {
-            Console.WriteLine("ActivityManager: Keeping activity {0} in buffer", act);
-            _buffer.Add(act.Id,act);
-            _counters.Add(act.Id,new Point(0,act.GetResources().Count));
-            foreach (var resource in act.GetResources())
-            {
-                _publisher.Publish(EventType.FileEvents, FileEvent.FileUploadRequest.ToString(),resource);
-            }
-        }
-        private void ResourceTracker(Resource res)
-        {
-            var t = new Thread(() =>
-            {
-                if (_buffer.Count == 0)
-                    return;
-                //debug loop
-                foreach (var pair in _counters)
-                {
-                    Console.WriteLine(
-                        "Tracking_debug. Guid: {0} |  #received: {1} | #total: {2}", pair.Key,
-                        pair.Value.X, pair.Value.Y);
-                }
-                foreach (var activity in _buffer.Values)
-                {
-                    foreach (var resource in activity.GetResources())
-                    {
-                        if (res.Id == resource.Id)
-                        {
-                            var counter = _counters[activity.Id];
-                            counter.X++;
-                            if (counter.X == counter.Y)
-                            {
-                                _counters.Remove(activity.Id);
-                                _buffer.Remove(activity.Id);
-                                PublishActivityToCloud(activity);
-                                return;
-                            }
-                            _counters[activity.Id] = counter;
-                        }
-                    }
-                }
-            }) {IsBackground = true};
-            t.Start();
-        }
-
-        private Dictionary<Guid,Point> _counters = new Dictionary<Guid, Point>(); 
-        private Dictionary<Guid, Activity> _buffer = new Dictionary<Guid, Activity>();
-
-        #region File Server
-        public void AddFile(string activityId, string resourceId, Stream stream)
-        {
-            var resource = GetResourceFromId(activityId, resourceId);
-            var buffer = new byte[resource.Size];
-            var ms = new MemoryStream();
-            int bytesRead, totalBytesRead = 0;
-            do
-            {
-                bytesRead = stream.Read(buffer, 0, buffer.Length);
-                totalBytesRead += bytesRead;
-
-                ms.Write(buffer, 0, bytesRead);
-            } while (bytesRead > 0);
-            _fileServer.AddFile(resource, buffer, FileSource.Local);
-            ms.Close();
-            Console.WriteLine("ActivityManager: Streamed file {0} into {1} bytes", resource.Name, totalBytesRead);
-        }
-
-        private Resource GetResourceFromId(string aId, string resId)
-        {
-            return ActivityStore.Activities[new Guid(aId)].GetResources().FirstOrDefault(
-                res => (res.Id.ToString() == resId) && (res.ActivityId.ToString() == aId));
-        }
-
-        public void RemoveFile(Resource resource)
-        {
-            _fileServer.RemoveFile(resource);
-        }
-
-        public void UpdateFile(Resource resource, byte[] fileInBytes)
-        {
-            _fileServer.Updatefile(resource, fileInBytes);
-        }
-
-        public List<Resource> Sync()
-        {
-            return new List<Resource>();
-        }
-        #endregion
 
         /// <summary>
         /// Removes an activity from the cloud
@@ -399,10 +389,11 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="id">The id of the activity that needs to be removed</param>
         public void RemoveActivity(string id)
         {
-            if (_useLocalCloud && _connectionActive)
+            if (_useCloud && _connectionActive)
                 _activityCloudConnector.DeleteActivity(new Guid(id));
             ActivityStore.Activities.Remove(new Guid(id));
             _publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityRemoved.ToString(), id);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents, ActivityEvent.ActivityRemoved);
         }
 
         /// <summary>
@@ -411,24 +402,97 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="act">The activity that needs to be updated</param>
         public void UpdateActivity(Activity act)
         {
-            if (_useLocalCloud && _connectionActive)
+            if (_useCloud && _connectionActive)
                 _activityCloudConnector.UpdateActivity(act);
             ActivityStore.Activities[act.Id] = act;
             _publisher.Publish(EventType.ActivityEvents, ActivityEvent.ActivityChanged.ToString(), act);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents, ActivityEvent.ActivityChanged);
+        }
+        #endregion
+
+        #region File Server
+        /// <summary>
+        /// Upload a file to the file server
+        /// </summary>
+        /// <param name="activityId">Id of the activity</param>
+        /// <param name="resourceId">Id of the resource</param>
+        /// <param name="stream">Stream</param>
+        public void AddFile(string activityId, string resourceId, Stream stream)
+        {
+            var resource = GetResourceFromId(activityId, resourceId);
+            _fileServer.AddFile(resource,stream,FileSource.Local);
+        }
+
+        /// <summary>
+        /// Gets a resource from id's
+        /// </summary>
+        /// <param name="aId">Id of the activity</param>
+        /// <param name="resId">Id of the resource</param>
+        /// <returns>Resource</returns>
+        private Resource GetResourceFromId(string aId, string resId)
+        {
+            return ActivityStore.Activities[new Guid(aId)].GetResources().FirstOrDefault(
+                res => (res.Id.ToString() == resId) && (res.ActivityId.ToString() == aId));
+        }
+
+        /// <summary>
+        /// Removes a file from the File server
+        /// </summary>
+        /// <param name="resource">Resource that represents the file</param>
+        public void RemoveFile(Resource resource)
+        {
+            _fileServer.RemoveFile(resource);
+            Console.WriteLine("ActivityManager: Deleted file {0}", resource.Name);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="activityId"></param>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        public Stream GetFile(string activityId, string resourceId)
+        {
+            return _fileServer.GetStreamFromFile(GetResourceFromId(activityId,resourceId));
+        }
+
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="activityId"></param>
+        /// <param name="resourceId"></param>
+        /// <param name="stream"></param>
+        public void UpdateFile(string activityId, string resourceId, Stream stream)
+        {
+            Console.WriteLine("ActivityManager: Not implemented");
         }
         #endregion
 
         #region Participant Management
+        /// <summary>
+        /// Adds a participant to an activity
+        /// </summary>
+        /// <param name="a">Activity</param>
+        /// <param name="u">Participant</param>
         public void AddParticipant(Activity a, User u)
         {
-            if (_useLocalCloud && _connectionActive)
+            if (_useCloud && _connectionActive)
                 _activityCloudConnector.AddParticipant(a.Id, u.Id);
             ParticipantStore.Participants.Add(u.Id, u);
+            Console.WriteLine("ActivityManager: Added participant {0} to activity {1}", u.Name,a.Name);
         }
+
+        /// <summary>
+        /// Removes an participant from an activity
+        /// </summary>
+        /// <param name="a">Activity</param>
+        /// <param name="id">Id that represents the participant</param>
         public void RemoveParticipant(Activity a, string id)
         {
-            if (_useLocalCloud && _connectionActive)
+            if (_useCloud && _connectionActive)
                 _activityCloudConnector.RemoveParticipant(a.Id, new Guid(id));
+            Console.WriteLine("ActivityManager: Removed participant {0} to activity {1}", ParticipantStore.Participants[new Guid(id)], a.Name);
             ParticipantStore.Participants.Remove(new Guid(id));
         }
         #endregion
@@ -441,7 +505,7 @@ namespace NooSphere.ActivitySystem.Base
         /// <returns>A list with all users in the friendlist</returns>
         public List<User> GetUsers()
         {
-            return _useLocalCloud && _connectionActive ? _activityCloudConnector.GetUsers(Owner.Id) : null;
+            return _useCloud && _connectionActive ? _activityCloudConnector.GetUsers(Owner.Id) : null;
         }
 
         /// <summary>
@@ -451,6 +515,7 @@ namespace NooSphere.ActivitySystem.Base
         public void RequestFriendShip(string email)
         {
             _activityCloudConnector.RequestFriendShip(Owner.Id, _activityCloudConnector.GetIdFromUserEmail(email));
+            Console.WriteLine("ActivityManager: Requested friendship to {0}", email);
         }
 
         /// <summary>
@@ -460,6 +525,7 @@ namespace NooSphere.ActivitySystem.Base
         public void RemoveFriend(Guid friendId)
         {
             _activityCloudConnector.RemoveFriend(Owner.Id, friendId);
+            Console.WriteLine("ActivityManager: Removed friendship to {0}", friendId);
         }
 
         /// <summary>
@@ -470,11 +536,17 @@ namespace NooSphere.ActivitySystem.Base
         public void RespondToFriendRequest(Guid friendId, bool approval)
         {
             _activityCloudConnector.RespondToFriendRequest(Owner.Id, friendId,approval);
+            Console.WriteLine("ActivityManager: Approved friendship to {0}? -> {1}", friendId,approval);
         }
 
         #endregion
 
         #region Pub/Sub
+        /// <summary>
+        /// Registers a device to the manager
+        /// </summary>
+        /// <param name="device">Device</param>
+        /// <returns>A connection id</returns>
         public Guid Register(Device device)
         {
             var cc = new ConnectedClient(device.Name, device.BaseAddress, device);
@@ -482,9 +554,9 @@ namespace NooSphere.ActivitySystem.Base
                 return new Guid("null");
             Registry.ConnectedClients.Add(device.Id.ToString(), cc);
             _publisher.Publish(EventType.DeviceEvents, DeviceEvent.DeviceAdded.ToString(), device);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.DeviceEvents, DeviceEvent.DeviceAdded);
             return device.Id;
         }
-
         public void Subscribe(string id, EventType type,int callbackPort)
         {
             lock (Concurrency.SubscriberLock)
@@ -492,20 +564,34 @@ namespace NooSphere.ActivitySystem.Base
                 if (id != null)
                 {
                     _subscriber.Subscribe(id, type, callbackPort);
+                    Console.WriteLine("ActivityManager: Subscribed {0} to {1} at port {2}", id, type,callbackPort);
                 }
             }
         }
+        
+        /// <summary>
+        /// Unsubscibes client
+        /// </summary>
+        /// <param name="id">Connection id</param>
+        /// <param name="type">Event type</param>
         public void UnSubscribe(string id, EventType type)
         {
             if(id !=null)
                 _subscriber.UnSubscribe(id,type);
+            Console.WriteLine("ActivityManager: Unsubscribed {0} from {1}", id,type);
         }
+        
+        /// <summary>
+        /// Unregisters a device from the service
+        /// </summary>
+        /// <param name="id">Connection id</param>
         public void UnRegister(string id)
         {
             if(id != null)
                 if(Registry.ConnectedClients.ContainsKey(id))
                 {
                     _publisher.Publish(EventType.DeviceEvents, DeviceEvent.DeviceRemoved.ToString(), id);
+                    Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.DeviceEvents, DeviceEvent.DeviceAdded);
                     Registry.ConnectedClients.Remove(id);
                 }
         }

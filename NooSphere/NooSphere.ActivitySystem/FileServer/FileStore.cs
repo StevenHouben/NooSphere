@@ -62,6 +62,23 @@ namespace NooSphere.ActivitySystem.FileServer
             }) {IsBackground = true};
             t.Start();
         }
+        public void AddFile(Resource resource, Stream stream, FileSource source)
+        {
+            var buffer = new byte[resource.Size];
+            var ms = new MemoryStream();
+            int bytesRead, totalBytesRead = 0;
+            do
+            {
+                bytesRead = stream.Read(buffer, 0, buffer.Length);
+                totalBytesRead += bytesRead;
+
+                ms.Write(buffer, 0, bytesRead);
+            } while (bytesRead > 0);
+            AddFile(resource, buffer, FileSource.Local);
+            ms.Close();
+            Console.WriteLine("File Manager: Uploaded file {0} with {1} bytes", resource.Name, totalBytesRead);
+        }
+
         public void RemoveFile(Resource resource)
         {
             _files.Remove(resource.Id);

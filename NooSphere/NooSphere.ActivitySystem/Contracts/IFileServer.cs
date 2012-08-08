@@ -26,15 +26,17 @@ namespace NooSphere.ActivitySystem.Contracts
         void AddFile(string activityId,string resourceId, Stream stream);
 
         [OperationContract]
+        [WebGet(UriTemplate = "files/{activityId}/{resourceId}")]
+        Stream GetFile(string activityId, string resourceId);
+
+        [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "files", Method = "DELETE")]
         void RemoveFile(Resource resource);
 
         [OperationContract]
-        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "files", Method = "PUT")]
-        void UpdateFile(Resource resource, byte[] file);
+        [WebInvoke(UriTemplate = "files/{activityId}/{resourceId}", Method = "PUT")]
+        void UpdateFile(string activityId, string resourceId, Stream stream);
 
-        [OperationContract]
-        [WebGet(ResponseFormat = WebMessageFormat.Json, UriTemplate = "files")]
-        List<Resource> Sync();
+
     }
 }
