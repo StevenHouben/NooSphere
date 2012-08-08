@@ -125,10 +125,10 @@ namespace NooSphere.ActivitySystem.Base
             return Rest.DownloadFromHttpStream(_baseUrl + ConstructId(resource.ActivityId, resource.ActionId,resource.Id),
                                                resource.Size, _connection.ConnectionId);
         }
-        public void AddResource(Resource resource,Stream stream)
+        public void AddResource(Resource resource,string localPath)
         {
-            Rest.UploadToHttpStream(_baseUrl + ConstructId(resource.ActivityId, resource.ActionId, resource.Id) + "?size=" + resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" + resource.CreationTime
-            + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), stream,resource.Size, _connection.ConnectionId);
+            Rest.SendStreamingRequest(_baseUrl + ConstructId(resource.ActivityId, resource.ActionId, resource.Id) + "?size=" + resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" + resource.CreationTime
+            + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), localPath, _connection.ConnectionId);
         }
         public void DeleteFile(Resource resource)
         {

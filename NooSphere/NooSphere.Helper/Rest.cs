@@ -82,38 +82,13 @@ namespace NooSphere.Helpers
             }
         }
 
-        public static string UploadToHttpStream(string url, Stream stream,int size, string connectionId=null)
-        {
-            var client = new HttpClient();
-            var message = new HttpRequestMessage();
-            if (connectionId != null)
-                message.Headers.Authorization = AuthenticationHeaderValue.Parse(connectionId);
-            message.Method = HttpMethod.Post;
-            message.RequestUri = new Uri(url);
-            message.Content = new StreamContent(stream,size);
-            message.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
-            try
-            {
-                var response = client.SendAsync(message).Result;
-                if (response.StatusCode == HttpStatusCode.InternalServerError | response.StatusCode == HttpStatusCode.BadRequest)
-                    throw (new Exception(response.ToString()));
-                stream.Close();
-                stream.Dispose();
-                return response.Content.ReadAsStringAsync().Result;
-            }
-            catch (HttpRequestException e)
-            {
-                return null;
-
-            }
-        }
-
         /// <summary>
         /// Sends a stream request over http
         /// </summary>
         /// <param name="customUrl">The url</param>
         /// <param name="filePath"></param>
-        public static void SendStreamingRequest(string customUrl,string filePath)
+        /// <param name="connectionId"> </param>
+        public static void SendStreamingRequest(string customUrl,string filePath,string connectionId=null)
         {
             if (File.Exists(filePath))
                 try
@@ -124,11 +99,13 @@ namespace NooSphere.Helpers
                     var request = (HttpWebRequest)WebRequest.Create(requestUrl);
                     request.Method = "POST";
                     request.ContentType = "text/plain";
+                    if(connectionId !=null)
+                        request.Headers.Add(HttpRequestHeader.Authorization,connectionId);
 
                     var fileToSend = File.ReadAllBytes(filePath);
                     request.ContentLength = fileToSend.Length;
 
-                    using (Stream requestStream = request.GetRequestStream())
+                    using (var requestStream = request.GetRequestStream())
                     {
                         // Send the file as body request. 
                         requestStream.Write(fileToSend, 0, fileToSend.Length);
