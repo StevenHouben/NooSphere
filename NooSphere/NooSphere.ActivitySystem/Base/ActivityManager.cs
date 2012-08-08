@@ -36,7 +36,7 @@ namespace NooSphere.ActivitySystem.Base
         private RestSubscriber _subscriber;
         private RestPublisher _publisher;
         private ActivityCloudConnector _activityCloudConnector;
-        private FileStore _fileServer;
+        private FileService _fileServer;
 
         private bool _connectionActive;
         private readonly bool _useLocalCloud;
@@ -77,7 +77,7 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="localPath">Path where the file service stores files</param>
         private void InitializeFileService(string localPath)
         {
-            _fileServer = new FileStore(localPath);
+            _fileServer = new FileService(localPath);
             _fileServer.FileAdded += FileServerFileAdded;
             _fileServer.FileChanged += FileServerFileChanged;
             _fileServer.FileRemoved += FileServerFileRemoved;
@@ -151,7 +151,7 @@ namespace NooSphere.ActivitySystem.Base
         private void PublishActivityToCloud(Activity act)
         {
             Console.WriteLine("ActivityManager: Publishing activity {0} to cloud", act.Name);
-            if (!_useCloud && _connectionActive)
+            if (_useCloud && _connectionActive)
                 _activityCloudConnector.AddActivity(act);
         }
 
@@ -191,9 +191,9 @@ namespace NooSphere.ActivitySystem.Base
                             counter.X++;
                             if (counter.X == counter.Y)
                             {
+                                PublishActivityToCloud(activity);
                                 _counters.Remove(activity.Id);
                                 _buffer.Remove(activity.Id);
-                                PublishActivityToCloud(activity);
 
                                 return;
                             }
@@ -455,7 +455,6 @@ namespace NooSphere.ActivitySystem.Base
         {
             return _fileServer.GetStreamFromFile(GetResourceFromId(activityId,resourceId));
         }
-
 
         /// <summary>
         /// TODO
