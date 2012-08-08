@@ -38,7 +38,7 @@ namespace NooSphere.Helpers
                 message.Headers.Authorization = AuthenticationHeaderValue.Parse(connectionId);
             if (content != null)
             {
-                string json = JsonConvert.SerializeObject(content);
+                var json = JsonConvert.SerializeObject(content);
                 message.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(json));
                 message.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
             }
@@ -47,15 +47,64 @@ namespace NooSphere.Helpers
 
             try
             {
-                HttpResponseMessage response = client.SendAsync(message).Result;
+                var response = client.SendAsync(message).Result;
                 if (response.StatusCode == HttpStatusCode.InternalServerError | response.StatusCode == HttpStatusCode.BadRequest)
                     throw (new Exception(response.ToString()));
                 return response.Content.ReadAsStringAsync().Result;
             }
             catch (HttpRequestException e)
             {
-                return e.ToString();
-                
+                return null;
+
+            }
+        }
+        public static byte[] DownloadFromHttpStream(string url,int fileLength, string connectionId=null)
+        {
+            var client = new HttpClient();
+            var message = new HttpRequestMessage();
+            if (connectionId != null)
+                message.Headers.Authorization = AuthenticationHeaderValue.Parse(connectionId);
+            message.Method = HttpMethod.Get;
+            message.RequestUri = new Uri(url);
+
+            var bytesToRead = new byte[fileLength];
+            try
+            {
+                using (var response = (StreamContent)client.SendAsync(message).Result.Content)
+                {
+                    response.ReadAsStreamAsync().Result.Read(bytesToRead, 0, fileLength);
+                }
+                return bytesToRead;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        public static string UploadToHttpStream(string url, Stream stream,int size, string connectionId=null)
+        {
+            var client = new HttpClient();
+            var message = new HttpRequestMessage();
+            if (connectionId != null)
+                message.Headers.Authorization = AuthenticationHeaderValue.Parse(connectionId);
+            message.Method = HttpMethod.Post;
+            message.RequestUri = new Uri(url);
+            message.Content = new StreamContent(stream,size);
+            message.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
+            try
+            {
+                var response = client.SendAsync(message).Result;
+                if (response.StatusCode == HttpStatusCode.InternalServerError | response.StatusCode == HttpStatusCode.BadRequest)
+                    throw (new Exception(response.ToString()));
+                stream.Close();
+                stream.Dispose();
+                return response.Content.ReadAsStringAsync().Result;
+            }
+            catch (HttpRequestException e)
+            {
+                return null;
+
             }
         }
 
@@ -70,13 +119,13 @@ namespace NooSphere.Helpers
                 try
                 {
                     // Create the REST request. 
-                    string requestUrl = customUrl;
+                    var requestUrl = customUrl;
 
                     var request = (HttpWebRequest)WebRequest.Create(requestUrl);
                     request.Method = "POST";
                     request.ContentType = "text/plain";
 
-                    byte[] fileToSend = File.ReadAllBytes(filePath);
+                    var fileToSend = File.ReadAllBytes(filePath);
                     request.ContentLength = fileToSend.Length;
 
                     using (Stream requestStream = request.GetRequestStream())

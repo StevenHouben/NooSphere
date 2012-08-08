@@ -714,9 +714,9 @@ namespace ActivityUI.Xaml
             image.Size = (int)new FileInfo(_client.LocalPath + image.RelativePath).Length;
             act.Resources.Add(image);
 
-            var video = new Resource { RelativePath = "/abc.wmv", Name = "abc.wmv", ActivityId = ac.Id, ActionId = act.Id };
-            video.Size = (int)new FileInfo(_client.LocalPath + video.RelativePath).Length;
-            act.Resources.Add(video);
+            //var video = new Resource { RelativePath = "/abc.wmv", Name = "abc.wmv", ActivityId = ac.Id, ActionId = act.Id };
+            //video.Size = (int)new FileInfo(_client.LocalPath + video.RelativePath).Length;
+            //act.Resources.Add(video);
 
             ac.Actions.Add(act);
             ac.Participants.Add(part);

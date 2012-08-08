@@ -149,7 +149,7 @@ namespace NooSphere.ActivitySystem.Base
         {
             _publisher.Publish(EventType.FileEvents, FileEvent.FileDownloadRequest.ToString(), e.Resource);
             if (_connectionActive && _useCloud)
-                _activityCloudConnector.AddResource(e.Resource, _fileServer.GetFile(e.Resource));
+                _activityCloudConnector.AddResource(e.Resource, _fileServer.GetStreamFromFile(e.Resource));
         }
         private void FileServerFileAdded(object sender, FileEventArgs e)
         {
@@ -206,8 +206,7 @@ namespace NooSphere.ActivitySystem.Base
         }
         private void ActivityCloudConnectorFileUploadRequest(object sender, FileEventArgs e)
         {
-            byte[] buffer = _fileServer.GetFile(e.Resource);
-            _activityCloudConnector.AddResource(e.Resource, buffer);
+            _activityCloudConnector.AddResource(e.Resource, _fileServer.GetStreamFromFile(e.Resource));
         }
         private void ActivityCloudConnectorActivityUpdated(object sender, ActivityEventArgs e)
         {
@@ -316,33 +315,38 @@ namespace NooSphere.ActivitySystem.Base
         }
         private void ResourceTracker(Resource res)
         {
-            if (_buffer.Count == 0)
-                return;
-            foreach (var activity in _buffer.Values)
+            var t = new Thread(() =>
             {
-                foreach (var resource in activity.GetResources())
+                if (_buffer.Count == 0)
+                    return;
+                //debug loop
+                foreach (var pair in _counters)
                 {
-                    if (res.Id == resource.Id)
+                    Console.WriteLine(
+                        "Tracking_debug. Guid: {0} |  #received: {1} | #total: {2}", pair.Key,
+                        pair.Value.X, pair.Value.Y);
+                }
+                foreach (var activity in _buffer.Values)
+                {
+                    foreach (var resource in activity.GetResources())
                     {
-                        var counter = _counters[activity.Id];
-                        counter.X++;
-                        if (counter.X == counter.Y)
+                        if (res.Id == resource.Id)
                         {
-                            _counters.Remove(activity.Id);
-                            _buffer.Remove(activity.Id);
-                            PublishActivityToCloud(activity);
-                            return;
+                            var counter = _counters[activity.Id];
+                            counter.X++;
+                            if (counter.X == counter.Y)
+                            {
+                                _counters.Remove(activity.Id);
+                                _buffer.Remove(activity.Id);
+                                PublishActivityToCloud(activity);
+                                return;
+                            }
+                            _counters[activity.Id] = counter;
                         }
-                        _counters[activity.Id] = counter;
                     }
                 }
-            }
-
-            //debug loop
-            foreach (var pair in _counters)
-            {
-                Console.WriteLine("Tracking_debug. Guid: {0} |  #received: {1} | #total: {2}",pair.Key,pair.Value.X,pair.Value.Y);
-            }
+            }) {IsBackground = true};
+            t.Start();
         }
 
         private Dictionary<Guid,Point> _counters = new Dictionary<Guid, Point>(); 
