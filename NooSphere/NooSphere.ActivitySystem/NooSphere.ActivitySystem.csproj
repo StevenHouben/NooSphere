@@ -79,11 +79,13 @@
     <Compile Include="Base\FileEventArgs.cs" />
     <Compile Include="Base\ParticipantsEventArgs.cs" />
     <Compile Include="Base\FriendEventArgs.cs" />
+    <Compile Include="FileServer\FileClient.cs" />
     <Compile Include="FileServer\FileSource.cs" />
-    <Compile Include="FileServer\FileStore.cs" />
+    <Compile Include="FileServer\FileService.cs" />
     <Compile Include="Base\IActivityNode.cs" />
     <Compile Include="Contracts\IFileServer.cs" />
     <Compile Include="Contracts\IUserEvent.cs" />
+    <Compile Include="FileServer\IFileStore.cs" />
     <Compile Include="PubSub\Concurrency.cs" />
     <Compile Include="Base\ConnectedClient.cs" />
     <Compile Include="Contracts\IActivityManager.cs" />

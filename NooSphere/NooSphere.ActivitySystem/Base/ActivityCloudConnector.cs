@@ -122,12 +122,12 @@ namespace NooSphere.ActivitySystem.Base
         }
         public byte[] GetResource(Resource resource)
         {
-            return Rest.DownloadFromHttpStream(_baseUrl + ConstructId(resource.ActivityId, resource.ActionId,resource.Id),
+            return Rest.DownloadFromHttpStream(_baseUrl + resource.CloudPath,
                                                resource.Size, _connection.ConnectionId);
         }
         public void AddResource(Resource resource,string localPath)
         {
-            Rest.SendStreamingRequest(_baseUrl + ConstructId(resource.ActivityId, resource.ActionId, resource.Id) + "?size=" + resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" + resource.CreationTime
+            Rest.SendStreamingRequest(_baseUrl + resource.CloudPath + "?size=" + resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" + resource.CreationTime
             + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), localPath, _connection.ConnectionId);
         }
         public void DeleteFile(Resource resource)
@@ -270,10 +270,6 @@ namespace NooSphere.ActivitySystem.Base
                 }
             }) {IsBackground = true};
             t.Start();
-        }
-        private string ConstructId(Guid activityId, Guid actionId, Guid resourceId)
-        {
-            return "Activities/" + activityId + "/Actions/" + actionId + "/Resources/" + resourceId;
         }
         #endregion
     }

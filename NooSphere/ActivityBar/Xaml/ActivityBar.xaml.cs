@@ -705,12 +705,12 @@ namespace ActivityUI.Xaml
             var act = new NooSphere.Core.ActivityModel.Action();
 
             var textFile = new Resource
-                               {RelativePath = "/abc.txt", Name = "abc.txt", ActivityId = ac.Id, ActionId = act.Id};
+                               {FileName = "abc.txt", Name = "abc.txt", ActivityId = ac.Id, ActionId = act.Id};
             textFile.Size = (int)new FileInfo(_client.LocalPath + textFile.RelativePath).Length;
             act.Resources.Add(textFile);
 
             var image = new Resource
-                            {RelativePath = "/abc.jpg", Name = "abc.jpg", ActivityId = ac.Id, ActionId = act.Id};
+                            {FileName = "/abc.jpg", Name = "abc.jpg", ActivityId = ac.Id, ActionId = act.Id};
             image.Size = (int)new FileInfo(_client.LocalPath + image.RelativePath).Length;
             act.Resources.Add(image);
 

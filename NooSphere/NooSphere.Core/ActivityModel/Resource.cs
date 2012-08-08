@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 using System;
+using System.Globalization;
 using NooSphere.Core.Primitives;
 
 namespace NooSphere.Core.ActivityModel
@@ -18,22 +19,20 @@ namespace NooSphere.Core.ActivityModel
     public class Resource : Base
     {
         public Resource()
-            : base()
         {
             InitializeTimeStamps();
         }
         public Resource(string filePath,string name)
-            : base()
         {
             InitializeTimeStamps();
-            this.Name = name;
-            this.RelativePath = filePath;
+            Name = name;
+            FileName = filePath;
         }
 
         private void InitializeTimeStamps()
         {
-            this.CreationTime = DateTime.Now.ToString();
-            this.LastWriteTime = DateTime.Now.ToString();
+            CreationTime = DateTime.Now.ToString(CultureInfo.InvariantCulture);
+            LastWriteTime = DateTime.Now.ToString(CultureInfo.InvariantCulture);
         }
 
         public Guid ActivityId { get; set; }
@@ -41,7 +40,9 @@ namespace NooSphere.Core.ActivityModel
         public int Size { get; set; }
         public string CreationTime { get; set; }
         public string LastWriteTime { get; set; }
-        public string RelativePath { get; set; }
+        public string FileName { get; set; }
+        public string RelativePath { get {return "Activities/" + ActionId + "/Actions/" + ActionId + "/Resources/" + FileName; }}
+        public string CloudPath { get { return "Activities/" + ActionId + "/Actions/" + ActionId + "/Resources/" + Id; } }
         public Service Service { get; set; }
     }
 }

@@ -19,7 +19,7 @@ using System.Threading;
 
 namespace NooSphere.ActivitySystem.FileServer
 {
-    public class FileStore
+    public class FileService:IFileStore
     {
         #region Events
         public event FileAddedHandler FileAdded;
@@ -37,7 +37,7 @@ namespace NooSphere.ActivitySystem.FileServer
         #endregion
 
         #region Public Methods
-        public FileStore(string path)
+        public FileService(string path)
         {
             BasePath = path;
         }
@@ -45,18 +45,23 @@ namespace NooSphere.ActivitySystem.FileServer
         {
             var t = new Thread(() =>
             {
+                Check(resource, fileInBytes);
                 SaveToDisk(fileInBytes, resource);
-                _files.Add(resource.Id, resource);
+                if(_files.ContainsKey(resource.Id))
+                    UpdateFile(resource,fileInBytes,source);
+                else
+                    _files.Add(resource.Id, resource);
 
-                if (source == FileSource.Cloud)
+                switch (source)
                 {
-                    if (FileDownloadedFromCloud != null)
-                        FileDownloadedFromCloud(this, new FileEventArgs(resource));
-                }
-                else if (source == FileSource.Local)
-                {
-                    if (FileAdded != null)
-                        FileAdded(this, new FileEventArgs(resource));
+                    case FileSource.Cloud:
+                        if (FileDownloadedFromCloud != null)
+                            FileDownloadedFromCloud(this, new FileEventArgs(resource));
+                        break;
+                    case FileSource.Local:
+                        if (FileAdded != null)
+                            FileAdded(this, new FileEventArgs(resource));
+                        break;
                 }
                 Console.WriteLine("FileStore: Added file {0} to store", resource.Name); 
             }) {IsBackground = true};
@@ -64,21 +69,34 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         public void AddFile(Resource resource, Stream stream, FileSource source)
         {
-            var buffer = new byte[resource.Size];
-            var ms = new MemoryStream();
-            int bytesRead, totalBytesRead = 0;
-            do
-            {
-                bytesRead = stream.Read(buffer, 0, buffer.Length);
-                totalBytesRead += bytesRead;
-
-                ms.Write(buffer, 0, bytesRead);
-            } while (bytesRead > 0);
-            AddFile(resource, buffer, FileSource.Local);
-            ms.Close();
-            Console.WriteLine("File Manager: Uploaded file {0} with {1} bytes", resource.Name, totalBytesRead);
+            AddFile(resource, GetBytesFromStream(resource, stream), FileSource.Local);
         }
+        public void UpdateFile(Resource resource,Stream stream,FileSource source)
+        {
+            UpdateFile(resource, GetBytesFromStream(resource, stream), source);
+        }
+        public void UpdateFile(Resource resource, byte[] fileInBytes, FileSource source)
+        {
+            var t = new Thread(() =>
+            {
+                SaveToDisk(fileInBytes, resource);
+                _files[resource.Id] = resource;
 
+                switch (source)
+                {
+                    case FileSource.Cloud:
+                        if (FileDownloadedFromCloud != null)
+                            FileDownloadedFromCloud(this, new FileEventArgs(resource));
+                        break;
+                    case FileSource.Local:
+                        if (FileChanged != null)
+                            FileChanged(this, new FileEventArgs(resource));
+                        break;
+                }
+                Console.WriteLine("FileStore: Updated file {0} to store", resource.Name);
+            }) { IsBackground = true };
+            t.Start();
+        }
         public void RemoveFile(Resource resource)
         {
             _files.Remove(resource.Id);
@@ -124,6 +142,30 @@ namespace NooSphere.ActivitySystem.FileServer
         #endregion
 
         #region Private Methods
+        private byte[] GetBytesFromStream(Resource resource, Stream stream)
+        {
+            var buffer = new byte[resource.Size];
+            var ms = new MemoryStream();
+            int bytesRead;
+            do
+            {
+                bytesRead = stream.Read(buffer, 0, buffer.Length);
+                ms.Write(buffer, 0, bytesRead);
+            } while (bytesRead > 0);
+            ms.Close();
+            return buffer;
+        }
+        private void Check(Resource resource, byte[] fileInBytes)
+        {
+            if (_files == null)
+                throw new Exception("Filestore: Not initialized");
+            if (resource == null)
+                throw new Exception(("Filestore: Resource not found"));
+            if (fileInBytes == null)
+                throw new Exception(("Filestore: Bytearray null"));
+            if (fileInBytes.Length == 0)
+                throw new Exception(("Filestore: Bytearray empty"));
+        }
         private void SaveToDisk(byte[] fileInBytes, Resource resource)
         {
             try

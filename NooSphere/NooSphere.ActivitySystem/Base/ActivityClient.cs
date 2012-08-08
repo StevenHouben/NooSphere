@@ -21,6 +21,7 @@ using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using NooSphere.Helpers;
 using Newtonsoft.Json;
+using NooSphere.ActivitySystem.FileServer;
 
 namespace NooSphere.ActivitySystem.Base
 {
@@ -34,6 +35,8 @@ namespace NooSphere.ActivitySystem.Base
 
         #region Private Members
         private readonly Dictionary<Type, ServiceHost> _callbackServices = new Dictionary<Type, ServiceHost>();
+
+        private FileService _fileServer;
         #endregion
 
         #region Properties
@@ -42,7 +45,8 @@ namespace NooSphere.ActivitySystem.Base
         public string DeviceId { get; private set; }
         public string ServiceAddress { get; set; }
         public User CurrentUser { get; set; }
-        public string LocalPath { get; private set; }
+        public string LocalPath { get { return _fileServer.BasePath; } }
+
         #endregion
 
         #region Constructor
@@ -55,20 +59,40 @@ namespace NooSphere.ActivitySystem.Base
         public ActivityClient(string address,string localFileDirectory)
         {
             Connect(address);
-            LocalPath = localFileDirectory;
+            InitializeFileService(localFileDirectory);
             OnInitializedEvent(new EventArgs());
 
-            FileUploadRequest += new FileUploadRequestHandler(ActivityClientFileUploadRequest);
+            FileUploadRequest += ActivityClientFileUploadRequest;
         }
 
+        /// <summary>
+        /// Initializes the File Service
+        /// </summary>
+        /// <param name="localPath">Path where the file service stores files</param>
+        private void InitializeFileService(string localPath)
+        {
+            _fileServer = new FileService(localPath);
+            //_fileServer.FileAdded += FileServerFileAdded;
+            //_fileServer.FileChanged += FileServerFileChanged;
+            //_fileServer.FileRemoved += FileServerFileRemoved;
+            //_fileServer.FileDownloadedFromCloud += FileServerFileDownloaded;
+            Console.WriteLine("ActivityClient: FileStore initialized at {0}", _fileServer.BasePath);
+        }
         private void ActivityClientFileUploadRequest(object sender, FileEventArgs e)
         {
-            Rest.SendStreamingRequest(ServiceAddress + "Files/" + e.Resource.ActivityId + "/" + e.Resource.Id, LocalPath + e.Resource.RelativePath);
+            UploadResource(e.Resource);
         }
+
         #endregion
 
         #region Private Methods
 
+
+        private void UploadResource(Resource r)
+        {
+            Rest.SendStreamingRequest(ServiceAddress + "Files/" + r.ActivityId + "/" + r.Id,
+                                      _fileServer.BasePath + r.RelativePath);
+        }
         /// <summary>
         /// Tests the connection to the service
         /// </summary>
@@ -112,10 +136,10 @@ namespace NooSphere.ActivitySystem.Base
         /// <returns>The port of the deployed service</returns>
         private int StartCallbackService(Type service)
         {
-            int port = Net.FindPort();
+            var port = Net.FindPort();
 
             var eventHandlerService = new ServiceHost(this);
-            ServiceEndpoint se = eventHandlerService.AddServiceEndpoint(service, new WebHttpBinding(), Net.GetUrl(Ip, port, ""));
+            var se = eventHandlerService.AddServiceEndpoint(service, new WebHttpBinding(), Net.GetUrl(Ip, port, ""));
             se.Behaviors.Add(new WebHttpBehavior());
             try
             {
@@ -157,12 +181,8 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="type">The type of event for which the client needs to subscribe</param>
         public void Subscribe(EventType type)
         {
-            int port = StartCallbackService(EventTypeConverter.TypeFromEnum(type));
-            var subscription = new
-            {
-                id = DeviceId, port, type
-            };
-            Rest.Post(ServiceAddress + Url.Subscribers, subscription);
+            var port = StartCallbackService(EventTypeConverter.TypeFromEnum(type));
+            Rest.Post(ServiceAddress + Url.Subscribers, new{id = DeviceId, port, type});
         }
 
         /// <summary>
@@ -171,17 +191,12 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="type">The type of event to which the client has to unsubscribe</param>
         public void UnSubscribe(EventType type)
         {
-            var unSubscription = new
-            {
-                id = DeviceId, type
-            };
-
-            Type t = EventTypeConverter.TypeFromEnum(type);
+            var t = EventTypeConverter.TypeFromEnum(type);
             if (_callbackServices.ContainsKey(t))
             {
                 _callbackServices[t].Close();
                 _callbackServices.Remove(t);
-                Rest.Delete(ServiceAddress + Url.Subscribers, unSubscription);
+                Rest.Delete(ServiceAddress + Url.Subscribers, new{id = DeviceId, type});
             }
         }
 
@@ -203,7 +218,6 @@ namespace NooSphere.ActivitySystem.Base
             Rest.Post(ServiceAddress + Url.Activities, act);
         }
 
-
         /// <summary>
         /// Get the file byte array from the resource
         /// </summary>
@@ -211,10 +225,10 @@ namespace NooSphere.ActivitySystem.Base
         /// <returns>A byte array representing the file</returns>
         private byte[] GetFile(Resource resource)
         {
-            var fi = new FileInfo(LocalPath + resource.RelativePath);
+            var fi = new FileInfo(_fileServer.BasePath + resource.RelativePath);
             var buffer = new byte[fi.Length];
 
-            using (var fs = new FileStream(LocalPath + resource.RelativePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var fs = new FileStream(_fileServer.BasePath + resource.RelativePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 fs.Read(buffer, 0, (int)fs.Length);
             return buffer;
         }
@@ -264,12 +278,7 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="msg">The message that needs to be included in the request</param>
         public void SendMessage(string msg)
         {
-            var message = new
-            {
-                id = DeviceId,
-                message = msg
-            };
-            Rest.Post(ServiceAddress + Url.Messages, message);
+            Rest.Post(ServiceAddress + Url.Messages, new{id = DeviceId,message = msg});
         }
 
         /// <summary>
