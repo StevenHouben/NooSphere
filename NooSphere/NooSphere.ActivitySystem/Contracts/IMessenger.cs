@@ -20,6 +20,6 @@ namespace NooSphere.ActivitySystem.Contracts
     {
         [OperationContract]
         [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest,RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "messages", Method = "POST")]
-        void SendMessage(string id, string message);
+        void SendMessage(string message,string deviceId);
     }
 }

@@ -37,6 +37,12 @@ namespace NooSphere.ActivitySystem.PubSub
             if (!Store.ContainsKey(eventType))
                 Store.Add(eventType, new Dictionary<string, object>());
         }
+
+        public static string FindSubscriber(EventType eventType,string conId)
+        {
+            return (string)Store[eventType][conId];
+        }
+
         #endregion
 
         #region Public Members

@@ -163,4 +163,12 @@ namespace NooSphere.Helpers
             return SendRequest(uri, HttpMethod.Delete, obj);
         }
     }
+    //public enum HttpMethod
+    //{
+    //    Get,
+    //    Post,
+    //    Put,
+    //    Delete
+        
+    //}
 }

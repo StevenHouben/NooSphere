@@ -140,9 +140,7 @@ namespace NooSphere.ActivitySystem.Base
             if (ParticipantRemoved != null)
                 ParticipantRemoved(this, new ParticipantEventArgs(u, activityId));
         }
-        #endregion
 
-        #region Public Members
         public bool Alive()
         {
             return true;

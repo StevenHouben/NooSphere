@@ -689,39 +689,33 @@ namespace ActivityUI.Xaml
         public Activity GetInitializedActivity()
         {
             var ac = new Activity
-                         {
-                             Name = "test activity - " + DateTime.Now,
-                             Description = "This is the description of the test activity - " + DateTime.Now
-                         };
+            {
+                Name = "test activity - " + DateTime.Now,
+                Description = "This is the description of the test activity - " + DateTime.Now
+            };
             ac.Uri = "http://tempori.org/" + ac.Id;
 
-            ac.Context = "random context model here";
             ac.Meta.Data = "added meta data";
-
             ac.Owner = _owner;
-
-            var part = new User {Email = "test@test.dk"};
-
             var act = new NooSphere.Core.ActivityModel.Action();
 
+        
             var textFile = new Resource
                                {FileName = "abc.txt", Name = "abc.txt", ActivityId = ac.Id, ActionId = act.Id};
-            textFile.Size = (int)new FileInfo(_client.LocalPath + textFile.RelativePath).Length;
+            textFile.Size = (int)new FileInfo(_client.LocalPath + textFile.FileName).Length;
             act.Resources.Add(textFile);
 
             var image = new Resource
-                            {FileName = "/abc.jpg", Name = "abc.jpg", ActivityId = ac.Id, ActionId = act.Id};
-            image.Size = (int)new FileInfo(_client.LocalPath + image.RelativePath).Length;
+                            {FileName = "abc.jpg", Name = "abc.jpg", ActivityId = ac.Id, ActionId = act.Id};
+            image.Size = (int)new FileInfo(_client.LocalPath + image.FileName).Length;
             act.Resources.Add(image);
 
-            //var video = new Resource { RelativePath = "/abc.wmv", Name = "abc.wmv", ActivityId = ac.Id, ActionId = act.Id };
-            //video.Size = (int)new FileInfo(_client.LocalPath + video.RelativePath).Length;
-            //act.Resources.Add(video);
 
             ac.Actions.Add(act);
-            ac.Participants.Add(part);
             return ac;
         }
+
+
         #endregion
 
         #region Taskbar Glass

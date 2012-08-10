@@ -23,16 +23,16 @@ namespace NooSphere.ActivitySystem.Contracts
     public interface IActivityManager : IMessenger,IFileServer
     {
         [OperationContract]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "POST")]
-        void AddActivity(Activity act);
+        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "POST")]
+        void AddActivity(Activity act,string deviceId);
 
         [OperationContract]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "PUT")]
-        void UpdateActivity(Activity act);
+        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "PUT")]
+        void UpdateActivity(Activity act, string deviceId);
 
         [OperationContract]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "DELETE")]
-        void RemoveActivity(string id);
+        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "DELETE")]
+        void RemoveActivity(string activityId, string deviceId);
 
         [OperationContract]
         [ServiceKnownType(typeof(string))]
@@ -45,20 +45,20 @@ namespace NooSphere.ActivitySystem.Contracts
 
         [OperationContract]
         [ServiceKnownType(typeof(string))]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "devices", Method = "POST")]
+        [WebInvoke( RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "devices", Method = "POST")]
         Guid Register(Device device);
 
         [OperationContract]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "devices", Method = "DELETE")]
-        void UnRegister(string id);
+        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "devices", Method = "DELETE")]
+        void UnRegister(string deviceId);
 
         [OperationContract]
         [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "subscribers", Method = "POST")]
-        void Subscribe(string id, EventType type, int port);
+        void Subscribe(EventType type, int port, string deviceId);
 
         [OperationContract]
         [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "subscribers", Method = "DELETE")]
-        void UnSubscribe(string id,EventType type);
+        void UnSubscribe(EventType type,string deviceId);
 
         [OperationContract]
         [ServiceKnownType(typeof(string))]
@@ -66,16 +66,16 @@ namespace NooSphere.ActivitySystem.Contracts
         List<User> GetUsers();
 
         [OperationContract]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "users", Method = "POST")]
-        void RequestFriendShip(string email);
+        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "users", Method = "POST")]
+        void RequestFriendShip(string email, string deviceId);
 
         [OperationContract]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "users", Method = "DELETE")]
-        void RemoveFriend(Guid friendId);
+        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "users", Method = "DELETE")]
+        void RemoveFriend(Guid friendId, string deviceId);
 
         [OperationContract]
         [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "users", Method = "PUT")]
-        void RespondToFriendRequest(Guid friendId, bool approval);
+        void RespondToFriendRequest(Guid friendId, bool approval, string deviceId);
 
         [OperationContract]
         [WebGet(ResponseFormat = WebMessageFormat.Json, UriTemplate = "")]
