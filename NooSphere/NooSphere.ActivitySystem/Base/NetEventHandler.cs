@@ -19,7 +19,7 @@ using NooSphere.ActivitySystem.Contracts;
 namespace NooSphere.ActivitySystem.Base
 {
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Single, InstanceContextMode = InstanceContextMode.Single, UseSynchronizationContext = false)]
-    public class NetEventHandler : IActivityNetEvent,IDeviceNetEvent,IFileNetEvent,IComNetEvent,IUserEvent
+    public class NetEventHandler : INetEvent
     {
         #region Events
         public event ActivityAddedHandler ActivityAdded = null;

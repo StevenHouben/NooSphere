@@ -34,8 +34,7 @@ namespace NooSphere.ActivitySystem.Base
         #endregion
 
         #region Private Members
-        private readonly Dictionary<Type, ServiceHost> _callbackServices = new Dictionary<Type, ServiceHost>();
-
+        private ServiceHost _callbackService;
         private FileService _fileServer;
         #endregion
 
@@ -135,23 +134,22 @@ namespace NooSphere.ActivitySystem.Base
         /// </summary>
         /// <param name="service">The type of callback service</param>
         /// <returns>The port of the deployed service</returns>
-        private int StartCallbackService(Type service)
+        private int StartCallbackService()
         {
             var port = Net.FindPort();
 
-            var eventHandlerService = new ServiceHost(this);
-            var se = eventHandlerService.AddServiceEndpoint(service, new WebHttpBinding(), Net.GetUrl(Ip, port, ""));
+            _callbackService = new ServiceHost(this);
+            var se = _callbackService.AddServiceEndpoint(typeof(INetEvent), new WebHttpBinding(), Net.GetUrl(Ip, port, ""));
             se.Behaviors.Add(new WebHttpBehavior());
             try
             {
-                eventHandlerService.Open();
+                _callbackService.Open();
             }
             catch (Exception ex)
             {
                 Console.WriteLine("ActivityClient: error launching callback service: " + ex);
                 throw new ApplicationException(ex.ToString());
             }
-            _callbackServices.Add(service, eventHandlerService);
             return port;
         }
         #endregion
@@ -163,7 +161,7 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="d">The device that needs to be registered with the activity client</param>
         public void Register(Device d)
         {
-            d.BaseAddress = Net.GetIp(IPType.All);
+            d.BaseAddress = Net.GetUrl(Net.GetIp(IPType.All), StartCallbackService(),"").ToString();
             DeviceId = JsonConvert.DeserializeObject<String>(Rest.Post(ServiceAddress + Url.Devices, d));
             Console.WriteLine("ActivityClient: Received device id: " + DeviceId);
         }
@@ -174,40 +172,6 @@ namespace NooSphere.ActivitySystem.Base
         public void Unregister()
         {
             Rest.Delete(ServiceAddress + Url.Devices, DeviceId);
-        }
-
-        /// <summary>
-        /// Subscribe the activity client to an activity manager event
-        /// </summary>
-        /// <param name="type">The type of event for which the client needs to subscribe</param>
-        public void Subscribe(EventType type)
-        {
-            var port = StartCallbackService(EventTypeConverter.TypeFromEnum(type));
-            Rest.Post(ServiceAddress + Url.Subscribers, new { port, type, deviceId = DeviceId });
-        }
-
-        /// <summary>
-        /// Unsubscribe the activity client from an activity client event
-        /// </summary>
-        /// <param name="type">The type of event to which the client has to unsubscribe</param>
-        public void UnSubscribe(EventType type)
-        {
-            var t = EventTypeConverter.TypeFromEnum(type);
-            if (_callbackServices.ContainsKey(t))
-            {
-                _callbackServices[t].Close();
-                _callbackServices.Remove(t);
-                Rest.Delete(ServiceAddress + Url.Subscribers, new { type, deviceId = DeviceId });
-            }
-        }
-
-        /// <summary>
-        /// Unsubscribe the client for all events
-        /// </summary>
-        public void UnSubscribeAll()
-        {
-            foreach (EventType ev in Enum.GetValues(typeof(EventType)))
-                UnSubscribe(ev);
         }
 
         /// <summary>

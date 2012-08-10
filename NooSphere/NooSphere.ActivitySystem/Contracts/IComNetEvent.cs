@@ -16,7 +16,7 @@ using System.ServiceModel.Web;
 namespace NooSphere.ActivitySystem.Contracts
 {
     [ServiceContract]
-    public interface IComNetEvent : IEvent
+    public interface IComNetEvent
     {
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "MessageReceived", Method = "POST")]

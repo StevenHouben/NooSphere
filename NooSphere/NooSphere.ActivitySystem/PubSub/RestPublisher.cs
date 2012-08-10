@@ -23,35 +23,36 @@ namespace NooSphere.ActivitySystem.PubSub
         /// <summary>
         /// Publishes an event to all suscribers
         /// </summary>
-        /// <param name="type">The event type</param>
-        /// <param name="publishUrl">The url to where the event needs to be published</param>
+        /// <param name="publishUrl"> </param>
         /// <param name="netObject">The object that needs to be published</param>
         /// <param name="source">The source that whishes to publish </param>
         /// <param name="sendToSource">Enables or disable self-publishing to source</param>
-        public void Publish(EventType type,string publishUrl, object netObject,object source=null,bool sendToSource=false)
+        public void Publish(string publishUrl, object netObject, object source = null, bool sendToSource = false)
         {
+            var toRemove = new List<string>();
             var t = new Thread(() =>
             {
-                var toRemove = new List<string>();
                 lock (Concurrency.SubscriberLock)
                 {
-                    foreach (var entry in Registry.Store[type])
+                    foreach (var entry in Registry.ConnectedClients)
                     {
                         try
                         {
-                            if (source!= null && entry.Value == source && sendToSource)
-                                    Rest.Post(entry.Value + publishUrl, netObject);
-                            else Rest.Post(entry.Value + publishUrl, netObject);
+                            if (source != null && entry.Value == source && sendToSource)
+                                Rest.Post(entry.Value.Device.BaseAddress, netObject);
+                            else Rest.Post(entry.Value.Device.BaseAddress + publishUrl, netObject);
                         }
-                        catch
+                        catch (Exception)
                         {
+                            
                             toRemove.Add(entry.Key);
                         }
+
                     }
                     if (toRemove.Count > 0)
                     {
-                        foreach (string subscriberAddress in toRemove)
-                            Registry.Store[type].Remove(subscriberAddress);
+                        foreach (string id in toRemove)
+                            Registry.ConnectedClients.Remove(id);
                     }
                 }
 
@@ -62,24 +63,16 @@ namespace NooSphere.ActivitySystem.PubSub
         /// <summary>
         /// Publish event to one subscriber
         /// </summary>
-        /// <param name="type"></param>
         /// <param name="publishUrl"></param>
         /// <param name="netObject"></param>
         /// <param name="subscriber"> </param>
-        public void PublishToSubscriber(EventType type, string publishUrl, object netObject,object subscriber)
+        public void PublishToSubscriber(string publishUrl, object netObject,object subscriber)
         {
             var t = new Thread(() =>
             {
                 lock (Concurrency.SubscriberLock)
                 {
-                        try
-                        {
-                            Rest.Post(subscriber + publishUrl, netObject);
-                        }
-                        catch(Exception ex)
-                        {
-                            throw ex;
-                        }
+                    Rest.Post(subscriber + publishUrl, netObject);
                 }
 
             });

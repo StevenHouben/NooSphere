@@ -69,6 +69,7 @@
     <Compile Include="Base\ActivityManager.cs" />
     <Compile Include="Base\ActivityStore.cs" />
     <Compile Include="Base\ParticipantStore.cs" />
+    <Compile Include="Contracts\INetEvent.cs" />
     <Compile Include="Discovery\DiscoveryType.cs" />
     <Compile Include="Base\ActivityEventArgs.cs" />
     <Compile Include="Base\CloudEvents.cs" />
@@ -95,7 +96,6 @@
     <Compile Include="Contracts\IActivityNetEvent.cs" />
     <Compile Include="Contracts\IComNetEvent.cs" />
     <Compile Include="Contracts\IDeviceNetEvent.cs" />
-    <Compile Include="Contracts\IEvent.cs" />
     <Compile Include="Contracts\IFileNetEvent.cs" />
     <Compile Include="Discovery\DiscoveryAddressAddedEventArgs.cs" />
     <Compile Include="Discovery\DiscoveryEventArgs.cs" />

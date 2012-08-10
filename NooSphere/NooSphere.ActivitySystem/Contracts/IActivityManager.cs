@@ -53,14 +53,6 @@ namespace NooSphere.ActivitySystem.Contracts
         void UnRegister(string deviceId);
 
         [OperationContract]
-        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "subscribers", Method = "POST")]
-        void Subscribe(EventType type, int port, string deviceId);
-
-        [OperationContract]
-        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "subscribers", Method = "DELETE")]
-        void UnSubscribe(EventType type,string deviceId);
-
-        [OperationContract]
         [ServiceKnownType(typeof(string))]
         [WebGet(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "users")]
         List<User> GetUsers();

@@ -169,7 +169,6 @@ namespace ActivityUI.Xaml
             _device = _login.Device;
             _device.Location = "pIT lab";
 
-            _deviceList.Add(_device.Id.ToString(),_device);
             _owner = _login.User;
             _startMode = _login.Mode;
             InitializeNetwork();
@@ -231,13 +230,6 @@ namespace ActivityUI.Xaml
 
             //Set the current user
             _client.CurrentUser = _owner;
-
-            //Subscribe to the activity manager events
-            _client.Subscribe(EventType.ActivityEvents);
-            _client.Subscribe(EventType.ComEvents);
-            _client.Subscribe(EventType.DeviceEvents);
-            _client.Subscribe(EventType.FileEvents);
-            _client.Subscribe(EventType.UserEvent);
 
             //Subcribe to the callback events of the activity manager
             _client.DeviceAdded += ClientDeviceAdded;
@@ -520,11 +512,11 @@ namespace ActivityUI.Xaml
             //Hide all popUps
             HideAllPopups();
 
+            if(_startMode == StartUpMode.Client)
+                _client.Unregister();
+
             //Close the taskbar
             Close();
-
-            //Close the client;
-            _client.UnSubscribeAll();
 
             //Close the host if running
             if(_host.IsRunning)
