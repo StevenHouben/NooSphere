@@ -37,6 +37,7 @@ namespace NooSphere.Core.ActivityModel
             Workflows = new List<Workflow>();
             Participants = new List<User>();
             Meta = new Metadata();
+            Resources =  new List<Resource>();
         }
 
         #endregion
@@ -47,6 +48,7 @@ namespace NooSphere.Core.ActivityModel
         public List<Action> Actions{ get; set; }
         public List<Workflow> Workflows{ get; set; }
         public Metadata Meta{ get; set; }
+        public List<Resource> Resources { get; set; }
 
         #endregion
 
@@ -54,12 +56,7 @@ namespace NooSphere.Core.ActivityModel
 
         public List<Resource> GetResources()
         {
-            var resources = new List<Resource>();
-
-            foreach (Action a in Actions)
-                resources.AddRange(a.Resources);
-
-            return resources;
+            return Resources;
         }
 
         #endregion

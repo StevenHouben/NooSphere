@@ -63,6 +63,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\ActivityClient.cs" />
+    <Compile Include="Base\Configuration.cs" />
+    <Compile Include="Base\IActivityProxy.cs" />
     <Compile Include="Base\NetEventHandler.cs" />
     <Compile Include="Base\StartupMode.cs" />
     <Compile Include="Base\ActivityCloudConnector.cs" />

@@ -25,6 +25,7 @@ namespace NooSphere.ActivitySystem.FileServer
         #region Events
         public event FileAddedHandler FileAdded;
         public event FileChangedHandler FileChanged;
+        public event FileAddedHandler FileCopied;
         public event FileRemovedHandler FileRemoved;
         public event FileDownloadRequestHandler FileDownloadedFromCloud;     
         #endregion
@@ -63,10 +64,19 @@ namespace NooSphere.ActivitySystem.FileServer
                         if (FileAdded != null)
                             FileAdded(this, new FileEventArgs(resource));
                         break;
+                    case FileSource.System:
+                        if (FileCopied != null)
+                            FileCopied(this, new FileEventArgs(resource));
+                        break; 
                 }
                 Log.Out("FileService", string.Format("Added file {0} to store", resource.Name), LogCode.Log);
             }) {IsBackground = true};
             t.Start();
+        }
+        private bool isNewer(Resource resource, Resource resource2)
+        {
+             //return DateTime.Parse(resource.LastWriteTime) <= DateTime.Parse(resource2.LastWriteTime);
+            return false; //always write
         }
         public void AddFile(Resource resource, Stream stream, FileSource source)
         {
@@ -140,6 +150,11 @@ namespace NooSphere.ActivitySystem.FileServer
             }) {IsBackground = true};
             t.Start();
         }
+        public void IntializePath(Activity act)
+        {
+            if (!Directory.Exists(BasePath + act.Id))
+                Directory.CreateDirectory(BasePath + act.Id);
+        }
         #endregion
 
         #region Private Methods
@@ -171,21 +186,21 @@ namespace NooSphere.ActivitySystem.FileServer
         {
             try
             {
-                string path = BasePath + resource.RelativePath;
+                var path = BasePath + resource.RelativePath;
                 using (var fileToupload = new FileStream(path, FileMode.Create))
                 {
                     fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
                     fileToupload.Close();
                     fileToupload.Dispose();
 
-                    File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
-                    File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
+                    //File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
+                    //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
                     Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,path); 
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.StackTrace);
+                Console.WriteLine(ex.ToString());
             }
 
         }

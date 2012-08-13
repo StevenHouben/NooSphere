@@ -33,6 +33,7 @@ namespace NooSphere.ActivitySystem.Base
         #region Private Members
         private readonly Dictionary<Guid, Point> _counters = new Dictionary<Guid, Point>();
         private readonly Dictionary<Guid, Activity> _buffer = new Dictionary<Guid, Activity>();
+        private readonly Dictionary<Guid, ActivityEvent> _eventType = new Dictionary<Guid, ActivityEvent>(); 
 
         private RestSubscriber _subscriber;
         private RestPublisher _publisher;
@@ -148,23 +149,36 @@ namespace NooSphere.ActivitySystem.Base
         /// Publish activity to cloud
         /// </summary>
         /// <param name="act">Activity that needs to be published</param>
-        private void PublishActivityToCloud(Activity act)
+        private void PublishActivity(Activity act,ActivityEvent aEvent)
         {
             Console.WriteLine("ActivityManager: Publishing activity {0} to cloud", act.Name);
             if (_useCloud && _connectionActive)
-                _activityCloudConnector.AddActivity(act);
+            {
+                switch (aEvent)
+                {
+                    case ActivityEvent.ActivityAdded:
+                        _activityCloudConnector.AddActivity(act);
+                        break;
+                    case ActivityEvent.ActivityChanged:
+                        _activityCloudConnector.UpdateActivity(act);
+                        break;
+                }
+            }
+
         }
 
         /// <summary>
         /// Buffer activity locally until resources are uploaded
         /// </summary>
         /// <param name="act">Activity that needs to be buffered</param>
-        /// <param name="deviceId"> </param>
-        private void KeepActivity(Activity act,string deviceId)
+        /// <param name="deviceId">The id of the device </param>
+        /// <param name="aEvent"> The type of event</param>
+        private void KeepActivity(Activity act,string deviceId,ActivityEvent aEvent)
         {
             Log.Out("ActivityManager", string.Format("Keeping activity {0} in buffer", act), LogCode.Log); 
             _buffer.Add(act.Id, act);
             _counters.Add(act.Id, new Point(0, act.GetResources().Count));
+            _eventType.Add(act.Id,aEvent);
             foreach (var resource in act.GetResources())
                 _publisher.PublishToSubscriber(FileEvent.FileUploadRequest.ToString(), resource, Registry.ConnectedClients[deviceId]);
         }
@@ -189,9 +203,10 @@ namespace NooSphere.ActivitySystem.Base
                             counter.X++;
                             if (counter.X == counter.Y)
                             {
-                                PublishActivityToCloud(activity);
+                                PublishActivity(activity,_eventType[activity.Id]);
                                 _counters.Remove(activity.Id);
                                 _buffer.Remove(activity.Id);
+                                _eventType.Remove(activity.Id);
 
                                 return;
                             }
@@ -306,10 +321,11 @@ namespace NooSphere.ActivitySystem.Base
         /// Help function that allows the client to "ping" the service.
         /// </summary>
         /// <returns></returns>
-        public bool Alive() 
-        { 
-            return _connectionActive; 
+        public bool Alive()
+        {
+            return !_useCloud || _connectionActive;
         }
+
         #endregion
 
         #region Activity Management
@@ -353,20 +369,20 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="deviceId"> </param>
         public void AddActivity(Activity act,string deviceId)
         {
-            if(_useCloud)
-                if (act.GetResources().Count > 0)
-                {
-                    KeepActivity(act,deviceId);
-                    Console.WriteLine("ActivityManager: Received activity with {0} resources",act.GetResources().Count);
-                }
-                else
-                {
-                    Console.WriteLine("ActivityManager: Received activity with 0 resources");
-                    if (_connectionActive)
-                        _activityCloudConnector.AddActivity(act);
-                }
+            _fileServer.IntializePath(act);
+            if (act.GetResources().Count > 0)
+            {
+                KeepActivity(act,deviceId,ActivityEvent.ActivityAdded);
+                Console.WriteLine("ActivityManager: Received activity with {0} resources",act.GetResources().Count);
+            }
+            else
+            {
+                Console.WriteLine("ActivityManager: Received activity with 0 resources");
+                if (_connectionActive)
+                    _activityCloudConnector.AddActivity(act);
+            }
             ActivityStore.Activities.Add(act.Id, act);
-            _publisher.Publish( ActivityEvent.ActivityAdded.ToString(), act);
+            _publisher.Publish(ActivityEvent.ActivityAdded.ToString(), act);
             Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents, ActivityEvent.ActivityAdded);
         }
 
@@ -391,10 +407,19 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="deviceId"> </param>
         public void UpdateActivity(Activity act, string deviceId)
         {
-            if (_useCloud && _connectionActive)
-                _activityCloudConnector.UpdateActivity(act);
+            if (act.GetResources().Count > 0)
+            {
+                KeepActivity(act, deviceId, ActivityEvent.ActivityChanged);
+                Console.WriteLine("ActivityManager: Received activity with {0} resources", act.GetResources().Count);
+            }
+            else
+            {
+                Console.WriteLine("ActivityManager: Received activity with 0 resources");
+                if (_connectionActive)
+                    _activityCloudConnector.UpdateActivity(act);
+            }
             ActivityStore.Activities[act.Id] = act;
-            _publisher.Publish( ActivityEvent.ActivityChanged.ToString(), act);
+            _publisher.Publish(ActivityEvent.ActivityChanged.ToString(), act);
             Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents, ActivityEvent.ActivityChanged);
         }
         #endregion

@@ -102,7 +102,9 @@ namespace ActivityUI.Xaml
         #region Public members
         public void AddEmptyActivity()
         {
-            _client.AddActivity(GetInitializedActivity());
+            var act = GetInitializedActivity();
+            _client.AddActivity(act);
+            _client.AddResource(new FileInfo("c:/dump/abc.txt"),act);
         }
         /// <summary>
         /// Sends a message to the activity manager
@@ -422,7 +424,7 @@ namespace ActivityUI.Xaml
         public void EditActivity(Activity ac)
         {
             _currentButton.Text = ac.Name;
-            _client.UpdateActivity(ac);
+            //client.UpdateActivity(ac);
         }
 
         /// <summary>
@@ -606,7 +608,6 @@ namespace ActivityUI.Xaml
         private void DiscDiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
             AddDiscoveryActivityManagerToUi(e.ServiceInfo);
-
         }
         private void ClientMessageReceived(object sender,ComEventArgs e)
         {
@@ -673,24 +674,8 @@ namespace ActivityUI.Xaml
 
             ac.Meta.Data = "added meta data";
             ac.Owner = _owner;
-            var act = new NooSphere.Core.ActivityModel.Action();
-
-        
-            var textFile = new Resource
-                               {FileName = "abc.txt", Name = "abc.txt", ActivityId = ac.Id, ActionId = act.Id};
-            textFile.Size = (int)new FileInfo(_client.LocalPath + textFile.FileName).Length;
-            act.Resources.Add(textFile);
-
-            var image = new Resource
-                            {FileName = "abc.jpg", Name = "abc.jpg", ActivityId = ac.Id, ActionId = act.Id};
-            image.Size = (int)new FileInfo(_client.LocalPath + image.FileName).Length;
-            act.Resources.Add(image);
-
-
-            ac.Actions.Add(act);
             return ac;
         }
-
 
         #endregion
 
