@@ -29,6 +29,7 @@ namespace NooSphere.ActivitySystem.PubSub
         /// <param name="sendToSource">Enables or disable self-publishing to source</param>
         public void Publish(string publishUrl, object netObject, object source = null, bool sendToSource = false)
         {
+            Log.Out("Publisher", string.Format("Published {0}",publishUrl), LogCode.Net);
             var toRemove = new List<string>();
             var t = new Thread(() =>
             {
@@ -39,7 +40,7 @@ namespace NooSphere.ActivitySystem.PubSub
                         try
                         {
                             if (source != null && entry.Value == source && sendToSource)
-                                Rest.Post(entry.Value.Device.BaseAddress, netObject);
+                                Rest.Post(entry.Value.Device.BaseAddress + publishUrl, netObject);
                             else Rest.Post(entry.Value.Device.BaseAddress + publishUrl, netObject);
                         }
                         catch (Exception)
@@ -51,7 +52,7 @@ namespace NooSphere.ActivitySystem.PubSub
                     }
                     if (toRemove.Count > 0)
                     {
-                        foreach (string id in toRemove)
+                        foreach (var id in toRemove)
                             Registry.ConnectedClients.Remove(id);
                     }
                 }
@@ -68,6 +69,7 @@ namespace NooSphere.ActivitySystem.PubSub
         /// <param name="subscriber"> </param>
         public void PublishToSubscriber(string publishUrl, object netObject,object subscriber)
         {
+            Log.Out("Publisher", string.Format("Publishing {0} to {1}", publishUrl,subscriber), LogCode.Net);
             var t = new Thread(() =>
             {
                 lock (Concurrency.SubscriberLock)

@@ -15,6 +15,7 @@ using System;
 using NooSphere.Core.ActivityModel;
 using System.ServiceModel;
 using NooSphere.ActivitySystem.Contracts;
+using NooSphere.Core.Devices;
 
 namespace NooSphere.ActivitySystem.Base
 {
@@ -22,15 +23,15 @@ namespace NooSphere.ActivitySystem.Base
     public class NetEventHandler : INetEvent
     {
         #region Events
-        public event ActivityAddedHandler ActivityAdded = null;
-        public event ActivityRemovedHandler ActivityRemoved = null;
-        public event ActivityChangedHandler ActivityChanged = null;
+        public event ActivityAddedHandler ActivityAdded;
+        public event ActivityRemovedHandler ActivityRemoved;
+        public event ActivityChangedHandler ActivityChanged;
 
-        public event DeviceAddedHandler DeviceAdded = null;
-        public event DeviceRemovedHandler DeviceRemoved = null;
-        public event DeviceRoleChangedHandler DeviceRoleChanged = null;
+        public event DeviceAddedHandler DeviceAdded;
+        public event DeviceRemovedHandler DeviceRemoved;
+        public event DeviceRoleChangedHandler DeviceRoleChanged;
 
-        public event MessageReceivedHandler MessageReceived = null;
+        public event MessageReceivedHandler MessageReceived;
 
         public event FileDownloadRequestHandler FileDownloadRequest;
         public event FileUploadRequestHandler FileUploadRequest;
@@ -95,11 +96,10 @@ namespace NooSphere.ActivitySystem.Base
             if (FileUploadRequest != null)
                 FileUploadRequest(this, new FileEventArgs(r));
         }
-        public void DeviceNetAdded(Core.Devices.Device dev)
+        public void DeviceNetAdded(Device dev)
         {
             if (DeviceAdded != null)
                 DeviceAdded(this, new DeviceEventArgs(dev));
-
         }
         public void DeviceNetRemoved(string id)
         {

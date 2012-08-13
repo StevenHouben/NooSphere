@@ -69,6 +69,10 @@
     <Compile Include="Base\ActivityManager.cs" />
     <Compile Include="Base\ActivityStore.cs" />
     <Compile Include="Base\ParticipantStore.cs" />
+    <Compile Include="Context\MulticastSocket.cs" />
+    <Compile Include="Context\MulticastSocketListener.cs" />
+    <Compile Include="Context\IProxy.cs" />
+    <Compile Include="Context\StateObject.cs" />
     <Compile Include="Contracts\INetEvent.cs" />
     <Compile Include="Discovery\DiscoveryType.cs" />
     <Compile Include="Base\ActivityEventArgs.cs" />
@@ -106,7 +110,7 @@
     <Compile Include="PubSub\RestPublisher.cs" />
     <Compile Include="PubSub\RestSubscriber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Host\BasicHost.cs" />
+    <Compile Include="Host\GenericHost.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

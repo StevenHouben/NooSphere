@@ -29,6 +29,7 @@ using NooSphere.ActivitySystem.Discovery;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
+using NooSphere.Helpers;
 using NooSphere.Platform.Windows.Glass;
 using NooSphere.Platform.Windows.VDM;
 using ActivityUI.Properties;
@@ -43,7 +44,7 @@ namespace ActivityUI.Xaml
         #region Private Members
 
         private ActivityClient _client;
-        private BasicHost _host;
+        private GenericHost _host;
         private DiscoveryManager _disc;
 
         private StartUpMode _startMode;
@@ -53,7 +54,6 @@ namespace ActivityUI.Xaml
 
         private readonly Dictionary<Guid, Proxy> _proxies = new Dictionary<Guid, Proxy>();
         private readonly ObservableCollection<ServiceInfo> _serviceList = new ObservableCollection<ServiceInfo>();
-        private readonly Dictionary<string, Device> _deviceList = new Dictionary<string, Device>();
 
         private readonly List<Window> _popUpWindows = new List<Window>();
 
@@ -197,7 +197,7 @@ namespace ActivityUI.Xaml
         {
             var t = new Thread(() =>
             {
-                _host = new BasicHost();
+                _host = new GenericHost();
                 _host.HostLaunched += HostHostLaunched;
                 _host.Open(new ActivityManager(_owner,"c:/files/"), typeof(IActivityManager), _device.Name);
                 if(Settings.Default.CHECK_BROADCAST)
@@ -221,21 +221,10 @@ namespace ActivityUI.Xaml
         /// <param name="activityManagerHttpAddress"></param>
         private void StartClient(string activityManagerHttpAddress)
         {
+            _client = new ActivityClient( @"c:/abc/",_device) {CurrentUser = _owner};
 
-            //Build a new client that connects to an activity manager on the given address
-            _client = new ActivityClient(activityManagerHttpAddress, @"c:/abc/");
-
-            //Register the current device with the activity manager we are connecting to
-            _client.Register(_device);
-
-            //Set the current user
-            _client.CurrentUser = _owner;
-
-            //Subcribe to the callback events of the activity manager
-            _client.DeviceAdded += ClientDeviceAdded;
             _client.ActivityAdded += ClientActivityAdded;
             _client.ActivityChanged += ClientActivityChanged;
-            _client.DeviceRemoved +=ClientDeviceRemoved;
             _client.ActivityRemoved += ClientActivityRemoved;
             _client.MessageReceived += ClientMessageReceived;
 
@@ -243,29 +232,33 @@ namespace ActivityUI.Xaml
             _client.FriendDeleted += client_FriendDeleted;
             _client.FriendRequestReceived += ClientFriendRequestReceived;
 
-            _client.FileUploadRequest += client_FileUploadRequest;
-            _client.FileDownloadRequest += client_FileDownloadRequest;
-            _client.FileDeleteRequest += client_FileDeleteRequest;
+            _client.FileUploadRequest += clientFileUploadRequest;
+            _client.FileDownloadRequest += clientFileDownloadRequest;
+            _client.FileDeleteRequest += clientFileDeleteRequest;
 
-            //does not work for some reason -> we need to find out wy
-            //_client.ConnectionEstablished += ClientConnectionEstablished;
+            _client.ConnectionEstablished += ClientConnectionEstablished;
+
+            _client.Open(activityManagerHttpAddress);
+        }
+
+        void ClientConnectionEstablished(object sender, EventArgs e)
+        {
             BuildUi();
             _startingUp = false;
         }
-
-        void client_FileDeleteRequest(object sender, FileEventArgs e)
+        void clientFileDeleteRequest(object sender, FileEventArgs e)
         {
-            //throw new NotImplementedException();
+            Log.Out("Interface",string.Format("Received {0} for {1}",FileEvent.FileDeleteRequest,e.Resource.Name),LogCode.Net);
         }
 
-        void client_FileDownloadRequest(object sender, FileEventArgs e)
+        void clientFileDownloadRequest(object sender, FileEventArgs e)
         {
-            //throw new NotImplementedException();
+            Log.Out("Interface", string.Format("Received {0} for {1}", FileEvent.FileDownloadRequest, e.Resource.Name), LogCode.Net);
         }
 
-        void client_FileUploadRequest(object sender, FileEventArgs e)
+        void clientFileUploadRequest(object sender, FileEventArgs e)
         {
-            //throw new NotImplementedException();
+            Log.Out("Interface", string.Format("Received {0} for {1}", FileEvent.FileUploadRequest, e.Resource.Name), LogCode.Net);
         }
 
         /// <summary>
@@ -371,7 +364,7 @@ namespace ActivityUI.Xaml
             var transform = btn.TransformToAncestor(this);
             var rootPoint = transform.Transform(new Point(0, 0));
 
-            _deviceWindow.Show((int)rootPoint.X, _deviceList.Values.ToList());
+            _deviceWindow.Show((int)rootPoint.X, _client.DeviceList.Values.ToList());
 
         }
 
@@ -513,7 +506,7 @@ namespace ActivityUI.Xaml
             HideAllPopups();
 
             if(_startMode == StartUpMode.Client)
-                _client.Unregister();
+                _client.Close();
 
             //Close the taskbar
             Close();
@@ -548,6 +541,7 @@ namespace ActivityUI.Xaml
         {
             if(!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
+            _client.SendContext(e.Location.ToString());
         }
         private void BtnManagerClick(object sender, RoutedEventArgs e)
         {
@@ -613,16 +607,6 @@ namespace ActivityUI.Xaml
         {
             AddDiscoveryActivityManagerToUi(e.ServiceInfo);
 
-        }
-        private void ClientDeviceRemoved(object sender, DeviceRemovedEventArgs e)
-        {
-            _deviceList.Remove(e.Id);
-            AddToLog("Device Removed\n");
-        }
-        private void ClientDeviceAdded(object sender,DeviceEventArgs e)
-        {
-            _deviceList.Add(e.Device.Id.ToString(),e.Device);
-            AddToLog("Device Added\n");
         }
         private void ClientMessageReceived(object sender,ComEventArgs e)
         {

@@ -15,13 +15,14 @@ using System.ServiceModel;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.ServiceModel.Description;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using NooSphere.Helpers;
 using Newtonsoft.Json;
 using NooSphere.ActivitySystem.FileServer;
+using NooSphere.ActivitySystem.Host;
+using NooSphere.ActivitySystem.Context;
 
 namespace NooSphere.ActivitySystem.Base
 {
@@ -34,17 +35,21 @@ namespace NooSphere.ActivitySystem.Base
         #endregion
 
         #region Private Members
-        private ServiceHost _callbackService;
+        private readonly GenericHost _callbackService = new GenericHost();
         private FileService _fileServer;
+        private bool _connected;
+        private string _connectionId;
+        private MulticastSocket _mSocket;
         #endregion
 
         #region Properties
         public string Ip { get; set; }
         public string ClientName { get; set; }
-        public string DeviceId { get; private set; }
+        public Device Device { get; private set; }
         public string ServiceAddress { get; set; }
         public User CurrentUser { get; set; }
         public string LocalPath { get { return _fileServer.BasePath; } }
+        public Dictionary<string,Device> DeviceList { get; set; }
 
         #endregion
 
@@ -53,15 +58,13 @@ namespace NooSphere.ActivitySystem.Base
         /// <summary>
         /// Default constructor
         /// </summary>
-        /// <param name="address">The address of the service the client needs to connect to</param>
         /// <param name="localFileDirectory">The local file directory of the client</param>
-        public ActivityClient(string address,string localFileDirectory)
+        /// <param name="d">The device </param>
+        public ActivityClient(string localFileDirectory,Device d)
         {
-            Connect(address);
             InitializeFileService(localFileDirectory);
+            Device = d;
             OnInitializedEvent(new EventArgs());
-
-            FileUploadRequest += ActivityClientFileUploadRequest;
         }
 
         /// <summary>
@@ -75,23 +78,17 @@ namespace NooSphere.ActivitySystem.Base
             //_fileServer.FileChanged += FileServerFileChanged;
             //_fileServer.FileRemoved += FileServerFileRemoved;
             //_fileServer.FileDownloadedFromCloud += FileServerFileDownloaded;
-            Console.WriteLine("ActivityClient: FileStore initialized at {0}", _fileServer.BasePath);
-        }
-        private void ActivityClientFileUploadRequest(object sender, FileEventArgs e)
-        {
-            UploadResource(e.Resource);
+            Log.Out("ActivityClient", string.Format("FileStore initialized at {0}", _fileServer.BasePath), LogCode.Log);
         }
 
         #endregion
 
         #region Private Methods
-
-
         private void UploadResource(Resource r)
         {
             Rest.SendStreamingRequest(ServiceAddress + "Files/" + r.ActivityId + "/" + r.Id,
                                       _fileServer.BasePath + r.RelativePath);
-            Console.WriteLine("ActivityClient: Received Request to upload {0}", r.Name);
+            Log.Out("ActivityClient", string.Format("Received Request to upload {0}", r.Name), LogCode.Log);
         }
         /// <summary>
         /// Tests the connection to the service
@@ -99,7 +96,7 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="addr">The address of the service</param>
         private void TestConnection(string addr)
         {
-            Console.WriteLine("ActivityClient: Attempt to connect to {0}",addr);
+            Log.Out("ActivityClient", string.Format("Attempt to connect to {0}", addr), LogCode.Net);
             bool res;
             var attempts = 0;
             const int maxAttemps = 20;
@@ -107,7 +104,7 @@ namespace NooSphere.ActivitySystem.Base
             {
                 ServiceAddress = addr;
                 res = JsonConvert.DeserializeObject<bool>(Rest.Get(ServiceAddress));
-                Console.WriteLine("ActivityClient: Service active? -> {0}", res);
+                Log.Out("ActivityClient", string.Format("Service active? -> {0}", res), LogCode.Net);
                 Thread.Sleep(100);
                 attempts++;
             }
@@ -119,68 +116,35 @@ namespace NooSphere.ActivitySystem.Base
         }
 
         /// <summary>
-        /// Connects the client to the activity service
+        /// Register a given device with the activity client
         /// </summary>
-        /// <param name="address">The address of the service</param>
-        private void Connect(string address)
+        /// <param name="d">The device that needs to be registered with the activity client</param>
+        private void Register(Device d)
         {
-            Ip = Net.GetIp(IPType.All);
-            TestConnection(address);
+            if (!_connected)
+                throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
+            d.BaseAddress = Net.GetUrl(Net.GetIp(IPType.All), StartCallbackService(), "").ToString();
+            _connectionId = JsonConvert.DeserializeObject<String>(Rest.Post(ServiceAddress + Url.Devices, d));
+            Log.Out("ActivityClient", string.Format("Received device id: " + _connectionId), LogCode.Log);
         }
 
         /// <summary>
         /// Starts a callback service. The activity manager uses this service to publish
         /// events.
         /// </summary>
-        /// <param name="service">The type of callback service</param>
         /// <returns>The port of the deployed service</returns>
         private int StartCallbackService()
         {
-            var port = Net.FindPort();
-
-            _callbackService = new ServiceHost(this);
-            var se = _callbackService.AddServiceEndpoint(typeof(INetEvent), new WebHttpBinding(), Net.GetUrl(Ip, port, ""));
-            se.Behaviors.Add(new WebHttpBehavior());
             try
             {
-                _callbackService.Open();
+                _callbackService.Open(this, typeof(INetEvent), "CallbackService");
+                Log.Out("ActivityClient", string.Format("Callback service initialized at {0}", Net.GetUrl(Ip, Net.FindPort(), "")), LogCode.Log);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ActivityClient: error launching callback service: " + ex);
                 throw new ApplicationException(ex.ToString());
             }
-            return port;
-        }
-        #endregion
-
-        #region Public Methods
-        /// <summary>
-        /// Register a given device with the activity client
-        /// </summary>
-        /// <param name="d">The device that needs to be registered with the activity client</param>
-        public void Register(Device d)
-        {
-            d.BaseAddress = Net.GetUrl(Net.GetIp(IPType.All), StartCallbackService(),"").ToString();
-            DeviceId = JsonConvert.DeserializeObject<String>(Rest.Post(ServiceAddress + Url.Devices, d));
-            Console.WriteLine("ActivityClient: Received device id: " + DeviceId);
-        }
-        
-        /// <summary>
-        /// Unregister main device from the activity client
-        /// </summary>
-        public void Unregister()
-        {
-            Rest.Delete(ServiceAddress + Url.Devices, DeviceId);
-        }
-
-        /// <summary>
-        /// Sends an "add activity" request to the activity manager
-        /// </summary>
-        /// <param name="act">The activity that needs to be included in the request</param>
-        public void AddActivity(Activity act)
-        {
-            Rest.Post(ServiceAddress + Url.Activities, new {act,deviceId=DeviceId});
+            return _callbackService.Port;
         }
 
         /// <summary>
@@ -197,7 +161,69 @@ namespace NooSphere.ActivitySystem.Base
                 fs.Read(buffer, 0, (int)fs.Length);
             return buffer;
         }
+        #endregion
 
+        #region Public Methods
+
+        /// <summary>
+        /// Connects the client to the activity service
+        /// </summary>
+        /// <param name="address">The address of the service</param>
+        public void Open(string address)
+        {
+            Ip = Net.GetIp(IPType.All);
+            TestConnection(address);
+            FileUploadRequest += ActivityClientFileUploadRequest;
+            DeviceAdded += ActivityClientDeviceAdded;
+            DeviceRemoved += ActivityClientDeviceRemoved;
+            _connected = true;
+            Register(Device);
+
+            IntializeContext();
+        }
+
+        private void IntializeContext()
+        {
+            _mSocket = new MulticastSocket("224.10.10.10",33333,0);
+            _mSocket.OnNotifyMulticastSocketListener += _mSocket_OnNotifyMulticastSocketListener;
+            _mSocket.StartReceiving();
+        }
+
+        private void _mSocket_OnNotifyMulticastSocketListener(object sender, NotifyMulticastSocketListenerEventArgs e)
+        {
+            if(e.Type == MulticastSocketMessageType.MessageReceived)
+                Console.WriteLine(System.Text.Encoding.ASCII.GetString((byte[])e.NewObject));
+        }
+        
+        public void SendContext(string context)
+        {
+            _mSocket.Send(context);
+        }
+
+        /// <summary>
+        /// Unregister main device from the activity client
+        /// </summary>
+        public void Close()
+        {
+            if(_connected)
+                Rest.Delete(ServiceAddress + Url.Devices, _connectionId);
+            else
+            {
+                throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
+            }
+        }
+
+        /// <summary>
+        /// Sends an "add activity" request to the activity manager
+        /// </summary>
+        /// <param name="act">The activity that needs to be included in the request</param>
+        public void AddActivity(Activity act)
+        {
+            if(_connected)
+                Rest.Post(ServiceAddress + Url.Activities, new {act,deviceId=_connectionId});
+            else
+                throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
+        }
 
         /// <summary>
         /// Sends a "Remove activity" request to the activity manager
@@ -205,7 +231,10 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="activityId">The id (of the activity) that needs to be included in the request</param>
         public void RemoveActivity(Guid activityId)
         {
-            Rest.Delete(ServiceAddress + Url.Activities, new { activityId, deviceId = DeviceId });
+            if(_connected)
+                Rest.Delete(ServiceAddress + Url.Activities, new { activityId, _connectionId = _connectionId });
+            else
+                throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
         }
 
         /// <summary>
@@ -214,7 +243,10 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="act">The activity that needs to be included in the request</param>
         public void UpdateActivity(Activity act)
         {
-            Rest.Put(ServiceAddress + Url.Activities, new { act, deviceId = DeviceId });
+            if(_connected)
+                Rest.Put(ServiceAddress + Url.Activities, new { act, _connectionId = _connectionId });
+            else
+                throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
         }
 
         /// <summary>
@@ -223,8 +255,12 @@ namespace NooSphere.ActivitySystem.Base
         /// <returns>A list of retrieved activities</returns>
         public List<Activity> GetActivities()
         {
-            var res = Rest.Get(ServiceAddress + Url.Activities);
-            return JsonConvert.DeserializeObject<List<Activity>>(res);
+            if (_connected)
+            {
+                var res = Rest.Get(ServiceAddress + Url.Activities);
+                return JsonConvert.DeserializeObject<List<Activity>>(res);
+            }
+            throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
         }
 
         /// <summary>
@@ -234,7 +270,9 @@ namespace NooSphere.ActivitySystem.Base
         /// <returns></returns>
         public Activity GetActivity(string activityId)
         {
-            return JsonConvert.DeserializeObject<Activity>(Rest.Get(ServiceAddress + Url.Activities + "/" + activityId));
+            if(_connected)
+                return JsonConvert.DeserializeObject<Activity>(Rest.Get(ServiceAddress + Url.Activities + "/" + activityId));
+            throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
         }
 
         /// <summary>
@@ -243,16 +281,22 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="msg">The message that needs to be included in the request</param>
         public void SendMessage(string msg)
         {
-            Rest.Post(ServiceAddress + Url.Messages, new { message = msg, deviceId = DeviceId });
+            if(_connected)
+                Rest.Post(ServiceAddress + Url.Messages, new { message = msg, _connectionId = _connectionId });
+            else
+                throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
         }
 
         /// <summary>
         /// Gets all users in the friendlist
         /// </summary>
+        /// <exception cref="Exception"></exception>
         /// <returns>A list with all users in the friendlist</returns>
         public List<User> GetUsers()
         {
-            return JsonConvert.DeserializeObject<List<User>>(Rest.Get(ServiceAddress + Url.Users)); 
+            if(_connected)
+                return JsonConvert.DeserializeObject<List<User>>(Rest.Get(ServiceAddress + Url.Users));
+            throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
         }
 
         /// <summary>
@@ -261,7 +305,10 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="email">The email of the user that needs to be friended</param>
         public void RequestFriendShip(string email)
         {
-            JsonConvert.DeserializeObject<List<User>>(Rest.Post(ServiceAddress + Url.Users, new { email, deviceId = DeviceId })); 
+            if(_connected)
+                JsonConvert.DeserializeObject<List<User>>(Rest.Post(ServiceAddress + Url.Users, new { email, _connectionId = _connectionId }));
+            else
+                throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
         }
 
         /// <summary>
@@ -270,7 +317,10 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="friendId">The id of the friend that needs to be removed</param>
         public void RemoveFriend(Guid friendId)
         {
-            JsonConvert.DeserializeObject<List<User>>(Rest.Delete(ServiceAddress + Url.Users, new { friendId, deviceId = DeviceId })); 
+            if(_connected)
+                JsonConvert.DeserializeObject<List<User>>(Rest.Delete(ServiceAddress + Url.Users, new { friendId, _connectionId = _connectionId }));
+            else
+                throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
         }
 
         /// <summary>
@@ -280,7 +330,10 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="approval">Bool that indicates if the friendship was approved</param>
         public void RespondToFriendRequest(Guid friendId, bool approval)
         {
-            Rest.Put(ServiceAddress + Url.Users, new{friendId, approval, deviceId = DeviceId});
+            if(_connected)
+                Rest.Put(ServiceAddress + Url.Users, new{friendId, approval, _connectionId = _connectionId});
+            else
+                throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
         }
 
         #endregion
@@ -298,6 +351,23 @@ namespace NooSphere.ActivitySystem.Base
         }
         #endregion
 
+        #region Event Handlers
+        private void ActivityClientDeviceRemoved(object sender, DeviceRemovedEventArgs e)
+        {
+            if (DeviceList != null)
+                DeviceList.Remove(e.Id);
+        }
+        private void ActivityClientDeviceAdded(object sender, DeviceEventArgs e)
+        {
+            if (DeviceList == null)
+                DeviceList = new Dictionary<string, Device>();
+            DeviceList.Add(e.Device.Id.ToString(), e.Device);
+        }
+        private void ActivityClientFileUploadRequest(object sender, FileEventArgs e)
+        {
+            UploadResource(e.Resource);
+        }
+        #endregion
     }
     public enum Url
     {

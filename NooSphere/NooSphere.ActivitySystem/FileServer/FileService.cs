@@ -16,6 +16,7 @@ using System.IO;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Base;
 using System.Threading;
+using NooSphere.Helpers;
 
 namespace NooSphere.ActivitySystem.FileServer
 {
@@ -47,7 +48,7 @@ namespace NooSphere.ActivitySystem.FileServer
             {
                 Check(resource, fileInBytes);
                 SaveToDisk(fileInBytes, resource);
-                if(_files.ContainsKey(resource.Id))
+                if(_files.ContainsKey(resource.Id)) //check if newer!
                     UpdateFile(resource,fileInBytes,source);
                 else
                     _files.Add(resource.Id, resource);
@@ -63,7 +64,7 @@ namespace NooSphere.ActivitySystem.FileServer
                             FileAdded(this, new FileEventArgs(resource));
                         break;
                 }
-                Console.WriteLine("FileStore: Added file {0} to store", resource.Name); 
+                Log.Out("FileService", string.Format("Added file {0} to store", resource.Name), LogCode.Log);
             }) {IsBackground = true};
             t.Start();
         }
@@ -93,7 +94,7 @@ namespace NooSphere.ActivitySystem.FileServer
                             FileChanged(this, new FileEventArgs(resource));
                         break;
                 }
-                Console.WriteLine("FileStore: Updated file {0} to store", resource.Name);
+                Log.Out("FileService", string.Format("Updated file {0} to store", resource.Name), LogCode.Log);
             }) { IsBackground = true };
             t.Start();
         }
