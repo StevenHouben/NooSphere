@@ -23,7 +23,7 @@ namespace NooSphere.ActivitySystem.Host
 
     public delegate void HostClosedHandler(object sender, EventArgs e);
 
-    public class BasicHost
+    public class GenericHost
     {
         #region Events
 
@@ -33,11 +33,8 @@ namespace NooSphere.ActivitySystem.Host
         #endregion
 
         #region Members
-
         private readonly BroadcastService _broadcast = new BroadcastService();
         private ServiceHost _host;
-        private ServiceEndpoint _serviceEndpoint;
-
         #endregion
 
         #region Properties
@@ -48,22 +45,22 @@ namespace NooSphere.ActivitySystem.Host
         /// <remarks>
         /// Composed of IP and Port
         /// </remarks>
-        public string Address { get; set; }
+        public string Address { get; private set; }
 
         /// <summary>
         /// Client IP
         /// </summary>
-        private string Ip { get; set; }
+        public string Ip { get; private set; }
 
         /// <summary>
         /// Local callback port
         /// </summary>
-        private int Port { get; set; }
+        public int Port { get; private set; }
 
         /// <summary>
         /// Indicates if the service is running
         /// </summary>
-        public bool IsRunning { get; set; }
+        public bool IsRunning { get; private set; }
 
         #endregion
 
@@ -72,7 +69,7 @@ namespace NooSphere.ActivitySystem.Host
         /// <summary>
         /// Constructor
         /// </summary>
-        public BasicHost()
+        public GenericHost()
         {
             Ip = Net.GetIp(IPType.All);
             Port = Net.FindPort();
@@ -83,7 +80,7 @@ namespace NooSphere.ActivitySystem.Host
         /// <summary>
         /// Destructor
         /// </summary>
-        ~BasicHost()
+        ~GenericHost()
         {
             Close();
         }
@@ -142,31 +139,26 @@ namespace NooSphere.ActivitySystem.Host
         /// <param name="name">The name the service</param>
         public void Open(object implementation, Type description, string name)
         {
-            Console.WriteLine("BasicHost: Attemting to find an IP for endPoint");
+            Log.Out("BasicHost", string.Format(" Attemting to find an IP for endPoint"), LogCode.Net);
             Ip = Net.GetIp(IPType.All);
 
             Console.WriteLine("BasicHost: Found IP " + Ip);
             _host = new ServiceHost(implementation);
 
-            var binding = new WebHttpBinding {MaxReceivedMessageSize = Int32.MaxValue};
+            var serviceEndpoint = _host.AddServiceEndpoint(
+                description, 
+                new WebHttpBinding {MaxReceivedMessageSize = Int32.MaxValue}, 
+                Net.GetUrl(Ip, Port, ""));
 
-
-            _serviceEndpoint = _host.AddServiceEndpoint(description, binding, Net.GetUrl(Ip, Port, ""));
-            _serviceEndpoint.Behaviors.Add(new WebHttpBehavior());
+            serviceEndpoint.Behaviors.Add(new WebHttpBehavior());
 
             _host.Faulted += host_Faulted;
-            _host.UnknownMessageReceived += host_UnknownMessageReceived;
             _host.Open();
 
-            Console.WriteLine("BasicHost: Host opened at " + Net.GetUrl(Ip, Port, ""));
+            Log.Out("BasicHost", string.Format("Host opened at " + Net.GetUrl(Ip, Port, "")), LogCode.Net);
             IsRunning = true;
 
             OnHostLaunchedEvent(new EventArgs());
-        }
-
-        private void host_UnknownMessageReceived(object sender, UnknownMessageReceivedEventArgs e)
-        {
-            Console.WriteLine("Unknow message:" + e.Message);
         }
 
         /// <summary>
@@ -183,7 +175,7 @@ namespace NooSphere.ActivitySystem.Host
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("BasicHost: Problem closing connection: " + ex.StackTrace);
+                    Log.Out("BasicHost", string.Format("Problem closing connection: " + ex.StackTrace), LogCode.Net);
                 }
             }
         }
@@ -194,7 +186,7 @@ namespace NooSphere.ActivitySystem.Host
 
         private void host_Faulted(object sender, EventArgs e)
         {
-            Console.WriteLine("BasicHost: Faulted: " + e);
+            throw new Exception("Host faulted.");
         }
 
         #endregion

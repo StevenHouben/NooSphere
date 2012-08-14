@@ -63,12 +63,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\ActivityClient.cs" />
+    <Compile Include="Base\Configuration.cs" />
+    <Compile Include="Base\IActivityProxy.cs" />
     <Compile Include="Base\NetEventHandler.cs" />
     <Compile Include="Base\StartupMode.cs" />
     <Compile Include="Base\ActivityCloudConnector.cs" />
     <Compile Include="Base\ActivityManager.cs" />
     <Compile Include="Base\ActivityStore.cs" />
     <Compile Include="Base\ParticipantStore.cs" />
+    <Compile Include="Context\MulticastSocket.cs" />
+    <Compile Include="Context\MulticastSocketListener.cs" />
+    <Compile Include="Context\IProxy.cs" />
+    <Compile Include="Context\StateObject.cs" />
+    <Compile Include="Contracts\INetEvent.cs" />
     <Compile Include="Discovery\DiscoveryType.cs" />
     <Compile Include="Base\ActivityEventArgs.cs" />
     <Compile Include="Base\CloudEvents.cs" />
@@ -95,7 +102,6 @@
     <Compile Include="Contracts\IActivityNetEvent.cs" />
     <Compile Include="Contracts\IComNetEvent.cs" />
     <Compile Include="Contracts\IDeviceNetEvent.cs" />
-    <Compile Include="Contracts\IEvent.cs" />
     <Compile Include="Contracts\IFileNetEvent.cs" />
     <Compile Include="Discovery\DiscoveryAddressAddedEventArgs.cs" />
     <Compile Include="Discovery\DiscoveryEventArgs.cs" />
@@ -106,7 +112,7 @@
     <Compile Include="PubSub\RestPublisher.cs" />
     <Compile Include="PubSub\RestSubscriber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Host\BasicHost.cs" />
+    <Compile Include="Host\GenericHost.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

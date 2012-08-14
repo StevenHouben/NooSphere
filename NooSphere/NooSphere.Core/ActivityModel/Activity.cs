@@ -11,7 +11,6 @@
 ****************************************************************************/
 
 using System.Collections.Generic;
-using System.ComponentModel;
 using NooSphere.Core.Primitives;
 
 namespace NooSphere.Core.ActivityModel
@@ -19,7 +18,7 @@ namespace NooSphere.Core.ActivityModel
     /// <summary>
     /// Activity Base Class
     /// </summary>
-    public class Activity : Base, INotifyPropertyChanged
+    public class Activity : Base
     {
         #region Constructors
 
@@ -38,65 +37,18 @@ namespace NooSphere.Core.ActivityModel
             Workflows = new List<Workflow>();
             Participants = new List<User>();
             Meta = new Metadata();
+            Resources =  new List<Resource>();
         }
 
         #endregion
 
         #region Properties
-
-        private List<Action> _actions;
-
-        /// <summary>
-        /// Context is a generic object so it can be included
-        /// into serialisation.
-        /// </summary>
-        private object _context;
-
-        private Metadata _meta;
-        private List<Workflow> _workflows;
-
         public User Owner { get; set; }
         public List<User> Participants { get; set; }
-
-        public object Context
-        {
-            get { return _context; }
-            set
-            {
-                _context = value;
-                NotifyPropertyChanged("Context");
-            }
-        }
-
-        public List<Action> Actions
-        {
-            get { return _actions; }
-            set
-            {
-                _actions = value;
-                NotifyPropertyChanged("Actions");
-            }
-        }
-
-        public List<Workflow> Workflows
-        {
-            get { return _workflows; }
-            set
-            {
-                _workflows = value;
-                NotifyPropertyChanged("Workflows");
-            }
-        }
-
-        public Metadata Meta
-        {
-            get { return _meta; }
-            set
-            {
-                _meta = value;
-                NotifyPropertyChanged("Metae");
-            }
-        }
+        public List<Action> Actions{ get; set; }
+        public List<Workflow> Workflows{ get; set; }
+        public Metadata Meta{ get; set; }
+        public List<Resource> Resources { get; set; }
 
         #endregion
 
@@ -104,12 +56,7 @@ namespace NooSphere.Core.ActivityModel
 
         public List<Resource> GetResources()
         {
-            var resources = new List<Resource>();
-
-            foreach (Action a in Actions)
-                resources.AddRange(a.Resources);
-
-            return resources;
+            return Resources;
         }
 
         #endregion
@@ -125,28 +72,6 @@ namespace NooSphere.Core.ActivityModel
         {
             return Id == act.Id;
         }
-
-        #endregion
-
-        #region INotifyPropertyChanged Members
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion
-
-        private void NotifyPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #region Lifecycle
-
-        public bool Suspendable { get; set; }
-        public bool Resumable { get; set; }
-        public bool Shareable { get; set; }
-        public bool Roameable { get; set; }
-        public bool Externalizeable { get; set; }
 
         #endregion
     }

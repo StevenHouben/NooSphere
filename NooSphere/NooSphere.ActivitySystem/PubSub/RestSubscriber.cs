@@ -24,41 +24,41 @@ namespace NooSphere.ActivitySystem.PubSub
         /// <param name="type">The event type</param>
         /// <param name="callbackPort">The callback port</param>
         /// <returns></returns>
-        public string Subscribe(string id, EventType type, int callbackPort)
-        {
-            string res;
-            if (Registry.ConnectedClients.ContainsKey(id))
-            {
-                if (callbackPort != -1)
-                {
-                    var cc = Registry.ConnectedClients[id];
-                    var addr = new Uri(string.Format("http://{0}:{1}", cc.Ip, callbackPort)).AbsoluteUri;
+        //public string Subscribe(string id, EventType type, int callbackPort)
+        //{
+        //    string res;
+        //    if (Registry.ConnectedClients.ContainsKey(id))
+        //    {
+        //        if (callbackPort != -1)
+        //        {
+        //            var cc = Registry.ConnectedClients[id];
+        //            var addr = new Uri(string.Format("http://{0}:{1}", cc.Ip, callbackPort)).AbsoluteUri;
 
-                    lock (Concurrency.SubscriberLock)
-                        if (!Registry.Store[type].ContainsKey(id))
-                            Registry.Store[type].Add(id, addr);
-                    res = "succes";
-                }
-                else
-                    res = "Device not registered";
-            }
-            else
-                res= "Device not registered";
-            return res;
-        }
+        //            lock (Concurrency.SubscriberLock)
+        //                if (!Registry.Store[type].ContainsKey(id))
+        //                    Registry.Store[type].Add(id, addr);
+        //            res = "succes";
+        //        }
+        //        else
+        //            res = "Device not registered";
+        //    }
+        //    else
+        //        res= "Device not registered";
+        //    return res;
+        //}
 
         /// <summary>
         /// Unsubscribes an object from an event
         /// </summary>
         /// <param name="id">The id of the object that needs to be unsubscribed</param>
         /// <param name="type">The event type</param>
-        public void UnSubscribe(string id, EventType type)
-        {
-            if (!Registry.ConnectedClients.ContainsKey(id)) return;
-            if (Registry.Store[type].ContainsKey(id))
-            {
-                Registry.Store[type].Remove(id);
-            }
-        }
+        //public void UnSubscribe(string id, EventType type)
+        //{
+        //    if (!Registry.ConnectedClients.ContainsKey(id)) return;
+        //    if (Registry.Store[type].ContainsKey(id))
+        //    {
+        //        Registry.Store[type].Remove(id);
+        //    }
+        //}
     }
 }

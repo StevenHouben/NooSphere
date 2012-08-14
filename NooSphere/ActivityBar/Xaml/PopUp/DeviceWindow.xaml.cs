@@ -76,7 +76,7 @@ namespace ActivityUI.PopUp
             VisualizeDevices(devices);
         }
         
-        private void VisualizeDevices(List<Device> devices)
+        private void VisualizeDevices(IEnumerable<Device> devices)
         {
             btnTabletop.Visibility = System.Windows.Visibility.Hidden;
             btnPhone.Visibility = System.Windows.Visibility.Hidden;

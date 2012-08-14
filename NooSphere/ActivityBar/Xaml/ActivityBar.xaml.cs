@@ -29,6 +29,7 @@ using NooSphere.ActivitySystem.Discovery;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
+using NooSphere.Helpers;
 using NooSphere.Platform.Windows.Glass;
 using NooSphere.Platform.Windows.VDM;
 using ActivityUI.Properties;
@@ -43,7 +44,7 @@ namespace ActivityUI.Xaml
         #region Private Members
 
         private ActivityClient _client;
-        private BasicHost _host;
+        private GenericHost _host;
         private DiscoveryManager _disc;
 
         private StartUpMode _startMode;
@@ -53,7 +54,6 @@ namespace ActivityUI.Xaml
 
         private readonly Dictionary<Guid, Proxy> _proxies = new Dictionary<Guid, Proxy>();
         private readonly ObservableCollection<ServiceInfo> _serviceList = new ObservableCollection<ServiceInfo>();
-        private readonly Dictionary<string, Device> _deviceList = new Dictionary<string, Device>();
 
         private readonly List<Window> _popUpWindows = new List<Window>();
 
@@ -102,7 +102,9 @@ namespace ActivityUI.Xaml
         #region Public members
         public void AddEmptyActivity()
         {
-            _client.AddActivity(GetInitializedActivity());
+            var act = GetInitializedActivity();
+            _client.AddActivity(act);
+            _client.AddResource(new FileInfo("c:/dump/abc.txt"),act);
         }
         /// <summary>
         /// Sends a message to the activity manager
@@ -169,7 +171,6 @@ namespace ActivityUI.Xaml
             _device = _login.Device;
             _device.Location = "pIT lab";
 
-            _deviceList.Add(_device.Id.ToString(),_device);
             _owner = _login.User;
             _startMode = _login.Mode;
             InitializeNetwork();
@@ -198,7 +199,7 @@ namespace ActivityUI.Xaml
         {
             var t = new Thread(() =>
             {
-                _host = new BasicHost();
+                _host = new GenericHost();
                 _host.HostLaunched += HostHostLaunched;
                 _host.Open(new ActivityManager(_owner,"c:/files/"), typeof(IActivityManager), _device.Name);
                 if(Settings.Default.CHECK_BROADCAST)
@@ -222,28 +223,10 @@ namespace ActivityUI.Xaml
         /// <param name="activityManagerHttpAddress"></param>
         private void StartClient(string activityManagerHttpAddress)
         {
+            _client = new ActivityClient( @"c:/abc/",_device) {CurrentUser = _owner};
 
-            //Build a new client that connects to an activity manager on the given address
-            _client = new ActivityClient(activityManagerHttpAddress, @"c:/abc/");
-
-            //Register the current device with the activity manager we are connecting to
-            _client.Register(_device);
-
-            //Set the current user
-            _client.CurrentUser = _owner;
-
-            //Subscribe to the activity manager events
-            _client.Subscribe(EventType.ActivityEvents);
-            _client.Subscribe(EventType.ComEvents);
-            _client.Subscribe(EventType.DeviceEvents);
-            _client.Subscribe(EventType.FileEvents);
-            _client.Subscribe(EventType.UserEvent);
-
-            //Subcribe to the callback events of the activity manager
-            _client.DeviceAdded += ClientDeviceAdded;
             _client.ActivityAdded += ClientActivityAdded;
             _client.ActivityChanged += ClientActivityChanged;
-            _client.DeviceRemoved +=ClientDeviceRemoved;
             _client.ActivityRemoved += ClientActivityRemoved;
             _client.MessageReceived += ClientMessageReceived;
 
@@ -251,29 +234,33 @@ namespace ActivityUI.Xaml
             _client.FriendDeleted += client_FriendDeleted;
             _client.FriendRequestReceived += ClientFriendRequestReceived;
 
-            _client.FileUploadRequest += client_FileUploadRequest;
-            _client.FileDownloadRequest += client_FileDownloadRequest;
-            _client.FileDeleteRequest += client_FileDeleteRequest;
+            _client.FileUploadRequest += clientFileUploadRequest;
+            _client.FileDownloadRequest += clientFileDownloadRequest;
+            _client.FileDeleteRequest += clientFileDeleteRequest;
 
-            //does not work for some reason -> we need to find out wy
-            //_client.ConnectionEstablished += ClientConnectionEstablished;
+            _client.ConnectionEstablished += ClientConnectionEstablished;
+
+            _client.Open(activityManagerHttpAddress);
+        }
+
+        void ClientConnectionEstablished(object sender, EventArgs e)
+        {
             BuildUi();
             _startingUp = false;
         }
-
-        void client_FileDeleteRequest(object sender, FileEventArgs e)
+        void clientFileDeleteRequest(object sender, FileEventArgs e)
         {
-            //throw new NotImplementedException();
+            Log.Out("Interface",string.Format("Received {0} for {1}",FileEvent.FileDeleteRequest,e.Resource.Name),LogCode.Net);
         }
 
-        void client_FileDownloadRequest(object sender, FileEventArgs e)
+        void clientFileDownloadRequest(object sender, FileEventArgs e)
         {
-            //throw new NotImplementedException();
+            Log.Out("Interface", string.Format("Received {0} for {1}", FileEvent.FileDownloadRequest, e.Resource.Name), LogCode.Net);
         }
 
-        void client_FileUploadRequest(object sender, FileEventArgs e)
+        void clientFileUploadRequest(object sender, FileEventArgs e)
         {
-            //throw new NotImplementedException();
+            Log.Out("Interface", string.Format("Received {0} for {1}", FileEvent.FileUploadRequest, e.Resource.Name), LogCode.Net);
         }
 
         /// <summary>
@@ -379,7 +366,7 @@ namespace ActivityUI.Xaml
             var transform = btn.TransformToAncestor(this);
             var rootPoint = transform.Transform(new Point(0, 0));
 
-            _deviceWindow.Show((int)rootPoint.X, _deviceList.Values.ToList());
+            _deviceWindow.Show((int)rootPoint.X, _client.DeviceList.Values.ToList());
 
         }
 
@@ -437,7 +424,7 @@ namespace ActivityUI.Xaml
         public void EditActivity(Activity ac)
         {
             _currentButton.Text = ac.Name;
-            _client.UpdateActivity(ac);
+            //client.UpdateActivity(ac);
         }
 
         /// <summary>
@@ -520,11 +507,11 @@ namespace ActivityUI.Xaml
             //Hide all popUps
             HideAllPopups();
 
+            if(_startMode == StartUpMode.Client)
+                _client.Close();
+
             //Close the taskbar
             Close();
-
-            //Close the client;
-            _client.UnSubscribeAll();
 
             //Close the host if running
             if(_host.IsRunning)
@@ -556,6 +543,7 @@ namespace ActivityUI.Xaml
         {
             if(!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
+            _client.SendContext(e.Location.ToString());
         }
         private void BtnManagerClick(object sender, RoutedEventArgs e)
         {
@@ -620,17 +608,6 @@ namespace ActivityUI.Xaml
         private void DiscDiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
             AddDiscoveryActivityManagerToUi(e.ServiceInfo);
-
-        }
-        private void ClientDeviceRemoved(object sender, DeviceRemovedEventArgs e)
-        {
-            _deviceList.Remove(e.Id);
-            AddToLog("Device Removed\n");
-        }
-        private void ClientDeviceAdded(object sender,DeviceEventArgs e)
-        {
-            _deviceList.Add(e.Device.Id.ToString(),e.Device);
-            AddToLog("Device Added\n");
         }
         private void ClientMessageReceived(object sender,ComEventArgs e)
         {
@@ -689,39 +666,17 @@ namespace ActivityUI.Xaml
         public Activity GetInitializedActivity()
         {
             var ac = new Activity
-                         {
-                             Name = "test activity - " + DateTime.Now,
-                             Description = "This is the description of the test activity - " + DateTime.Now
-                         };
+            {
+                Name = "test activity - " + DateTime.Now,
+                Description = "This is the description of the test activity - " + DateTime.Now
+            };
             ac.Uri = "http://tempori.org/" + ac.Id;
 
-            ac.Context = "random context model here";
             ac.Meta.Data = "added meta data";
-
             ac.Owner = _owner;
-
-            var part = new User {Email = "test@test.dk"};
-
-            var act = new NooSphere.Core.ActivityModel.Action();
-
-            var textFile = new Resource
-                               {FileName = "abc.txt", Name = "abc.txt", ActivityId = ac.Id, ActionId = act.Id};
-            textFile.Size = (int)new FileInfo(_client.LocalPath + textFile.RelativePath).Length;
-            act.Resources.Add(textFile);
-
-            var image = new Resource
-                            {FileName = "/abc.jpg", Name = "abc.jpg", ActivityId = ac.Id, ActionId = act.Id};
-            image.Size = (int)new FileInfo(_client.LocalPath + image.RelativePath).Length;
-            act.Resources.Add(image);
-
-            //var video = new Resource { RelativePath = "/abc.wmv", Name = "abc.wmv", ActivityId = ac.Id, ActionId = act.Id };
-            //video.Size = (int)new FileInfo(_client.LocalPath + video.RelativePath).Length;
-            //act.Resources.Add(video);
-
-            ac.Actions.Add(act);
-            ac.Participants.Add(part);
             return ac;
         }
+
         #endregion
 
         #region Taskbar Glass

@@ -18,7 +18,7 @@ using NooSphere.Core.ActivityModel;
 namespace NooSphere.ActivitySystem.Contracts
 {
     [ServiceContract]
-    public interface IActivityNetEvent : IEvent
+    public interface IActivityNetEvent
     {
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json,

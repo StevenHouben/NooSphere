@@ -22,11 +22,12 @@ namespace NooSphere.Core.ActivityModel
         {
             InitializeTimeStamps();
         }
-        public Resource(string filePath,string name)
+        public Resource(string filePath,int size,string name)
         {
             InitializeTimeStamps();
             Name = name;
             FileName = filePath;
+            Size = size;
         }
 
         private void InitializeTimeStamps()
@@ -41,8 +42,9 @@ namespace NooSphere.Core.ActivityModel
         public string CreationTime { get; set; }
         public string LastWriteTime { get; set; }
         public string FileName { get; set; }
-        public string RelativePath { get {return "Activities/" + ActionId + "/Actions/" + ActionId + "/Resources/" + FileName; }}
-        public string CloudPath { get { return "Activities/" + ActionId + "/Actions/" + ActionId + "/Resources/" + Id; } }
+        public string RelativePath { get {return ActivityId +"/"+ Name; }}
+        //public string RelativePath { get { return  FileName; } }
+        public string CloudPath { get { return "Activities/" + ActivityId + "/Resources/" + Id; } }
         public Service Service { get; set; }
     }
 }

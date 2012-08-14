@@ -10,6 +10,7 @@
  http://www.gnu.org/licenses/gpl.html for details.
 ****************************************************************************/
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using NooSphere.ActivitySystem.Contracts;
@@ -22,32 +23,58 @@ namespace NooSphere.ActivitySystem.PubSub
         /// <summary>
         /// Publishes an event to all suscribers
         /// </summary>
-        /// <param name="type">The event type</param>
-        /// <param name="publishUrl">The url to where the event needs to be published</param>
+        /// <param name="publishUrl"> </param>
         /// <param name="netObject">The object that needs to be published</param>
-        public void Publish(EventType type,string publishUrl, object netObject)
+        /// <param name="source">The source that whishes to publish </param>
+        /// <param name="sendToSource">Enables or disable self-publishing to source</param>
+        public void Publish(string publishUrl, object netObject, object source = null, bool sendToSource = false)
         {
+            Log.Out("Publisher", string.Format("Published {0}",publishUrl), LogCode.Net);
+            var toRemove = new List<string>();
             var t = new Thread(() =>
             {
-                var toRemove = new List<string>();
                 lock (Concurrency.SubscriberLock)
                 {
-                    foreach (var entry in Registry.Store[type])
+                    foreach (var entry in Registry.ConnectedClients)
                     {
                         try
                         {
-                            Rest.Post(entry.Value + publishUrl, netObject);
+                            if (source != null && entry.Value == source && sendToSource)
+                                Rest.Post(entry.Value.Device.BaseAddress + publishUrl, netObject);
+                            else Rest.Post(entry.Value.Device.BaseAddress + publishUrl, netObject);
                         }
-                        catch
+                        catch (Exception)
                         {
+                            
                             toRemove.Add(entry.Key);
                         }
+
                     }
                     if (toRemove.Count > 0)
                     {
-                        foreach (string subscriberAddress in toRemove)
-                            Registry.Store[type].Remove(subscriberAddress);
+                        foreach (var id in toRemove)
+                            Registry.ConnectedClients.Remove(id);
                     }
+                }
+
+            });
+            t.Start();
+        }
+
+        /// <summary>
+        /// Publish event to one subscriber
+        /// </summary>
+        /// <param name="publishUrl"></param>
+        /// <param name="netObject"></param>
+        /// <param name="subscriber"> </param>
+        public void PublishToSubscriber(string publishUrl, object netObject,object subscriber)
+        {
+            Log.Out("Publisher", string.Format("Publishing {0} to {1}", publishUrl,subscriber), LogCode.Net);
+            var t = new Thread(() =>
+            {
+                lock (Concurrency.SubscriberLock)
+                {
+                    Rest.Post(subscriber + publishUrl, netObject);
                 }
 
             });
