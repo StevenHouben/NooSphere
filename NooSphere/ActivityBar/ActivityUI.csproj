@@ -187,7 +187,7 @@
       <Project>{03C072A4-5960-4A5D-B0CC-98EBD854E970}</Project>
       <Name>NooSphere.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NooSphere.Helper\NooSphere.Helpers.csproj">
+    <ProjectReference Include="..\NooSphere.Helpers\NooSphere.Helpers.csproj">
       <Project>{6424191D-5C04-43E6-B610-FD4B41E8A340}</Project>
       <Name>NooSphere.Helpers</Name>
     </ProjectReference>

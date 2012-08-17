@@ -39,6 +39,8 @@ obj/
 #Project files
 [Bb]uild/
 
+#Restsharper
+_ReSharper.*/
+
 #packages folder
 /NooSphere/packages/
-/NooSphere/_ReSharper.NooSphere/

@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActivityUI", "ActivityBar\A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NooSphere.Platform.Windows", "NooSphere.Platform.Windows\NooSphere.Platform.Windows.csproj", "{B3333919-EE66-441A-8AB3-6E6601A8A0B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NooSphere.Helpers", "NooSphere.Helper\NooSphere.Helpers.csproj", "{6424191D-5C04-43E6-B610-FD4B41E8A340}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActivityDesk", "ActivityDesk\ActivityDesk.csproj", "{94919648-ACAC-4E13-817C-5F41B9123C77}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActivityTablet", "ActivityTablet\ActivityTablet.csproj", "{B6356A30-18D3-4B74-8608-B855B2C7BFD7}"
@@ -22,11 +20,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{F71DAA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NooSphere.ActivitySystem", "NooSphere.ActivitySystem\NooSphere.ActivitySystem.csproj", "{5CD6DD93-3EA1-425F-89D7-A80FD23BBC71}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NooSphere.Helpers", "NooSphere.Helpers\NooSphere.Helpers.csproj", "{6424191D-5C04-43E6-B610-FD4B41E8A340}"
+EndProject
 Global
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -67,16 +63,6 @@ Global
 		{B3333919-EE66-441A-8AB3-6E6601A8A0B1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{B3333919-EE66-441A-8AB3-6E6601A8A0B1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{B3333919-EE66-441A-8AB3-6E6601A8A0B1}.Release|x86.ActiveCfg = Release|Any CPU
-		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Release|x86.ActiveCfg = Release|Any CPU
 		{94919648-ACAC-4E13-817C-5F41B9123C77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{94919648-ACAC-4E13-817C-5F41B9123C77}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94919648-ACAC-4E13-817C-5F41B9123C77}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -107,8 +93,22 @@ Global
 		{5CD6DD93-3EA1-425F-89D7-A80FD23BBC71}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{5CD6DD93-3EA1-425F-89D7-A80FD23BBC71}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{5CD6DD93-3EA1-425F-89D7-A80FD23BBC71}.Release|x86.ActiveCfg = Release|Any CPU
+		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6424191D-5C04-43E6-B610-FD4B41E8A340}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
 	EndGlobalSection
 EndGlobal

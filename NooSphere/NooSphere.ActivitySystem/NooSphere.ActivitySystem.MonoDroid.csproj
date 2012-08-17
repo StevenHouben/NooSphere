@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{359D0746-BBD2-4369-B492-21B141C3E4C3}</ProjectGuid>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NooSphere.MonoDroid.ActivitySystem</RootNamespace>
+    <AssemblyName>NooSphere.MonoDroid.ActivitySystem</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Android" />
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Base\ActivityCloudConnector.cs" />
+    <Compile Include="Base\ActivityEventArgs.cs" />
+    <Compile Include="Base\ActivityStore.cs" />
+    <Compile Include="Base\CloudEvents.cs" />
+    <Compile Include="Base\ComEventArgs.cs" />
+    <Compile Include="Base\Configuration.cs" />
+    <Compile Include="Base\ConnectedClient.cs" />
+    <Compile Include="Base\MonoDroid\ActivityManager.cs" />
+    <Compile Include="Base\MonoDroid\ActivityClient.cs" />
+    <Compile Include="Base\MonoDroid\EventTypeConverter.cs" />
+    <Compile Include="Base\MonoDroid\NetEventHandler.cs" />
+    <Compile Include="Base\DeviceEventArgs.cs" />
+    <Compile Include="Base\Events.cs" />
+    <Compile Include="Base\FileEventArgs.cs" />
+    <Compile Include="Base\FriendEventArgs.cs" />
+    <Compile Include="Base\IActivityNode.cs" />
+    <Compile Include="Base\IActivityProxy.cs" />
+    <Compile Include="Base\ParticipantsEventArgs.cs" />
+    <Compile Include="Base\ParticipantStore.cs" />
+    <Compile Include="Base\StartupMode.cs" />
+    <Compile Include="Context\IProxy.cs" />
+    <Compile Include="Context\MulticastSocket.cs" />
+    <Compile Include="Context\MulticastSocketListener.cs" />
+    <Compile Include="Context\StateObject.cs" />
+    <Compile Include="Contracts\EventType.cs" />
+    <Compile Include="Contracts\IActivityManager.cs" />
+    <Compile Include="Contracts\IActivityNetEvent.cs" />
+    <Compile Include="Contracts\IComNetEvent.cs" />
+    <Compile Include="Contracts\IDeviceNetEvent.cs" />
+    <Compile Include="Contracts\IFileNetEvent.cs" />
+    <Compile Include="Contracts\IFileServer.cs" />
+    <Compile Include="Contracts\IMessenger.cs" />
+    <Compile Include="Contracts\INetEvent.cs" />
+    <Compile Include="Contracts\IUserEvent.cs" />
+    <Compile Include="FileServer\FileClient.cs" />
+    <Compile Include="FileServer\FileService.cs" />
+    <Compile Include="FileServer\FileSource.cs" />
+    <Compile Include="FileServer\IFileStore.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PubSub\Concurrency.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PubSub\Registry.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PubSub\RestPublisher.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PubSub\RestSubscriber.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Libs\MonoDroid.Newtonsoft.Json\MonoDroid.Newtonsoft.Json.csproj">
+      <Project>{e6c3413c-919b-486d-8b6c-225cbd921b98}</Project>
+      <Name>MonoDroid.Newtonsoft.Json</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Libs\MonoDroid.SignalR.Client\MonoDroid.SignalR.Client.csproj">
+      <Project>{145e495f-e3ab-42cf-8b77-117196955068}</Project>
+      <Name>MonoDroid.SignalR.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NooSphere.Core\NooSphere.Core.MonoDroid.csproj">
+      <Project>{9e4955ac-977e-43c4-b721-ceb107337ca3}</Project>
+      <Name>NooSphere.Core.MonoDroid</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NooSphere.Helpers\NooSphere.Helpers.MonoDroid.csproj">
+      <Project>{e067586e-d181-40d3-a253-e7e3dbd2f7d8}</Project>
+      <Name>NooSphere.Helpers.MonoDroid</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
