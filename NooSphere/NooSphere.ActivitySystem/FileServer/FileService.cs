@@ -28,7 +28,7 @@ namespace NooSphere.ActivitySystem.FileServer
         public event FileAddedHandler FileCopied;
         public event FileRemovedHandler FileRemoved;
         public event FileDownloadRequestHandler FileDownloadedFromCloud;     
-        #endregion
+        #endregion  
 
         #region Properties
         public string BasePath { get; set; }
@@ -186,7 +186,9 @@ namespace NooSphere.ActivitySystem.FileServer
         {
             try
             {
-                var path = BasePath + resource.RelativePath;
+                var path = Path.Combine(BasePath, resource.RelativePath);
+                var dir = Path.GetDirectoryName(path);
+                if (dir != null && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
                 using (var fileToupload = new FileStream(path, FileMode.Create))
                 {
                     fileToupload.Write(fileInBytes, 0, fileInBytes.Length);

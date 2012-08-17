@@ -120,7 +120,9 @@ namespace NooSphere.ActivitySystem.Base
         {
             if (!_connected)
                 throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
-            //d.BaseAddress = Net.GetUrl(Net.GetIp(IPType.All), StartCallbackService(), "").ToString();
+            // Use localhost for Android Emulator
+            d.BaseAddress = "http://localhost:9876/";
+            //d.BaseAddress = Net.GetUrl(Net.GetIp(IPType.All), 9876, "").ToString();
             _connectionId = JsonConvert.DeserializeObject<String>(Rest.Post(ServiceAddress + Url.Devices, d));
             Log.Out("ActivityClient", string.Format("Received device id: " + _connectionId), LogCode.Log);
         }
@@ -149,9 +151,10 @@ namespace NooSphere.ActivitySystem.Base
         /// </summary>
         private void IntializeContext()
         {
-            _mSocket = new MulticastSocket("224.10.10.10", 33333, 0);
-            _mSocket.OnNotifyMulticastSocketListener += _mSocket_OnNotifyMulticastSocketListener;
-            _mSocket.StartReceiving();
+            // MonoDroid does not support this multicast
+            //_mSocket = new MulticastSocket("224.10.10.10", 33333, 0);
+            //_mSocket.OnNotifyMulticastSocketListener += _mSocket_OnNotifyMulticastSocketListener;
+            //_mSocket.StartReceiving();
         }
         #endregion
 
