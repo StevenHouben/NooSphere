@@ -45,6 +45,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mono.Zeroconf, Version=4.0.0.90, Culture=neutral, PublicKeyToken=e60c4f4a95e1099e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Zeroconf.0.9.0.0\lib\Net20\Mono.Zeroconf.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Zeroconf.Providers.Bonjour">
+      <HintPath>..\packages\Mono.Zeroconf.0.9.0.0\lib\Net20\Mono.Zeroconf.Providers.Bonjour.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.4.5.7\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -181,7 +187,7 @@
       <Project>{03C072A4-5960-4A5D-B0CC-98EBD854E970}</Project>
       <Name>NooSphere.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NooSphere.Helper\NooSphere.Helpers.csproj">
+    <ProjectReference Include="..\NooSphere.Helpers\NooSphere.Helpers.csproj">
       <Project>{6424191D-5C04-43E6-B610-FD4B41E8A340}</Project>
       <Name>NooSphere.Helpers</Name>
     </ProjectReference>

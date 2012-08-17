@@ -107,7 +107,7 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="owner">The current user</param>
         private void ConnectToCloud(User owner)
         {
-            var serviceAddress = _useLocalCloud ? "http://10.1.1.190:56002" : "http://activitycloud-1.apphb.com";
+            var serviceAddress = _useLocalCloud ? "http://localhost:56002" : "http://activitycloud-1.apphb.com";
 
             _activityCloudConnector = new ActivityCloudConnector(serviceAddress + "/Api/", owner);
             _activityCloudConnector.ConnectionSetup += ActivityCloudConnectorConnectionSetup;
