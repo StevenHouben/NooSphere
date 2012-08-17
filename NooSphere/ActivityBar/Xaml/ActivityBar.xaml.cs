@@ -245,10 +245,10 @@ namespace ActivityUI.Xaml
 
         void _client_ContextMessageReceived(object sender, ContextEventArgs e)
         {
-            string[] coords = e.Message.Split(',');
+            string[] coords = e.Message.Split('-');
 
             Point point = new Point(int.Parse(coords[0]), int.Parse(coords[1]));
-            SetCursorPos((int)point.X, (int)point.Y);
+            //SetCursorPos((int)point.Y, (int)point.X);
         }
         [DllImport("User32.dll")]
         private static extern bool SetCursorPos(int x, int y);
@@ -553,6 +553,7 @@ namespace ActivityUI.Xaml
         {
             if(!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
+            _client.SendContext(e.Location.X+"-"+e.Location.Y);
         }
         private void BtnManagerClick(object sender, RoutedEventArgs e)
         {

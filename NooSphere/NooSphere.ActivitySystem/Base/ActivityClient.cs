@@ -195,7 +195,7 @@ namespace NooSphere.ActivitySystem.Base
         /// </summary>
         private void IntializeContext()
         {
-            _mSocket = new MulticastSocket("239.0.0.22", 33333, 0);
+            _mSocket = new MulticastSocket("224.10.10.10", 33333, 0);
             _mSocket.OnNotifyMulticastSocketListener += _mSocket_OnNotifyMulticastSocketListener;
             _mSocket.StartReceiving();
         }
