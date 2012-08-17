@@ -103,6 +103,7 @@ namespace NooSphere.ActivitySystem.Base
         }
         public void UpdateActivity(Activity activity)
         {
+            Thread.Sleep(500);
             Rest.SendRequest(_baseUrl + "Activities/" + activity.Id, HttpMethod.Put, activity, _connection.ConnectionId);
         }
         public void DeleteActivity(Guid activityId)

@@ -37,7 +37,8 @@ namespace NooSphere.ActivitySystem.Base
 
         #region Private Members
         private readonly GenericHost _callbackService = new GenericHost();
-        private FileService _fileServer;
+        private readonly Dictionary<Guid, Activity> _activityBuffer = new Dictionary<Guid, Activity>(); 
+        private FileStore _fileServer;
         private bool _connected;
         private string _connectionId;
         private MulticastSocket _mSocket;
@@ -68,36 +69,69 @@ namespace NooSphere.ActivitySystem.Base
             OnInitializedEvent(new EventArgs());
 
             ActivityAdded += ActivityClientActivityAdded;
+            ActivityChanged += ActivityClientActivityChanged;
+            ActivityRemoved += ActivityClientActivityRemoved;
         }
+        #endregion
 
-        void ActivityClientActivityAdded(object sender, ActivityEventArgs e)
-        {
-            _fileServer.IntializePath(e.Activity);
-        }
-
+        #region Initializer
         /// <summary>
         /// Initializes the File Service
         /// </summary>
         /// <param name="localPath">Path where the file service stores files</param>
         private void InitializeFileService(string localPath)
         {
-            _fileServer = new FileService(localPath);
+            _fileServer = new FileStore(localPath);
             _fileServer.FileAdded += FileServerFileAdded;
             _fileServer.FileCopied += FileServerFileCopied;
-            //_fileServer.FileChanged += FileServerFileChanged;
-            //_fileServer.FileRemoved += FileServerFileRemoved;
             Log.Out("ActivityClient", string.Format("FileStore initialized at {0}", _fileServer.BasePath), LogCode.Log);
         }
 
         #endregion
 
         #region Private Methods
+
+        /// <summary>
+        /// Downloads a resource
+        /// </summary>
+        /// <param name="resource"></param>
+        /// <returns></returns>
+        private byte[] DownloadResource(Resource resource)
+        {
+            return Rest.DownloadFromHttpStream(ServiceAddress + "Files/" + resource.ActivityId + "/" + resource.Id, resource.Size);
+        }
+        /// <summary>
+        /// Updates activity with a resource
+        /// </summary>
+        /// <param name="res">The resource that is added to the activity</param>
+        private void UpdateActivityWithResources(Resource res)
+        {
+            if (_activityBuffer.ContainsKey(res.ActivityId))
+            {
+                var act = _activityBuffer[res.ActivityId];
+                act.Resources.Add(res);
+
+                //Update the activity
+                UpdateActivity(act);
+            }
+            else
+            {
+                Thread.Sleep(1000);
+                UpdateActivityWithResources(res);
+            }
+        }
+
+        /// <summary>
+        /// Uploads a resource to the activity manager
+        /// </summary>
+        /// <param name="r"></param>
         private void UploadResource(Resource r)
         {
             Rest.SendStreamingRequest(ServiceAddress + "Files/" + r.ActivityId + "/" + r.Id, _fileServer.BasePath+ r.RelativePath);
                                     //_fileServer.BasePath + r.RelativePath);
             Log.Out("ActivityClient", string.Format("Received Request to upload {0}", r.Name), LogCode.Log);
         }
+
         /// <summary>
         /// Tests the connection to the service
         /// </summary>
@@ -177,18 +211,13 @@ namespace NooSphere.ActivitySystem.Base
             Ip = Net.GetIp(IPType.All);
             TestConnection(address);
             FileUploadRequest += ActivityClientFileUploadRequest;
-            FileDownloadRequest += ActivityClient_FileDownloadRequest;
+            FileDownloadRequest += ActivityClientFileDownloadRequest;
             DeviceAdded += ActivityClientDeviceAdded;
             DeviceRemoved += ActivityClientDeviceRemoved;
             _connected = true;
             Register(Device);
 
             IntializeContext();
-        }
-
-        private byte[] DownloadResource(Resource resource)
-        {
-            return Rest.DownloadFromHttpStream(ServiceAddress + "Files/" + resource.ActivityId + "/" + resource.Id,resource.Size);
         }
 
         /// <summary>
@@ -219,11 +248,18 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="act">The activity that needs to be included in the request</param>
         public void AddActivity(Activity act)
         {
+            _fileServer.IntializePath(act);
             if(_connected)
                 Rest.Post(ServiceAddress + Url.Activities, new {act,deviceId=_connectionId});
             else
                 throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
         }
+
+        /// <summary>
+        /// Adds a file to a given activity
+        /// </summary>
+        /// <param name="fileInfo">The fileinfo describing the file</param>
+        /// <param name="activity"></param>
         public void AddResource(FileInfo fileInfo,Activity activity)
         {
             //create a new resource from the file
@@ -256,7 +292,7 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="act">The activity that needs to be included in the request</param>
         public void UpdateActivity(Activity act)
         {
-            if(_connected)
+           if(_connected)
                 Rest.Put(ServiceAddress + Url.Activities, new { act, deviceId = _connectionId });
             else
                 throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
@@ -372,22 +408,33 @@ namespace NooSphere.ActivitySystem.Base
 
         #region Event Handlers
 
-        void FileServerFileCopied(object sender, FileEventArgs e)
+        private void FileServerFileCopied(object sender, FileEventArgs e)
         {
             //Couple the resource which is not in the filestore to the activity
-            var act = GetActivity(e.Resource.ActivityId.ToString());
-            act.Resources.Add(e.Resource);
 
-            //Update the activity
-            UpdateActivity(act);
-        }
-        void ActivityClient_FileDownloadRequest(object sender, FileEventArgs e)
-        {
-            _fileServer.AddFile(e.Resource, DownloadResource(e.Resource), FileSource.ActivityManager);
+            UpdateActivityWithResources(e.Resource);
         }
         private void FileServerFileAdded(object sender, FileEventArgs e)
         {
 
+        }
+        private void ActivityClientActivityRemoved(object sender, ActivityRemovedEventArgs e)
+        {
+            _activityBuffer.Remove(e.Id);
+        }
+        private void ActivityClientActivityChanged(object sender, ActivityEventArgs e)
+        {
+            _activityBuffer[e.Activity.Id] = e.Activity;
+        }
+        private void ActivityClientActivityAdded(object sender, ActivityEventArgs e)
+        {
+            if (!Directory.Exists(_fileServer.BasePath + "/" + e.Activity.Id))
+                _fileServer.IntializePath(e.Activity);
+            _activityBuffer.Add(e.Activity.Id, e.Activity);
+        }
+        private void ActivityClientFileDownloadRequest(object sender, FileEventArgs e)
+        {
+            _fileServer.AddFile(e.Resource, DownloadResource(e.Resource), FileSource.ActivityManager);
         }
         private void ActivityClientDeviceRemoved(object sender, DeviceRemovedEventArgs e)
         {

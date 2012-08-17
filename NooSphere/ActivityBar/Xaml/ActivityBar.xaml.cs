@@ -132,7 +132,7 @@ namespace ActivityUI.Xaml
             var t = new Thread(() =>
             {
                 _disc = new DiscoveryManager();
-                _disc.Find(DiscoveryType.Zeroconf);
+                _disc.Find(Settings.Default.DISCOVERY_TYPE);
                 _disc.DiscoveryAddressAdded += DiscDiscoveryAddressAdded;
             }) {IsBackground = true};
             t.Start();
@@ -203,8 +203,7 @@ namespace ActivityUI.Xaml
                 _host = new GenericHost();
                 _host.HostLaunched += HostHostLaunched;
                 _host.Open(new ActivityManager(_owner, "c:/files/"), typeof(IActivityManager), _device.Name);
-                if(Settings.Default.CHECK_BROADCAST)
-                    _host.StartBroadcast(_device.Name, _device.Location);
+                _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE,_device.Name, _device.Location);
 
             }) {IsBackground = true};
             t.Start();
@@ -392,7 +391,7 @@ namespace ActivityUI.Xaml
         {
             _device.Name = txtDeviceName.Text;
             if (Settings.Default.CHECK_BROADCAST)
-                _host.StartBroadcast(_device.Name, _device.Location);
+                _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE,_device.Name, _device.Location);
         }
 
         /// <summary>
@@ -403,7 +402,7 @@ namespace ActivityUI.Xaml
         {
             if(_startMode == StartUpMode.Host)
                 if (check)
-                    _host.StartBroadcast(_device.Name, _device.Location);
+                    _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE,_device.Name, _device.Location);
                 else
                     _host.StopBroadcast();
         }
@@ -544,7 +543,7 @@ namespace ActivityUI.Xaml
         {
             if(!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
-            //_client.SendContext(e.Location.ToString());
+            _client.SendContext(e.Location.ToString());
         }
         private void BtnManagerClick(object sender, RoutedEventArgs e)
         {

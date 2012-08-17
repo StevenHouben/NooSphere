@@ -30,12 +30,18 @@ namespace NooSphere.ActivitySystem.Contracts
         Stream GetFile(string activityId, string resourceId);
 
         [OperationContract]
+        [WebGet(UriTemplate = "file")]
+        Stream GetTestFile();
+
+        [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "files", Method = "DELETE")]
         void RemoveFile(Resource resource);
 
         [OperationContract]
         [WebInvoke(UriTemplate = "files/{activityId}/{resourceId}", Method = "PUT")]
         void UpdateFile(string activityId, string resourceId, Stream stream);
+
+
 
 
     }

@@ -37,24 +37,23 @@ namespace NooSphere.Helpers
             if (connectionId != null)
                 request.Headers.Add(HttpRequestHeader.Authorization, connectionId);
 
-            if (content != null)
-            {
-                request.ContentType = "application/json";
-                var json = JsonConvert.SerializeObject(content);
-                var bytes = Encoding.UTF8.GetBytes(json);
-
-                request.ContentLength = bytes.Length;
-
-                using (var requestStream = request.GetRequestStream())
-                {
-                    // Send the file as body request. 
-                    requestStream.Write(bytes, 0, bytes.Length);
-                    requestStream.Close();
-                }
-            }
-
             try
             {
+                if (content != null)
+                {
+                    request.ContentType = "application/json";
+                    var json = JsonConvert.SerializeObject(content);
+                    var bytes = Encoding.UTF8.GetBytes(json);
+
+                    request.ContentLength = bytes.Length;
+
+                    using (var requestStream = request.GetRequestStream())
+                    {
+                        // Send the file as body request. 
+                        requestStream.Write(bytes, 0, bytes.Length);
+                        requestStream.Close();
+                    }
+                }
                 using (var response = (HttpWebResponse)request.GetResponse())
                 {
                     if (response.StatusCode == HttpStatusCode.InternalServerError | response.StatusCode == HttpStatusCode.BadRequest)
@@ -78,10 +77,18 @@ namespace NooSphere.Helpers
                 request.Headers.Add(HttpRequestHeader.Authorization, connectionId);
 
             var bytesToRead = new byte[fileLength];
+            var bytesRead = 0;
+            var offset = 0;
             try
             {
-                using (var response = request.GetResponse())
-                    response.GetResponseStream().Read(bytesToRead, 0, fileLength);
+                using (var requestStream = request.GetResponse().GetResponseStream())
+                {
+                    while(requestStream != null && (fileLength>0 && (bytesRead=requestStream.Read(bytesToRead,offset,fileLength))>0))
+                    {
+                        fileLength -= bytesRead;
+                        offset += bytesRead;
+                    }
+                }
 
                 return bytesToRead;
             }

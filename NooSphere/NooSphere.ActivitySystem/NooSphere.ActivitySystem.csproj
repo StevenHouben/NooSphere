@@ -62,7 +62,6 @@
   <ItemGroup>
     <Compile Include="Base\ActivityClient.cs" />
     <Compile Include="Base\Configuration.cs" />
-    <Compile Include="Base\IActivityProxy.cs" />
     <Compile Include="Base\NetEventHandler.cs" />
     <Compile Include="Base\StartupMode.cs" />
     <Compile Include="Base\ActivityCloudConnector.cs" />
@@ -85,9 +84,8 @@
     <Compile Include="Base\FileEventArgs.cs" />
     <Compile Include="Base\ParticipantsEventArgs.cs" />
     <Compile Include="Base\FriendEventArgs.cs" />
-    <Compile Include="FileServer\FileClient.cs" />
     <Compile Include="FileServer\FileSource.cs" />
-    <Compile Include="FileServer\FileService.cs" />
+    <Compile Include="FileServer\FileStore.cs" />
     <Compile Include="Base\IActivityNode.cs" />
     <Compile Include="Contracts\IFileServer.cs" />
     <Compile Include="Contracts\IUserEvent.cs" />

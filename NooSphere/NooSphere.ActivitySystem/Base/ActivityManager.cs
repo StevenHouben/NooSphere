@@ -34,10 +34,10 @@ namespace NooSphere.ActivitySystem.Base
         private RestSubscriber _subscriber;
         private RestPublisher _publisher;
         private ActivityCloudConnector _activityCloudConnector;
-        private FileService _fileServer;
+        private FileStore _fileServer;
 
-        private Syncer localSyncer = new Syncer(SyncType.Local);
-        private Syncer cloudSyncer = new Syncer(SyncType.Cloud);
+        private readonly Syncer _localSyncer = new Syncer(SyncType.Local);
+        private readonly object _sync = new object();
 
         private bool _connectionActive;
         private readonly bool _useLocalCloud;
@@ -78,7 +78,7 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="localPath">Path where the file service stores files</param>
         private void InitializeFileService(string localPath)
         {
-            _fileServer = new FileService(localPath);
+            _fileServer = new FileStore(localPath);
             _fileServer.FileAdded += FileServerFileAdded;
             _fileServer.FileChanged += FileServerFileChanged;
             _fileServer.FileRemoved += FileServerFileRemoved;
@@ -98,7 +98,7 @@ namespace NooSphere.ActivitySystem.Base
         }
         #endregion
 
-        #region Net
+        #region Privat Methods
 
         /// <summary>
         /// Creates a new activitycloud connection
@@ -128,23 +128,6 @@ namespace NooSphere.ActivitySystem.Base
         }
 
         /// <summary>
-        /// Constructs a local activity cache for offline use
-        /// </summary>
-        private void ConstructActivityCache()
-        {
-            //Log.Out("ActivityManager", string.Format("Activity Store intialized"), LogCode.Log);
-            //var t = new Thread(() =>
-            //{
-            //    foreach (var act in _activityCloudConnector.GetActivities())
-            //    {
-            //        ActivityStore.Activities.Add(act.Id, act);
-            //        _publisher.Publish(ActivityEvent.ActivityAdded.ToString(), act);
-            //    }
-            //}) { IsBackground = true };
-            //t.Start();
-        }
-
-        /// <summary>
         /// Publish activity to cloud
         /// </summary>
         /// <param name="act">Activity that needs to be published</param>
@@ -165,6 +148,11 @@ namespace NooSphere.ActivitySystem.Base
             }
 
         }
+
+        /// <summary>
+        /// Adds an activity to the manager that is pushed from the cloud
+        /// </summary>
+        /// <param name="act"></param>
         private void AddActivityFromCloud(Activity act)
         {
             //If the id is in the store -> activity was uploaded by this system
@@ -180,16 +168,6 @@ namespace NooSphere.ActivitySystem.Base
             _publisher.Publish(ActivityEvent.ActivityAdded.ToString(), act);
         }
 
-        private void KeepActivityFromCloud(Activity act, ActivityEvent aEvent)
-        {
-            Log.Out("ActivityManager", string.Format("Keeping activity {0} in buffer", act), LogCode.Log);
-            cloudSyncer.Buffer.Add(act.Id, act);
-            cloudSyncer.Counters.Add(act.Id, new Point(0, act.GetResources().Count));
-            cloudSyncer.EventType.Add(act.Id, aEvent);
-            foreach (var resource in act.GetResources())
-                _activityCloudConnector.GetResource(resource);
-        }
-
         /// <summary>
         /// Buffer activity locally until resources are uploaded
         /// </summary>
@@ -199,18 +177,28 @@ namespace NooSphere.ActivitySystem.Base
         private void KeepActivity(Activity act,string deviceId,ActivityEvent aEvent)
         {
             Log.Out("ActivityManager", string.Format("Keeping activity {0} in buffer", act), LogCode.Log);
- 
+
+            //Loop throught the resource and check which ones are already uploaded
+            var resList = act.GetResources()
+                .Where(resource => !_fileServer.LookUp(resource.Id)).ToList();
+
+            //If all files are uploaded, publish the activity
+            if(resList.Count ==0)
+                PublishActivity(act,aEvent);
+
             //Create a buffer id
             var bufferId = Guid.NewGuid();
 
-            //Buffer the activity into a local buffer
-            localSyncer.Buffer.Add(bufferId, act);
-            localSyncer.Counters.Add(bufferId, new Point(0, act.GetResources().Count));
-            localSyncer.EventType.Add(bufferId, aEvent);
-            localSyncer.LookUpTable.Add(bufferId,act.Id);
+            lock (_sync)
+            {
+                //Buffer the activity into a local buffer
+                _localSyncer.Buffer.Add(bufferId, act);
+                _localSyncer.Resources.Add(bufferId, resList);
+                _localSyncer.EventType.Add(bufferId, aEvent);
+            }
 
             //Send File upload request to the client that has added the activity
-            foreach (var resource in act.GetResources())
+            foreach (var resource in resList)
                 _publisher.PublishToSubscriber(FileEvent.FileUploadRequest.ToString(), resource, Registry.ConnectedClients[deviceId]);
         }
 
@@ -225,24 +213,24 @@ namespace NooSphere.ActivitySystem.Base
             {
                 if (syncer.Buffer.Count == 0)
                     return;
-                foreach (var activity in syncer.Buffer.Values)
+                foreach (var pair in syncer.Resources.ToList())
                 {
-                    foreach (var resource in activity.GetResources())
+                    var bufferid = pair.Key;
+                    var resList = pair.Value;
+                    foreach (var resource in resList.ToList())
                     {
                         if (res.Id == resource.Id)
                         {
-                            var counter = syncer.Counters[activity.Id];
-                            counter.X++;
-                            if (counter.X == counter.Y)
+                            resList.Remove(resource);
+                            if (resList.Count==0)
                             {
-                                PublishActivity(activity, syncer.EventType[activity.Id]);
-                                syncer.Counters.Remove(activity.Id);
-                                syncer.Buffer.Remove(activity.Id);
-                                syncer.EventType.Remove(activity.Id);
+                                PublishActivity(syncer.Buffer[bufferid], syncer.EventType[bufferid]);
+                                syncer.Buffer.Remove(bufferid);
+                                syncer.EventType.Remove(bufferid);
 
                                 return;
                             }
-                            syncer.Counters[activity.Id] = counter;
+                            syncer.Resources[bufferid] = resList;
                         }
                     }
                 }
@@ -271,8 +259,9 @@ namespace NooSphere.ActivitySystem.Base
         private void FileServerFileAdded(object sender, FileEventArgs e)
         {
             _publisher.Publish( FileEvent.FileDownloadRequest.ToString(), e.Resource);
-            ResourceTracker(e.Resource,localSyncer);
+            ResourceTracker(e.Resource,_localSyncer);
         }
+
         private void ActivityCloudConnectorFileDownloadRequest(object sender, FileEventArgs e)
         {
             Log.Out("ActivityManager", string.Format("Cloud download request from file: " + e.Resource.RelativePath), LogCode.Log);
@@ -287,7 +276,6 @@ namespace NooSphere.ActivitySystem.Base
         {
             Log.Out("ActivityManager", string.Format("ActivityManager: Connection Setup"), LogCode.Log);
             _connectionActive = true;
-            ConstructActivityCache();
         }
         private void ActivityCloudConnectorParticipantRemoved(object sender, ParticipantEventArgs e)
         {
@@ -510,6 +498,15 @@ namespace NooSphere.ActivitySystem.Base
         public Stream GetFile(string activityId, string resourceId)
         {
             return _fileServer.GetStreamFromFile(GetResourceFromId(activityId,resourceId));
+        }
+
+        /// <summary>
+        /// Streams a testfile REMOVE
+        /// </summary>
+        /// <returns></returns>
+        public Stream GetTestFile()
+        {
+            return File.OpenRead("c:/dump/abc.jpg");
         }
 
         /// <summary>
