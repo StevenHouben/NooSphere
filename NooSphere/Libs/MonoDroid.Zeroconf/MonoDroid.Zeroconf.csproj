@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{07C8141F-A6EA-430F-983F-A78AF4DD6615}</ProjectGuid>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MonoDroid.Zeroconf</RootNamespace>
+    <AssemblyName>MonoDroid.Zeroconf</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Mono.Zeroconf.Providers\IZeroconfProvider.cs" />
+    <Compile Include="Mono.Zeroconf.Providers\ProviderFactory.cs" />
+    <Compile Include="Mono.Zeroconf.Providers\ZeroconfProviderAttribute.cs" />
+    <Compile Include="Mono.Zeroconf\AddressProtocol.cs" />
+    <Compile Include="Mono.Zeroconf\IRegisterService.cs" />
+    <Compile Include="Mono.Zeroconf\IResolvableService.cs" />
+    <Compile Include="Mono.Zeroconf\IService.cs" />
+    <Compile Include="Mono.Zeroconf\IServiceBrowser.cs" />
+    <Compile Include="Mono.Zeroconf\ITxtRecord.cs" />
+    <Compile Include="Mono.Zeroconf\RegisterService.cs" />
+    <Compile Include="Mono.Zeroconf\RegisterServiceEventArgs.cs" />
+    <Compile Include="Mono.Zeroconf\RegisterServiceEventHandler.cs" />
+    <Compile Include="Mono.Zeroconf\ServiceBrowseEventArgs.cs" />
+    <Compile Include="Mono.Zeroconf\ServiceBrowseEventHandler.cs" />
+    <Compile Include="Mono.Zeroconf\ServiceBrowser.cs" />
+    <Compile Include="Mono.Zeroconf\ServiceErrorCode.cs" />
+    <Compile Include="Mono.Zeroconf\ServiceResolvedEventArgs.cs" />
+    <Compile Include="Mono.Zeroconf\ServiceResolvedEventHandler.cs" />
+    <Compile Include="Mono.Zeroconf\TxtRecord.cs" />
+    <Compile Include="Mono.Zeroconf\TxtRecordItem.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

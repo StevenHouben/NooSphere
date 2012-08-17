@@ -13,8 +13,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Net.Http;
 using System.Threading;
 using System.Web;
 
@@ -92,7 +90,8 @@ namespace NooSphere.ActivitySystem.Base
         }
         public List<Activity> GetActivities()
         {
-            return JsonConvert.DeserializeObject<List<Activity>>(Rest.SendRequest(_baseUrl + "Activities", HttpMethod.Get, null, _connection.ConnectionId));
+            var result = Rest.SendRequest(_baseUrl + "Activities", HttpMethod.Get, null, _connection.ConnectionId);
+            return JsonConvert.DeserializeObject<List<Activity>>(result);
         }
         public Activity GetActivity(Guid activityId)
         {

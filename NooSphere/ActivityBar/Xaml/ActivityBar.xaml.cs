@@ -201,7 +201,7 @@ namespace ActivityUI.Xaml
             {
                 _host = new GenericHost();
                 _host.HostLaunched += HostHostLaunched;
-                _host.Open(new ActivityManager(_owner,"c:/files/"), typeof(IActivityManager), _device.Name);
+                _host.Open(new ActivityManager(_owner, "c:/files/"), typeof(IActivityManager), _device.Name);
                 if(Settings.Default.CHECK_BROADCAST)
                     _host.StartBroadcast(_device.Name, _device.Location);
 
