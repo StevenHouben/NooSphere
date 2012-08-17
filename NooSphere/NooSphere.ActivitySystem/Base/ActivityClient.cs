@@ -33,6 +33,7 @@ namespace NooSphere.ActivitySystem.Base
         #region Events
         public event ConnectionEstablishedHandler ConnectionEstablished = null;
         public event InitializedHandler Initialized = null;
+        public event ContextMessageReceivedHandler ContextMessageReceived = null;
         #endregion
 
         #region Private Members
@@ -194,7 +195,7 @@ namespace NooSphere.ActivitySystem.Base
         /// </summary>
         private void IntializeContext()
         {
-            _mSocket = new MulticastSocket("224.10.10.10", 33333, 0);
+            _mSocket = new MulticastSocket("239.0.0.22", 33333, 0);
             _mSocket.OnNotifyMulticastSocketListener += _mSocket_OnNotifyMulticastSocketListener;
             _mSocket.StartReceiving();
         }
@@ -388,6 +389,11 @@ namespace NooSphere.ActivitySystem.Base
         #endregion
 
         #region Internal Event Handlers
+        protected void OnContextReceivedEvent(ContextEventArgs e)
+        {
+            if (ContextMessageReceived != null)
+                ContextMessageReceived(this, e);
+        }
         protected void OnConnectionEstablishedEvent(EventArgs e)
         {
             if (ConnectionEstablished != null)
@@ -401,8 +407,12 @@ namespace NooSphere.ActivitySystem.Base
         private void _mSocket_OnNotifyMulticastSocketListener(object sender, NotifyMulticastSocketListenerEventArgs e)
         {
             if (e.Type == MulticastSocketMessageType.MessageReceived)
-                Console.WriteLine(System.Text.Encoding.ASCII.GetString((byte[])e.NewObject));
-            //do stuff here
+            {
+                var msg = System.Text.Encoding.ASCII.GetString((byte[])e.NewObject);
+                Console.WriteLine(msg);
+                OnContextReceivedEvent(new ContextEventArgs(msg));
+            }
+     
         }
         #endregion
 

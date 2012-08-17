@@ -22,6 +22,11 @@ namespace NooSphere.ActivitySystem.Base
     public delegate void ActivityChangedHandler(Object sender, ActivityEventArgs e);
 
     /// <summary>
+    /// Context events
+    /// </summary>
+    public delegate void ContextMessageReceivedHandler(Object sender,ContextEventArgs e);
+
+    /// <summary>
     /// Device events
     /// </summary>
     public delegate void DeviceRoleChangedHandler(Object sender, DeviceEventArgs e);
