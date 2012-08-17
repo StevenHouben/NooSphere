@@ -66,6 +66,13 @@ namespace NooSphere.ActivitySystem.Base
             InitializeFileService(localFileDirectory);
             Device = d;
             OnInitializedEvent(new EventArgs());
+
+            ActivityAdded += ActivityClientActivityAdded;
+        }
+
+        void ActivityClientActivityAdded(object sender, ActivityEventArgs e)
+        {
+            _fileServer.IntializePath(e.Activity);
         }
 
         /// <summary>
@@ -212,18 +219,11 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="act">The activity that needs to be included in the request</param>
         public void AddActivity(Activity act)
         {
-            InitializeStorage(act);
             if(_connected)
                 Rest.Post(ServiceAddress + Url.Activities, new {act,deviceId=_connectionId});
             else
                 throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
         }
-
-        private void InitializeStorage(Activity act)
-        {
-            _fileServer.IntializePath(act);
-        }
-
         public void AddResource(FileInfo fileInfo,Activity activity)
         {
             //create a new resource from the file
@@ -234,9 +234,8 @@ namespace NooSphere.ActivitySystem.Base
                 LastWriteTime = DateTime.Now.ToString(CultureInfo.InvariantCulture)                   
             };
             
-            //Add the resource and file to the local file store
-            _fileServer.AddFile(resource,File.ReadAllBytes(fileInfo.FullName),FileSource.System);
-            //continue on _fileServer.FileCopied
+            //Add the resource and file to the local file store as system
+            _fileServer.AddFile(resource,File.ReadAllBytes(fileInfo.FullName),FileSource.ActivityClient);
         }
 
         /// <summary>
@@ -384,7 +383,7 @@ namespace NooSphere.ActivitySystem.Base
         }
         void ActivityClient_FileDownloadRequest(object sender, FileEventArgs e)
         {
-            _fileServer.AddFile(e.Resource, DownloadResource(e.Resource), FileSource.Local);
+            _fileServer.AddFile(e.Resource, DownloadResource(e.Resource), FileSource.ActivityManager);
         }
         private void FileServerFileAdded(object sender, FileEventArgs e)
         {

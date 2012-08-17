@@ -207,7 +207,6 @@ namespace NooSphere.ActivitySystem.Base
                         {
                             FileUploadRequest(this, 
                                 new FileEventArgs(JsonConvert.DeserializeObject<Resource>(data.ToString())));
-                            //new Thread(() => UploadFile(((JObject)data).ToObject<Resource>())).Start();
                         }
                         break;
                     case "FileDownload":
@@ -215,7 +214,6 @@ namespace NooSphere.ActivitySystem.Base
                         {
                             FileDownloadRequest(this,
                                 new FileEventArgs(JsonConvert.DeserializeObject<Resource>(data.ToString())));
-                            //new Thread(() => DownloadFile(((JObject)data).ToObject<Resource>())).Start();
                         }
                         break;
                     case "FileDelete":
@@ -223,7 +221,6 @@ namespace NooSphere.ActivitySystem.Base
                         {
                             FileDeleteRequest(this,
                                 new FileEventArgs(JsonConvert.DeserializeObject<Resource>(data.ToString())));
-                            //new Thread(() => DeleteFile(((JObject)data).ToObject<Resource>())).Start();
                         }
                         break;
                     case "FriendAdded":

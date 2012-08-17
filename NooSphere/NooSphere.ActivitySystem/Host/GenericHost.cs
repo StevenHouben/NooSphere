@@ -142,7 +142,6 @@ namespace NooSphere.ActivitySystem.Host
             Log.Out("BasicHost", string.Format(" Attemting to find an IP for endPoint"), LogCode.Net);
             Ip = Net.GetIp(IPType.All);
 
-            Console.WriteLine("BasicHost: Found IP " + Ip);
             _host = new ServiceHost(implementation);
 
             var serviceEndpoint = _host.AddServiceEndpoint(
@@ -155,7 +154,7 @@ namespace NooSphere.ActivitySystem.Host
             _host.Faulted += host_Faulted;
             _host.Open();
 
-            Log.Out("BasicHost", string.Format("Host opened at " + Net.GetUrl(Ip, Port, "")), LogCode.Net);
+            Log.Out("BasicHost", string.Format(implementation+" host opened at " + Net.GetUrl(Ip, Port, "")), LogCode.Net);
             IsRunning = true;
 
             OnHostLaunchedEvent(new EventArgs());

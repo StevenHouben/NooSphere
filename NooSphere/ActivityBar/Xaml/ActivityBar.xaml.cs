@@ -105,6 +105,7 @@ namespace ActivityUI.Xaml
             var act = GetInitializedActivity();
             _client.AddActivity(act);
             _client.AddResource(new FileInfo("c:/dump/abc.txt"),act);
+            _client.AddResource(new FileInfo("c:/dump/abc.jpg"), act);
         }
         /// <summary>
         /// Sends a message to the activity manager
@@ -543,7 +544,7 @@ namespace ActivityUI.Xaml
         {
             if(!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
-            _client.SendContext(e.Location.ToString());
+            //_client.SendContext(e.Location.ToString());
         }
         private void BtnManagerClick(object sender, RoutedEventArgs e)
         {

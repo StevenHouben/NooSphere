@@ -14,8 +14,8 @@ namespace NooSphere.ActivitySystem.FileServer
 {
     public enum FileSource
     {
-        System,
-        Local,
-        Cloud
+        ActivityClient,     //local device
+        ActivityManager,    //local distributed system
+        ActivityCloud       //cloud
     }
 }

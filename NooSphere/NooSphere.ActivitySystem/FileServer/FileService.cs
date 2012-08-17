@@ -47,24 +47,33 @@ namespace NooSphere.ActivitySystem.FileServer
         {
             var t = new Thread(() =>
             {
+                //Check if we have a valid file
                 Check(resource, fileInBytes);
-                SaveToDisk(fileInBytes, resource);
-                if(_files.ContainsKey(resource.Id)) //check if newer!
-                    UpdateFile(resource,fileInBytes,source);
-                else
-                    _files.Add(resource.Id, resource);
 
+                //See if we have file 
+                if (_files.ContainsKey(resource.Id))
+                {
+                    //check if newer!
+                    //UpdateFile(resource, fileInBytes, source);
+                }
+                else
+                {
+                    SaveToDisk(fileInBytes, resource);
+                    _files.Add(resource.Id, resource);
+                }
+                    
+                //Check what the source is and who we should inform
                 switch (source)
                 {
-                    case FileSource.Cloud:
+                    case FileSource.ActivityCloud:
                         if (FileDownloadedFromCloud != null)
                             FileDownloadedFromCloud(this, new FileEventArgs(resource));
                         break;
-                    case FileSource.Local:
+                    case FileSource.ActivityManager:
                         if (FileAdded != null)
                             FileAdded(this, new FileEventArgs(resource));
                         break;
-                    case FileSource.System:
+                    case FileSource.ActivityClient:
                         if (FileCopied != null)
                             FileCopied(this, new FileEventArgs(resource));
                         break; 
@@ -80,7 +89,7 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         public void AddFile(Resource resource, Stream stream, FileSource source)
         {
-            AddFile(resource, GetBytesFromStream(resource, stream), FileSource.Local);
+            AddFile(resource, GetBytesFromStream(resource, stream), FileSource.ActivityManager);
         }
         public void UpdateFile(Resource resource,Stream stream,FileSource source)
         {
@@ -95,11 +104,11 @@ namespace NooSphere.ActivitySystem.FileServer
 
                 switch (source)
                 {
-                    case FileSource.Cloud:
+                    case FileSource.ActivityCloud:
                         if (FileDownloadedFromCloud != null)
                             FileDownloadedFromCloud(this, new FileEventArgs(resource));
                         break;
-                    case FileSource.Local:
+                    case FileSource.ActivityManager:
                         if (FileChanged != null)
                             FileChanged(this, new FileEventArgs(resource));
                         break;
@@ -184,7 +193,7 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         private void SaveToDisk(byte[] fileInBytes, Resource resource)
         {
-            try
+            var t = new Thread(() =>
             {
                 var path = BasePath + resource.RelativePath;
                 using (var fileToupload = new FileStream(path, FileMode.Create))
@@ -195,13 +204,12 @@ namespace NooSphere.ActivitySystem.FileServer
 
                     //File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
                     //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
-                    Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,path); 
+                    Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,
+                                        path);
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+            }) {IsBackground = true};
+            t.Start();
+
 
         }
         #endregion

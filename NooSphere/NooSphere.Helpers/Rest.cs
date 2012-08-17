@@ -74,7 +74,6 @@ namespace NooSphere.Helpers
         {
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = HttpMethod.Get.ToString();
-            request.ContentLength = 0;
             if (connectionId != null)
                 request.Headers.Add(HttpRequestHeader.Authorization, connectionId);
 

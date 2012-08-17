@@ -69,6 +69,7 @@
     <Compile Include="Base\ActivityManager.cs" />
     <Compile Include="Base\ActivityStore.cs" />
     <Compile Include="Base\ParticipantStore.cs" />
+    <Compile Include="Base\Syncer.cs" />
     <Compile Include="Context\MulticastSocket.cs" />
     <Compile Include="Context\MulticastSocketListener.cs" />
     <Compile Include="Context\IProxy.cs" />
