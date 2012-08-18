@@ -18,7 +18,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.Threading;
 using System.IO;
-
+using Newtonsoft.Json;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using NooSphere.ActivitySystem.Contracts;
@@ -265,7 +265,7 @@ namespace NooSphere.ActivitySystem.Base
         private void FileServerFileAdded(object sender, FileEventArgs e)
         {
             _publisher.Publish( FileEvent.FileDownloadRequest.ToString(), e.Resource);
-            ResourceTracker(e.Resource,_localSyncer);
+            _activityCloudConnector.UpdateActivity((ActivityStore.Activities[e.Resource.ActivityId]));
         }
 
         private void ActivityCloudConnectorFileDownloadRequest(object sender, FileEventArgs e)
@@ -450,16 +450,16 @@ namespace NooSphere.ActivitySystem.Base
         /// <summary>
         /// Upload a file to the file server
         /// </summary>
-        /// <param name="activityId">Id of the activity</param>
-        /// <param name="resourceId">Id of the resource</param>
-        /// <param name="stream">Stream</param>
-        public void AddFile(string activityId, string resourceId, Stream stream)
+        public void AddFile(FileRequest fileRequest)
         {
-            //Get the resource
-            var resource = GetResourceFromId(activityId, resourceId);
-        
+            if (fileRequest == null) 
+                throw new ArgumentNullException("fileRequest");
+
+            //Find the activity and attach the resource
+            ActivityStore.Activities[fileRequest.Resouce.ActivityId].Resources.Add(fileRequest.Resouce);
+            
             //Add the file to the fileserver
-            _fileServer.AddFile(resource,stream,FileSource.ActivityManager);
+            _fileServer.AddFile(fileRequest.Resouce,JsonConvert.DeserializeObject<byte[]>(fileRequest.Bytes),FileSource.ActivityManager);
         }
 
         /// <summary>
@@ -608,12 +608,17 @@ namespace NooSphere.ActivitySystem.Base
             Registry.ConnectedClients.Add(device.Id.ToString(), cc);
             _publisher.Publish( DeviceEvent.DeviceAdded.ToString(), device);
             Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.DeviceEvents, DeviceEvent.DeviceAdded);
-            //SendCache(device.Id.ToString());
+            SendCache(device.Id.ToString());
             return device.Id;
         }
         private void SendCache(string deviceId)
         {
-
+            foreach (var act in ActivityStore.Activities.Values.ToList())
+            {
+                _publisher.PublishToSubscriber(ActivityEvent.ActivityAdded.ToString(),act,Registry.ConnectedClients[deviceId]); 
+                foreach(var res in act.Resources)
+                    _publisher.PublishToSubscriber(FileEvent.FileDownloadRequest.ToString(), res, Registry.ConnectedClients[deviceId]);
+            }
         }
         
         /// <summary>

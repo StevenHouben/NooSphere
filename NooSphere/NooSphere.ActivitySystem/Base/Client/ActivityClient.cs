@@ -99,7 +99,7 @@ namespace NooSphere.ActivitySystem.Base.Client
         /// <returns></returns>
         private byte[] DownloadResource(Resource resource)
         {
-            return Rest.DownloadFromHttpStream(ServiceAddress + "Files/" + resource.ActivityId + "/" + resource.Id, resource.Size);
+            return Rest.DownloadFromHttpStream(ServiceAddress + Url.Files+ "/" + resource.ActivityId + "/" + resource.Id, resource.Size);
         }
 
         /// <summary>
@@ -113,17 +113,6 @@ namespace NooSphere.ActivitySystem.Base.Client
 
             //Update the activity
             UpdateActivity(act);
-        }
-
-        /// <summary>
-        /// Uploads a resource to the activity manager
-        /// </summary>
-        /// <param name="r"></param>
-        private void UploadResource(Resource r)
-        {
-            Rest.SendStreamingRequest(ServiceAddress + "Files/" + r.ActivityId + "/" + r.Id, _fileStore.BasePath+ r.RelativePath);
-                                    //_fileServer.BasePath + r.RelativePath);
-            Log.Out("ActivityClient", string.Format("Received Request to upload {0}", r.Name), LogCode.Log);
         }
 
         /// <summary>
@@ -303,9 +292,15 @@ namespace NooSphere.ActivitySystem.Base.Client
                 CreationTime = DateTime.Now.ToString(CultureInfo.InvariantCulture),
                 LastWriteTime = DateTime.Now.ToString(CultureInfo.InvariantCulture)                   
             };
+            var req = new FileRequest
+                          {
+                              Resouce = resource,
+                              Bytes = JsonConvert.SerializeObject(File.ReadAllBytes(resource.FilePath))
+                          };
 
-            //Add the resource and file to the local file store as system
-            _fileStore.AddFile(resource,File.ReadAllBytes(fileInfo.FullName),FileSource.ActivityClient);
+            Rest.SendRequest(ServiceAddress + Url.Files, HttpMethod.Post, req);
+            Log.Out("ActivityClient", string.Format("Received Request to upload {0}", resource.Name), LogCode.Log);
+
         }
 
         /// <summary>
@@ -316,6 +311,17 @@ namespace NooSphere.ActivitySystem.Base.Client
         {
             //File is in the store,
             UploadResource(e.Resource);
+        }
+
+        /// <summary>
+        /// Uploads a resource to the activity manager
+        /// </summary>
+        /// <param name="r"></param>
+        private void UploadResource(Resource r)
+        {
+            Rest.SendStreamingRequest(ServiceAddress + "Files/" + r.ActivityId + "/" + r.Id, _fileStore.BasePath + r.RelativePath);
+            //_fileServer.BasePath + r.RelativePath);
+            Log.Out("ActivityClient", string.Format("Received Request to upload {0}", r.Name), LogCode.Log);
         }
 
         /// <summary>

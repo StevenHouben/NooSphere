@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,7 +21,6 @@ using System.Windows.Media;
 using System.Collections.ObjectModel;
 using System.Windows.Threading;
 using System.Threading;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using NooSphere.ActivitySystem.Base;
@@ -629,6 +629,8 @@ namespace ActivityUI.Xaml
         {
             AddActivityUi(e.Activity);
             AddToLog("Activity Added\n");
+
+            //_client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
         }
         private void BtnAddClick(object sender, RoutedEventArgs e)
         {

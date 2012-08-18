@@ -12,6 +12,7 @@
 
 using System;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.Threading;
 using NooSphere.ActivitySystem.Discovery;
@@ -108,6 +109,7 @@ namespace NooSphere.ActivitySystem.Host
         /// <summary>
         /// Starts a broadcast service for the current service
         /// </summary>
+        /// <param name="type">Type of discovery </param>
         /// <param name="hostName">The name of the service that needs to be broadcasted</param>
         /// <param name="location">The physical location of the service that needs to be broadcasted</param>
         public void StartBroadcast(DiscoveryType type,string hostName, string location = "undefined")
@@ -146,7 +148,12 @@ namespace NooSphere.ActivitySystem.Host
 
             var serviceEndpoint = _host.AddServiceEndpoint(
                 description, 
-                new WebHttpBinding {MaxReceivedMessageSize = Int32.MaxValue}, 
+                new WebHttpBinding 
+                {
+                    MaxReceivedMessageSize = 2147483647,
+                    MaxBufferSize = 2147483647,
+                    ReaderQuotas = { MaxArrayLength = 2147483647, MaxStringContentLength = 2147483647 }
+                }, 
                 Net.GetUrl(Ip, Port, ""));
 
             serviceEndpoint.Behaviors.Add(new WebHttpBehavior());

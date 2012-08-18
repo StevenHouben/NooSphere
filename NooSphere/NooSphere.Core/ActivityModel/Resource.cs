@@ -26,7 +26,7 @@ namespace NooSphere.Core.ActivityModel
         {
             InitializeTimeStamps();
             Name = name;
-            FileName = filePath;
+            FilePath = filePath;
             Size = size;
         }
 
@@ -45,5 +45,7 @@ namespace NooSphere.Core.ActivityModel
         //public string RelativePath { get { return  FileName; } }
         public string CloudPath { get { return "Activities/" + ActivityId + "/Resources/" + Id; } }
         public Service Service { get; set; }
+
+        public string FilePath { get; set; }
     }
 }

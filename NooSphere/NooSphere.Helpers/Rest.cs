@@ -37,35 +37,28 @@ namespace NooSphere.Helpers
             if (connectionId != null)
                 request.Headers.Add(HttpRequestHeader.Authorization, connectionId);
 
-            try
+            if (content != null)
             {
-                if (content != null)
+                request.ContentType = "application/json";
+                var json = JsonConvert.SerializeObject(content);
+                var bytes = Encoding.UTF8.GetBytes(json);
+
+                request.ContentLength = bytes.Length;
+
+                using (var requestStream = request.GetRequestStream())
                 {
-                    request.ContentType = "application/json";
-                    var json = JsonConvert.SerializeObject(content);
-                    var bytes = Encoding.UTF8.GetBytes(json);
-
-                    request.ContentLength = bytes.Length;
-
-                    using (var requestStream = request.GetRequestStream())
-                    {
-                        // Send the file as body request. 
-                        requestStream.Write(bytes, 0, bytes.Length);
-                        requestStream.Close();
-                    }
-                }
-                using (var response = (HttpWebResponse)request.GetResponse())
-                {
-                    if (response.StatusCode == HttpStatusCode.InternalServerError | response.StatusCode == HttpStatusCode.BadRequest)
-                        throw (new Exception(response.ToString()));
-
-                    using (var streamReader = new StreamReader(response.GetResponseStream()))
-                        return streamReader.ReadToEnd();
+                    // Send the file as body request. 
+                    requestStream.Write(bytes, 0, bytes.Length);
+                    requestStream.Close();
                 }
             }
-            catch (Exception)
+            using (var response = (HttpWebResponse)request.GetResponse())
             {
-                return null;
+                if (response.StatusCode == HttpStatusCode.InternalServerError | response.StatusCode == HttpStatusCode.BadRequest)
+                    throw (new Exception(response.ToString()));
+
+                using (var streamReader = new StreamReader(response.GetResponseStream()))
+                    return streamReader.ReadToEnd();
             }
         }
 
