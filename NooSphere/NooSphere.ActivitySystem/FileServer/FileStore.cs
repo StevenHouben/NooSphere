@@ -191,6 +191,8 @@ namespace NooSphere.ActivitySystem.FileServer
         private void SaveToDisk(byte[] fileInBytes, Resource resource)
         {
             var path = BasePath + resource.RelativePath;
+            if (!Directory.Exists(new FileInfo(path).DirectoryName))
+                Directory.CreateDirectory(new FileInfo(path).DirectoryName);
             using (var fileToupload = new FileStream(@path, FileMode.OpenOrCreate))
             {
                 fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
