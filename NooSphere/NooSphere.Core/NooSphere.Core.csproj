@@ -52,6 +52,7 @@
     <Compile Include="ActivityModel\Resource.cs" />
     <Compile Include="ActivityModel\Role.cs" />
     <Compile Include="ActivityModel\Workflow.cs" />
+    <Compile Include="Devices\IDevice.cs" />
     <Compile Include="Parser\Parser.cs" />
     <Compile Include="Primitives\Base.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

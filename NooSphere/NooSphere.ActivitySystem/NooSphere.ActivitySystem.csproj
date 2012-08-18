@@ -60,16 +60,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Base\ActivityClient.cs" />
-    <Compile Include="Base\Configuration.cs" />
+    <Compile Include="Base\Client\ActivityClient.cs" />
+    <Compile Include="Base\Client\Configuration.cs" />
     <Compile Include="Base\ContextEventArgs.cs" />
-    <Compile Include="Base\NetEventHandler.cs" />
-    <Compile Include="Base\StartupMode.cs" />
-    <Compile Include="Base\ActivityCloudConnector.cs" />
-    <Compile Include="Base\ActivityManager.cs" />
-    <Compile Include="Base\ActivityStore.cs" />
-    <Compile Include="Base\ParticipantStore.cs" />
-    <Compile Include="Base\Syncer.cs" />
+    <Compile Include="Base\Client\NetEventHandler.cs" />
+    <Compile Include="Base\Client\StartupMode.cs" />
+    <Compile Include="Base\Service\ActivityCloudConnector.cs" />
+    <Compile Include="Base\Service\ActivityManager.cs" />
+    <Compile Include="Base\Service\ActivityStore.cs" />
+    <Compile Include="Base\Service\ParticipantStore.cs" />
+    <Compile Include="Base\Service\Syncer.cs" />
     <Compile Include="Context\MulticastSocket.cs" />
     <Compile Include="Context\MulticastSocketListener.cs" />
     <Compile Include="Context\IProxy.cs" />
@@ -77,7 +77,7 @@
     <Compile Include="Contracts\INetEvent.cs" />
     <Compile Include="Discovery\DiscoveryType.cs" />
     <Compile Include="Base\ActivityEventArgs.cs" />
-    <Compile Include="Base\CloudEvents.cs" />
+    <Compile Include="Base\Service\CloudEvents.cs" />
     <Compile Include="Base\ComEventArgs.cs" />
     <Compile Include="Base\DeviceEventArgs.cs" />
     <Compile Include="Base\Events.cs" />
@@ -85,6 +85,7 @@
     <Compile Include="Base\FileEventArgs.cs" />
     <Compile Include="Base\ParticipantsEventArgs.cs" />
     <Compile Include="Base\FriendEventArgs.cs" />
+    <Compile Include="FileServer\FileRequest.cs" />
     <Compile Include="FileServer\FileSource.cs" />
     <Compile Include="FileServer\FileStore.cs" />
     <Compile Include="Base\IActivityNode.cs" />
@@ -92,7 +93,7 @@
     <Compile Include="Contracts\IUserEvent.cs" />
     <Compile Include="FileServer\IFileStore.cs" />
     <Compile Include="PubSub\Concurrency.cs" />
-    <Compile Include="Base\ConnectedClient.cs" />
+    <Compile Include="Base\Service\ConnectedClient.cs" />
     <Compile Include="Contracts\IActivityManager.cs" />
     <Compile Include="Contracts\IMessenger.cs" />
     <Compile Include="Discovery\IDiscovery.cs" />

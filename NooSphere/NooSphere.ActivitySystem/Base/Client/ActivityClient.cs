@@ -10,6 +10,7 @@
  http://www.gnu.org/licenses/gpl.html for details.
 ****************************************************************************/
 
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.IO;
 using System.ServiceModel;
@@ -25,7 +26,7 @@ using NooSphere.ActivitySystem.FileServer;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.ActivitySystem.Context;
 
-namespace NooSphere.ActivitySystem.Base
+namespace NooSphere.ActivitySystem.Base.Client
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public class ActivityClient : NetEventHandler,IActivityNode
@@ -38,8 +39,8 @@ namespace NooSphere.ActivitySystem.Base
 
         #region Private Members
         private readonly GenericHost _callbackService = new GenericHost();
-        private readonly Dictionary<Guid, Activity> _activityBuffer = new Dictionary<Guid, Activity>(); 
-        private FileStore _fileServer;
+        private readonly ConcurrentDictionary<Guid, Activity> _activityBuffer = new ConcurrentDictionary<Guid, Activity>(); 
+        private FileStore _fileStore;
         private bool _connected;
         private string _connectionId;
         private MulticastSocket _mSocket;
@@ -51,7 +52,7 @@ namespace NooSphere.ActivitySystem.Base
         public Device Device { get; private set; }
         public string ServiceAddress { get; set; }
         public User CurrentUser { get; set; }
-        public string LocalPath { get { return _fileServer.BasePath; } }
+        public string LocalPath { get { return _fileStore.BasePath; } }
         public Dictionary<string,Device> DeviceList { get; set; }
 
         #endregion
@@ -69,7 +70,6 @@ namespace NooSphere.ActivitySystem.Base
             Device = d;
             OnInitializedEvent(new EventArgs());
 
-            ActivityAdded += ActivityClientActivityAdded;
             ActivityChanged += ActivityClientActivityChanged;
             ActivityRemoved += ActivityClientActivityRemoved;
         }
@@ -82,10 +82,10 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="localPath">Path where the file service stores files</param>
         private void InitializeFileService(string localPath)
         {
-            _fileServer = new FileStore(localPath);
-            _fileServer.FileAdded += FileServerFileAdded;
-            _fileServer.FileCopied += FileServerFileCopied;
-            Log.Out("ActivityClient", string.Format("FileStore initialized at {0}", _fileServer.BasePath), LogCode.Log);
+            _fileStore = new FileStore(localPath);
+            _fileStore.FileAdded += FileServerFileAdded;
+            _fileStore.FileCopied += FileServerFileCopied;
+            Log.Out("ActivityClient", string.Format("FileStore initialized at {0}", _fileStore.BasePath), LogCode.Log);
         }
 
         #endregion
@@ -101,25 +101,18 @@ namespace NooSphere.ActivitySystem.Base
         {
             return Rest.DownloadFromHttpStream(ServiceAddress + "Files/" + resource.ActivityId + "/" + resource.Id, resource.Size);
         }
+
         /// <summary>
         /// Updates activity with a resource
         /// </summary>
         /// <param name="res">The resource that is added to the activity</param>
         private void UpdateActivityWithResources(Resource res)
         {
-            if (_activityBuffer.ContainsKey(res.ActivityId))
-            {
-                var act = _activityBuffer[res.ActivityId];
-                act.Resources.Add(res);
+            var act = GetActivity(res.ActivityId.ToString());
+            act.Resources.Add(res);
 
-                //Update the activity
-                UpdateActivity(act);
-            }
-            else
-            {
-                Thread.Sleep(1000);
-                UpdateActivityWithResources(res);
-            }
+            //Update the activity
+            UpdateActivity(act);
         }
 
         /// <summary>
@@ -128,7 +121,7 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="r"></param>
         private void UploadResource(Resource r)
         {
-            Rest.SendStreamingRequest(ServiceAddress + "Files/" + r.ActivityId + "/" + r.Id, _fileServer.BasePath+ r.RelativePath);
+            Rest.SendStreamingRequest(ServiceAddress + "Files/" + r.ActivityId + "/" + r.Id, _fileStore.BasePath+ r.RelativePath);
                                     //_fileServer.BasePath + r.RelativePath);
             Log.Out("ActivityClient", string.Format("Received Request to upload {0}", r.Name), LogCode.Log);
         }
@@ -137,12 +130,11 @@ namespace NooSphere.ActivitySystem.Base
         /// Tests the connection to the service
         /// </summary>
         /// <param name="addr">The address of the service</param>
-        private void TestConnection(string addr)
+        private bool TestConnection(string addr,int timeOut)
         {
             Log.Out("ActivityClient", string.Format("Attempt to connect to {0}", addr), LogCode.Net);
             bool res;
             var attempts = 0;
-            const int maxAttemps = 20;
             do
             {
                 ServiceAddress = addr;
@@ -151,11 +143,12 @@ namespace NooSphere.ActivitySystem.Base
                 Thread.Sleep(100);
                 attempts++;
             }
-            while (res == false && attempts<maxAttemps);
+            while (res == false && attempts < timeOut);
             if (res)
                 OnConnectionEstablishedEvent(new EventArgs());
             else
                 throw new Exception("ActivityClient: Could not connect to: " + addr);
+            return true;
         }
 
         /// <summary>
@@ -209,16 +202,27 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="address">The address of the service</param>
         public void Open(string address)
         {
+            //Automatically fetch a local IP
             Ip = Net.GetIp(IPType.All);
-            TestConnection(address);
+
+            //Test if connected to manager. Exception is thrown if not
+            TestConnection(address, 25);
+
+            //Listen to some of the internal events
             FileUploadRequest += ActivityClientFileUploadRequest;
             FileDownloadRequest += ActivityClientFileDownloadRequest;
             DeviceAdded += ActivityClientDeviceAdded;
             DeviceRemoved += ActivityClientDeviceRemoved;
+
+            //Set connected flag true
             _connected = true;
+
+            //Register this device with the manager
             Register(Device);
 
+            //Initialize multicast socket
             IntializeContext();
+
         }
 
         /// <summary>
@@ -247,32 +251,71 @@ namespace NooSphere.ActivitySystem.Base
         /// Sends an "add activity" request to the activity manager
         /// </summary>
         /// <param name="act">The activity that needs to be included in the request</param>
+        /// <remarks>
+        /// Before we can use the activity, the client needs to wait for the manager
+        /// to publish the activity back to us, so the transaction is confirmed
+        /// </remarks>
         public void AddActivity(Activity act)
         {
-            _fileServer.IntializePath(act);
-            if(_connected)
-                Rest.Post(ServiceAddress + Url.Activities, new {act,deviceId=_connectionId});
+            //If we are connected to a manager, post an activityAdd request with the
+            //given activity
+            if (_connected)
+            {
+                //The activity manager is expecting a tuple={activity,deviceId}
+                Rest.Post(ServiceAddress + Url.Activities,
+                          new
+                            {
+                                act,
+                                deviceId = _connectionId
+                            });
+            }
             else
+                //Throw an error if we are not connected
                 throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
+
+            //Wait for an ActivityAdded net event send by the manager
+        }
+
+        /// <summary>
+        /// Handles activities that are published by the activity manager
+        /// </summary>
+        /// <param name="act">The activity that is published by the activity manager</param>
+        private void HandleActivity(Activity act)
+        {
+            //In case there are resources, initialize the file server
+            _fileStore.IntializePath(act.Id);
+
+            //Add the activity to a local buffer
+            _activityBuffer.AddOrUpdate(act.Id, act,(key, oldValue)=> act);
         }
 
         /// <summary>
         /// Adds a file to a given activity
         /// </summary>
         /// <param name="fileInfo">The fileinfo describing the file</param>
-        /// <param name="activity"></param>
-        public void AddResource(FileInfo fileInfo,Activity activity)
+        /// <param name="activityId">The id of activity</param>
+        public void AddResource(FileInfo fileInfo,Guid activityId)
         {
-            //create a new resource from the file
+            //Create a new resource from the file
             var resource = new Resource(fileInfo.FullName,(int)fileInfo.Length, fileInfo.Name)
             {
-                ActivityId = activity.Id,
+                ActivityId = activityId,
                 CreationTime = DateTime.Now.ToString(CultureInfo.InvariantCulture),
                 LastWriteTime = DateTime.Now.ToString(CultureInfo.InvariantCulture)                   
             };
-            
+
             //Add the resource and file to the local file store as system
-            _fileServer.AddFile(resource,File.ReadAllBytes(fileInfo.FullName),FileSource.ActivityClient);
+            _fileStore.AddFile(resource,File.ReadAllBytes(fileInfo.FullName),FileSource.ActivityClient);
+        }
+
+        /// <summary>
+        /// Handles the fileCopied event from the filestore
+        /// </summary>
+        /// <param name="e"></param>
+        private void HandleFileServerFileCopied(FileEventArgs e)
+        {
+            //File is in the store,
+            UploadResource(e.Resource);
         }
 
         /// <summary>
@@ -416,35 +459,39 @@ namespace NooSphere.ActivitySystem.Base
         }
         #endregion
 
+        #region Overrides
+        public override void ActivityNetAdded(Activity act)
+        {
+            HandleActivity(act);
+
+            base.ActivityNetAdded(act);
+        }
+        #endregion
+
         #region Event Handlers
 
         private void FileServerFileCopied(object sender, FileEventArgs e)
         {
-            //Couple the resource which is not in the filestore to the activity
-
-            UpdateActivityWithResources(e.Resource);
+            HandleFileServerFileCopied(e);
         }
+
         private void FileServerFileAdded(object sender, FileEventArgs e)
         {
 
         }
         private void ActivityClientActivityRemoved(object sender, ActivityRemovedEventArgs e)
         {
-            _activityBuffer.Remove(e.Id);
+            Activity removedActivity;
+            _activityBuffer.TryRemove(e.Id, out removedActivity);
         }
         private void ActivityClientActivityChanged(object sender, ActivityEventArgs e)
         {
             _activityBuffer[e.Activity.Id] = e.Activity;
         }
-        private void ActivityClientActivityAdded(object sender, ActivityEventArgs e)
-        {
-            if (!Directory.Exists(_fileServer.BasePath + "/" + e.Activity.Id))
-                _fileServer.IntializePath(e.Activity);
-            _activityBuffer.Add(e.Activity.Id, e.Activity);
-        }
+
         private void ActivityClientFileDownloadRequest(object sender, FileEventArgs e)
         {
-            _fileServer.AddFile(e.Resource, DownloadResource(e.Resource), FileSource.ActivityManager);
+            _fileStore.AddFile(e.Resource, DownloadResource(e.Resource), FileSource.ActivityManager);
         }
         private void ActivityClientDeviceRemoved(object sender, DeviceRemovedEventArgs e)
         {
@@ -462,6 +509,7 @@ namespace NooSphere.ActivitySystem.Base
             UploadResource(e.Resource);
         }
         #endregion
+
     }
     public enum Url
     {

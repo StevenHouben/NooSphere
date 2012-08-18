@@ -24,6 +24,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using NooSphere.ActivitySystem.Base;
+using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.ActivitySystem.Host;
@@ -104,8 +105,6 @@ namespace ActivityUI.Xaml
         {
             var act = GetInitializedActivity();
             _client.AddActivity(act);
-            _client.AddResource(new FileInfo("c:/dump/abc.txt"),act);
-            _client.AddResource(new FileInfo("c:/dump/abc.jpg"), act);
         }
         /// <summary>
         /// Sends a message to the activity manager
@@ -234,10 +233,10 @@ namespace ActivityUI.Xaml
             _client.FriendDeleted += client_FriendDeleted;
             _client.FriendRequestReceived += ClientFriendRequestReceived;
 
-            _client.FileUploadRequest += clientFileUploadRequest;
-            _client.FileDownloadRequest += clientFileDownloadRequest;
-            _client.FileDeleteRequest += clientFileDeleteRequest;
-            _client.ContextMessageReceived += new ContextMessageReceivedHandler(_client_ContextMessageReceived);
+            _client.FileUploadRequest += ClientFileUploadRequest;
+            _client.FileDownloadRequest += ClientFileDownloadRequest;
+            _client.FileDeleteRequest += ClientFileDeleteRequest;
+            _client.ContextMessageReceived += _client_ContextMessageReceived;
 
             _client.ConnectionEstablished += ClientConnectionEstablished;
             _client.Open(activityManagerHttpAddress);
@@ -258,17 +257,15 @@ namespace ActivityUI.Xaml
             BuildUi();
             _startingUp = false;
         }
-        void clientFileDeleteRequest(object sender, FileEventArgs e)
+        void ClientFileDeleteRequest(object sender, FileEventArgs e)
         {
             Log.Out("Interface",string.Format("Received {0} for {1}",FileEvent.FileDeleteRequest,e.Resource.Name),LogCode.Net);
         }
-
-        void clientFileDownloadRequest(object sender, FileEventArgs e)
+        void ClientFileDownloadRequest(object sender, FileEventArgs e)
         {
             Log.Out("Interface", string.Format("Received {0} for {1}", FileEvent.FileDownloadRequest, e.Resource.Name), LogCode.Net);
         }
-
-        void clientFileUploadRequest(object sender, FileEventArgs e)
+        void ClientFileUploadRequest(object sender, FileEventArgs e)
         {
             Log.Out("Interface", string.Format("Received {0} for {1}", FileEvent.FileUploadRequest, e.Resource.Name), LogCode.Net);
         }

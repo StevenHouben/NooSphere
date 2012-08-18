@@ -15,23 +15,24 @@ using System.Collections.Generic;
 using System.Drawing;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.Core.ActivityModel;
+using System.Collections.Concurrent;
 
 namespace NooSphere.ActivitySystem.Base
 {
     public class Syncer
     {
-        public Dictionary<Guid, Activity> Buffer { get; set; }
-        public Dictionary<Guid, ActivityEvent> EventType { get; set; }
-        public Dictionary<Guid, List<Resource>> Resources { get; set; }
+        public ConcurrentDictionary<Guid, Activity> Buffer { get; set; }
+        public ConcurrentDictionary<Guid, ActivityEvent> EventType { get; set; }
+        public ConcurrentDictionary<Guid, List<Resource>> Resources { get; set; }
 
         public SyncType Type { get; set; }
 
         public Syncer(SyncType type)
         {
             Type = type;
-            Resources = new Dictionary<Guid, List<Resource>>();
-            Buffer = new Dictionary<Guid, Activity>();
-            EventType = new Dictionary<Guid, ActivityEvent>(); 
+            Resources = new ConcurrentDictionary<Guid, List<Resource>>();
+            Buffer = new ConcurrentDictionary<Guid, Activity>();
+            EventType = new ConcurrentDictionary<Guid, ActivityEvent>(); 
         }
     }
 

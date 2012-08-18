@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -31,24 +32,31 @@ namespace NooSphere.ActivitySystem.Base
     public class ActivityManager : IActivityManager
     {
         #region Private Members
-        private RestSubscriber _subscriber;
-        private RestPublisher _publisher;
-        private ActivityCloudConnector _activityCloudConnector;
-        private FileStore _fileServer;
+        private RestPublisher _publisher;                                       //Publish events to connected clients
+        private ActivityCloudConnector _activityCloudConnector;                 //Publish events to the cloud
+        private FileStore _fileServer;                                          //Filestore
 
-        private readonly Syncer _localSyncer = new Syncer(SyncType.Local);
-        private readonly object _sync = new object();
+        private readonly Syncer _localSyncer = new Syncer(SyncType.Local);      //Buffer for local file sharing
+        private readonly object _syncLock = new object();                       //Sync lock
 
-        private bool _connectionActive;
-        private readonly bool _useLocalCloud;
-        private readonly bool _useCloud;
+        private bool _connectionActive;                                         //Connected to the cloud
+
+        private readonly bool _useLocalCloud;                                   //DEBUG
+        private readonly bool _useCloud;                                        //DEBUG
         #endregion
 
         #region Public Members
-        public User Owner { get; set; }
+        public User Owner { get; set; }                                         //User account that is loaded from cloud
         #endregion
 
         #region Constructor
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <param name="localPath"></param>
+        /// <param name="useLocalCloud"></param>
+        /// <param name="useCloud"></param>
         public ActivityManager(User owner,string localPath,bool useLocalCloud=false, bool useCloud=true)
         {
             Owner = owner;
@@ -91,9 +99,7 @@ namespace NooSphere.ActivitySystem.Base
         /// </summary>
         private void IntializeEventSystem()
         {
-            _subscriber = new RestSubscriber();
             _publisher = new RestPublisher();
-
             Log.Out("ActivityManager", string.Format("Event System initialized"), LogCode.Log);
         }
         #endregion
@@ -131,6 +137,7 @@ namespace NooSphere.ActivitySystem.Base
         /// Publish activity to cloud
         /// </summary>
         /// <param name="act">Activity that needs to be published</param>
+        /// <param name="aEvent"> </param>
         private void PublishActivity(Activity act,ActivityEvent aEvent)
         {
             Console.WriteLine("ActivityManager: Publishing activity {0} to cloud", act.Name);
@@ -159,7 +166,7 @@ namespace NooSphere.ActivitySystem.Base
             if (ActivityStore.Activities.ContainsKey(act.Id)) return;
             
             //Initialize the activity
-            _fileServer.IntializePath(act);
+            _fileServer.IntializePath(act.Id);
 
             //Add activity to the store 
             ActivityStore.Activities.Add(act.Id, act);
@@ -189,12 +196,12 @@ namespace NooSphere.ActivitySystem.Base
             //Create a buffer id
             var bufferId = Guid.NewGuid();
 
-            lock (_sync)
+            lock (_syncLock)
             {
                 //Buffer the activity into a local buffer
-                _localSyncer.Buffer.Add(bufferId, act);
-                _localSyncer.Resources.Add(bufferId, resList);
-                _localSyncer.EventType.Add(bufferId, aEvent);
+                _localSyncer.Buffer.GetOrAdd(bufferId, act);
+                _localSyncer.Resources.GetOrAdd(bufferId, resList);
+                _localSyncer.EventType.GetOrAdd(bufferId, aEvent);
             }
 
             //Send File upload request to the client that has added the activity
@@ -211,27 +218,26 @@ namespace NooSphere.ActivitySystem.Base
         {
             var t = new Thread(() =>
             {
-                if (syncer.Buffer.Count == 0)
-                    return;
+                if (syncer.Buffer.Count == 0)return;
                 foreach (var pair in syncer.Resources.ToList())
                 {
                     var bufferid = pair.Key;
                     var resList = pair.Value;
                     foreach (var resource in resList.ToList())
                     {
-                        if (res.Id == resource.Id)
+                        if (res.Id != resource.Id) continue;
+                        resList.Remove(resource);
+                        if (resList.Count == 0)
                         {
-                            resList.Remove(resource);
-                            if (resList.Count==0)
-                            {
-                                PublishActivity(syncer.Buffer[bufferid], syncer.EventType[bufferid]);
-                                syncer.Buffer.Remove(bufferid);
-                                syncer.EventType.Remove(bufferid);
+                            PublishActivity(syncer.Buffer[bufferid], syncer.EventType[bufferid]);
+                            Activity removedActivity;
+                            ActivityEvent removedActivityEvent;
+                            syncer.Buffer.TryRemove(bufferid,out removedActivity);
+                            syncer.EventType.TryRemove(bufferid, out removedActivityEvent);
 
-                                return;
-                            }
-                            syncer.Resources[bufferid] = resList;
+                            return;
                         }
+                        syncer.Resources[bufferid] = resList;
                     }
                 }
             }) { IsBackground = true };
@@ -385,27 +391,16 @@ namespace NooSphere.ActivitySystem.Base
         public void AddActivity(Activity act,string deviceId)
         {
             //Set the path of newly added activity
-            _fileServer.IntializePath(act);
+            _fileServer.IntializePath(act.Id);
 
-            //Check for resources
-            if (act.GetResources().Count > 0)
-            {
-                //Buffer the activity (for the cloud sync) untill all files are uploaded
-                KeepActivity(act,deviceId,ActivityEvent.ActivityAdded);
-                Console.WriteLine("ActivityManager: Received activity with {0} resources",act.GetResources().Count);
-            }
-            else
-            {
-                //Update cloud
-                Console.WriteLine("ActivityManager: Received activity with 0 resources");
-                if (_connectionActive)
-                    _activityCloudConnector.AddActivity(act);
-            }
-
-            //Publish Activity Added to the local systems
+            //Publish the activity
             ActivityStore.Activities.Add(act.Id, act);
             _publisher.Publish(ActivityEvent.ActivityAdded.ToString(), act);
-            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents, ActivityEvent.ActivityAdded);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
+                                ActivityEvent.ActivityAdded);
+
+            if (_connectionActive)
+                _activityCloudConnector.AddActivity(act);
         }
 
         /// <summary>

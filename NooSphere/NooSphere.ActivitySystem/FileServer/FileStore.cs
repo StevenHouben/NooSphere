@@ -146,10 +146,20 @@ namespace NooSphere.ActivitySystem.FileServer
             }) {IsBackground = true};
             t.Start();
         }
-        public void IntializePath(Activity act)
+
+        /// <summary>
+        /// Initializes a directory for future file saving. It uses the implicitly
+        /// called ToString() method to convert the object to a path
+        /// </summary>
+        /// <param name="relative"> </param>
+        public void IntializePath(object relative)
         {
-            if (!Directory.Exists(BasePath + act.Id))
-                Directory.CreateDirectory(BasePath + act.Id);
+            //In case the activity path does not exist yet, we'll create one
+            if (!Directory.Exists(BasePath + relative))
+            {
+                var dInfo = Directory.CreateDirectory(BasePath + relative);
+                Console.WriteLine("FileStore: Folder {0} initialized", dInfo.FullName); 
+            }
         }
         #endregion
 
