@@ -71,10 +71,6 @@
     <Compile Include="Base\Service\ActivityStore.cs" />
     <Compile Include="Base\Service\ParticipantStore.cs" />
     <Compile Include="Base\Service\Syncer.cs" />
-    <Compile Include="Context\MulticastSocket.cs" />
-    <Compile Include="Context\MulticastSocketListener.cs" />
-    <Compile Include="Context\IProxy.cs" />
-    <Compile Include="Context\StateObject.cs" />
     <Compile Include="Contracts\INetEvent.cs" />
     <Compile Include="Discovery\DiscoveryType.cs" />
     <Compile Include="Base\ActivityEventArgs.cs" />

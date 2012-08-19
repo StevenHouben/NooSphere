@@ -24,7 +24,6 @@ using NooSphere.Helpers;
 using Newtonsoft.Json;
 using NooSphere.ActivitySystem.FileServer;
 using NooSphere.ActivitySystem.Host;
-using NooSphere.ActivitySystem.Context;
 
 namespace NooSphere.ActivitySystem.Base.Client
 {
@@ -43,7 +42,6 @@ namespace NooSphere.ActivitySystem.Base.Client
         private FileStore _fileStore;
         private bool _connected;
         private string _connectionId;
-        private MulticastSocket _mSocket;
         #endregion
 
         #region Properties
@@ -171,16 +169,6 @@ namespace NooSphere.ActivitySystem.Base.Client
             }
             return _callbackService.Port;
         }
-
-        /// <summary>
-        /// Initialize the UDP context pipeline
-        /// </summary>
-        private void IntializeContext()
-        {
-            _mSocket = new MulticastSocket("225.5.6.7", 5000, 10);
-            _mSocket.OnNotifyMulticastSocketListener += _mSocket_OnNotifyMulticastSocketListener;
-            _mSocket.StartReceiving();
-        }
         #endregion
 
         #region Public Methods
@@ -209,18 +197,6 @@ namespace NooSphere.ActivitySystem.Base.Client
             //Register this device with the manager
             Register(Device);
 
-            //Initialize multicast socket
-            IntializeContext();
-
-        }
-
-        /// <summary>
-        /// Sends a context update to the multicast group
-        /// </summary>
-        /// <param name="context">Context message</param>
-        public void SendContext(string context)
-        {
-            _mSocket.Send(context);
         }
 
         /// <summary>
@@ -452,16 +428,6 @@ namespace NooSphere.ActivitySystem.Base.Client
         {
             if (Initialized != null)
                 Initialized(this, e);
-        }
-        private void _mSocket_OnNotifyMulticastSocketListener(object sender, NotifyMulticastSocketListenerEventArgs e)
-        {
-            if (e.Type == MulticastSocketMessageType.MessageReceived)
-            {
-                var msg = System.Text.Encoding.ASCII.GetString((byte[])e.NewObject);
-                Console.WriteLine(msg);
-                OnContextReceivedEvent(new ContextEventArgs(msg));
-            }
-     
         }
         #endregion
 

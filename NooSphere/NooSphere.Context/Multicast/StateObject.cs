@@ -10,39 +10,27 @@
  http://www.gnu.org/licenses/gpl.html for details.
 ****************************************************************************/
 
-using System;
+using System.Net.Sockets;
 
-namespace NooSphere.ActivitySystem.Context
+namespace NooSphere.Context.Multicast
 {
-    public delegate void DataReceivedHandler(Object sender, DataEventArgs e);
-
-    public interface IProxy
+    public class StateObject
     {
-        string Name { get; set; }
+        public const int BufferSize = 1024;
 
-        void Start();
-        void Stop();
+        public byte[] Buffer { get; set; }
+        public Socket WorkSocket { get; set; }
 
-        event DataReceivedHandler DataReceived;
-        event EventHandler Started;
-        event EventHandler Stopped;
-    }
-
-    public class DataEventArgs
-    {
-        public object Data { get; set; }
-
-        public DataEventArgs(object data)
+        public StateObject()
         {
-            Data = data;
+            Buffer = new byte[BufferSize];
+            WorkSocket = null;
+        }
+
+        public StateObject(int size, Socket sock)
+        {
+            Buffer = new byte[size];
+            WorkSocket = sock;
         }
     }
-
-    public enum Source
-    {
-        Serial,
-        Net
-    }
-
-
 }

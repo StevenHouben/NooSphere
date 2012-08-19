@@ -12,7 +12,7 @@
 
 using System;
 
-namespace NooSphere.ActivitySystem.Context
+namespace NooSphere.Context.Multicast
 {
     public interface IMulticastSocketListener
     {

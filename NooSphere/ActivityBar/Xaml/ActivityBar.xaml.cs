@@ -38,6 +38,7 @@ using ActivityUI.Properties;
 using ActivityUI.Login;
 using ActivityUI.PopUp;
 using NooSphere.Platform.Windows.Hooks;
+using NooSphere.Context.IO;
 
 namespace ActivityUI.Xaml
 {
@@ -72,6 +73,9 @@ namespace ActivityUI.Xaml
         public RenderStyle RenderStyle { get; set; }
         public bool ClickDetected = false;
 
+        //Debug
+        private PointerNode _pointer;
+
         #endregion
 
         #region Constructor
@@ -90,10 +94,9 @@ namespace ActivityUI.Xaml
             _deviceWindow = new DeviceWindow(this);
             _popUpWindows.Add(_deviceWindow);
 
-            MouseHook.Register();
-            MouseHook.MouseClick+=MouseHookMouseClick;
-            //MouseHook.MouseMove += MouseHook_MouseMove;
 
+            //MouseHook.MouseMove += MouseHook_MouseMove;
+            _pointer = new PointerNode(PointerRole.Both);
             DisableUi();
 
             _login = new LoginWindow();
@@ -251,8 +254,6 @@ namespace ActivityUI.Xaml
             Point point = new Point(int.Parse(coords[0]), int.Parse(coords[1]));
             //SetCursorPos((int)point.Y, (int)point.X);
         }
-        [DllImport("User32.dll")]
-        private static extern bool SetCursorPos(int x, int y);
 
         void ClientConnectionEstablished(object sender, EventArgs e)
         {
@@ -552,13 +553,13 @@ namespace ActivityUI.Xaml
         {
             if(!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
-            _client.SendContext(e.Location.X+"$"+e.Location.Y);
+            //_client.SendContext(e.Location.X+"$"+e.Location.Y);
         }
         void MouseHook_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
-            _client.SendContext(e.Location.X + "$" + e.Location.Y);
+            //_client.SendContext(e.Location.X + "$" + e.Location.Y);
         }
         private void BtnManagerClick(object sender, RoutedEventArgs e)
         {

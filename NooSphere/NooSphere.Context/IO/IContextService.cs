@@ -10,27 +10,38 @@
  http://www.gnu.org/licenses/gpl.html for details.
 ****************************************************************************/
 
-using System.Net.Sockets;
+using System;
 
-namespace NooSphere.ActivitySystem.Context
+namespace NooSphere.Context
 {
-    public class StateObject
+    public delegate void DataReceivedHandler(Object sender, DataEventArgs e);
+
+    public interface IContextService
     {
-        public const int BufferSize = 1024;
+        string Name { get; set; }
 
-        public byte[] Buffer { get; set; }
-        public Socket WorkSocket { get; set; }
+        void Send(string message);
 
-        public StateObject()
+        event DataReceivedHandler DataReceived;
+        event EventHandler Started;
+        event EventHandler Stopped;
+    }
+
+    public class DataEventArgs
+    {
+        public object Data { get; set; }
+
+        public DataEventArgs(object data)
         {
-            Buffer = new byte[BufferSize];
-            WorkSocket = null;
-        }
-
-        public StateObject(int size, Socket sock)
-        {
-            Buffer = new byte[size];
-            WorkSocket = sock;
+            Data = data;
         }
     }
+
+    public enum Source
+    {
+        Serial,
+        Net
+    }
+
+
 }

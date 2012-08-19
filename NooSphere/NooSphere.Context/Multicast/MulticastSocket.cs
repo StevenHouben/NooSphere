@@ -16,7 +16,8 @@ using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 
-namespace NooSphere.ActivitySystem.Context
+
+namespace NooSphere.Context.Multicast
 {
 
     /// <summary>
