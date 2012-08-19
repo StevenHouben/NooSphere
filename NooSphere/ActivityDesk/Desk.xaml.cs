@@ -467,7 +467,6 @@ namespace ActivityDesk
             if (Visualizer.ActiveVisualizations.Count == 0)
             {
                 SetDeskState(ActivityDesk.DeskState.Ready);
-                _discoveryThread.Abort();
             }
             if (_client != null)
             {

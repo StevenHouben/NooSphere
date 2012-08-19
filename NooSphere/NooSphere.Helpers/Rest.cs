@@ -31,7 +31,7 @@ namespace NooSphere.Helpers
         public static string SendRequest(string url, HttpMethod method, object content = null, string connectionId = null)
         {
             var request = (HttpWebRequest)WebRequest.Create(url);
-            request.Method = method.ToString();
+            request.Method = method.ToString().ToUpper();
             request.ContentLength = 0;
 
             if (connectionId != null)
