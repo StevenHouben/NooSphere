@@ -66,9 +66,9 @@ namespace ActivityDesk
         /// <summary>
         /// Default constructor.
         /// </summary>
-        public Desk(User user)
+        public Desk()
         {
-            this._user = user;
+            //this._user = user;
             //Initializes design-time components
             InitializeComponent();
 
@@ -189,11 +189,6 @@ namespace ActivityDesk
         private void InitializeUI()
         {
             SetDeskState(ActivityDesk.DeskState.Occupied);
-            foreach (Activity ac in _client.GetActivities())
-            {
-                AddActivityUI(ac);
-            }
-
         }
 
         private void AddResourceWindow()
@@ -247,9 +242,9 @@ namespace ActivityDesk
             _discoveryThread = new Thread(() =>
             {
                 _disc = new DiscoveryManager();
-                _disc.Find(DiscoveryType.Zeroconf);
                 _disc.DiscoveryAddressAdded += DiscDiscoveryAddressAdded;
                 _disc.DiscoveryFinished += DiscDiscoveryFinished;
+                _disc.Find(DiscoveryType.WSDiscovery);
             }) {IsBackground = true};
             _discoveryThread.Start();
         }
@@ -304,7 +299,7 @@ namespace ActivityDesk
             _client.ActivityAdded += ClientActivityAdded;
             _client.ActivityRemoved += ClientActivityRemoved;
 
-            _client.Open(_host.Ip);
+            _client.Open(addr);
             InitializeUI();
         }
 

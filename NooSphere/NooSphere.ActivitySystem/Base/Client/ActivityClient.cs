@@ -228,8 +228,8 @@ namespace NooSphere.ActivitySystem.Base.Client
         /// </summary>
         public void Close()
         {
-            if(_connected)
-                Rest.Delete(ServiceAddress + Url.Devices, _connectionId);
+            if (_connected)
+                Rest.Delete(ServiceAddress + Url.Devices + "/" + _connectionId);
             else
             {
                 throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
