@@ -1,54 +1,44 @@
-/// <licence>
-/// 
-/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
-/// 
-/// Pervasive Interaction Technology Laboratory (pIT lab)
-/// IT University of Copenhagen
-///
-/// This library is free software; you can redistribute it and/or 
-/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
-/// as published by the Free Software Foundation. Check 
-/// http://www.gnu.org/licenses/gpl.html for details.
-/// 
-/// </licence>
+/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
 
 using System;
 using System.Windows;
 using Microsoft.Surface;
 using Microsoft.Surface.Presentation.Controls;
-using Microsoft.Surface.Presentation.Input;
 using System.Windows.Media;
 using Microsoft.Surface.Presentation.Controls.TouchVisualizations;
-using ActivityDesk.Visualizer.Visualization;
 using ActivityDesk.Windowing;
 using ActivityDesk.Visualizer;
 
 using System.Threading;
-
 using ActivityDesk.Visualizer.Definitions;
 using System.Windows.Threading;
-
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using NooSphere.ActivitySystem.Base;
+using NooSphere.ActivitySystem.Base.Service;
 using NooSphere.Core.ActivityModel;
-using NooSphere.ActivitySystem;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Discovery;
-using System.Windows.Controls;
 using NooSphere.Core.Devices;
 using ActivityDesk.Helper.Surface;
-using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Emgu.CV.Structure;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Emgu.CV;
-using Emgu.CV.UI;
 using Emgu.CV.VideoSurveillance;
 using System.Drawing;
+using NooSphere.ActivitySystem.Base.Client;
 
 namespace ActivityDesk
 {
@@ -59,16 +49,16 @@ namespace ActivityDesk
     {
         #region Members
 
-        private ActivityClient client;
-        private BasicHost host;
-        private DiscoveryManager disc;
-        private User user;
-        private Device device;
-        private DeskState DeskState;
+        private ActivityClient _client;
+        private GenericHost _host;
+        private DiscoveryManager _disc;
+        private readonly User _user;
+        private readonly Device _device;
+        private DeskState _deskState;
 
-        private Thread discoveryThread;
+        private Thread _discoveryThread;
 
-        private Dictionary<Guid, SurfaceButton> proxies = new Dictionary<Guid,SurfaceButton>();
+        private Dictionary<Guid, SurfaceButton> _proxies = new Dictionary<Guid,SurfaceButton>();
 
         #endregion
 
@@ -76,8 +66,9 @@ namespace ActivityDesk
         /// <summary>
         /// Default constructor.
         /// </summary>
-        public Desk()
+        public Desk(User user)
         {
+            this._user = user;
             //Initializes design-time components
             InitializeComponent();
 
@@ -92,7 +83,7 @@ namespace ActivityDesk
 
             SetDeskState(DeskState.Ready);
 
-            device = new Device()
+            _device = new Device()
             {
                 DevicePortability = DevicePortability.Stationary,
                 DeviceRole = DeviceRole.Mediator,
@@ -168,7 +159,7 @@ namespace ActivityDesk
 
         private void SetDeskState(ActivityDesk.DeskState deskState)
         {
-            this.DeskState = deskState;
+            this._deskState = deskState;
 
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
@@ -198,7 +189,7 @@ namespace ActivityDesk
         private void InitializeUI()
         {
             SetDeskState(ActivityDesk.DeskState.Occupied);
-            foreach (Activity ac in client.GetActivities())
+            foreach (Activity ac in _client.GetActivities())
             {
                 AddActivityUI(ac);
             }
@@ -253,27 +244,26 @@ namespace ActivityDesk
 
         private void RunDiscovery()
         {
-            discoveryThread = new Thread(() =>
+            _discoveryThread = new Thread(() =>
             {
-                disc = new DiscoveryManager();
-                disc.Find(DiscoveryType.ZEROCONF);
-                disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
-                disc.DiscoveryFinished += new DiscoveryFinishedHander(disc_DiscoveryFinished);
-            });
-            discoveryThread.IsBackground = true;
-            discoveryThread.Start();
+                _disc = new DiscoveryManager();
+                _disc.Find(DiscoveryType.Zeroconf);
+                _disc.DiscoveryAddressAdded += DiscDiscoveryAddressAdded;
+                _disc.DiscoveryFinished += DiscDiscoveryFinished;
+            }) {IsBackground = true};
+            _discoveryThread.Start();
         }
 
-        void disc_DiscoveryFinished(object o, DiscoveryEventArgs e)
+        void DiscDiscoveryFinished(object o, DiscoveryEventArgs e)
         {
-            if (disc.ActivityServices.Count == 0)
+            if (_disc.ActivityServices.Count == 0)
                 if(Visualizer.ActiveVisualizations.Count ==0)
-                    SetDeskState(ActivityDesk.DeskState.Ready);
+                    SetDeskState(DeskState.Ready);
                 else
-                    SetDeskState(ActivityDesk.DeskState.Locked);
+                    SetDeskState(DeskState.Locked);
         }
 
-        void disc_DiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
+        void DiscDiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
             StartClient(e.ServiceInfo.Address);
         }
@@ -286,11 +276,11 @@ namespace ActivityDesk
         /// </summary>
         void StartHost()
         {
-            Thread t = new Thread(() =>
+            var t = new Thread(() =>
             {
-                host = new BasicHost();
-                host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
-                host.Open(new ActivityManager(new User(),"c:/files/"), typeof(IActivityManager),"desk");
+                _host = new GenericHost();
+                _host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
+                _host.Open(new ActivityManager(new User(),"c:/files/"), typeof(IActivityManager),"desk");
 
             });
             t.Start();
@@ -301,32 +291,24 @@ namespace ActivityDesk
         /// </summary>
         void host_HostLaunched(object sender, EventArgs e)
         {
-            StartClient(host.Address);
+            StartClient(_host.Address);
         }
 
         /// <summary>
         /// 3--- Start theclient
         /// </summary>
         void StartClient(string addr)
-        {
-            client = new ActivityClient(addr,@"c:/abc/");
-            client.Register(device);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.ActivityEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.ComEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.DeviceEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.FileEvents);
+        {   
+            _client = new ActivityClient(@"c:/abcdesk/", _device) { CurrentUser = new User() };
 
-            // Set current participant on client
-            client.CurrentUser = this.user;
+            _client.ActivityAdded += ClientActivityAdded;
+            _client.ActivityRemoved += ClientActivityRemoved;
 
-            client.ActivityAdded += new ActivityAddedHandler(client_ActivityAdded);
-            client.ActivityRemoved += new ActivityRemovedHandler(client_ActivityRemoved);
-            client.MessageReceived += new MessageReceivedHandler(client_MessageReceived);
-            client.DeviceAdded += new DeviceAddedHandler(client_DeviceAdded);
+            _client.Open(_host.Ip);
             InitializeUI();
         }
 
-        void client_ActivityAdded(object sender, ActivityEventArgs e)
+        void ClientActivityAdded(object sender, ActivityEventArgs e)
         {
             AddActivityUI(e.Activity);
         }
@@ -341,9 +323,9 @@ namespace ActivityDesk
             MessageBox.Show(e.Message);
         }
 
-        void client_ActivityRemoved(object sender, ActivityRemovedEventArgs e)
+        void ClientActivityRemoved(object sender, ActivityRemovedEventArgs e)
         {
-            RemoveActivityUI(e.ID);
+            RemoveActivityUI(e.Id);
         }
 
         private void RemoveActivityUI(Guid guid)
@@ -490,13 +472,12 @@ namespace ActivityDesk
             if (Visualizer.ActiveVisualizations.Count == 0)
             {
                 SetDeskState(ActivityDesk.DeskState.Ready);
-                discoveryThread.Abort();
+                _discoveryThread.Abort();
             }
-            if (client != null)
+            if (_client != null)
             {
-                client.UnSubscribeAll();
-                client.Unregister();
-                client = null;
+                _client.Close();
+                _client = null;
             }
 
 
