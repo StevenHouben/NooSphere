@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using NooSphere.Core.ActivityModel;
@@ -51,8 +52,9 @@ namespace NooSphere.ActivitySystem.FileServer
             //See if we have file 
             if (_files.ContainsKey(resource.Id))
             {
-                //check if newer!
-                //UpdateFile(resource, fileInBytes, source);
+                if (IsNewer(_files[resource.Id], resource))
+                    UpdateFile(resource, fileInBytes, source);
+                else return;
             }
             else
             {
@@ -77,6 +79,11 @@ namespace NooSphere.ActivitySystem.FileServer
                     break; 
             }
             Log.Out("FileService", string.Format("Added file {0} to store", resource.Name), LogCode.Log);
+        }
+
+        private bool IsNewer(Resource resourceInFileStore, Resource requestedResource)
+        {
+            return false;
         }
         public void AddFile(Resource resource, Stream stream, FileSource source)
         {

@@ -177,7 +177,7 @@ namespace NooSphere.ActivitySystem.Base.Client
         /// </summary>
         private void IntializeContext()
         {
-            _mSocket = new MulticastSocket("224.10.10.10", 33333, 0);
+            _mSocket = new MulticastSocket("225.5.6.7", 5000, 10);
             _mSocket.OnNotifyMulticastSocketListener += _mSocket_OnNotifyMulticastSocketListener;
             _mSocket.StartReceiving();
         }
@@ -289,8 +289,8 @@ namespace NooSphere.ActivitySystem.Base.Client
             var resource = new Resource(fileInfo.FullName,(int)fileInfo.Length, fileInfo.Name)
             {
                 ActivityId = activityId,
-                CreationTime = DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                LastWriteTime = DateTime.Now.ToString(CultureInfo.InvariantCulture)                   
+                CreationTime = DateTime.Now.ToUniversalTime().ToString(CultureInfo.InvariantCulture),
+                LastWriteTime = DateTime.Now.ToUniversalTime().ToString(CultureInfo.InvariantCulture)                   
             };
             var req = new FileRequest
                           {
@@ -483,7 +483,7 @@ namespace NooSphere.ActivitySystem.Base.Client
 
         private void FileServerFileAdded(object sender, FileEventArgs e)
         {
-
+            
         }
         private void ActivityClientActivityRemoved(object sender, ActivityRemovedEventArgs e)
         {

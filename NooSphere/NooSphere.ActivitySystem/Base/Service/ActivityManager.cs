@@ -11,9 +11,7 @@
 ****************************************************************************/
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.ServiceModel;
 using System.Threading;
@@ -26,7 +24,7 @@ using NooSphere.ActivitySystem.PubSub;
 using NooSphere.ActivitySystem.FileServer;
 using NooSphere.Helpers;
 
-namespace NooSphere.ActivitySystem.Base
+namespace NooSphere.ActivitySystem.Base.Service
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, IncludeExceptionDetailInFaults = true)]
     public class ActivityManager : IActivityManager
@@ -76,8 +74,27 @@ namespace NooSphere.ActivitySystem.Base
         /// <param name="owner">User that owns this activity manager</param>
         private void InitializeActivityService(User owner)
         {
-            if(_useCloud)
-                ConnectToCloud(owner);
+            if (!_useCloud) return;
+            var serviceAddress = _useLocalCloud ? "http://localhost:56002" : "http://activitycloud-1.apphb.com";
+
+            _activityCloudConnector = new ActivityCloudConnector(serviceAddress + "/Api/", owner);
+            _activityCloudConnector.ConnectionSetup += ActivityCloudConnectorConnectionSetup;
+            _activityCloudConnector.ActivityAdded += ActivityCloudConnectorActivityAdded;
+            _activityCloudConnector.ActivityDeleted += ActivityCloudConnectorActivityDeleted;
+            _activityCloudConnector.ActivityUpdated += ActivityCloudConnectorActivityUpdated;
+
+            _activityCloudConnector.FileDeleteRequest += ActivityCloudConnectorFileDeleteRequest;
+            _activityCloudConnector.FileDownloadRequest += ActivityCloudConnectorFileDownloadRequest;
+            _activityCloudConnector.FileUploadRequest += ActivityCloudConnectorFileUploadRequest;
+
+            _activityCloudConnector.FriendDeleted += ActivityCloudConnectorFriendDeleted;
+            _activityCloudConnector.FriendAdded += ActivityCloudConnectorFriendAdded;
+            _activityCloudConnector.FriendRequestReceived += ActivityCloudConnectorFriendRequestReceived;
+            _activityCloudConnector.ParticipantAdded += ActivityCloudConnectorParticipantAdded;
+            _activityCloudConnector.ParticipantRemoved += ActivityCloudConnectorParticipantRemoved;
+
+            Log.Out("ActivityManager", string.Format("Cloud connector connected to {0}", serviceAddress), LogCode.Net);
+            
         }
 
         /// <summary>
@@ -105,33 +122,6 @@ namespace NooSphere.ActivitySystem.Base
         #endregion
 
         #region Privat Methods
-
-        /// <summary>
-        /// Creates a new activitycloud connection
-        /// </summary>
-        /// <param name="owner">The current user</param>
-        private void ConnectToCloud(User owner)
-        {
-            var serviceAddress = _useLocalCloud ? "http://localhost:56002" : "http://activitycloud-1.apphb.com";
-
-            _activityCloudConnector = new ActivityCloudConnector(serviceAddress + "/Api/", owner);
-            _activityCloudConnector.ConnectionSetup += ActivityCloudConnectorConnectionSetup;
-            _activityCloudConnector.ActivityAdded += ActivityCloudConnectorActivityAdded;
-            _activityCloudConnector.ActivityDeleted += ActivityCloudConnectorActivityDeleted;
-            _activityCloudConnector.ActivityUpdated += ActivityCloudConnectorActivityUpdated;
-
-            _activityCloudConnector.FileDeleteRequest += ActivityCloudConnectorFileDeleteRequest;
-            _activityCloudConnector.FileDownloadRequest += ActivityCloudConnectorFileDownloadRequest;
-            _activityCloudConnector.FileUploadRequest += ActivityCloudConnectorFileUploadRequest;
-
-            _activityCloudConnector.FriendDeleted += ActivityCloudConnectorFriendDeleted;
-            _activityCloudConnector.FriendAdded += ActivityCloudConnectorFriendAdded;
-            _activityCloudConnector.FriendRequestReceived += ActivityCloudConnectorFriendRequestReceived;
-            _activityCloudConnector.ParticipantAdded += ActivityCloudConnectorParticipantAdded;
-            _activityCloudConnector.ParticipantRemoved += ActivityCloudConnectorParticipantRemoved;
-
-            Log.Out("ActivityManager", string.Format("Cloud connector connected to {0}", serviceAddress), LogCode.Net);
-        }
 
         /// <summary>
         /// Publish activity to cloud
@@ -265,7 +255,8 @@ namespace NooSphere.ActivitySystem.Base
         private void FileServerFileAdded(object sender, FileEventArgs e)
         {
             _publisher.Publish( FileEvent.FileDownloadRequest.ToString(), e.Resource);
-            _activityCloudConnector.UpdateActivity((ActivityStore.Activities[e.Resource.ActivityId]));
+            if(_useCloud)
+                _activityCloudConnector.UpdateActivity((ActivityStore.Activities[e.Resource.ActivityId]));
         }
 
         private void ActivityCloudConnectorFileDownloadRequest(object sender, FileEventArgs e)

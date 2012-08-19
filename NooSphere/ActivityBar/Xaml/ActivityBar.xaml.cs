@@ -25,6 +25,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
+using NooSphere.ActivitySystem.Base.Service;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.ActivitySystem.Host;
@@ -91,6 +92,7 @@ namespace ActivityUI.Xaml
 
             MouseHook.Register();
             MouseHook.MouseClick+=MouseHookMouseClick;
+            //MouseHook.MouseMove += MouseHook_MouseMove;
 
             DisableUi();
 
@@ -550,7 +552,13 @@ namespace ActivityUI.Xaml
         {
             if(!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
-            _client.SendContext(e.Location.X+"-"+e.Location.Y);
+            _client.SendContext(e.Location.X+"$"+e.Location.Y);
+        }
+        void MouseHook_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (!HitTestAllPopWindow(e.Location))
+                HideAllPopups();
+            _client.SendContext(e.Location.X + "$" + e.Location.Y);
         }
         private void BtnManagerClick(object sender, RoutedEventArgs e)
         {
@@ -628,7 +636,7 @@ namespace ActivityUI.Xaml
         private void ClientActivityAdded(object obj,ActivityEventArgs e)
         {
             AddActivityUi(e.Activity);
-            AddToLog("Activity Added\n");
+            Console.WriteLine("Activity Added\n");
 
             //_client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
         }
