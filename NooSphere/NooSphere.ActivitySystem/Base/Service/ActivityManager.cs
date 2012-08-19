@@ -616,13 +616,13 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// Unregisters a device from the service
         /// </summary>
         /// <param name="id">Connection id</param>
-        public void UnRegister(string id)
+        public void UnRegister(string deviceId)
         {
-            if(id != null)
-                if(Registry.ConnectedClients.ContainsKey(id))
+            if (deviceId != null)
+                if (Registry.ConnectedClients.ContainsKey(deviceId))
                 {
-                    Registry.ConnectedClients.Remove(id);
-                    _publisher.Publish( DeviceEvent.DeviceRemoved.ToString(), id,true);
+                    Registry.ConnectedClients.Remove(deviceId);
+                    _publisher.Publish(DeviceEvent.DeviceRemoved.ToString(), deviceId, true);
                     Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.DeviceEvents, DeviceEvent.DeviceAdded);
                 }
         }

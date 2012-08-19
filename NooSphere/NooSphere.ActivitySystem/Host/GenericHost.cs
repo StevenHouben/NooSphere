@@ -157,8 +157,6 @@ namespace NooSphere.ActivitySystem.Host
                 Net.GetUrl(Ip, Port, ""));
 
             serviceEndpoint.Behaviors.Add(new WebHttpBehavior());
-
-            _host.Faulted += host_Faulted;
             _host.Open();
 
             Log.Out("BasicHost", string.Format(implementation+" host opened at " + Net.GetUrl(Ip, Port, "")), LogCode.Net);
@@ -184,15 +182,6 @@ namespace NooSphere.ActivitySystem.Host
                     Log.Out("BasicHost", string.Format("Problem closing connection: " + ex.StackTrace), LogCode.Net);
                 }
             }
-        }
-
-        #endregion
-
-        #region Event Handlers
-
-        private void host_Faulted(object sender, EventArgs e)
-        {
-            throw new Exception("Host faulted.");
         }
 
         #endregion

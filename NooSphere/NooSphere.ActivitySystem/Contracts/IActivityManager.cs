@@ -49,7 +49,7 @@ namespace NooSphere.ActivitySystem.Contracts
         Guid Register(Device device);
 
         [OperationContract]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, UriTemplate = "devices/{id}", Method = "DELETE")]
+        [WebInvoke(RequestFormat = WebMessageFormat.Json, UriTemplate = "devices/{deviceId}", Method = "DELETE")]
         void UnRegister(string deviceId);
 
         [OperationContract]
