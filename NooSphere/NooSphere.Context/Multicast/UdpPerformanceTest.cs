@@ -14,7 +14,8 @@ namespace NooSphere.Context.Multicast
         }
         public void Test(int numberOfPackets)
         {
-            _mSocket.Send("hello");
+            for (var i = 0; i < numberOfPackets;i++ )
+                _mSocket.Send("hello");
         }
 
         void _mSocket_OnNotifyMulticastSocketListener(object sender, NotifyMulticastSocketListenerEventArgs e)

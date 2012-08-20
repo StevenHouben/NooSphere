@@ -38,34 +38,34 @@ namespace NooSphere.Context.IO
             {
                 case PointerRole.Controller:
                     MouseHook.Register();
-                    MouseHook.MouseDown += new MouseEventHandler(MouseHook_MouseDown);
-                    MouseHook.MouseMove+=new MouseEventHandler(MouseHook_MouseMove);
-                    MouseHook.MouseUp += new MouseEventHandler(MouseHook_MouseUp);
+                    MouseHook.MouseDown += new MouseEventHandler(MouseHookMouseDown);
+                    MouseHook.MouseMove+=new MouseEventHandler(MouseHookMouseMove);
+                    MouseHook.MouseUp += new MouseEventHandler(MouseHookMouseUp);
                     break;
                 case PointerRole.Slave:
                     _mSocket.StartReceiving();
                     break;
                 default:
                     MouseHook.Register();
-                                        MouseHook.MouseDown += new MouseEventHandler(MouseHook_MouseDown);
-                    MouseHook.MouseMove+=new MouseEventHandler(MouseHook_MouseMove);
-                    MouseHook.MouseUp += new MouseEventHandler(MouseHook_MouseUp);
+                                        MouseHook.MouseDown += new MouseEventHandler(MouseHookMouseDown);
+                    MouseHook.MouseMove+=new MouseEventHandler(MouseHookMouseMove);
+                    MouseHook.MouseUp += new MouseEventHandler(MouseHookMouseUp);
                     _mSocket.StartReceiving();
                     break;
             }
         }
 
-        void MouseHook_MouseUp(object sender, MouseEventArgs e)
+        private void MouseHookMouseUp(object sender, MouseEventArgs e)
         {
             Send(new PointerMessage(e.X, e.Y, PointerEvent.Up).ToString());
         }
 
-        void MouseHook_MouseMove(object sender, MouseEventArgs e)
+        private void MouseHookMouseMove(object sender, MouseEventArgs e)
         {
             Send(new PointerMessage(e.X, e.Y, PointerEvent.Move).ToString());
         }
 
-        void MouseHook_MouseDown(object sender, MouseEventArgs e)
+        private void MouseHookMouseDown(object sender, MouseEventArgs e)
         {
             Send(new PointerMessage(e.X, e.Y, PointerEvent.Down).ToString());
         }

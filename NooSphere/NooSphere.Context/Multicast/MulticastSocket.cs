@@ -22,6 +22,7 @@ namespace NooSphere.Context.Multicast
 
     /// <summary>
     /// Taken from http://www.osix.net/modules/article/?id=409
+    /// Modified by Juan Hincapie Ramos
     /// </summary>
     public class MulticastSocket
     {
