@@ -10,12 +10,27 @@
  http://www.gnu.org/licenses/gpl.html for details.
 ****************************************************************************/
 
-namespace NooSphere.ActivitySystem.FileServer
+using System.Net.Sockets;
+
+namespace NooSphere.Context.Multicast
 {
-    public enum FileSource
+    public class StateObject
     {
-        ActivityClient,     //local device
-        ActivityManager,    //local distributed system
-        ActivityCloud       //cloud
+        public const int BufferSize = 1024;
+
+        public byte[] Buffer { get; set; }
+        public Socket WorkSocket { get; set; }
+
+        public StateObject()
+        {
+            Buffer = new byte[BufferSize];
+            WorkSocket = null;
+        }
+
+        public StateObject(int size, Socket sock)
+        {
+            Buffer = new byte[size];
+            WorkSocket = sock;
+        }
     }
 }

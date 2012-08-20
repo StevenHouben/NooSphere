@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using NooSphere.Core.ActivityModel;
@@ -20,7 +21,7 @@ using NooSphere.Helpers;
 
 namespace NooSphere.ActivitySystem.FileServer
 {
-    public class FileService:IFileStore
+    public class FileStore:IFileStore
     {
         #region Events
         public event FileAddedHandler FileAdded;
@@ -39,48 +40,54 @@ namespace NooSphere.ActivitySystem.FileServer
         #endregion
 
         #region Public Methods
-        public FileService(string path)
+        public FileStore(string path)
         {
             BasePath = path;
         }
         public void AddFile(Resource resource, byte[] fileInBytes,FileSource source)
         {
-            var t = new Thread(() =>
-            {
-                Check(resource, fileInBytes);
-                SaveToDisk(fileInBytes, resource);
-                if(_files.ContainsKey(resource.Id)) //check if newer!
-                    UpdateFile(resource,fileInBytes,source);
-                else
-                    _files.Add(resource.Id, resource);
+            //Check if we have a valid file
+            Check(resource, fileInBytes);
 
-                switch (source)
-                {
-                    case FileSource.Cloud:
-                        if (FileDownloadedFromCloud != null)
-                            FileDownloadedFromCloud(this, new FileEventArgs(resource));
-                        break;
-                    case FileSource.Local:
-                        if (FileAdded != null)
-                            FileAdded(this, new FileEventArgs(resource));
-                        break;
-                    case FileSource.System:
-                        if (FileCopied != null)
-                            FileCopied(this, new FileEventArgs(resource));
-                        break; 
-                }
-                Log.Out("FileService", string.Format("Added file {0} to store", resource.Name), LogCode.Log);
-            }) {IsBackground = true};
-            t.Start();
+            //See if we have file 
+            if (_files.ContainsKey(resource.Id))
+            {
+                if (IsNewer(_files[resource.Id], resource))
+                    UpdateFile(resource, fileInBytes, source);
+                else return;
+            }
+            else
+            {
+                SaveToDisk(fileInBytes, resource);
+                _files.Add(resource.Id, resource);
+            }
+                    
+            //Check what the source is and who we should inform
+            switch (source)
+            {
+                case FileSource.ActivityCloud:
+                    if (FileDownloadedFromCloud != null)
+                        FileDownloadedFromCloud(this, new FileEventArgs(resource));
+                    break;
+                case FileSource.ActivityManager:
+                    if (FileAdded != null)
+                        FileAdded(this, new FileEventArgs(resource));
+                    break;
+                case FileSource.ActivityClient:
+                    if (FileCopied != null)
+                        FileCopied(this, new FileEventArgs(resource));
+                    break; 
+            }
+            Log.Out("FileService", string.Format("Added file {0} to store", resource.Name), LogCode.Log);
         }
-        private bool isNewer(Resource resource, Resource resource2)
+
+        private bool IsNewer(Resource resourceInFileStore, Resource requestedResource)
         {
-             //return DateTime.Parse(resource.LastWriteTime) <= DateTime.Parse(resource2.LastWriteTime);
-            return false; //always write
+            return false;
         }
         public void AddFile(Resource resource, Stream stream, FileSource source)
         {
-            AddFile(resource, GetBytesFromStream(resource, stream), FileSource.Local);
+            AddFile(resource, GetBytesFromStream(resource, stream), FileSource.ActivityManager);
         }
         public void UpdateFile(Resource resource,Stream stream,FileSource source)
         {
@@ -88,25 +95,21 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         public void UpdateFile(Resource resource, byte[] fileInBytes, FileSource source)
         {
-            var t = new Thread(() =>
-            {
-                SaveToDisk(fileInBytes, resource);
-                _files[resource.Id] = resource;
+            SaveToDisk(fileInBytes, resource);
+            _files[resource.Id] = resource;
 
-                switch (source)
-                {
-                    case FileSource.Cloud:
-                        if (FileDownloadedFromCloud != null)
-                            FileDownloadedFromCloud(this, new FileEventArgs(resource));
-                        break;
-                    case FileSource.Local:
-                        if (FileChanged != null)
-                            FileChanged(this, new FileEventArgs(resource));
-                        break;
-                }
-                Log.Out("FileService", string.Format("Updated file {0} to store", resource.Name), LogCode.Log);
-            }) { IsBackground = true };
-            t.Start();
+            switch (source)
+            {
+                case FileSource.ActivityCloud:
+                    if (FileDownloadedFromCloud != null)
+                        FileDownloadedFromCloud(this, new FileEventArgs(resource));
+                    break;
+                case FileSource.ActivityManager:
+                    if (FileChanged != null)
+                        FileChanged(this, new FileEventArgs(resource));
+                    break;
+            }
+            Log.Out("FileService", string.Format("Updated file {0} to store", resource.Name), LogCode.Log);
         }
         public void RemoveFile(Resource resource)
         {
@@ -116,17 +119,17 @@ namespace NooSphere.ActivitySystem.FileServer
                 FileRemoved(this, new FileEventArgs(resource));
             Console.WriteLine("FileStore: Removed file {0} from store", resource.Name); 
         }
+        public bool LookUp(Guid id)
+        {
+            lock(_lock) 
+                return _files.ContainsKey(id);
+        }
+
+        private object _lock = new object();
+
         public Stream GetStreamFromFile(Resource resource)
         {
-            var fi = new FileInfo(BasePath + resource.RelativePath);
-            var buffer = new byte[fi.Length];
-            var mem = new MemoryStream();
-            using (var fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                fs.Read(buffer, 0, (int) fs.Length);
-            }
-            mem.Write(buffer,0,buffer.Length);
-            return mem;
+            return new FileStream(BasePath + resource.RelativePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
         public byte[] GetBytesFromFile(Resource resource)
         {
@@ -150,10 +153,21 @@ namespace NooSphere.ActivitySystem.FileServer
             }) {IsBackground = true};
             t.Start();
         }
-        public void IntializePath(Activity act)
+
+        /// <summary>
+        /// Initializes a directory for future file saving. It uses the implicitly
+        /// called ToString() method to convert the object to a path
+        /// </summary>
+        /// <param name="relative"> </param>
+        public void IntializePath(object relative)
         {
-            if (!Directory.Exists(BasePath + act.Id))
-                Directory.CreateDirectory(BasePath + act.Id);
+            var path = Path.Combine(BasePath, relative.ToString());
+            //In case the activity path does not exist yet, we'll create one
+            if (!Directory.Exists(path))
+            {
+                var dInfo = Directory.CreateDirectory(path);
+                Console.WriteLine("FileStore: Folder {0} initialized", dInfo.FullName); 
+            }
         }
         #endregion
 
@@ -184,27 +198,20 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         private void SaveToDisk(byte[] fileInBytes, Resource resource)
         {
-            try
+            var path = Path.Combine(BasePath, resource.RelativePath);
+            var dir = Path.GetDirectoryName(path);
+            if (dir != null && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+            using (var fileToupload = new FileStream(@path, FileMode.OpenOrCreate))
             {
-                var path = Path.Combine(BasePath, resource.RelativePath);
-                var dir = Path.GetDirectoryName(path);
-                if (dir != null && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
-                using (var fileToupload = new FileStream(path, FileMode.Create))
-                {
-                    fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
-                    fileToupload.Close();
-                    fileToupload.Dispose();
+                fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
+                fileToupload.Close();
+                fileToupload.Dispose();
 
-                    //File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
-                    //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
-                    Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,path); 
+                //File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
+                //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
+                Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,
+                                    path);
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-
         }
         #endregion
     }

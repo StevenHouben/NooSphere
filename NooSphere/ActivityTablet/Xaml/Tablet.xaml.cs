@@ -1,21 +1,26 @@
+/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.IO;
 using System.Threading;
 using NooSphere.ActivitySystem.Base;
+using NooSphere.ActivitySystem.Base.Client;
+using NooSphere.ActivitySystem.Base.Service;
 using NooSphere.ActivitySystem.Host;
+using NooSphere.Context.IO;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Contracts;
 using Newtonsoft.Json;
@@ -23,18 +28,19 @@ using ActivityTablet.Properties;
 using NooSphere.Helpers;
 using NooSphere.Core.Devices;
 using NooSphere.ActivitySystem.Discovery;
-using NooSphere.ActivitySystem;
 
 namespace ActivityTablet
 {
-    public partial class Tablet : Window
+    public partial class Tablet
     {
         #region Private Members
-        private ActivityClient client;
-        private BasicHost host;
-        private User user;
-        private Device device;
-        private Dictionary<Guid, Proxy> proxies = new Dictionary<Guid, Proxy>();
+        private ActivityClient _client;
+        private GenericHost _host;
+        private User _user;
+        private Device _device;
+        private readonly Dictionary<Guid, Proxy> proxies = new Dictionary<Guid, Proxy>();
+
+        private PointerNode _pNode = new PointerNode(PointerRole.Controller);
         #endregion
 
         #region Constructor
@@ -55,12 +61,12 @@ namespace ActivityTablet
                 string result = Rest.Get(baseUrl + "Users?email=" + txtEmail.Text);
                 User u = JsonConvert.DeserializeObject<User>(result);
                 if (u != null)
-                    this.user = u;
+                    this._user = u;
                 else
                     CreateUser(baseUrl);
 
-                this.device = new Device();
-                this.device.Name = txtDevicename.Text;
+                this._device = new Device();
+                this._device.Name = txtDevicename.Text;
 
                 if (chkClient.IsChecked == true)
                     FindClient();
@@ -82,7 +88,7 @@ namespace ActivityTablet
             Thread t = new Thread(() =>
             {
                 DiscoveryManager disc = new DiscoveryManager();
-                disc.Find(DiscoveryType.ZEROCONF);
+                disc.Find(DiscoveryType.Zeroconf);
                 disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
             });
             t.IsBackground = true;
@@ -92,10 +98,10 @@ namespace ActivityTablet
         {
             Thread t = new Thread(() =>
             {
-                host = new BasicHost();
-                host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
-                host.StartBroadcast("Tablet");
-                host.Open(new ActivityManager(user, "c:/files/"), typeof(IActivityManager), "Tablet manager");
+                _host = new GenericHost();
+                _host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
+                _host.StartBroadcast(DiscoveryType.WSDiscovery, "Tablet");
+                _host.Open(new ActivityManager(_user, "c:/files/"), typeof(IActivityManager), "Tablet manager");
             });
             t.Start();
         }
@@ -107,7 +113,7 @@ namespace ActivityTablet
                 cvActivityManager.Visibility = System.Windows.Visibility.Visible;
                 contentBrowser.Navigate(@"http://itu.dk/people/shou/pubs/SituatedActivityModelMODIQUITOUS2012.pdf");
             }));
-            List<Activity> lac = client.GetActivities();
+            List<Activity> lac = _client.GetActivities();
             foreach (Activity ac in lac)
             {
                 AddActivityUI(ac);
@@ -164,39 +170,29 @@ namespace ActivityTablet
             {
                 var result = Rest.Get(baseUrl + "Users?email=" + txtEmail.Text);
                 var u = JsonConvert.DeserializeObject<User>(result);
-                this.user = u;
+                this._user = u;
             }
         }
         private void StartClient(string addr)
         {
-            client = new ActivityClient(addr, @"c:/abc/");
+            _client = new ActivityClient(@"c:/abc/", _device) { CurrentUser = new User() };
 
-            //Register the current device with the activity manager we are connecting to
-            client.Register(new Device());
+            //_client.ActivityAdded += ClientActivityAdded;
+            //_client.ActivityChanged += ClientActivityChanged;
+            //_client.ActivityRemoved += ClientActivityRemoved;
+            //_client.MessageReceived += ClientMessageReceived;
 
-            //Set the current user
-            client.CurrentUser = user;
+            //_client.FriendAdded += client_FriendAdded;
+            //_client.FriendDeleted += client_FriendDeleted;
+            //_client.FriendRequestReceived += ClientFriendRequestReceived;
 
-            //Subscribe to the activity manager events
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.ActivityEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.ComEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.DeviceEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.FileEvents);
-            client.Subscribe(NooSphere.ActivitySystem.Contracts.EventType.UserEvent);
+            //_client.FileUploadRequest += ClientFileUploadRequest;
+            //_client.FileDownloadRequest += ClientFileDownloadRequest;
+            //_client.FileDeleteRequest += ClientFileDeleteRequest;
+            //_client.ContextMessageReceived += _client_ContextMessageReceived;
 
-            //Subcribe to the callback events of the activity manager
-            client.DeviceAdded += new DeviceAddedHandler(client_DeviceAdded);
-            client.ActivityAdded += new ActivityAddedHandler(client_ActivityAdded);
-            //client.ActivityChanged += new NooSphere.ActivitySystem.Events.ActivityChangedHandler(client_ActivityChanged);
-
-            client.ActivityRemoved += new ActivityRemovedHandler(client_ActivityRemoved);
-            client.MessageReceived += new MessageReceivedHandler(client_MessageReceived);
-
-            //client.FriendAdded += new NooSphere.ActivitySystem.Events.FriendAddedHandler(client_FriendAdded);
-            //client.FriendDeleted += new NooSphere.ActivitySystem.Events.FriendDeletedHandler(client_FriendDeleted);
-            //client.FriendRequestReceived += new NooSphere.ActivitySystem.Events.FriendRequestReceivedHandler(client_FriendRequestReceived);
-
-            BuildUI();
+            //_client.ConnectionEstablished += ClientConnectionEstablished;
+            _client.Open(addr);
 
         }
         #endregion
@@ -236,7 +232,7 @@ namespace ActivityTablet
         }
         private void host_HostLaunched(object sender, EventArgs e)
         {
-            StartClient(host.Address);
+            StartClient(_host.Address);
         }
         private void cancel_Click(object sender, RoutedEventArgs e)
         {
@@ -245,8 +241,8 @@ namespace ActivityTablet
 
         private void ExitApplication()
         {
-            if (client != null)
-                client.UnSubscribeAll();
+            if (_client != null)
+                _client.Close();
             Environment.Exit(0);
         }
         private void Button_Click(object sender, RoutedEventArgs e)

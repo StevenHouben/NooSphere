@@ -1,16 +1,16 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Android.App;
-using Android.Content;
 using Android.Widget;
 using Android.OS;
 using Newtonsoft.Json;
 using NooSphere.ActivitySystem.Base;
+using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using NooSphere.Helpers;
 using Activity = Android.App.Activity;
-using Environment = System.Environment;
 
 namespace ActivityDroid
 {
@@ -58,20 +58,22 @@ namespace ActivityDroid
 
         private void StartActivityManager()
         {
-            _device = new Device
-                          {
-                              DeviceType = DeviceType.SmartPhone,
-                              DevicePortability = DevicePortability.Mobile,
-                              Name = Build.Device
-                          };
-            //_host = new Host(_user, new ContextWrapper(this).GetDir("ActivityCloud", FileCreationMode.Private));
-            StartClient("http://10.1.1.190:57484/");
+            new Thread(() =>
+                           {
+
+                               _device = new Device
+                                             {
+                                                 DeviceType = DeviceType.SmartPhone,
+                                                 DevicePortability = DevicePortability.Mobile,
+                                                 Name = Build.Device
+                                             };
+                               StartClient("http://10.1.1.190:50505/");
+                           }).Start();
         }
 
         private void StartClient(string activityManagerHttpAddress)
         {
             var path = GetExternalFilesDir("ActivityCloud").AbsolutePath;
-            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
             _client = new ActivityClient(path, _device) { CurrentUser = _user };
 
             _client.ActivityAdded += ClientActivityAdded;

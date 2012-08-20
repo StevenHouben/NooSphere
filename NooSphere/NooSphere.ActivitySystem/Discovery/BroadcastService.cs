@@ -77,54 +77,57 @@ namespace NooSphere.ActivitySystem.Discovery
         {
             DiscoveryType = type;
 
-            if (DiscoveryType == DiscoveryType.WSDiscovery)
+            switch (DiscoveryType)
             {
-                Ip = Net.GetIp(IPType.All);
-                Port = broadcastPort;
-                Address = "http://" + Ip + ":" + Port + "/";
+                case DiscoveryType.WSDiscovery:
+                    {
+                        Ip = Net.GetIp(IPType.All);
+                        Port = broadcastPort;
+                        Address = "http://" + Ip + ":" + Port + "/";
 
-                _discoveryHost = new ServiceHost(new DiscoveyService());
+                        _discoveryHost = new ServiceHost(new DiscoveyService());
 
-                var serviceEndpoint = _discoveryHost.AddServiceEndpoint(typeof(IDiscovery), new WebHttpBinding(), 
-                    Net.GetUrl(Ip, Port, ""));
-                serviceEndpoint.Behaviors.Add(new WebHttpBehavior());
+                        var serviceEndpoint = _discoveryHost.AddServiceEndpoint(typeof(IDiscovery), new WebHttpBinding(), 
+                                                                                Net.GetUrl(Ip, Port, ""));
+                        serviceEndpoint.Behaviors.Add(new WebHttpBehavior());
 
-                var broadcaster = new EndpointDiscoveryBehavior();
+                        var broadcaster = new EndpointDiscoveryBehavior();
 
-                broadcaster.Extensions.Add(nameToBroadcast.ToXElement<string>());
-                broadcaster.Extensions.Add(physicalLocation.ToXElement<string>());
-                broadcaster.Extensions.Add(addressToBroadcast.ToString().ToXElement<string>());
+                        broadcaster.Extensions.Add(nameToBroadcast.ToXElement<string>());
+                        broadcaster.Extensions.Add(physicalLocation.ToXElement<string>());
+                        broadcaster.Extensions.Add(addressToBroadcast.ToString().ToXElement<string>());
 
-                serviceEndpoint.Behaviors.Add(broadcaster);
-                _discoveryHost.Description.Behaviors.Add(new ServiceDiscoveryBehavior());
-                _discoveryHost.Description.Endpoints.Add(new UdpDiscoveryEndpoint());
-                _discoveryHost.Open();
+                        serviceEndpoint.Behaviors.Add(broadcaster);
+                        _discoveryHost.Description.Behaviors.Add(new ServiceDiscoveryBehavior());
+                        _discoveryHost.Description.Endpoints.Add(new UdpDiscoveryEndpoint());
+                        _discoveryHost.Open();
 
-                IsRunning = true;
-            }
-            else if (DiscoveryType == DiscoveryType.Zeroconf)
-            {
-                var service = new RegisterService
-                                  {Name = nameToBroadcast, RegType = "_am._tcp", ReplyDomain = "local.", Port = 3689};
+                        IsRunning = true;
+                    }
+                    break;
+                case DiscoveryType.Zeroconf:
+                    {
+                        var service = new RegisterService
+                                          {Name = nameToBroadcast, RegType = "_am._tcp", ReplyDomain = "local.", Port = 3689};
 
-                // TxtRecords are optional
-                var txtRecord = new TxtRecord {{"addr", addressToBroadcast.ToString()}};
-                service.TxtRecord = txtRecord;
+                        // TxtRecords are optional
+                        var txtRecord = new TxtRecord {{"addr", addressToBroadcast.ToString()}};
+                        service.TxtRecord = txtRecord;
 
-                service.Register();
+                        service.Register();
+                    }
+                    break;
             }
         }
-        
+
         /// <summary>
         /// Stops the broadcast service
         /// </summary>
         public void Stop()
         {
-            if (DiscoveryType == DiscoveryType.WSDiscovery)
-            {
-                _discoveryHost.Close();
-                IsRunning = false;
-            }
+            if (DiscoveryType != DiscoveryType.WSDiscovery) return;
+            _discoveryHost.Close();
+            IsRunning = false;
         }
         #endregion
     }

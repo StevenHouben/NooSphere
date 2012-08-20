@@ -13,23 +13,15 @@
 /// </licence>
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using ActivityUI.Xaml;
-using NooSphere.Platform.Windows.Interopt;
-using ActivityUI.Properties;
 using System.Threading;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Threading;
+using ActivityUI.Properties;
+using ActivityUI.Xaml;
 using NooSphere.ActivitySystem.Discovery;
+using NooSphere.Platform.Windows.Interopt;
 
 namespace ActivityUI.PopUp
 {
@@ -38,92 +30,86 @@ namespace ActivityUI.PopUp
     /// </summary>
     public partial class ManagerWindow : Window
     {
-        private ActivityBar taskbar;
+        private readonly ActivityBar taskbar;
+
         public ManagerWindow(ActivityBar bar)
         {
             InitializeComponent();
-            this.Topmost = true;
-            this.ShowInTaskbar = false;
-            this.WindowStyle = System.Windows.WindowStyle.None;
-            this.ResizeMode = System.Windows.ResizeMode.CanResize;
-            this.MinHeight = this.MaxHeight = this.Height;
-            this.MinWidth = this.MaxWidth = this.Width;
-            this.taskbar = bar;
+            Topmost = true;
+            ShowInTaskbar = false;
+            WindowStyle = WindowStyle.None;
+            ResizeMode = ResizeMode.CanResize;
+            MinHeight = MaxHeight = Height;
+            MinWidth = MaxWidth = Width;
+            taskbar = bar;
         }
 
         public void Show(int offset)
         {
-            this.Left = offset;
-            this.Top = taskbar.Height + 5;
+            Left = offset;
+            Top = taskbar.Height + 5;
 
-            this.txtDeviceName.Text = Settings.Default.DEVICE_NAME;
-            this.txtEmail.Text = Settings.Default.USER_EMAIL;
-            this.txtUsername.Text = Settings.Default.USER_NAME;
+            txtDeviceName.Text = Settings.Default.DEVICE_NAME;
+            txtEmail.Text = Settings.Default.USER_EMAIL;
+            txtUsername.Text = Settings.Default.USER_NAME;
 
-            this.chkBroadcast.IsChecked = Settings.Default.CHECK_BROADCAST;
+            chkBroadcast.IsChecked = Settings.Default.CHECK_BROADCAST;
 
             RunDiscovery();
-            this.Show();
+            Show();
         }
+
         public void RunDiscovery()
         {
             managerlist.Items.Clear();
 
-            Thread t = new Thread(() =>
-            {
-                DiscoveryManager disc = new DiscoveryManager();
-                disc.Find(DiscoveryType.Zeroconf);
-                disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
-            });
+            var t = new Thread(() =>
+                                   {
+                                       var disc = new DiscoveryManager();
+                                       disc.DiscoveryAddressAdded += disc_DiscoveryAddressAdded;
+                                       disc.Find(Settings.Default.DISCOVERY_TYPE);
+                                   });
             t.IsBackground = true;
             t.Start();
         }
+
         /// <summary>
         /// Adds a discovered activity manager to the UI
         /// </summary>
         /// <param name="serviceInfo">The information of the found service</param>
         private void AddDiscoveryActivityManagerToUI(ServiceInfo serviceInfo)
         {
-            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
-            {
-                managerlist.Items.Add(serviceInfo.Name + " at " + serviceInfo.Address);
-                managerlist.MouseDoubleClick += new MouseButtonEventHandler(managerlist_MouseDoubleClick);
-            }));
+            Dispatcher.Invoke(DispatcherPriority.Background, new Action(() =>
+                                                                            {
+                                                                                managerlist.Items.Add(serviceInfo.Name +
+                                                                                                      " at " +
+                                                                                                      serviceInfo.
+                                                                                                          Address);
+                                                                                managerlist.MouseDoubleClick +=
+                                                                                    managerlist_MouseDoubleClick;
+                                                                            }));
         }
 
-        void managerlist_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void managerlist_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             MessageBox.Show(managerlist.SelectedItem.ToString());
         }
 
-        void disc_DiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
+        private void disc_DiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
             AddDiscoveryActivityManagerToUI(e.ServiceInfo);
         }
-
-        #region Window Hacks
-
-        private const int GWL_STYLE = -16;
-        private const uint WS_SYSMENU = 0x80000;
-
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            IntPtr hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-            User32.SetWindowLong(hwnd, GWL_STYLE,
-                User32.GetWindowLong(hwnd, GWL_STYLE) & (0xFFFFFFFF ^ WS_SYSMENU));
-
-            base.OnSourceInitialized(e);
-        }
-        #endregion
 
         private void btnRefresh_Click(object sender, RoutedEventArgs e)
         {
             RunDiscovery();
         }
+
         private void btnSend_Click(object sender, RoutedEventArgs e)
         {
             taskbar.SendMessage(txtInput.Text);
         }
+
         private void txtAddFriend_Click(object sender, RoutedEventArgs e)
         {
             taskbar.AddFriend(txtEmailFriend.Text);
@@ -139,9 +125,24 @@ namespace ActivityUI.PopUp
             Settings.Default.DEVICE_NAME = txtDeviceName.Text;
             Settings.Default.USER_NAME = txtUsername.Text;
             Settings.Default.USER_EMAIL = txtEmail.Text;
-            Settings.Default.DISCOVERY_BROADCAST = (bool)chkBroadcast.IsChecked;
+            Settings.Default.DISCOVERY_BROADCAST = (bool) chkBroadcast.IsChecked;
             Settings.Default.Save();
         }
 
+        #region Window Hacks
+
+        private const int GWL_STYLE = -16;
+        private const uint WS_SYSMENU = 0x80000;
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            User32.SetWindowLong(hwnd, GWL_STYLE,
+                                 User32.GetWindowLong(hwnd, GWL_STYLE) & (0xFFFFFFFF ^ WS_SYSMENU));
+
+            base.OnSourceInitialized(e);
+        }
+
+        #endregion
     }
 }

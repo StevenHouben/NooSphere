@@ -1,0 +1,47 @@
+﻿/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
+
+using System;
+
+namespace NooSphere.Context
+{
+    public delegate void DataReceivedHandler(Object sender, DataEventArgs e);
+
+    public interface IContextService
+    {
+        string Name { get; set; }
+
+        void Send(string message);
+
+        event DataReceivedHandler DataReceived;
+        event EventHandler Started;
+        event EventHandler Stopped;
+    }
+
+    public class DataEventArgs
+    {
+        public object Data { get; set; }
+
+        public DataEventArgs(object data)
+        {
+            Data = data;
+        }
+    }
+
+    public enum Source
+    {
+        Serial,
+        Net
+    }
+
+
+}

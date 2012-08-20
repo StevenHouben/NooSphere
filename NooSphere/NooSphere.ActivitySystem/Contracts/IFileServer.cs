@@ -15,6 +15,7 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.IO;
 using NooSphere.Core.ActivityModel;
+using NooSphere.ActivitySystem.FileServer;
 
 namespace NooSphere.ActivitySystem.Contracts
 {
@@ -22,12 +23,16 @@ namespace NooSphere.ActivitySystem.Contracts
     public interface IFileServer
     {
         [OperationContract]
-        [WebInvoke(UriTemplate = "files/{activityId}/{resourceId}", Method = "POST")]
-        void AddFile(string activityId,string resourceId, Stream stream);
+        [WebInvoke(RequestFormat = WebMessageFormat.Json, UriTemplate = "files", Method = "POST")]
+        void AddFile(FileRequest file);
 
         [OperationContract]
         [WebGet(UriTemplate = "files/{activityId}/{resourceId}")]
         Stream GetFile(string activityId, string resourceId);
+
+        [OperationContract]
+        [WebGet(UriTemplate = "files")]
+        Stream GetTestFile();
 
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "files", Method = "DELETE")]
@@ -36,6 +41,8 @@ namespace NooSphere.ActivitySystem.Contracts
         [OperationContract]
         [WebInvoke(UriTemplate = "files/{activityId}/{resourceId}", Method = "PUT")]
         void UpdateFile(string activityId, string resourceId, Stream stream);
+
+
 
 
     }

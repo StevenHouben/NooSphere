@@ -45,29 +45,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\ActivityEventArgs.cs" />
-    <Compile Include="Base\ActivityStore.cs" />
-    <Compile Include="Base\CloudEvents.cs" />
+    <Compile Include="Base\Client\Configuration.cs" />
+    <Compile Include="Base\Client\MonoDroid\ActivityClient.cs" />
+    <Compile Include="Base\Client\MonoDroid\NetEventHandler.cs" />
+    <Compile Include="Base\Client\StartupMode.cs" />
     <Compile Include="Base\ComEventArgs.cs" />
-    <Compile Include="Base\Configuration.cs" />
-    <Compile Include="Base\ConnectedClient.cs" />
-    <Compile Include="Base\MonoDroid\ActivityCloudConnector.cs" />
-    <Compile Include="Base\MonoDroid\ActivityManager.cs" />
-    <Compile Include="Base\MonoDroid\ActivityClient.cs" />
-    <Compile Include="Base\MonoDroid\EventTypeConverter.cs" />
-    <Compile Include="Base\MonoDroid\NetEventHandler.cs" />
+    <Compile Include="Base\ContextEventArgs.cs" />
+    <Compile Include="Base\EventTypeConverter.cs" />
     <Compile Include="Base\DeviceEventArgs.cs" />
     <Compile Include="Base\Events.cs" />
     <Compile Include="Base\FileEventArgs.cs" />
     <Compile Include="Base\FriendEventArgs.cs" />
     <Compile Include="Base\IActivityNode.cs" />
-    <Compile Include="Base\IActivityProxy.cs" />
     <Compile Include="Base\ParticipantsEventArgs.cs" />
-    <Compile Include="Base\ParticipantStore.cs" />
-    <Compile Include="Base\StartupMode.cs" />
-    <Compile Include="Context\IProxy.cs" />
-    <Compile Include="Context\MulticastSocket.cs" />
-    <Compile Include="Context\MulticastSocketListener.cs" />
-    <Compile Include="Context\StateObject.cs" />
+    <Compile Include="Base\Service\ActivityCloudConnector.cs" />
+    <Compile Include="Base\Service\ActivityStore.cs" />
+    <Compile Include="Base\Service\CloudEvents.cs" />
+    <Compile Include="Base\Service\ConnectedClient.cs" />
+    <Compile Include="Base\Service\MonoDroid\ActivityManager.cs" />
+    <Compile Include="Base\Service\ParticipantStore.cs" />
+    <Compile Include="Base\Service\Syncer.cs" />
     <Compile Include="Contracts\EventType.cs" />
     <Compile Include="Contracts\IActivityManager.cs" />
     <Compile Include="Contracts\IActivityNetEvent.cs" />
@@ -78,10 +75,10 @@
     <Compile Include="Contracts\IMessenger.cs" />
     <Compile Include="Contracts\INetEvent.cs" />
     <Compile Include="Contracts\IUserEvent.cs" />
-    <Compile Include="FileServer\FileClient.cs" />
+    <Compile Include="FileServer\FileRequest.cs" />
     <Compile Include="FileServer\FileSource.cs" />
+    <Compile Include="FileServer\FileStore.cs" />
     <Compile Include="FileServer\IFileStore.cs" />
-    <Compile Include="FileServer\MonoDroid\FileService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PubSub\Concurrency.cs">
       <SubType>Code</SubType>
@@ -104,6 +101,10 @@
     <ProjectReference Include="..\Libs\MonoDroid.SignalR.Client\MonoDroid.SignalR.Client.csproj">
       <Project>{145e495f-e3ab-42cf-8b77-117196955068}</Project>
       <Name>MonoDroid.SignalR.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Libs\MonoDroid.Zeroconf\MonoDroid.Zeroconf.csproj">
+      <Project>{07c8141f-a6ea-430f-983f-a78af4dd6615}</Project>
+      <Name>MonoDroid.Zeroconf</Name>
     </ProjectReference>
     <ProjectReference Include="..\NooSphere.Core\NooSphere.Core.MonoDroid.csproj">
       <Project>{9e4955ac-977e-43c4-b721-ceb107337ca3}</Project>

@@ -1,28 +1,27 @@
-﻿/// <licence>
-/// 
-/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
-/// 
-/// Pervasive Interaction Technology Laboratory (pIT lab)
-/// IT University of Copenhagen
-///
-/// This library is free software; you can redistribute it and/or 
-/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
-/// as published by the Free Software Foundation. Check 
-/// http://www.gnu.org/licenses/gpl.html for details.
-/// 
-/// </licence>
+﻿/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
-using System.Globalization;
-using System.Windows.Media.Imaging;
-using System.Windows.Media;
 using System.Collections;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Windows.Data;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Brushes = System.Windows.Media.Brushes;
+using Color = System.Drawing.Color;
+using Point = System.Windows.Point;
 
 namespace ActivityUI
 {
@@ -31,6 +30,8 @@ namespace ActivityUI
     /// </summary>
     public class IconToAvgColorBrushConverter : IValueConverter
     {
+        #region IValueConverter Members
+
         /// <summary>
         /// The converter method
         /// </summary>
@@ -44,11 +45,11 @@ namespace ActivityUI
             // Verify if the value is null, if it is return a transparent brush
             if (value == null)
             {
-                return System.Windows.Media.Brushes.Transparent;
+                return Brushes.Transparent;
             }
 
             // Instanciate a MemoryStream to acomodate the bitmap
-            MemoryStream stream = new MemoryStream();
+            var stream = new MemoryStream();
 
             // verify if the value is from the espected Type
             if (value is RenderTargetBitmap)
@@ -56,7 +57,7 @@ namespace ActivityUI
                 // Load the rendered visual element from the render to a BitmapFrame
                 BitmapFrame frame = BitmapFrame.Create(value as RenderTargetBitmap);
                 // Instanciate the Encoder for the image and add the frame to it
-                System.Windows.Media.Imaging.BmpBitmapEncoder e = new BmpBitmapEncoder();
+                var e = new BmpBitmapEncoder();
                 e.Frames.Add(frame);
                 // Save the data to the stream object
                 e.Save(stream);
@@ -64,17 +65,17 @@ namespace ActivityUI
 
             try
             {
-                using (Bitmap bitmap = new Bitmap(stream))
+                using (var bitmap = new Bitmap(stream))
                 {
                     // Create an Array to acomodate the colors from the image
-                    ArrayList colors = new ArrayList();
+                    var colors = new ArrayList();
 
                     // simple loop to load each color to the array
                     for (int x = 0; x < bitmap.Width; x++)
                     {
                         for (int y = 0; y < bitmap.Height; y++)
                         {
-                            System.Drawing.Color pixel = bitmap.GetPixel(x, y);
+                            Color pixel = bitmap.GetPixel(x, y);
                             // verify if the color is transparent because a color of #00000000 would darker the brush
                             if (pixel.A > 0x00)
                                 colors.Add(pixel);
@@ -82,14 +83,14 @@ namespace ActivityUI
                     }
 
                     // Using linq to get the average color RGB bytes
-                    byte r = (byte)Math.Floor(colors.Cast<System.Drawing.Color>().Average(c => c.R));
-                    byte g = (byte)Math.Floor(colors.Cast<System.Drawing.Color>().Average(c => c.G));
-                    byte b = (byte)Math.Floor(colors.Cast<System.Drawing.Color>().Average(c => c.B));
+                    var r = (byte) Math.Floor(colors.Cast<Color>().Average(c => c.R));
+                    var g = (byte) Math.Floor(colors.Cast<Color>().Average(c => c.G));
+                    var b = (byte) Math.Floor(colors.Cast<Color>().Average(c => c.B));
 
                     // Instanciate and initialize the LinearGradientBrush that will be returned as the result of the operation
-                    LinearGradientBrush brush = new LinearGradientBrush();
-                    brush.EndPoint = new System.Windows.Point(0.5, 1.0);
-                    brush.StartPoint = new System.Windows.Point(0.5, 0.0);
+                    var brush = new LinearGradientBrush();
+                    brush.EndPoint = new Point(0.5, 1.0);
+                    brush.StartPoint = new Point(0.5, 0.0);
                     brush.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, r, g, b), 0.00));
                     brush.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xFF, r, g, b), 1.00));
                     return brush;
@@ -98,7 +99,7 @@ namespace ActivityUI
             catch (Exception)
             {
                 // If any error occours return a Tranparent brush
-                return System.Windows.Media.Brushes.Transparent;
+                return Brushes.Transparent;
             }
         }
 
@@ -114,6 +115,7 @@ namespace ActivityUI
         {
             throw new Exception("The method or operation is not implemented.");
         }
+
+        #endregion
     }
 }
-
