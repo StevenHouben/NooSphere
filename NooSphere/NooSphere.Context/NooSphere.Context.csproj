@@ -41,11 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IO\CbtHook.cs" />
     <Compile Include="IO\PointerNode.cs" />
-    <Compile Include="IO\LocalWindowsHook.cs" />
-    <Compile Include="IO\MouseHook.cs" />
-    <Compile Include="IO\MouseHookEventArgs.cs" />
     <Compile Include="Multicast\MulticastSocket.cs" />
     <Compile Include="Multicast\MulticastSocketListener.cs" />
     <Compile Include="Multicast\StateObject.cs" />
@@ -54,6 +50,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Sensor\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NooSphere.Platform.Windows\NooSphere.Platform.Windows.csproj">
+      <Project>{B3333919-EE66-441A-8AB3-6E6601A8A0B1}</Project>
+      <Name>NooSphere.Platform.Windows</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

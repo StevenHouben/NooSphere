@@ -33,7 +33,8 @@ namespace NooSphere.Platform.Windows.Hooks
 
         #region Events
         public static event MouseEventHandler MouseMove = null;
-        public static event MouseEventHandler MouseClick = null;
+        public static event MouseEventHandler MouseDown = null;
+        public static event MouseEventHandler MouseUp = null;
         #endregion
 
         #region Private Methods
@@ -42,8 +43,7 @@ namespace NooSphere.Platform.Windows.Hooks
             MouseHookStruct MyMouseHookStruct = (MouseHookStruct)Marshal.PtrToStructure(lParam, typeof(MouseHookStruct));
             if (nCode < 0)
                 return User32.CallNextHookEx(hHook, nCode, wParam, lParam);
-            else
-                    HandleEvents(wParam, MyMouseHookStruct);
+            HandleEvents(wParam, MyMouseHookStruct);
             return User32.CallNextHookEx(hHook, nCode, wParam, lParam);
         }
 
@@ -55,10 +55,16 @@ namespace NooSphere.Platform.Windows.Hooks
                     MouseMove(new object(), new MouseEventArgs(MouseButtons.None, mouse.wHitTestCode, mouse.pt.x, mouse.pt.y, -1));
                     break;
                 case WindowMessage.WM_LBUTTONDOWN:
-                    MouseClick(new object(),new MouseEventArgs(MouseButtons.Left,0, mouse.pt.x, mouse.pt.y, -1));
+                    MouseDown(new object(),new MouseEventArgs(MouseButtons.Left,0, mouse.pt.x, mouse.pt.y, -1));
                     break;
                 case WindowMessage.WM_RBUTTONDOWN:
-                    MouseClick(new object(), new MouseEventArgs(MouseButtons.Left, 0, mouse.pt.x, mouse.pt.y, -1));
+                    MouseDown(new object(), new MouseEventArgs(MouseButtons.Right, 0, mouse.pt.x, mouse.pt.y, -1));
+                    break;
+                case WindowMessage.WM_LBUTTONUP:
+                    MouseUp(new object(), new MouseEventArgs(MouseButtons.Left, 0, mouse.pt.x, mouse.pt.y, -1));
+                    break;
+                case WindowMessage.WM_RBUTTONUP:
+                    MouseUp(new object(), new MouseEventArgs(MouseButtons.Right, 0, mouse.pt.x, mouse.pt.y, -1));
                     break;
             }
         }
