@@ -23,11 +23,15 @@ using NooSphere.Core.Devices;
 using NooSphere.Helpers;
 using Newtonsoft.Json;
 using NooSphere.ActivitySystem.FileServer;
+#if !ANDROID
 using NooSphere.ActivitySystem.Host;
+#endif
 
 namespace NooSphere.ActivitySystem.Base.Client
 {
+#if !ANDROID
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
+#endif
     public class ActivityClient : NetEventHandler,IActivityNode
     {
         #region Events
@@ -37,7 +41,9 @@ namespace NooSphere.ActivitySystem.Base.Client
         #endregion
 
         #region Private Members
+#if !ANDROID
         private readonly GenericHost _callbackService = new GenericHost();
+#endif
         private readonly ConcurrentDictionary<Guid, Activity> _activityBuffer = new ConcurrentDictionary<Guid, Activity>(); 
         private FileStore _fileStore;
         private bool _connected;
@@ -146,7 +152,12 @@ namespace NooSphere.ActivitySystem.Base.Client
         {
             if (!_connected)
                 throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
+#if ANDROID
+            d.BaseAddress = BaseUrl;
+#endif
+#if !ANDROID
             d.BaseAddress = Net.GetUrl(Net.GetIp(IPType.All), StartCallbackService(), "").ToString();
+#endif
             _connectionId = JsonConvert.DeserializeObject<String>(Rest.Post(ServiceAddress + Url.Devices, d));
             Log.Out("ActivityClient", string.Format("Received device id: " + _connectionId), LogCode.Log);
         }
@@ -156,6 +167,7 @@ namespace NooSphere.ActivitySystem.Base.Client
         /// events.
         /// </summary>
         /// <returns>The port of the deployed service</returns>
+#if !ANDROID
         private int StartCallbackService()
         {
             try
@@ -169,6 +181,7 @@ namespace NooSphere.ActivitySystem.Base.Client
             }
             return _callbackService.Port;
         }
+#endif
         #endregion
 
         #region Public Methods

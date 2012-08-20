@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using Android.App;
+using Android.Views;
 using Android.Widget;
 using Android.OS;
 using Newtonsoft.Json;
@@ -28,6 +29,8 @@ namespace ActivityDroid
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
+            RequestWindowFeature(WindowFeatures.NoTitle);
+            Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
 
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
@@ -37,18 +40,14 @@ namespace ActivityDroid
 
             SetUser(Intent.GetStringExtra("User"));
             SetStatus("Hi " + _user.Name + ", you are logged in.");
-            StartActivityManager();
+            ThreadPool.QueueUserWorkItem(o => StartActivityManager());
         }
         #endregion
 
         #region Private Methods
         private void BtnAddActivity(object sender, EventArgs e)
         {
-            AddActivity(GetInitializedActivity());
-        }
-        private void SetStatus(string status)
-        {
-            RunOnUiThread(() => FindViewById<TextView>(Resource.Id.Status).Text = status);
+            ThreadPool.QueueUserWorkItem(o => AddActivity(GetInitializedActivity()));
         }
 
         private void SetUser(string json)
@@ -58,17 +57,14 @@ namespace ActivityDroid
 
         private void StartActivityManager()
         {
-            new Thread(() =>
-                           {
-
-                               _device = new Device
-                                             {
-                                                 DeviceType = DeviceType.SmartPhone,
-                                                 DevicePortability = DevicePortability.Mobile,
-                                                 Name = Build.Device
-                                             };
-                               StartClient("http://10.1.1.190:50505/");
-                           }).Start();
+            _device = new Device
+                            {
+                                DeviceType = DeviceType.SmartPhone,
+                                DevicePortability = DevicePortability.Mobile,
+                                Name = Build.Device
+                            };
+            StartClient("http://10.1.1.190:52836/");
+            AddActivityUI(GetInitializedActivity());
         }
 
         private void StartClient(string activityManagerHttpAddress)
@@ -100,11 +96,29 @@ namespace ActivityDroid
         }
         #endregion
 
+        #region UI Changes
+        private void AddActivityUI(NooSphere.Core.ActivityModel.Activity activity)
+        {
+            //RunOnUiThread(() =>
+            //                  {
+            //                      var f = new ActivityFragment();
+            //                      var ft = FragmentManager.BeginTransaction();
+            //                      ft.Add(Resource.Id.Activities, f);
+            //                      ft.Commit();
+            //                  });
+        }
+        private void SetStatus(string status)
+        {
+            RunOnUiThread(() => FindViewById<TextView>(Resource.Id.Status).Text = status);
+        }
+        #endregion
+
         #region Events
 
         private void ClientActivityAdded(object sender, ActivityEventArgs e)
         {
             Log.Out("Main", "Activity Added");
+            AddActivityUI(e.Activity);
         }
 
         private void ClientActivityRemoved(object sender, ActivityRemovedEventArgs e)
