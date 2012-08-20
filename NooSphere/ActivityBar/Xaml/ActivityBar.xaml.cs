@@ -39,6 +39,7 @@ using ActivityUI.Login;
 using ActivityUI.PopUp;
 using NooSphere.Platform.Windows.Hooks;
 using NooSphere.Context.IO;
+using NooSphere.Context.Multicast;
 
 namespace ActivityUI.Xaml
 {
@@ -74,7 +75,9 @@ namespace ActivityUI.Xaml
         public bool ClickDetected = false;
 
         //Debug
-        private PointerNode _pointer = new PointerNode(PointerRole.Controller);
+        //private PointerNode _pointer = new PointerNode(PointerRole.Controller);
+
+        private UdpPerformanceTest test = new UdpPerformanceTest();
 
         #endregion
 
@@ -100,6 +103,8 @@ namespace ActivityUI.Xaml
             _login = new LoginWindow();
             _login.LoggedIn += LoginLoggedIn;
             _login.Show();
+
+            test.Test(1000);
         }
         #endregion
 
@@ -551,13 +556,11 @@ namespace ActivityUI.Xaml
         {
             if(!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
-            //_client.SendContext(e.Location.X+"$"+e.Location.Y);
         }
         void MouseHook_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
-            //_client.SendContext(e.Location.X + "$" + e.Location.Y);
         }
         private void BtnManagerClick(object sender, RoutedEventArgs e)
         {
