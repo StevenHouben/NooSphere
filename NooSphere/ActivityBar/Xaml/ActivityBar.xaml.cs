@@ -337,6 +337,8 @@ namespace ActivityUI.Xaml
 
                 var b = new ActivityButton(new Uri("pack://application:,,,/Images/activity.PNG"),activity.Name) 
                 { RenderMode = RenderMode.Image, ActivityId = p.Activity.Id };
+                b.AllowDrop = true;
+                b.Drop += BDrop;
                 b.Click += BClick;
                 b.MouseDown += BMouseDown;
                 b.Style = (Style)FindResource("ColorHotTrackButton");
@@ -346,6 +348,11 @@ namespace ActivityUI.Xaml
 
                 _proxies.Add(p.Activity.Id, p);
             }));
+        }
+
+        void BDrop(object sender, DragEventArgs e)
+        {
+            MessageBox.Show(e.Data.ToString());
         }
 
         /// <summary>
@@ -640,7 +647,7 @@ namespace ActivityUI.Xaml
             AddActivityUi(e.Activity);
             Console.WriteLine("Activity Added\n");
 
-            //_client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
+            //   _client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
         }
         private void BtnAddClick(object sender, RoutedEventArgs e)
         {
@@ -794,6 +801,21 @@ namespace ActivityUI.Xaml
             }
         }
         #endregion
+
+        private void Window_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
+            }
+
+
+        }
+
+        private void Window_Drop(object sender, DragEventArgs e)
+        {
+            MessageBox.Show( e.Data.ToString());
+        }
 
     }
     public enum RenderStyle

@@ -37,6 +37,8 @@ namespace NooSphere.ActivitySystem.FileServer
 
         #region Private Members
         private readonly Dictionary<Guid, Resource> _files = new Dictionary<Guid, Resource>();
+        private object _lock = new object();
+
         #endregion
 
         #region Public Methods
@@ -80,7 +82,6 @@ namespace NooSphere.ActivitySystem.FileServer
             }
             Log.Out("FileService", string.Format("Added file {0} to store", resource.Name), LogCode.Log);
         }
-
         private bool IsNewer(Resource resourceInFileStore, Resource requestedResource)
         {
             return false;
@@ -124,9 +125,6 @@ namespace NooSphere.ActivitySystem.FileServer
             lock(_lock) 
                 return _files.ContainsKey(id);
         }
-
-        private object _lock = new object();
-
         public Stream GetStreamFromFile(Resource resource)
         {
             return new FileStream(BasePath + resource.RelativePath, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -168,6 +166,12 @@ namespace NooSphere.ActivitySystem.FileServer
                 Console.WriteLine("FileStore: Folder {0} initialized", dInfo.FullName); 
             }
         }
+        public void CleanUp(string path)
+        {
+            if(Directory.Exists(Path.Combine(BasePath,path)))
+                Directory.Delete(Path.Combine(BasePath, path), true);
+        }
+
         #endregion
 
         #region Private Methods

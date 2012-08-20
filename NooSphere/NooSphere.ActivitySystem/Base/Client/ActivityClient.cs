@@ -81,11 +81,9 @@ namespace NooSphere.ActivitySystem.Base.Client
         private void InitializeFileService(string localPath)
         {
             _fileStore = new FileStore(localPath);
-            _fileStore.FileAdded += FileServerFileAdded;
             _fileStore.FileCopied += FileServerFileCopied;
             Log.Out("ActivityClient", string.Format("FileStore initialized at {0}", _fileStore.BasePath), LogCode.Log);
         }
-
         #endregion
 
         #region Private Methods
@@ -101,23 +99,11 @@ namespace NooSphere.ActivitySystem.Base.Client
         }
 
         /// <summary>
-        /// Updates activity with a resource
-        /// </summary>
-        /// <param name="res">The resource that is added to the activity</param>
-        private void UpdateActivityWithResources(Resource res)
-        {
-            var act = GetActivity(res.ActivityId.ToString());
-            act.Resources.Add(res);
-
-            //Update the activity
-            UpdateActivity(act);
-        }
-
-        /// <summary>
         /// Tests the connection to the service
         /// </summary>
         /// <param name="addr">The address of the service</param>
-        private bool TestConnection(string addr,int timeOut)
+        /// <param name="reconnectAttempts">Number of times the client tries to reconnect </param>
+        private bool TestConnection(string addr,int reconnectAttempts)
         {
             Log.Out("ActivityClient", string.Format("Attempt to connect to {0}", addr), LogCode.Net);
             bool res;
@@ -127,10 +113,10 @@ namespace NooSphere.ActivitySystem.Base.Client
                 ServiceAddress = addr;
                 res = JsonConvert.DeserializeObject<bool>(Rest.Get(ServiceAddress));
                 Log.Out("ActivityClient", string.Format("Service active? -> {0}", res), LogCode.Net);
-                Thread.Sleep(100);
+                Thread.Sleep(200);
                 attempts++;
             }
-            while (res == false && attempts < timeOut);
+            while (res == false && attempts < reconnectAttempts);
             if (res)
                 OnConnectionEstablishedEvent(new EventArgs());
             else
@@ -438,6 +424,12 @@ namespace NooSphere.ActivitySystem.Base.Client
 
             base.ActivityNetAdded(act);
         }
+        public override void ActivityNetRemoved(Guid id)
+        {
+            _fileStore.CleanUp(id.ToString());
+
+            base.ActivityNetRemoved(id);
+        }
         #endregion
 
         #region Event Handlers
@@ -445,11 +437,6 @@ namespace NooSphere.ActivitySystem.Base.Client
         private void FileServerFileCopied(object sender, FileEventArgs e)
         {
             HandleFileServerFileCopied(e);
-        }
-
-        private void FileServerFileAdded(object sender, FileEventArgs e)
-        {
-            
         }
         private void ActivityClientActivityRemoved(object sender, ActivityRemovedEventArgs e)
         {
