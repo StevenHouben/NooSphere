@@ -29,6 +29,8 @@ namespace NooSphere.Context.IO
             _mSocket = new MulticastSocket("225.5.6.7", 5000, 10);
             _mSocket.OnNotifyMulticastSocketListener += _mSocket_OnNotifyMulticastSocketListener;
 
+
+            this.PointerRole = role;
             Initialize(PointerRole);
         }
 
@@ -38,39 +40,35 @@ namespace NooSphere.Context.IO
             {
                 case PointerRole.Controller:
                     MouseHook.Register();
-                    MouseHook.MouseDown += new MouseEventHandler(MouseHook_MouseDown);
-                    MouseHook.MouseMove+=new MouseEventHandler(MouseHook_MouseMove);
-                    MouseHook.MouseUp += new MouseEventHandler(MouseHook_MouseUp);
+                    MouseHook.MouseDown += new MouseEventHandler(MouseHookMouseDown);
+                    MouseHook.MouseMove+=new MouseEventHandler(MouseHookMouseMove);
+                    MouseHook.MouseUp += new MouseEventHandler(MouseHookMouseUp);
                     break;
                 case PointerRole.Slave:
                     _mSocket.StartReceiving();
                     break;
                 default:
                     MouseHook.Register();
-                                        MouseHook.MouseDown += new MouseEventHandler(MouseHook_MouseDown);
-                    MouseHook.MouseMove+=new MouseEventHandler(MouseHook_MouseMove);
-                    MouseHook.MouseUp += new MouseEventHandler(MouseHook_MouseUp);
+                                        MouseHook.MouseDown += new MouseEventHandler(MouseHookMouseDown);
+                    MouseHook.MouseMove+=new MouseEventHandler(MouseHookMouseMove);
+                    MouseHook.MouseUp += new MouseEventHandler(MouseHookMouseUp);
                     _mSocket.StartReceiving();
                     break;
             }
         }
 
-        void MouseHook_MouseUp(object sender, MouseEventArgs e)
+        private void MouseHookMouseUp(object sender, MouseEventArgs e)
         {
             Send(new PointerMessage(e.X, e.Y, PointerEvent.Up).ToString());
         }
-
-        void MouseHook_MouseMove(object sender, MouseEventArgs e)
+        private void MouseHookMouseMove(object sender, MouseEventArgs e)
         {
             Send(new PointerMessage(e.X, e.Y, PointerEvent.Move).ToString());
         }
-
-        void MouseHook_MouseDown(object sender, MouseEventArgs e)
+        private void MouseHookMouseDown(object sender, MouseEventArgs e)
         {
             Send(new PointerMessage(e.X, e.Y, PointerEvent.Down).ToString());
         }
-
-
 
         [DllImport("User32.dll")]
         private static extern bool SetCursorPos(int x, int y);
@@ -81,7 +79,7 @@ namespace NooSphere.Context.IO
         public const int MOUSEEVENTF_LEFTUP = 0x04;
         public const int MOUSEEVENTF_RIGHTDOWN = 0x08;
         public const int MOUSEEVENTF_RIGHTUP = 0x10;
-        void _mSocket_OnNotifyMulticastSocketListener(object sender, NotifyMulticastSocketListenerEventArgs e)
+        private void _mSocket_OnNotifyMulticastSocketListener(object sender, NotifyMulticastSocketListenerEventArgs e)
         {
             if (e.Type == MulticastSocketMessageType.MessageReceived)
             {

@@ -39,6 +39,7 @@ using ActivityUI.Login;
 using ActivityUI.PopUp;
 using NooSphere.Platform.Windows.Hooks;
 using NooSphere.Context.IO;
+using NooSphere.Context.Multicast;
 
 namespace ActivityUI.Xaml
 {
@@ -76,6 +77,8 @@ namespace ActivityUI.Xaml
         //Debug
         //private PointerNode _pointer = new PointerNode(PointerRole.Controller);
 
+        private UdpPerformanceTest test = new UdpPerformanceTest();
+
         #endregion
 
         #region Constructor
@@ -100,6 +103,8 @@ namespace ActivityUI.Xaml
             _login = new LoginWindow();
             _login.LoggedIn += LoginLoggedIn;
             _login.Show();
+
+            test.Test(1000);
         }
         #endregion
 
@@ -332,6 +337,8 @@ namespace ActivityUI.Xaml
 
                 var b = new ActivityButton(new Uri("pack://application:,,,/Images/activity.PNG"),activity.Name) 
                 { RenderMode = RenderMode.Image, ActivityId = p.Activity.Id };
+                b.AllowDrop = true;
+                b.Drop += BDrop;
                 b.Click += BClick;
                 b.MouseDown += BMouseDown;
                 b.Style = (Style)FindResource("ColorHotTrackButton");
@@ -341,6 +348,11 @@ namespace ActivityUI.Xaml
 
                 _proxies.Add(p.Activity.Id, p);
             }));
+        }
+
+        void BDrop(object sender, DragEventArgs e)
+        {
+            MessageBox.Show(e.Data.ToString());
         }
 
         /// <summary>
@@ -551,11 +563,11 @@ namespace ActivityUI.Xaml
         {
             if(!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
-            //_client.SendContext(e.Location.X+"$"+e.Location.Y);
         }
         void MouseHook_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (!HitTestAllPopWindow(e.Location))
+                HideAllPopups();
                 HideAllPopups();
             //_client.SendContext(e.Location.X + "$" + e.Location.Y);
         }
@@ -637,7 +649,7 @@ namespace ActivityUI.Xaml
             AddActivityUi(e.Activity);
             Console.WriteLine("Activity Added\n");
 
-            //_client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
+            //   _client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
         }
         private void BtnAddClick(object sender, RoutedEventArgs e)
         {
@@ -791,6 +803,21 @@ namespace ActivityUI.Xaml
             }
         }
         #endregion
+
+        private void Window_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
+            }
+
+
+        }
+
+        private void Window_Drop(object sender, DragEventArgs e)
+        {
+            MessageBox.Show( e.Data.ToString());
+        }
 
     }
     public enum RenderStyle

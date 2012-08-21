@@ -46,7 +46,8 @@
     <Compile Include="Multicast\MulticastSocketListener.cs" />
     <Compile Include="Multicast\StateObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IO\IContextService.cs" />
+    <Compile Include="IContextService.cs" />
+    <Compile Include="Multicast\UdpPerformanceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Sensor\" />

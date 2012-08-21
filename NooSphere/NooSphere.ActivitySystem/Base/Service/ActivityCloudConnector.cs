@@ -122,8 +122,9 @@ namespace NooSphere.ActivitySystem.Base
         }
         public byte[] GetResource(Resource resource)
         {
-            return Rest.DownloadFromHttpStream(_baseUrl + resource.CloudPath,
+            var res=Rest.DownloadFromHttpStream(_baseUrl + resource.CloudPath,
                                                resource.Size, _connection.ConnectionId);
+            return res;
         }
         public void AddResource(Resource resource,string localPath)
         {

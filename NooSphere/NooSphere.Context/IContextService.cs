@@ -23,8 +23,6 @@ namespace NooSphere.Context
         void Send(string message);
 
         event DataReceivedHandler DataReceived;
-        event EventHandler Started;
-        event EventHandler Stopped;
     }
 
     public class DataEventArgs

@@ -82,6 +82,10 @@ namespace NooSphere.ActivitySystem.FileServer
             }
             Log.Out("FileService", string.Format("Added file {0} to store", resource.Name), LogCode.Log);
         }
+<<<<<<< HEAD:NooSphere/NooSphere.ActivitySystem/FileServer/FileStore.cs
+
+=======
+>>>>>>> StevenHouben-master:NooSphere/NooSphere.ActivitySystem/FileServer/FileStore.cs
         private bool IsNewer(Resource resourceInFileStore, Resource requestedResource)
         {
             return false;
@@ -125,6 +129,12 @@ namespace NooSphere.ActivitySystem.FileServer
             lock(_lock) 
                 return _files.ContainsKey(id);
         }
+<<<<<<< HEAD:NooSphere/NooSphere.ActivitySystem/FileServer/FileStore.cs
+
+        private object _lock = new object();
+
+=======
+>>>>>>> StevenHouben-master:NooSphere/NooSphere.ActivitySystem/FileServer/FileStore.cs
         public Stream GetStreamFromFile(Resource resource)
         {
             return new FileStream(BasePath + resource.RelativePath, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -158,6 +168,16 @@ namespace NooSphere.ActivitySystem.FileServer
         /// </summary>
         /// <param name="relative"> </param>
         public void IntializePath(object relative)
+<<<<<<< HEAD:NooSphere/NooSphere.ActivitySystem/FileServer/FileStore.cs
+        {
+            var path = Path.Combine(BasePath, relative.ToString());
+            //In case the activity path does not exist yet, we'll create one
+            if (!Directory.Exists(path))
+            {
+                var dInfo = Directory.CreateDirectory(path);
+                Console.WriteLine("FileStore: Folder {0} initialized", dInfo.FullName); 
+            }
+=======
         {
             //In case the activity path does not exist yet, we'll create one
             if (!Directory.Exists(BasePath + relative))
@@ -170,6 +190,7 @@ namespace NooSphere.ActivitySystem.FileServer
         {
             if(Directory.Exists(Path.Combine(BasePath,path)))
                 Directory.Delete(Path.Combine(BasePath, path), true);
+>>>>>>> StevenHouben-master:NooSphere/NooSphere.ActivitySystem/FileServer/FileStore.cs
         }
 
         #endregion
@@ -201,9 +222,15 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         private void SaveToDisk(byte[] fileInBytes, Resource resource)
         {
+<<<<<<< HEAD:NooSphere/NooSphere.ActivitySystem/FileServer/FileStore.cs
             var path = Path.Combine(BasePath, resource.RelativePath);
             var dir = Path.GetDirectoryName(path);
             if (dir != null && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+=======
+                var path = Path.Combine(BasePath, resource.RelativePath);
+                var dir = Path.GetDirectoryName(path);
+                if (dir != null && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+>>>>>>> StevenHouben-master:NooSphere/NooSphere.ActivitySystem/FileServer/FileStore.cs
             using (var fileToupload = new FileStream(@path, FileMode.OpenOrCreate))
             {
                 fileToupload.Write(fileInBytes, 0, fileInBytes.Length);

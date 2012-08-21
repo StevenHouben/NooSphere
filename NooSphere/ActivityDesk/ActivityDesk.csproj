@@ -50,24 +50,6 @@
     </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Emgu.CV">
-      <HintPath>..\Libs\Emgu.CV.dll</HintPath>
-    </Reference>
-    <Reference Include="Emgu.CV.GPU">
-      <HintPath>..\Libs\Emgu.CV.GPU.dll</HintPath>
-    </Reference>
-    <Reference Include="Emgu.CV.ML">
-      <HintPath>..\Libs\Emgu.CV.ML.dll</HintPath>
-    </Reference>
-    <Reference Include="Emgu.CV.OCR">
-      <HintPath>..\Libs\Emgu.CV.OCR.dll</HintPath>
-    </Reference>
-    <Reference Include="Emgu.CV.UI">
-      <HintPath>..\Libs\Emgu.CV.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="Emgu.Util">
-      <HintPath>..\Libs\Emgu.Util.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Surface.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Surface.Presentation.Generic, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System" />
@@ -96,8 +78,6 @@
     </Compile>
     <Compile Include="DeskState.cs" />
     <Compile Include="Helper\Pdf\PDFConverter.cs" />
-    <Compile Include="Helper\Surface\SurfaceCapture.cs" />
-    <Compile Include="Helper\Surface\SurfaceImageEventArgs.cs" />
     <Compile Include="Visualizer\Definitions\SmartPhoneDefinition.cs" />
     <Compile Include="Visualizer\Definitions\TabletDefinition.cs" />
     <Compile Include="Visualizer\Visualizations\SmartPhone.xaml.cs">
