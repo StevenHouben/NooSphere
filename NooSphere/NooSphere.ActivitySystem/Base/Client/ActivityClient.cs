@@ -207,7 +207,7 @@ namespace NooSphere.ActivitySystem.Base.Client
             _connected = true;
 
             //Register this device with the manager
-
+            Register(Device);
         }
 
         /// <summary>
