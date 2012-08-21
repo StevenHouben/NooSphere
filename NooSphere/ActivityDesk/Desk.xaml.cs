@@ -30,14 +30,9 @@ using NooSphere.ActivitySystem.Host;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.Core.Devices;
-using ActivityDesk.Helper.Surface;
 using System.Windows.Media.Imaging;
-using Emgu.CV.Structure;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using Emgu.CV;
-using Emgu.CV.VideoSurveillance;
-using System.Drawing;
 using NooSphere.ActivitySystem.Base.Client;
 
 namespace ActivityDesk
@@ -90,39 +85,6 @@ namespace ActivityDesk
                 DeviceType = DeviceType.Tabletop,
                 Name = "Surface"
             };
-        }
-
-        private void InitializeTracker()
-        {
-            SurfaceCapture cap = new SurfaceCapture(this);
-            cap.Image += new EventHandler<SurfaceImageEventArgs>(cap_Image);
-        }
-
-        void cap_Image(object sender, SurfaceImageEventArgs e)
-        {
-            var img = e.Image.ThresholdToZero(new Gray(175));
-
-            BlobTrackerAutoParam<Rgb> param = new BlobTrackerAutoParam<Rgb>();
-            param.FGDetector = new FGDetector<Rgb>(Emgu.CV.CvEnum.FORGROUND_DETECTOR_TYPE.FGD);
-            param.FGTrainFrames = 10;
-            BlobTrackerAuto<Rgb> tracker = new BlobTrackerAuto<Rgb>(param);
-
-            var colImg = img.Convert<Rgb, byte>();
-            tracker.Process(colImg);
-            Image<Gray, Byte> res = tracker.ForgroundMask;
-
-            foreach (MCvBlob blob in tracker)
-            {
-                res.Draw(System.Drawing.Rectangle.Round(new RectangleF(blob.Center, blob.Size)), new Gray(255.0), 2);
-            }
-
-
-            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
-            {
-                this.Background = new ImageBrush(ToBitmapSource(img.ToBitmap()));
-            }));
-            img.Dispose();
-            img = null;
         }
 
         public BitmapSource ToBitmapSource(System.Drawing.Bitmap source)
