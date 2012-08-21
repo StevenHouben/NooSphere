@@ -267,8 +267,24 @@ namespace ActivityDesk
             _client.ActivityAdded += ClientActivityAdded;
             _client.ActivityRemoved += ClientActivityRemoved;
             _client.FileAdded += new FileAddedHandler(_client_FileAdded);
+            _client.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
             _client.Open(addr);
             InitializeUI();
+        }
+
+        void _client_ServiceIsDown(object sender, EventArgs e)
+        {
+            SetDeskState(ActivityDesk.DeskState.Locked);
+
+            if (_client != null)
+            {
+                _client.Close();
+                _client = null;
+            }
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                view.Items.Clear();
+            }));
         }
 
         void _client_FileAdded(object sender, FileEventArgs e)
