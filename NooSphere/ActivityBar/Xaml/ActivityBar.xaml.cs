@@ -130,13 +130,13 @@ namespace ActivityUI.Xaml
         {
             _serviceList.Clear();
 
-            var t = new Thread(() =>
-            {
-                _disc = new DiscoveryManager();
-                _disc.DiscoveryAddressAdded += DiscDiscoveryAddressAdded;
-                _disc.Find(Settings.Default.DISCOVERY_TYPE);
-            }) {IsBackground = true};
-            t.Start();
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        _disc = new DiscoveryManager();
+                        _disc.DiscoveryAddressAdded += DiscDiscoveryAddressAdded;
+                        _disc.Find(Settings.Default.DISCOVERY_TYPE);
+                    });
         }
         #endregion
 
@@ -199,15 +199,15 @@ namespace ActivityUI.Xaml
         /// </summary>
         public void StartActivityManager()
         {
-            var t = new Thread(() =>
-            {
-                _host = new GenericHost();
-                _host.HostLaunched += HostHostLaunched;
-                _host.Open(new ActivityManager(_owner, "c:/files/"), typeof(IActivityManager), _device.Name);
-                _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE,_device.Name,"205", _device.Location);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        _host = new GenericHost();
+                        _host.HostLaunched += HostHostLaunched;
+                        _host.Open(new ActivityManager(_owner, "c:/files/"), typeof (IActivityManager), _device.Name);
+                        _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE, _device.Name, "205", _device.Location);
 
-            }) {IsBackground = true};
-            t.Start();
+                    });
         }
 
         /// <summary>
@@ -634,6 +634,8 @@ namespace ActivityUI.Xaml
         {
             AddActivityUi(e.Activity);
             Console.WriteLine("Activity Added\n");
+
+            //_client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
         }
         private void BtnAddClick(object sender, RoutedEventArgs e)
         {

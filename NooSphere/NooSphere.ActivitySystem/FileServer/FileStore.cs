@@ -141,15 +141,11 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         public void Updatefile(Resource resource, byte[] fileInBytes)
         {
-            var t = new Thread(() =>
-            {
-                _files[resource.Id] = resource;
-                SaveToDisk(fileInBytes,resource);
-                if (FileChanged != null)
-                    FileChanged(this, new FileEventArgs(resource));
-                Console.WriteLine("FileStore: Updated file {0} in store", resource.Name); 
-            }) {IsBackground = true};
-            t.Start();
+            _files[resource.Id] = resource;
+            SaveToDisk(fileInBytes, resource);
+            if (FileChanged != null)
+                FileChanged(this, new FileEventArgs(resource));
+            Console.WriteLine("FileStore: Updated file {0} in store", resource.Name);
         }
 
         /// <summary>
@@ -201,20 +197,24 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         private void SaveToDisk(byte[] fileInBytes, Resource resource)
         {
-            var path = Path.Combine(BasePath, resource.RelativePath);
-            var dir = Path.GetDirectoryName(path);
-            if (dir != null && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
-            using (var fileToupload = new FileStream(@path, FileMode.OpenOrCreate))
-            {
-                fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
-                fileToupload.Close();
-                fileToupload.Dispose();
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        var path = Path.Combine(BasePath, resource.RelativePath);
+                        var dir = Path.GetDirectoryName(path);
+                        if (dir != null && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+                        using (var fileToupload = new FileStream(@path, FileMode.OpenOrCreate))
+                        {
+                            fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
+                            fileToupload.Close();
+                            fileToupload.Dispose();
 
-                //File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
-                //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
-                Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,
-                                    path);
-                }
+                            //File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
+                            //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
+                            Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,
+                                              path);
+                        }
+                    });
         }
         #endregion
     }

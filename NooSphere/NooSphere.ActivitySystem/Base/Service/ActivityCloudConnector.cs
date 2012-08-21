@@ -99,16 +99,29 @@ namespace NooSphere.ActivitySystem.Base
         }
         public void AddActivity(Activity activity)
         {
-            Rest.SendRequest(_baseUrl + "Activities/", HttpMethod.Post, activity, _connection.ConnectionId);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        Rest.SendRequest(_baseUrl + "Activities/", HttpMethod.Post, activity, _connection.ConnectionId);
+                    });
         }
         public void UpdateActivity(Activity activity)
         {
-            Thread.Sleep(500);
-            Rest.SendRequest(_baseUrl + "Activities/" + activity.Id, HttpMethod.Put, activity, _connection.ConnectionId);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        Rest.SendRequest(_baseUrl + "Activities/" + activity.Id, HttpMethod.Put, activity,
+                                         _connection.ConnectionId);
+                    });
         }
         public void DeleteActivity(Guid activityId)
         {
-            Rest.SendRequest(_baseUrl + "Activities/" + activityId, HttpMethod.Delete, null, _connection.ConnectionId);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        Rest.SendRequest(_baseUrl + "Activities/" + activityId, HttpMethod.Delete, null,
+                                         _connection.ConnectionId);
+                    });
         }
         public Guid GetIdFromUserEmail(string email)
         {
@@ -126,22 +139,42 @@ namespace NooSphere.ActivitySystem.Base
                                                resource.Size, _connection.ConnectionId);
             return res;
         }
-        public void AddResource(Resource resource,string localPath)
+        public void AddResource(Resource resource, string localPath)
         {
-            Rest.SendStreamingRequest(_baseUrl + resource.CloudPath + "?size=" + resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" + resource.CreationTime
-            + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" + HttpUtility.UrlEncode(resource.RelativePath), localPath, _connection.ConnectionId);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        Rest.SendStreamingRequest(
+                            _baseUrl + resource.CloudPath + "?size=" +
+                            resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" +
+                            resource.CreationTime
+                            + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" +
+                            HttpUtility.UrlEncode(resource.RelativePath), localPath, _connection.ConnectionId);
+
+                    });
         }
+
         public void DeleteFile(Resource resource)
         {
             //File.Delete(resource.RelativePath);
         }
         public void RequestFriendShip(Guid userId,Guid friendId)
         {
-            Rest.SendRequest(_baseUrl + "Users/" + userId + "/Friends/" + friendId, HttpMethod.Post, null, _connection.ConnectionId);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        Rest.SendRequest(_baseUrl + "Users/" + userId + "/Friends/" + friendId, HttpMethod.Post, null,
+                                         _connection.ConnectionId);
+                    });
         }
         public void RemoveFriend(Guid userId,Guid friendId)
         {
-            Rest.SendRequest(_baseUrl + "Users/" + userId + "/Friends/" + friendId, HttpMethod.Delete, null, _connection.ConnectionId);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        Rest.SendRequest(_baseUrl + "Users/" + userId + "/Friends/" + friendId, HttpMethod.Delete, null,
+                                         _connection.ConnectionId);
+                    });
         }
         public void RespondToFriendRequest(Guid userId,Guid friendId,bool approve)
         {
@@ -173,7 +206,7 @@ namespace NooSphere.ActivitySystem.Base
             if(_connection != null)
                 _connection.Stop();
         }
-       
+
         private void SignalRecieved(string obj)
         {
             if (obj == "Connected")
@@ -182,93 +215,112 @@ namespace NooSphere.ActivitySystem.Base
             var eventType = content["Event"].ToString();
             var data = content["Data"].ToObject<object>();
 
-            var t = new Thread(()=>
-            {
-                switch (eventType)
-                {
-                    case "ActivityAdded":
-                        if (ActivityAdded != null)
-                            ActivityAdded(this, 
-                                new ActivityEventArgs(JsonConvert.DeserializeObject<Activity>(data.ToString())));
-                        break;
-                    case "ActivityUpdated":
-                        if (ActivityUpdated != null)
-                            ActivityUpdated(this, 
-                                new ActivityEventArgs(JsonConvert.DeserializeObject<Activity>(data.ToString())));
-                        break;
-                    case "ActivityDeleted":
-                        if (ActivityDeleted != null)
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        switch (eventType)
                         {
-                            ActivityDeleted(this, new
-                                ActivityRemovedEventArgs(
-                                new Guid(JsonConvert.DeserializeObject<JObject>(data.ToString())["Id"].ToString())));
+                            case "ActivityAdded":
+                                if (ActivityAdded != null)
+                                    ActivityAdded(this,
+                                                  new ActivityEventArgs(
+                                                      JsonConvert.DeserializeObject<Activity>(data.ToString())));
+                                break;
+                            case "ActivityUpdated":
+                                if (ActivityUpdated != null)
+                                    ActivityUpdated(this,
+                                                    new ActivityEventArgs(
+                                                        JsonConvert.DeserializeObject<Activity>(data.ToString())));
+                                break;
+                            case "ActivityDeleted":
+                                if (ActivityDeleted != null)
+                                {
+                                    ActivityDeleted(this, new
+                                                              ActivityRemovedEventArgs(
+                                                              new Guid(
+                                                                  JsonConvert.DeserializeObject<JObject>(data.ToString())
+                                                                      ["Id"].ToString())));
+                                }
+                                break;
+                            case "FileUpload":
+                                if (FileUploadRequest != null)
+                                {
+                                    FileUploadRequest(this,
+                                                      new FileEventArgs(
+                                                          JsonConvert.DeserializeObject<Resource>(data.ToString())));
+                                }
+                                break;
+                            case "FileDownload":
+                                if (FileDownloadRequest != null)
+                                {
+                                    FileDownloadRequest(this,
+                                                        new FileEventArgs(
+                                                            JsonConvert.DeserializeObject<Resource>(data.ToString())));
+                                }
+                                break;
+                            case "FileDelete":
+                                if (FileDeleteRequest != null)
+                                {
+                                    FileDeleteRequest(this,
+                                                      new FileEventArgs(
+                                                          JsonConvert.DeserializeObject<Resource>(data.ToString())));
+                                }
+                                break;
+                            case "FriendAdded":
+                                if (FriendAdded != null)
+                                    FriendAdded(this,
+                                                new FriendEventArgs(JsonConvert.DeserializeObject<User>(data.ToString())));
+                                break;
+                            case "FriendDeleted":
+                                if (FriendDeleted != null)
+                                    FriendDeleted(this,
+                                                  new FriendDeletedEventArgs(
+                                                      JsonConvert.DeserializeObject<Guid>(data.ToString())));
+                                break;
+                            case "FriendRequest":
+                                if (FriendRequestReceived != null)
+                                    FriendRequestReceived(this,
+                                                          new FriendEventArgs(
+                                                              JsonConvert.DeserializeObject<User>(data.ToString())));
+                                break;
+                            case "Message":
+                                if (MessageReceived != null)
+                                    MessageReceived(this,
+                                                    new ComEventArgs(
+                                                        JsonConvert.DeserializeObject<String>(data.ToString())));
+                                break;
+                            case "ParticipantAdded":
+                                if (ParticipantAdded != null)
+                                {
+                                    var res = JsonConvert.DeserializeObject<JObject>(data.ToString());
+                                    ParticipantAdded(this, new
+                                                               ParticipantEventArgs(
+                                                               res["Participant"].ToObject<User>(),
+                                                               res["ActivityId"].ToObject<Guid>()));
+                                }
+                                break;
+                            case "ParticipantRemoved":
+                                if (ParticipantRemoved != null)
+                                {
+                                    var res = JsonConvert.DeserializeObject<JObject>(data.ToString());
+                                    ParticipantRemoved(this, new
+                                                                 ParticipantEventArgs(
+                                                                 res["Participant"].ToObject<User>(),
+                                                                 res["ActivityId"].ToObject<Guid>()));
+                                }
+                                break;
+                            case "UserOnline":
+                                if (UserOnline != null)
+                                    UserOnline(this, new EventArgs());
+                                break;
+                            case "UserOffline":
+                                if (UserOffline != null)
+                                    UserOffline(this, new EventArgs());
+                                break;
                         }
-                        break;
-                    case "FileUpload":
-                        if (FileUploadRequest != null)
-                        {
-                            FileUploadRequest(this, 
-                                new FileEventArgs(JsonConvert.DeserializeObject<Resource>(data.ToString())));
-                        }
-                        break;
-                    case "FileDownload":
-                        if (FileDownloadRequest != null)
-                        {
-                            FileDownloadRequest(this,
-                                new FileEventArgs(JsonConvert.DeserializeObject<Resource>(data.ToString())));
-                        }
-                        break;
-                    case "FileDelete":
-                        if (FileDeleteRequest != null)
-                        {
-                            FileDeleteRequest(this,
-                                new FileEventArgs(JsonConvert.DeserializeObject<Resource>(data.ToString())));
-                        }
-                        break;
-                    case "FriendAdded":
-                        if(FriendAdded != null)
-                            FriendAdded(this,new FriendEventArgs( JsonConvert.DeserializeObject<User>(data.ToString())));
-                        break;
-                    case "FriendDeleted":
-                        if (FriendDeleted != null)
-                            FriendDeleted(this,new FriendDeletedEventArgs(JsonConvert.DeserializeObject<Guid>(data.ToString())));
-                        break;
-                    case "FriendRequest":
-                        if (FriendRequestReceived != null)
-                            FriendRequestReceived(this,new FriendEventArgs( JsonConvert.DeserializeObject<User>(data.ToString())));
-                        break;
-                    case "Message":
-                        if(MessageReceived != null)
-                            MessageReceived(this,new ComEventArgs(JsonConvert.DeserializeObject<String>(data.ToString())));
-                        break;
-                    case "ParticipantAdded":
-                        if (ParticipantAdded != null)
-                        {
-                            var res = JsonConvert.DeserializeObject<JObject>(data.ToString());
-                            ParticipantAdded(this, new
-                                ParticipantEventArgs(res["Participant"].ToObject<User>(),res["ActivityId"].ToObject<Guid>()));
-                        }
-                        break;
-                    case "ParticipantRemoved":
-                        if (ParticipantRemoved != null)
-                        {
-                            var res = JsonConvert.DeserializeObject<JObject>(data.ToString());
-                            ParticipantRemoved(this, new
-                                ParticipantEventArgs(res["Participant"].ToObject<User>(), res["ActivityId"].ToObject<Guid>()));
-                        }
-                        break;
-                    case "UserOnline":
-                        if (UserOnline != null)
-                            UserOnline(this, new EventArgs());
-                        break;
-                    case "UserOffline":
-                        if (UserOffline != null)
-                            UserOffline(this, new EventArgs());
-                        break;
-                }
-            }) {IsBackground = true};
-            t.Start();
+                    });
         }
+
         #endregion
-    }
+        }
 }

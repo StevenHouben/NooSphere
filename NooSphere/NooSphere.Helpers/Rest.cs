@@ -66,7 +66,8 @@ namespace NooSphere.Helpers
             }
             catch(WebException ex)
             {
-                throw ex;
+                //Log.Out("Rest",ex.Response.ToString(),LogCode.Err);
+                return "";
             }
         }
 
