@@ -31,34 +31,31 @@ namespace NooSphere.ActivitySystem.PubSub
         {
             Log.Out("Publisher", string.Format("Published {0}",publishUrl), LogCode.Net);
             var toRemove = new List<string>();
-            var t = new Thread(() =>
+            lock (Concurrency.SubscriberLock)
             {
-                lock (Concurrency.SubscriberLock)
+                foreach (var entry in Registry.ConnectedClients)
                 {
-                    foreach (var entry in Registry.ConnectedClients)
+                    try
                     {
-                        try
-                        {
-                            if (source != null && entry.Value == source && sendToSource)
-                                Rest.Post(entry.Value.Device.BaseAddress + publishUrl, netObject);
-                            else Rest.Post(entry.Value.Device.BaseAddress + publishUrl, netObject);
-                        }
-                        catch (Exception)
-                        {
-                            
-                            toRemove.Add(entry.Key);
-                        }
+                        var innerThread= new Thread(()=>
+                        {  
+                            Rest.Post(entry.Value.Device.BaseAddress + publishUrl, netObject);
+                        });
+                        innerThread.IsBackground = true;
+                        innerThread.Start();
+                    }
+                    catch (Exception)
+                    {
+                        toRemove.Add(entry.Key);
+                    }
 
-                    }
-                    if (toRemove.Count > 0)
-                    {
-                        foreach (var id in toRemove)
-                            Registry.ConnectedClients.Remove(id);
-                    }
                 }
-
-            });
-            t.Start();
+                if (toRemove.Count > 0)
+                {
+                    foreach (var id in toRemove)
+                        Registry.ConnectedClients.Remove(id);
+                }
+            }
         }
 
         /// <summary>

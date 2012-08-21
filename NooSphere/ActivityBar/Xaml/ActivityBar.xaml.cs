@@ -513,15 +513,15 @@ namespace ActivityUI.Xaml
             //Hide all popUps
             HideAllPopups();
 
-            if(_startMode == StartUpMode.Client)
+            if (_startMode == StartUpMode.Client)
                 _client.Close();
-
-            //Close the taskbar
-            Close();
 
             //Close the host if running
             if(_host.IsRunning)
                 _host.Close();
+
+            //Close the taskbar
+            Close();
 
             //Uninitialize the virtual desktop manager
             VirtualDesktopManager.UninitDesktops();
@@ -634,8 +634,6 @@ namespace ActivityUI.Xaml
         {
             AddActivityUi(e.Activity);
             Console.WriteLine("Activity Added\n");
-
-               _client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
         }
         private void BtnAddClick(object sender, RoutedEventArgs e)
         {

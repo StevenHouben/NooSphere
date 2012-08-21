@@ -189,7 +189,7 @@ namespace NooSphere.ActivitySystem.Base.Client
             try
             {
                 _callbackService.Open(this, typeof(INetEventHandler), "CallbackService");
-                Log.Out("ActivityClient", string.Format("Callback service initialized at {0}", Net.GetUrl(Ip, Net.FindPort(), "")), LogCode.Log);
+                Log.Out("ActivityClient", string.Format("Callback service initialized at {0}", _callbackService.Address), LogCode.Log);
             }
             catch (Exception ex)
             {
