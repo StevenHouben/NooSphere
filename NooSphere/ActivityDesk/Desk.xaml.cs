@@ -34,6 +34,7 @@ using System.Windows.Media.Imaging;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using NooSphere.ActivitySystem.Base.Client;
+using NooSphere.ActivitySystem.Base.Client;
 
 namespace ActivityDesk
 {

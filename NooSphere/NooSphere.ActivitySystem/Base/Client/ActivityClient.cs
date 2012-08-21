@@ -23,11 +23,15 @@ using NooSphere.Core.Devices;
 using NooSphere.Helpers;
 using Newtonsoft.Json;
 using NooSphere.ActivitySystem.FileServer;
+#if !ANDROID
 using NooSphere.ActivitySystem.Host;
+#endif
 
 namespace NooSphere.ActivitySystem.Base.Client
 {
+#if !ANDROID
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
+#endif
     public class ActivityClient : NetEventHandler,IActivityNode
     {
         #region Events
@@ -37,7 +41,9 @@ namespace NooSphere.ActivitySystem.Base.Client
         #endregion
 
         #region Private Members
+#if !ANDROID
         private readonly GenericHost _callbackService = new GenericHost();
+#endif
         private readonly ConcurrentDictionary<Guid, Activity> _activityBuffer = new ConcurrentDictionary<Guid, Activity>(); 
         private FileStore _fileStore;
         private bool _connected;
@@ -99,6 +105,19 @@ namespace NooSphere.ActivitySystem.Base.Client
         }
 
         /// <summary>
+        /// Updates activity with a resource
+        /// </summary>
+        /// <param name="res">The resource that is added to the activity</param>
+        private void UpdateActivityWithResources(Resource res)
+        {
+            var act = GetActivity(res.ActivityId.ToString());
+            act.Resources.Add(res);
+
+            //Update the activity
+            UpdateActivity(act);
+        }
+
+        /// <summary>
         /// Tests the connection to the service
         /// </summary>
         /// <param name="addr">The address of the service</param>
@@ -132,7 +151,12 @@ namespace NooSphere.ActivitySystem.Base.Client
         {
             if (!_connected)
                 throw new Exception("ActivityClient: Not connected to service. Call connect() method or check address");
+#if ANDROID
+            d.BaseAddress = BaseUrl;
+#endif
+#if !ANDROID
             d.BaseAddress = Net.GetUrl(Net.GetIp(IPType.All), StartCallbackService(), "").ToString();
+#endif
             _connectionId = JsonConvert.DeserializeObject<String>(Rest.Post(ServiceAddress + Url.Devices, d));
             Log.Out("ActivityClient", string.Format("Received device id: " + _connectionId), LogCode.Log);
         }
@@ -142,6 +166,7 @@ namespace NooSphere.ActivitySystem.Base.Client
         /// events.
         /// </summary>
         /// <returns>The port of the deployed service</returns>
+#if !ANDROID
         private int StartCallbackService()
         {
             try
@@ -155,6 +180,7 @@ namespace NooSphere.ActivitySystem.Base.Client
             }
             return _callbackService.Port;
         }
+#endif
         #endregion
 
         #region Public Methods
@@ -182,7 +208,6 @@ namespace NooSphere.ActivitySystem.Base.Client
 
             //Register this device with the manager
             Register(Device);
-
         }
 
         /// <summary>
@@ -435,6 +460,11 @@ namespace NooSphere.ActivitySystem.Base.Client
         #region Event Handlers
 
         private void FileServerFileCopied(object sender, FileEventArgs e)
+        {
+            HandleFileServerFileCopied(e);
+        }
+
+        private void FileServerFileAdded(object sender, FileEventArgs e)
         {
             HandleFileServerFileCopied(e);
         }

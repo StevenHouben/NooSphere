@@ -26,7 +26,9 @@ using NooSphere.Helpers;
 
 namespace NooSphere.ActivitySystem.Base.Service
 {
+#if !ANDROID
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, IncludeExceptionDetailInFaults = true)]
+#endif
     public class ActivityManager : IActivityManager
     {
         #region Private Members
