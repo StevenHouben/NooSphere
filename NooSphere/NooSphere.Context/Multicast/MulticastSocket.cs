@@ -1,14 +1,28 @@
-﻿using System;
+﻿/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
+
+using System;
 using System.Text;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 
-namespace NooSphere.ActivitySystem.Context
+
+namespace NooSphere.Context.Multicast
 {
 
     /// <summary>
     /// Taken from http://www.osix.net/modules/article/?id=409
+    /// Modified by Juan Hincapie Ramos
     /// </summary>
     public class MulticastSocket
     {
@@ -46,7 +60,7 @@ namespace NooSphere.ActivitySystem.Context
 
             //recieve data from any source 
             _localIPEndPoint = new IPEndPoint(IPAddress.Any, _targetPort);
-            _localEndPoint = (EndPoint)_localIPEndPoint;
+            _localEndPoint = _localIPEndPoint;
 
             //init Socket properties:
             _udpSocket.SetSocketOption(SocketOptionLevel.Udp, SocketOptionName.NoDelay, 1);
@@ -75,8 +89,7 @@ namespace NooSphere.ActivitySystem.Context
                 throw new ApplicationException("No socket listener has been specified at OnNotifyMulticastSocketListener.");
 
             // Create the state object. 
-            StateObject state = new StateObject();
-            state.WorkSocket = _udpSocket;
+            var state = new StateObject {WorkSocket = _udpSocket};
 
             //get in waiting mode for data - always (this doesn't halt code execution) 
             Recieve(state);
@@ -86,8 +99,8 @@ namespace NooSphere.ActivitySystem.Context
         private void Recieve(StateObject state)
         {
             // Begin receiving the data from the remote device. 
-            Socket client = state.WorkSocket;
-            client.BeginReceiveFrom(state.Buffer, 0, StateObject.BufferSize, 0, ref _localEndPoint, new AsyncCallback(ReceiveCallback), state);
+            var client = state.WorkSocket;
+            client.BeginReceiveFrom(state.Buffer, 0, StateObject.BufferSize, 0, ref _localEndPoint, ReceiveCallback, state);
         }
 
         //executes the asynchronous receive - executed everytime data is received on the port 
@@ -98,20 +111,20 @@ namespace NooSphere.ActivitySystem.Context
             try
             {
                 state = (StateObject)ar.AsyncState;
-                Socket client = state.WorkSocket;
+                var client = state.WorkSocket;
 
                 // Read data from the remote device. 
-                int bytesRead = client.EndReceiveFrom(ar, ref _localEndPoint);
+                var bytesRead = client.EndReceiveFrom(ar, ref _localEndPoint);
 
                 // Makes a copy of the buffer so it can be cleant up and reused while the listeners are notified in parallel threads.
-                byte[] bufferCopy = new byte[bytesRead];
+                var bufferCopy = new byte[bytesRead];
                 Array.Copy(state.Buffer, 0, bufferCopy, 0, bytesRead);
 
                 // Listeners are notified in a different thread
                 NotifyMulticastSocketListener(MulticastSocketMessageType.MessageReceived, bufferCopy, ++_mConsecutive);
 
                 //keep listening 
-                for (int i = 0; i < bytesRead; i++)
+                for (var i = 0; i < bytesRead; i++)
                     state.Buffer[i] = (byte)'\0';
                 Recieve(state);
             }
@@ -131,11 +144,11 @@ namespace NooSphere.ActivitySystem.Context
             byte[] bytesToSend = Encoding.ASCII.GetBytes(sendData);
 
             //set the target IP 
-            IPEndPoint remoteIPEndPoint = new IPEndPoint(IPAddress.Parse(_targetIP), _targetPort);
-            EndPoint remoteEndPoint = (EndPoint)remoteIPEndPoint;
+            var remoteIPEndPoint = new IPEndPoint(IPAddress.Parse(_targetIP), _targetPort);
+            var remoteEndPoint = (EndPoint)remoteIPEndPoint;
 
             //do asynchronous send 
-            _udpSocket.BeginSendTo(bytesToSend, 0, bytesToSend.Length, SocketFlags.None, remoteEndPoint, new AsyncCallback(SendCallback), _udpSocket);
+            _udpSocket.BeginSendTo(bytesToSend, 0, bytesToSend.Length, SocketFlags.None, remoteEndPoint, SendCallback, _udpSocket);
         }
 
         //executes the asynchronous send 
@@ -144,10 +157,10 @@ namespace NooSphere.ActivitySystem.Context
             try
             {
                 // Retrieve the socket from the state object. 
-                Socket client = (Socket)ar.AsyncState;
+                var client = (Socket)ar.AsyncState;
 
                 // Complete sending the data to the remote device. 
-                int bytesSent = client.EndSendTo(ar);
+                var bytesSent = client.EndSendTo(ar);
 
                 // Notifies sending completed
                 NotifyMulticastSocketListener(MulticastSocketMessageType.MessageSent, bytesSent);
@@ -160,12 +173,12 @@ namespace NooSphere.ActivitySystem.Context
 
         private void NotifyMulticastSocketListener(MulticastSocketMessageType messageType, Object obj)
         {
-            ThreadPool.QueueUserWorkItem(new WaitCallback(ThreadedNotifyMulticastSocketListener), new NotifyMulticastSocketListenerEventArgs(messageType, obj));
+            ThreadPool.QueueUserWorkItem(ThreadedNotifyMulticastSocketListener, new NotifyMulticastSocketListenerEventArgs(messageType, obj));
         }
 
         private void NotifyMulticastSocketListener(MulticastSocketMessageType messageType, Object obj, int consecutive)
         {
-            ThreadPool.QueueUserWorkItem(new WaitCallback(ThreadedNotifyMulticastSocketListener), new NotifyMulticastSocketListenerEventArgs(messageType, obj, consecutive));
+            ThreadPool.QueueUserWorkItem(ThreadedNotifyMulticastSocketListener, new NotifyMulticastSocketListenerEventArgs(messageType, obj, consecutive));
         }
 
         private void ThreadedNotifyMulticastSocketListener(Object argsObj)

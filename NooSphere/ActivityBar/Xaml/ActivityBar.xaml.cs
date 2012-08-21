@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,10 +21,11 @@ using System.Windows.Media;
 using System.Collections.ObjectModel;
 using System.Windows.Threading;
 using System.Threading;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using NooSphere.ActivitySystem.Base;
+using NooSphere.ActivitySystem.Base.Client;
+using NooSphere.ActivitySystem.Base.Service;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.ActivitySystem.Host;
@@ -36,6 +38,8 @@ using ActivityUI.Properties;
 using ActivityUI.Login;
 using ActivityUI.PopUp;
 using NooSphere.Platform.Windows.Hooks;
+using NooSphere.Context.IO;
+using NooSphere.Context.Multicast;
 
 namespace ActivityUI.Xaml
 {
@@ -70,6 +74,11 @@ namespace ActivityUI.Xaml
         public RenderStyle RenderStyle { get; set; }
         public bool ClickDetected = false;
 
+        //Debug
+        //private PointerNode _pointer = new PointerNode(PointerRole.Controller);
+
+        private UdpPerformanceTest test = new UdpPerformanceTest();
+
         #endregion
 
         #region Constructor
@@ -88,14 +97,14 @@ namespace ActivityUI.Xaml
             _deviceWindow = new DeviceWindow(this);
             _popUpWindows.Add(_deviceWindow);
 
-            MouseHook.Register();
-            MouseHook.MouseClick+=MouseHookMouseClick;
 
             DisableUi();
 
             _login = new LoginWindow();
             _login.LoggedIn += LoginLoggedIn;
             _login.Show();
+
+            test.Test(1000);
         }
         #endregion
 
@@ -104,7 +113,6 @@ namespace ActivityUI.Xaml
         {
             var act = GetInitializedActivity();
             _client.AddActivity(act);
-            _client.AddResource(new FileInfo("c:/dump/abc.txt"),act);
         }
         /// <summary>
         /// Sends a message to the activity manager
@@ -131,8 +139,8 @@ namespace ActivityUI.Xaml
             var t = new Thread(() =>
             {
                 _disc = new DiscoveryManager();
-                _disc.Find(DiscoveryType.Zeroconf);
                 _disc.DiscoveryAddressAdded += DiscDiscoveryAddressAdded;
+                _disc.Find(Settings.Default.DISCOVERY_TYPE);
             }) {IsBackground = true};
             t.Start();
         }
@@ -202,8 +210,7 @@ namespace ActivityUI.Xaml
                 _host = new GenericHost();
                 _host.HostLaunched += HostHostLaunched;
                 _host.Open(new ActivityManager(_owner, "c:/files/"), typeof(IActivityManager), _device.Name);
-                if(Settings.Default.CHECK_BROADCAST)
-                    _host.StartBroadcast(_device.Name, _device.Location);
+                _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE,_device.Name, _device.Location);
 
             }) {IsBackground = true};
             t.Start();
@@ -234,13 +241,21 @@ namespace ActivityUI.Xaml
             _client.FriendDeleted += client_FriendDeleted;
             _client.FriendRequestReceived += ClientFriendRequestReceived;
 
-            _client.FileUploadRequest += clientFileUploadRequest;
-            _client.FileDownloadRequest += clientFileDownloadRequest;
-            _client.FileDeleteRequest += clientFileDeleteRequest;
+            _client.FileUploadRequest += ClientFileUploadRequest;
+            _client.FileDownloadRequest += ClientFileDownloadRequest;
+            _client.FileDeleteRequest += ClientFileDeleteRequest;
+            _client.ContextMessageReceived += _client_ContextMessageReceived;
 
             _client.ConnectionEstablished += ClientConnectionEstablished;
-
             _client.Open(activityManagerHttpAddress);
+        }
+
+        void _client_ContextMessageReceived(object sender, ContextEventArgs e)
+        {
+            string[] coords = e.Message.Split('-');
+
+            Point point = new Point(int.Parse(coords[0]), int.Parse(coords[1]));
+            //SetCursorPos((int)point.Y, (int)point.X);
         }
 
         void ClientConnectionEstablished(object sender, EventArgs e)
@@ -248,17 +263,15 @@ namespace ActivityUI.Xaml
             BuildUi();
             _startingUp = false;
         }
-        void clientFileDeleteRequest(object sender, FileEventArgs e)
+        void ClientFileDeleteRequest(object sender, FileEventArgs e)
         {
             Log.Out("Interface",string.Format("Received {0} for {1}",FileEvent.FileDeleteRequest,e.Resource.Name),LogCode.Net);
         }
-
-        void clientFileDownloadRequest(object sender, FileEventArgs e)
+        void ClientFileDownloadRequest(object sender, FileEventArgs e)
         {
             Log.Out("Interface", string.Format("Received {0} for {1}", FileEvent.FileDownloadRequest, e.Resource.Name), LogCode.Net);
         }
-
-        void clientFileUploadRequest(object sender, FileEventArgs e)
+        void ClientFileUploadRequest(object sender, FileEventArgs e)
         {
             Log.Out("Interface", string.Format("Received {0} for {1}", FileEvent.FileUploadRequest, e.Resource.Name), LogCode.Net);
         }
@@ -324,6 +337,8 @@ namespace ActivityUI.Xaml
 
                 var b = new ActivityButton(new Uri("pack://application:,,,/Images/activity.PNG"),activity.Name) 
                 { RenderMode = RenderMode.Image, ActivityId = p.Activity.Id };
+                b.AllowDrop = true;
+                b.Drop += BDrop;
                 b.Click += BClick;
                 b.MouseDown += BMouseDown;
                 b.Style = (Style)FindResource("ColorHotTrackButton");
@@ -333,6 +348,11 @@ namespace ActivityUI.Xaml
 
                 _proxies.Add(p.Activity.Id, p);
             }));
+        }
+
+        void BDrop(object sender, DragEventArgs e)
+        {
+            MessageBox.Show(e.Data.ToString());
         }
 
         /// <summary>
@@ -391,7 +411,7 @@ namespace ActivityUI.Xaml
         {
             _device.Name = txtDeviceName.Text;
             if (Settings.Default.CHECK_BROADCAST)
-                _host.StartBroadcast(_device.Name, _device.Location);
+                _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE,_device.Name, _device.Location);
         }
 
         /// <summary>
@@ -402,7 +422,7 @@ namespace ActivityUI.Xaml
         {
             if(_startMode == StartUpMode.Host)
                 if (check)
-                    _host.StartBroadcast(_device.Name, _device.Location);
+                    _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE,_device.Name, _device.Location);
                 else
                     _host.StopBroadcast();
         }
@@ -543,7 +563,11 @@ namespace ActivityUI.Xaml
         {
             if(!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
-            _client.SendContext(e.Location.ToString());
+        }
+        void MouseHook_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (!HitTestAllPopWindow(e.Location))
+                HideAllPopups();
         }
         private void BtnManagerClick(object sender, RoutedEventArgs e)
         {
@@ -621,7 +645,9 @@ namespace ActivityUI.Xaml
         private void ClientActivityAdded(object obj,ActivityEventArgs e)
         {
             AddActivityUi(e.Activity);
-            AddToLog("Activity Added\n");
+            Console.WriteLine("Activity Added\n");
+
+            //   _client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
         }
         private void BtnAddClick(object sender, RoutedEventArgs e)
         {
@@ -775,6 +801,21 @@ namespace ActivityUI.Xaml
             }
         }
         #endregion
+
+        private void Window_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
+            }
+
+
+        }
+
+        private void Window_Drop(object sender, DragEventArgs e)
+        {
+            MessageBox.Show( e.Data.ToString());
+        }
 
     }
     public enum RenderStyle

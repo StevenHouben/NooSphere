@@ -118,5 +118,17 @@ namespace ActivityUI.Properties {
                 this["DEVICE_TYPE"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("WSDiscovery")]
+        public global::NooSphere.ActivitySystem.Discovery.DiscoveryType DISCOVERY_TYPE {
+            get {
+                return ((global::NooSphere.ActivitySystem.Discovery.DiscoveryType)(this["DISCOVERY_TYPE"]));
+            }
+            set {
+                this["DISCOVERY_TYPE"] = value;
+            }
+        }
     }
 }

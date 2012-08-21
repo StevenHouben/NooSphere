@@ -50,92 +50,92 @@ namespace NooSphere.ActivitySystem.Base
         #endregion
 
         #region Net Event handlers
-        protected void OnUserOffline(EventArgs e)
+        protected virtual void OnUserOffline(EventArgs e)
         {
             if (UserOffline != null) 
                 UserOffline(this, e);
         }
 
-        protected void OnUserOnline(EventArgs e)
+        protected virtual void OnUserOnline(EventArgs e)
         {
             if (UserOnline != null) 
                 UserOnline(this, e);
         }
-        public void ActivityNetAdded(Activity act)
+        public virtual void ActivityNetAdded(Activity act)
         {
             if (ActivityAdded != null)
                 ActivityAdded(this, new ActivityEventArgs(act));
         }
-        public void ActivityNetRemoved(Guid id)
+        public virtual void ActivityNetRemoved(Guid id)
         {
              if (ActivityRemoved != null)
                 ActivityRemoved(this, new ActivityRemovedEventArgs(id));
         }
-        public void ActivityNetChanged(Activity act)
+        public virtual void ActivityNetChanged(Activity act)
         {
              if (ActivityChanged != null)
                 ActivityChanged(this, new ActivityEventArgs(act));
         }
-        public void MessageNetReceived(string msg)
+        public virtual void MessageNetReceived(string msg)
         {
             if (MessageReceived != null)
                 MessageReceived(this, new ComEventArgs(msg));
-        }     
-        public void FileNetDownloadRequest(Resource r)
+        }
+        public virtual void FileNetDownloadRequest(Resource r)
         {
             if (FileDownloadRequest != null)
                 FileDownloadRequest(this, new FileEventArgs(r));
         }
-        public void FileNetDeleteRequest(Resource r)
+        public virtual void FileNetDeleteRequest(Resource r)
         {
             if (FileDeleteRequest != null)
                 FileDeleteRequest(this, new FileEventArgs(r));
         }
-        public void FileNetUploadRequest(Resource r)
+        public virtual void FileNetUploadRequest(Resource r)
         {
             if (FileUploadRequest != null)
                 FileUploadRequest(this, new FileEventArgs(r));
         }
-        public void DeviceNetAdded(Device dev)
+        public virtual void DeviceNetAdded(Device dev)
         {
             if (DeviceAdded != null)
                 DeviceAdded(this, new DeviceEventArgs(dev));
         }
-        public void DeviceNetRemoved(string id)
+        public virtual void DeviceNetRemoved(string id)
         {
             if (DeviceRemoved != null)
                 DeviceRemoved(this, new DeviceRemovedEventArgs(id));
         }
-        public void DeviceNetRoleChanged(Core.Devices.Device dev)
+        public virtual void DeviceNetRoleChanged(Core.Devices.Device dev)
         {
             if (DeviceRoleChanged != null)
                 DeviceRoleChanged(this, new DeviceEventArgs(dev));
         }
-        public void FriendNetAdded(User u)
+        public virtual void FriendNetAdded(User u)
         {
             if(FriendAdded != null)
                 FriendAdded(this,new FriendEventArgs(u));
         }
 
-        public void FriendNetRequest(User u)
+        public virtual void FriendNetRequest(User u)
         {
             if(FriendRequestReceived != null)
                 FriendRequestReceived(this, new FriendEventArgs(u));
         }
 
-        public void FriendNetRemoved(Guid i)
+        public virtual void FriendNetRemoved(Guid i)
         {
             if (FriendDeleted != null)
                 FriendDeleted(this, new FriendDeletedEventArgs(i));
         }
 
-        public void ParticipantNetAdded(User u, Guid activityId)
+        public virtual void ParticipantNetAdded(User u, Guid activityId)
         {
             if(ParticipantAdded != null)
                 ParticipantAdded(this, new ParticipantEventArgs(u,activityId));
         }
 
-        public void ParticipantNetRemoved(User u, Guid activityId)
+        public virtual void ParticipantNetRemoved(User u, Guid activityId)
         {
             if (ParticipantRemoved != null)
                 ParticipantRemoved(this, new ParticipantEventArgs(u, activityId));

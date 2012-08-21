@@ -12,6 +12,7 @@
 
 using System;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.Threading;
 using NooSphere.ActivitySystem.Discovery;
@@ -108,14 +109,15 @@ namespace NooSphere.ActivitySystem.Host
         /// <summary>
         /// Starts a broadcast service for the current service
         /// </summary>
+        /// <param name="type">Type of discovery </param>
         /// <param name="hostName">The name of the service that needs to be broadcasted</param>
         /// <param name="location">The physical location of the service that needs to be broadcasted</param>
-        public void StartBroadcast(string hostName, string location = "undefined")
+        public void StartBroadcast(DiscoveryType type,string hostName, string location = "undefined")
         {
             var t = new Thread(() =>
                                    {
                                        StopBroadcast();
-                                       _broadcast.Start(DiscoveryType.Zeroconf, hostName, location,
+                                       _broadcast.Start(type, hostName, location,
                                                         Net.GetUrl(Ip, Port, ""));
                                    }) {IsBackground = true};
             t.Start();
@@ -142,20 +144,22 @@ namespace NooSphere.ActivitySystem.Host
             Log.Out("BasicHost", string.Format(" Attemting to find an IP for endPoint"), LogCode.Net);
             Ip = Net.GetIp(IPType.All);
 
-            Console.WriteLine("BasicHost: Found IP " + Ip);
             _host = new ServiceHost(implementation);
 
             var serviceEndpoint = _host.AddServiceEndpoint(
                 description, 
-                new WebHttpBinding {MaxReceivedMessageSize = Int32.MaxValue}, 
+                new WebHttpBinding 
+                {
+                    MaxReceivedMessageSize = 2147483647,
+                    MaxBufferSize = 2147483647,
+                    ReaderQuotas = { MaxArrayLength = 2147483647, MaxStringContentLength = 2147483647 }
+                }, 
                 Net.GetUrl(Ip, Port, ""));
 
             serviceEndpoint.Behaviors.Add(new WebHttpBehavior());
-
-            _host.Faulted += host_Faulted;
             _host.Open();
 
-            Log.Out("BasicHost", string.Format("Host opened at " + Net.GetUrl(Ip, Port, "")), LogCode.Net);
+            Log.Out("BasicHost", string.Format(implementation+" host opened at " + Net.GetUrl(Ip, Port, "")), LogCode.Net);
             IsRunning = true;
 
             OnHostLaunchedEvent(new EventArgs());
@@ -178,15 +182,6 @@ namespace NooSphere.ActivitySystem.Host
                     Log.Out("BasicHost", string.Format("Problem closing connection: " + ex.StackTrace), LogCode.Net);
                 }
             }
-        }
-
-        #endregion
-
-        #region Event Handlers
-
-        private void host_Faulted(object sender, EventArgs e)
-        {
-            throw new Exception("Host faulted.");
         }
 
         #endregion

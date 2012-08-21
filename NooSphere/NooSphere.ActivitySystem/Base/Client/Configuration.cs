@@ -10,12 +10,13 @@
  http://www.gnu.org/licenses/gpl.html for details.
 ****************************************************************************/
 
-namespace NooSphere.ActivitySystem.FileServer
+namespace NooSphere.ActivitySystem.Base
 {
-    public enum FileSource
+    public enum Configuration
     {
-        ActivityClient,     //local device
-        ActivityManager,    //local distributed system
-        ActivityCloud       //cloud
+        Client,             //Run the client only
+        Host,               //Run the host only
+        ClientAndHost,      //Run both client and host
+        ClientAndManager    //Run both client and local manager
     }
 }
