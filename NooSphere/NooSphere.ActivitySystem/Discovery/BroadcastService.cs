@@ -73,7 +73,7 @@ namespace NooSphere.ActivitySystem.Discovery
         /// <param name="physicalLocation">The physical location of the service that needs to be broadcasted</param>
         /// <param name="addressToBroadcast">The address of the service that needs to be broadcasted</param>
         /// <param name="broadcastPort">The port of the broadcast service. Default=56789</param>
-        public void Start(DiscoveryType type,string nameToBroadcast,string physicalLocation,Uri addressToBroadcast,int broadcastPort=56789)
+        public void Start(DiscoveryType type,string nameToBroadcast,string physicalLocation,string code,Uri addressToBroadcast,int broadcastPort=56789)
         {
             DiscoveryType = type;
 
@@ -96,6 +96,7 @@ namespace NooSphere.ActivitySystem.Discovery
                         broadcaster.Extensions.Add(nameToBroadcast.ToXElement<string>());
                         broadcaster.Extensions.Add(physicalLocation.ToXElement<string>());
                         broadcaster.Extensions.Add(addressToBroadcast.ToString().ToXElement<string>());
+                        broadcaster.Extensions.Add(code.ToXElement<string>());
 
                         serviceEndpoint.Behaviors.Add(broadcaster);
                         _discoveryHost.Description.Behaviors.Add(new ServiceDiscoveryBehavior());
@@ -111,7 +112,12 @@ namespace NooSphere.ActivitySystem.Discovery
                                           {Name = nameToBroadcast, RegType = "_am._tcp", ReplyDomain = "local.", Port = 3689};
 
                         // TxtRecords are optional
-                        var txtRecord = new TxtRecord {{"addr", addressToBroadcast.ToString()}};
+                        var txtRecord = new TxtRecord(){
+                                                {"name", nameToBroadcast},
+                                                {"addr", addressToBroadcast.ToString()},
+                                                {"loc", physicalLocation},
+                                                {"code", code}
+                                            };
                         service.TxtRecord = txtRecord;
 
                         service.Register();

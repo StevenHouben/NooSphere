@@ -34,7 +34,6 @@ using System.Windows.Media.Imaging;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using NooSphere.ActivitySystem.Base.Client;
-using NooSphere.ActivitySystem.Base.Client;
 
 namespace ActivityDesk
 {
@@ -223,7 +222,13 @@ namespace ActivityDesk
 
         void DiscDiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
-            StartClient(e.ServiceInfo.Address);
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                foreach(var tv in Visualizer.ActiveVisualizations)
+                    if(e.ServiceInfo.Code == Convert.ToString(tv.Tag))
+                        StartClient(e.ServiceInfo.Address);
+                view.Items.Clear();
+            }));
         }
 
 

@@ -87,13 +87,15 @@ namespace NooSphere.ActivitySystem.Discovery
             var sst = new ServiceInfo(
                 Helpers.Xml.FromXElement<string>(metaData.Extensions[0]),
                 Helpers.Xml.FromXElement<string>(metaData.Extensions[1]),
-                Helpers.Xml.FromXElement<string>(metaData.Extensions[2]));
+                Helpers.Xml.FromXElement<string>(metaData.Extensions[2]),
+                Helpers.Xml.FromXElement<string>(metaData.Extensions[3]));
             ActivityServices.Add(sst);
             OnDiscoveryAddressAdded(new DiscoveryAddressAddedEventArgs(sst));
         }
         private void AddFoundServiceFromSCResolvedData(IResolvableService metaData)
         {
-            var sst = new ServiceInfo(metaData.Name, "no",metaData.TxtRecord["addr"].ValueString);
+            var sst = new ServiceInfo(metaData.TxtRecord["name"].ValueString, metaData.TxtRecord["loc"].ValueString,
+                                      metaData.TxtRecord["addr"].ValueString, metaData.TxtRecord["code"].ValueString);
             ActivityServices.Add(sst);
             OnDiscoveryAddressAdded(new DiscoveryAddressAddedEventArgs(sst));
         }
