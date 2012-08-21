@@ -88,7 +88,7 @@ namespace NooSphere.ActivitySystem.Discovery
                 Helpers.Xml.FromXElement<string>(metaData.Extensions[0]),
                 Helpers.Xml.FromXElement<string>(metaData.Extensions[1]),
                 Helpers.Xml.FromXElement<string>(metaData.Extensions[2]),
-                Helpers.Xml.FromXElement<string>(metaData.Extensions[2]));
+                Helpers.Xml.FromXElement<string>(metaData.Extensions[3]));
             ActivityServices.Add(sst);
             OnDiscoveryAddressAdded(new DiscoveryAddressAddedEventArgs(sst));
         }
