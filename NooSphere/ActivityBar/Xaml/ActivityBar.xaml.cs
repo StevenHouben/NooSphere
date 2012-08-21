@@ -568,6 +568,8 @@ namespace ActivityUI.Xaml
         {
             if (!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
+                HideAllPopups();
+            //_client.SendContext(e.Location.X + "$" + e.Location.Y);
         }
         private void BtnManagerClick(object sender, RoutedEventArgs e)
         {

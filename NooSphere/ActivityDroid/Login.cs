@@ -2,6 +2,7 @@ using System;
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json;
 using NooSphere.Core.ActivityModel;
@@ -21,6 +22,8 @@ namespace ActivityDroid
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
+            RequestWindowFeature(WindowFeatures.NoTitle);
+            Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
 
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Login);

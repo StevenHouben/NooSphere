@@ -15,12 +15,22 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoDroid.Newtonsoft.Json",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NooSphere.Helpers.MonoDroid", "NooSphere.Helpers\NooSphere.Helpers.MonoDroid.csproj", "{E067586E-D181-40D3-A253-E7E3DBD2F7D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Text.Android", "Libs\ServiceStack.Text.Android\ServiceStack.Text.Android\ServiceStack.Text.Android.csproj", "{56838CD4-8EBC-4860-A3E1-1697875BBC61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Interfaces.Android", "Libs\ServiceStack.Interfaces.Android\ServiceStack.Interfaces.Android.csproj", "{05A5DDBF-A1A2-4B28-9FF0-C07060A8AEFC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Common.Android", "Libs\ServiceStack.Common.Android\ServiceStack.Common.Android.csproj", "{BEA92E9F-00B1-4923-BD81-7F3A9CA24408}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{05A5DDBF-A1A2-4B28-9FF0-C07060A8AEFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05A5DDBF-A1A2-4B28-9FF0-C07060A8AEFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05A5DDBF-A1A2-4B28-9FF0-C07060A8AEFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05A5DDBF-A1A2-4B28-9FF0-C07060A8AEFC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{07C8141F-A6EA-430F-983F-A78AF4DD6615}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{07C8141F-A6EA-430F-983F-A78AF4DD6615}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07C8141F-A6EA-430F-983F-A78AF4DD6615}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -33,6 +43,10 @@ Global
 		{359D0746-BBD2-4369-B492-21B141C3E4C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{359D0746-BBD2-4369-B492-21B141C3E4C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{359D0746-BBD2-4369-B492-21B141C3E4C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56838CD4-8EBC-4860-A3E1-1697875BBC61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56838CD4-8EBC-4860-A3E1-1697875BBC61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56838CD4-8EBC-4860-A3E1-1697875BBC61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56838CD4-8EBC-4860-A3E1-1697875BBC61}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9E4955AC-977E-43C4-B721-CEB107337CA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9E4955AC-977E-43C4-B721-CEB107337CA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E4955AC-977E-43C4-B721-CEB107337CA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -42,6 +56,10 @@ Global
 		{AFC2A6D9-E294-4847-8730-1BEF741C73C9}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{AFC2A6D9-E294-4847-8730-1BEF741C73C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFC2A6D9-E294-4847-8730-1BEF741C73C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEA92E9F-00B1-4923-BD81-7F3A9CA24408}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEA92E9F-00B1-4923-BD81-7F3A9CA24408}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEA92E9F-00B1-4923-BD81-7F3A9CA24408}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEA92E9F-00B1-4923-BD81-7F3A9CA24408}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E067586E-D181-40D3-A253-E7E3DBD2F7D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E067586E-D181-40D3-A253-E7E3DBD2F7D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E067586E-D181-40D3-A253-E7E3DBD2F7D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
