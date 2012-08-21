@@ -34,6 +34,7 @@ using System.Windows.Media.Imaging;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using NooSphere.ActivitySystem.Base.Client;
+using System.Windows.Controls;
 
 namespace ActivityDesk
 {
@@ -225,9 +226,8 @@ namespace ActivityDesk
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
                 foreach(var tv in Visualizer.ActiveVisualizations)
-                    if(e.ServiceInfo.Code == Convert.ToString(tv.Tag))
+                    if(e.ServiceInfo.Code == Convert.ToString(tv.VisualizedTag.Value))
                         StartClient(e.ServiceInfo.Address);
-                view.Items.Clear();
             }));
         }
 
@@ -266,14 +266,33 @@ namespace ActivityDesk
 
             _client.ActivityAdded += ClientActivityAdded;
             _client.ActivityRemoved += ClientActivityRemoved;
-
+            _client.FileAdded += new FileAddedHandler(_client_FileAdded);
             _client.Open(addr);
             InitializeUI();
+        }
+
+        void _client_FileAdded(object sender, FileEventArgs e)
+        {
+            VisualizeResouce(e.Resource);
         }
 
         void ClientActivityAdded(object sender, ActivityEventArgs e)
         {
             AddActivityUI(e.Activity);
+        }
+
+        private void VisualizeResouce(Resource res)
+        {
+            Image i = new Image();
+            BitmapImage src = new BitmapImage();
+            src.BeginInit();
+            src.UriSource = new Uri(res.FilePath, UriKind.Relative);
+            src.CacheOption = BitmapCacheOption.OnLoad;
+            src.EndInit();
+            i.Source = src;
+            i.Stretch = Stretch.Uniform;
+
+            view.Items.Add(i);
         }
 
         void client_DeviceAdded(object sender, DeviceEventArgs e)
@@ -351,6 +370,7 @@ namespace ActivityDesk
             // Remove handlers for window availability events.
             RemoveWindowAvailabilityHandlers();
         }
+
         /// <summary>
         /// Adds handlers for window availability events.
         /// </summary>
@@ -432,6 +452,7 @@ namespace ActivityDesk
 
         private void Visualizer_VisualizationRemoved(object sender, TagVisualizerEventArgs e)
         {
+            Thread.Sleep(500);
             if (Visualizer.ActiveVisualizations.Count == 0)
             {
                 SetDeskState(ActivityDesk.DeskState.Ready);

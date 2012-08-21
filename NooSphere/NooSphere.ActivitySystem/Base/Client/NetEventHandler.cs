@@ -192,9 +192,9 @@ namespace NooSphere.ActivitySystem.Base
 
         public event MessageReceivedHandler MessageReceived;
 
-        public event FileDownloadRequestHandler FileDownloadRequest;
-        public event FileUploadRequestHandler FileUploadRequest;
-        public event FileDeleteRequestHandler FileDeleteRequest;
+        protected event FileDownloadRequestHandler FileDownloadRequest;
+        protected event FileUploadRequestHandler FileUploadRequest;
+        protected event FileDeleteRequestHandler FileDeleteRequest;
 
         public event FriendAddedHandler FriendAdded;
         public event FriendDeletedHandler FriendDeleted;

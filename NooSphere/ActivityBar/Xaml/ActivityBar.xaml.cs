@@ -241,9 +241,6 @@ namespace ActivityUI.Xaml
             _client.FriendDeleted += client_FriendDeleted;
             _client.FriendRequestReceived += ClientFriendRequestReceived;
 
-            _client.FileUploadRequest += ClientFileUploadRequest;
-            _client.FileDownloadRequest += ClientFileDownloadRequest;
-            _client.FileDeleteRequest += ClientFileDeleteRequest;
             _client.ContextMessageReceived += _client_ContextMessageReceived;
 
             _client.ConnectionEstablished += ClientConnectionEstablished;
@@ -262,18 +259,6 @@ namespace ActivityUI.Xaml
         {
             BuildUi();
             _startingUp = false;
-        }
-        void ClientFileDeleteRequest(object sender, FileEventArgs e)
-        {
-            Log.Out("Interface",string.Format("Received {0} for {1}",FileEvent.FileDeleteRequest,e.Resource.Name),LogCode.Net);
-        }
-        void ClientFileDownloadRequest(object sender, FileEventArgs e)
-        {
-            Log.Out("Interface", string.Format("Received {0} for {1}", FileEvent.FileDownloadRequest, e.Resource.Name), LogCode.Net);
-        }
-        void ClientFileUploadRequest(object sender, FileEventArgs e)
-        {
-            Log.Out("Interface", string.Format("Received {0} for {1}", FileEvent.FileUploadRequest, e.Resource.Name), LogCode.Net);
         }
 
         /// <summary>

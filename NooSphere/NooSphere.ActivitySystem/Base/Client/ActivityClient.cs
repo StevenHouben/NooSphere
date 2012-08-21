@@ -38,6 +38,8 @@ namespace NooSphere.ActivitySystem.Base.Client
         public event ConnectionEstablishedHandler ConnectionEstablished = null;
         public event InitializedHandler Initialized = null;
         public event ContextMessageReceivedHandler ContextMessageReceived = null;
+        public event FileAddedHandler FileAdded = null;
+        public event FileRemovedHandler FileRemoved = null;
         #endregion
 
         #region Private Members
@@ -88,7 +90,21 @@ namespace NooSphere.ActivitySystem.Base.Client
         {
             _fileStore = new FileStore(localPath);
             _fileStore.FileCopied += FileServerFileCopied;
+            _fileStore.FileRemoved += new FileRemovedHandler(_fileStore_FileRemoved);
+            _fileStore.FileAdded += new FileAddedHandler(_fileStore_FileAdded);
             Log.Out("ActivityClient", string.Format("FileStore initialized at {0}", _fileStore.BasePath), LogCode.Log);
+        }
+
+        void _fileStore_FileRemoved(object sender, FileEventArgs e)
+        {
+            if (FileRemoved != null)
+                FileRemoved(this, e);
+        }
+
+        void _fileStore_FileAdded(object sender, FileEventArgs e)
+        {
+            if (FileAdded != null)
+                FileAdded(this, e);
         }
         #endregion
 
