@@ -112,12 +112,12 @@ namespace NooSphere.ActivitySystem.Host
         /// <param name="type">Type of discovery </param>
         /// <param name="hostName">The name of the service that needs to be broadcasted</param>
         /// <param name="location">The physical location of the service that needs to be broadcasted</param>
-        public void StartBroadcast(DiscoveryType type,string hostName, string location = "undefined")
+        public void StartBroadcast(DiscoveryType type,string hostName,string code, string location = "undefined")
         {
             var t = new Thread(() =>
                                    {
                                        StopBroadcast();
-                                       _broadcast.Start(type, hostName, location,
+                                       _broadcast.Start(type, hostName, location,code,
                                                         Net.GetUrl(Ip, Port, ""));
                                    }) {IsBackground = true};
             t.Start();

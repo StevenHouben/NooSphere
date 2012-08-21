@@ -17,12 +17,14 @@ namespace NooSphere.ActivitySystem.Discovery
         public string Address { get; set; }
         public string Name { get; set; }
         public string Location { get; set; }
+        public string Code { get; set; }
         public ServiceInfo() { }
-        public ServiceInfo(string name,string location, string addr)
+        public ServiceInfo(string name,string location, string addr,string code)
         {
             Name = name;
             Location = location;
             Address = addr;
+            Code = code;
         }
     }
 }
