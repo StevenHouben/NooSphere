@@ -8,6 +8,7 @@ using Android.OS;
 using Newtonsoft.Json;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
+using NooSphere.ActivitySystem.Discovery;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using NooSphere.Helpers;
