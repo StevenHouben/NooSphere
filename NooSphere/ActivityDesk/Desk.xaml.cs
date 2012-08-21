@@ -222,9 +222,13 @@ namespace ActivityDesk
 
         void DiscDiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
-            foreach(var tv in Visualizer.ActiveVisualizations)
-                if(e.ServiceInfo.Code == Convert.ToString(tv.Tag))
-                    StartClient(e.ServiceInfo.Address);
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                foreach(var tv in Visualizer.ActiveVisualizations)
+                    if(e.ServiceInfo.Code == Convert.ToString(tv.Tag))
+                        StartClient(e.ServiceInfo.Address);
+                view.Items.Clear();
+            }));
         }
 
 
