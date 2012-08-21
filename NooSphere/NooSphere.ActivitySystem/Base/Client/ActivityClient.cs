@@ -508,7 +508,8 @@ namespace NooSphere.ActivitySystem.Base.Client
         {
             if (DeviceList == null)
                 DeviceList = new Dictionary<string, Device>();
-            DeviceList.Add(e.Device.Id.ToString(), e.Device);
+            if(e.Device.Id != Device.Id)
+                DeviceList.Add(e.Device.Id.ToString(), e.Device);
         }
         private void ActivityClientFileUploadRequest(object sender, FileEventArgs e)
         {
