@@ -210,7 +210,7 @@ namespace ActivityUI.Xaml
                 _host = new GenericHost();
                 _host.HostLaunched += HostHostLaunched;
                 _host.Open(new ActivityManager(_owner, "c:/files/"), typeof(IActivityManager), _device.Name);
-                _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE,_device.Name,"205", _device.Location);
+                _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE,_device.Name,"207", _device.Location);
 
             }) {IsBackground = true};
             t.Start();

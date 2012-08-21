@@ -9,5 +9,6 @@
   <string name="Go">Go</string>
   <string name="Status">Status</string>
   <string name="ApiPath">http://activitycloud-1.apphb.com/Api/</string>
+  <string name="Find">Find</string>
   <string name="AddActivity">AddActivity</string>
 </resources>
