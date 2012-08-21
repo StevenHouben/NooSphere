@@ -31,14 +31,11 @@ using NooSphere.ActivitySystem.Discovery;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
-using NooSphere.Helpers;
 using NooSphere.Platform.Windows.Glass;
 using NooSphere.Platform.Windows.VDM;
 using ActivityUI.Properties;
 using ActivityUI.Login;
 using ActivityUI.PopUp;
-using NooSphere.Platform.Windows.Hooks;
-using NooSphere.Context.IO;
 using NooSphere.Context.Multicast;
 
 namespace ActivityUI.Xaml
@@ -244,7 +241,14 @@ namespace ActivityUI.Xaml
             _client.ContextMessageReceived += _client_ContextMessageReceived;
 
             _client.ConnectionEstablished += ClientConnectionEstablished;
+            _client.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
             _client.Open(activityManagerHttpAddress);
+        }
+
+        void _client_ServiceIsDown(object sender, EventArgs e)
+        {
+            MessageBox.Show("Service is down -> shutting down");
+            Environment.Exit(0);
         }
 
         void _client_ContextMessageReceived(object sender, ContextEventArgs e)
@@ -634,7 +638,7 @@ namespace ActivityUI.Xaml
             AddActivityUi(e.Activity);
             Console.WriteLine("Activity Added\n");
 
-            //   _client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
+               _client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
         }
         private void BtnAddClick(object sender, RoutedEventArgs e)
         {

@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.ServiceModel.Discovery;
 
 using Mono.Zeroconf;
+using NooSphere.ActivitySystem.Contracts;
 
 namespace NooSphere.ActivitySystem.Discovery
 {

@@ -4,10 +4,19 @@ using System.ServiceModel.Web;
 namespace NooSphere.ActivitySystem.Contracts
 {
     [ServiceContract]
-    interface INetEvent : IDeviceNetEvent, IActivityNetEvent, IFileNetEvent, IComNetEvent, IUserEvent
+    public interface IServiceBase
     {
         [OperationContract]
         [WebGet(ResponseFormat = WebMessageFormat.Json, UriTemplate = "")]
         bool Alive();
+
+        [OperationContract]
+        [WebInvoke(ResponseFormat = WebMessageFormat.Json, UriTemplate = "ServiceDown")]
+        void ServiceDown();
+    }
+
+    public enum Status
+    {
+        ServiceDown
     }
 }

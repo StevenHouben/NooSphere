@@ -18,6 +18,7 @@ namespace NooSphere.ActivitySystem.Contracts
         DeviceEvents,
         ComEvents,
         FileEvents,
-        UserEvent
+        UserEvent,
+        StatusEvent
     }
 }

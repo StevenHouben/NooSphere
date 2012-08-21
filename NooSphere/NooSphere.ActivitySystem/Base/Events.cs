@@ -77,4 +77,6 @@ namespace NooSphere.ActivitySystem.Base
     public delegate void FriendDeletedHandler(Object sender, FriendDeletedEventArgs e);
     public delegate void FriendRequestReceivedHandler(Object sender, FriendEventArgs e);
 
+    public delegate void ServiceDownHandler(Object sender, EventArgs e);
+
 }

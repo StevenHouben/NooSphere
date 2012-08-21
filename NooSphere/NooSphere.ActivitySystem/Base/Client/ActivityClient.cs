@@ -187,7 +187,7 @@ namespace NooSphere.ActivitySystem.Base.Client
         {
             try
             {
-                _callbackService.Open(this, typeof(INetEvent), "CallbackService");
+                _callbackService.Open(this, typeof(IServiceBase), "CallbackService");
                 Log.Out("ActivityClient", string.Format("Callback service initialized at {0}", Net.GetUrl(Ip, Net.FindPort(), "")), LogCode.Log);
             }
             catch (Exception ex)

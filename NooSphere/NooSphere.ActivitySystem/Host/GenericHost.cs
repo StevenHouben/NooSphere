@@ -17,6 +17,7 @@ using System.ServiceModel.Description;
 using System.Threading;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.Helpers;
+using NooSphere.ActivitySystem.Contracts;
 
 namespace NooSphere.ActivitySystem.Host
 {
@@ -62,6 +63,11 @@ namespace NooSphere.ActivitySystem.Host
         /// Indicates if the service is running
         /// </summary>
         public bool IsRunning { get; private set; }
+
+        /// <summary>
+        /// The service that is running
+        /// </summary>
+        public IServiceBase Service { get; set; }
 
         #endregion
 
@@ -139,8 +145,10 @@ namespace NooSphere.ActivitySystem.Host
         /// <param name="implementation">The concrete initialized single instance service</param>
         /// <param name="description">The interface or contract of initialized single instance service</param>
         /// <param name="name">The name the service</param>
-        public void Open(object implementation, Type description, string name)
+        public void Open(IServiceBase implementation, Type description, string name)
         {
+            this.Service = implementation;
+
             Log.Out("BasicHost", string.Format(" Attemting to find an IP for endPoint"), LogCode.Net);
             Ip = Net.GetIp(IPType.All);
 
@@ -174,6 +182,7 @@ namespace NooSphere.ActivitySystem.Host
             {
                 try
                 {
+                    Service.ServiceDown();
                     OnHostClosedEvent(new EventArgs());
                     _host.Close();
                 }
