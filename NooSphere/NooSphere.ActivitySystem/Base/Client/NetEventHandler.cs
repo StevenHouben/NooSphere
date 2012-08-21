@@ -11,28 +11,25 @@
 ****************************************************************************/
 
 using System;
-using System.IO;
-using System.Net;
+using NooSphere.Core.ActivityModel;
+using System.ServiceModel;
+using NooSphere.Core.Devices;
+using NooSphere.ActivitySystem.Contracts.Client;
 #if ANDROID
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 #endif
-using NooSphere.ActivitySystem.Contracts;
-using NooSphere.Core.ActivityModel;
 #if !ANDROID
-using System.ServiceModel;
 #endif
-using NooSphere.Core.Devices;
-using NooSphere.Helpers;
 
-namespace NooSphere.ActivitySystem.Base
+namespace NooSphere.ActivitySystem.Base.Client
 {
     #if !ANDROID
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Single, InstanceContextMode = InstanceContextMode.Single,
         UseSynchronizationContext = false)]
 #endif
-    public class NetEventHandler : IServiceBase
+    public class NetEventHandler : INetEventHandler
     {
 #if ANDROID
         #region Private Members

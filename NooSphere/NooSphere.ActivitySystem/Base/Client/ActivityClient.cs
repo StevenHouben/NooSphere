@@ -25,6 +25,7 @@ using Newtonsoft.Json;
 using NooSphere.ActivitySystem.FileServer;
 #if !ANDROID
 using NooSphere.ActivitySystem.Host;
+using NooSphere.ActivitySystem.Contracts.Client;
 #endif
 
 namespace NooSphere.ActivitySystem.Base.Client
@@ -187,7 +188,7 @@ namespace NooSphere.ActivitySystem.Base.Client
         {
             try
             {
-                _callbackService.Open(this, typeof(IServiceBase), "CallbackService");
+                _callbackService.Open(this, typeof(INetEventHandler), "CallbackService");
                 Log.Out("ActivityClient", string.Format("Callback service initialized at {0}", Net.GetUrl(Ip, Net.FindPort(), "")), LogCode.Log);
             }
             catch (Exception ex)

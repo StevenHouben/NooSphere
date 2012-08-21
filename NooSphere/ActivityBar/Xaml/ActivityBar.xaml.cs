@@ -74,7 +74,6 @@ namespace ActivityUI.Xaml
         //Debug
         //private PointerNode _pointer = new PointerNode(PointerRole.Controller);
 
-        private UdpPerformanceTest test = new UdpPerformanceTest();
 
         #endregion
 
@@ -100,8 +99,6 @@ namespace ActivityUI.Xaml
             _login = new LoginWindow();
             _login.LoggedIn += LoginLoggedIn;
             _login.Show();
-
-            test.Test(1000);
         }
         #endregion
 

@@ -72,6 +72,7 @@
     <Compile Include="Base\Service\ActivityStore.cs" />
     <Compile Include="Base\Service\ParticipantStore.cs" />
     <Compile Include="Base\Service\Syncer.cs" />
+    <Compile Include="Contracts\Client\INetEventHandler.cs" />
     <Compile Include="Contracts\IServiceBase.cs" />
     <Compile Include="Discovery\DiscoveryType.cs" />
     <Compile Include="Base\ActivityEventArgs.cs" />
