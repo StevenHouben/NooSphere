@@ -90,21 +90,21 @@ namespace NooSphere.ActivitySystem.Base.Client
         {
             _fileStore = new FileStore(localPath);
             _fileStore.FileCopied += FileServerFileCopied;
-            _fileStore.FileRemoved += new FileRemovedHandler(_fileStore_FileRemoved);
-            _fileStore.FileAdded += new FileAddedHandler(_fileStore_FileAdded);
+            _fileStore.FileRemoved += _fileStore_FileRemoved;
+            _fileStore.FileAdded += _fileStore_FileAdded;
             Log.Out("ActivityClient", string.Format("FileStore initialized at {0}", _fileStore.BasePath), LogCode.Log);
         }
 
         void _fileStore_FileRemoved(object sender, FileEventArgs e)
         {
             if (FileRemoved != null)
-                FileRemoved(this, e);
+                FileRemoved(this, new FileEventArgs(e.Resource,Path.Combine(_fileStore.BasePath,e.Resource.RelativePath)));
         }
 
         void _fileStore_FileAdded(object sender, FileEventArgs e)
         {
             if (FileAdded != null)
-                FileAdded(this, e);
+                FileAdded(this, new FileEventArgs(e.Resource,Path.Combine(_fileStore.BasePath,e.Resource.RelativePath)));
         }
         #endregion
 
@@ -289,7 +289,7 @@ namespace NooSphere.ActivitySystem.Base.Client
         public void AddResource(FileInfo fileInfo,Guid activityId)
         {
             //Create a new resource from the file
-            var resource = new Resource(fileInfo.FullName,(int)fileInfo.Length, fileInfo.Name)
+            var resource = new Resource((int)fileInfo.Length, fileInfo.Name)
             {
                 ActivityId = activityId,
                 CreationTime = DateTime.Now.ToUniversalTime().ToString(CultureInfo.InvariantCulture),
@@ -298,7 +298,7 @@ namespace NooSphere.ActivitySystem.Base.Client
             var req = new FileRequest
                           {
                               Resouce = resource,
-                              Bytes = JsonConvert.SerializeObject(File.ReadAllBytes(resource.FilePath))
+                              Bytes = JsonConvert.SerializeObject(File.ReadAllBytes(fileInfo.FullName))
                           };
 
             Rest.SendRequest(ServiceAddress + Url.Files, HttpMethod.Post, req);

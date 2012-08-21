@@ -273,7 +273,7 @@ namespace ActivityDesk
 
         void _client_FileAdded(object sender, FileEventArgs e)
         {
-            VisualizeResouce(e.Resource);
+            VisualizeResouce(e.Resource,e.LocalPath);
         }
 
         void ClientActivityAdded(object sender, ActivityEventArgs e)
@@ -281,12 +281,12 @@ namespace ActivityDesk
             AddActivityUI(e.Activity);
         }
 
-        private void VisualizeResouce(Resource res)
+        private void VisualizeResouce(Resource res,string path)
         {
             Image i = new Image();
             BitmapImage src = new BitmapImage();
             src.BeginInit();
-            src.UriSource = new Uri(res.FilePath, UriKind.Relative);
+            src.UriSource = new Uri(path, UriKind.Relative);
             src.CacheOption = BitmapCacheOption.OnLoad;
             src.EndInit();
             i.Source = src;
