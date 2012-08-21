@@ -85,10 +85,10 @@ namespace ActivityUI.Login
             User user = new User();
             user.Email = txtEmail.Text;
             user.Name = txtUsername.Text;
-            string added = RestHelper.Post(baseUrl + "Users", user);
+            string added = Rest.Post(baseUrl + "Users", user);
             if (JsonConvert.DeserializeObject<bool>(added))
             {
-                var result = RestHelper.Get(baseUrl + "Users?email=" + txtEmail.Text);
+                var result = Rest.Get(baseUrl + "Users?email=" + txtEmail.Text);
                 var u = JsonConvert.DeserializeObject<User>(result);
                 this.User = u;
             }
@@ -97,7 +97,7 @@ namespace ActivityUI.Login
         {
             txtTooltip.Text = "Please wait while we check your login.";
             string baseUrl = Settings.Default.ENVIRONMENT_BASE_URL;
-            string result = RestHelper.Get(baseUrl + "Users?email=" + txtEmail.Text);
+            string result = Rest.Get(baseUrl + "Users?email=" + txtEmail.Text);
             User u = JsonConvert.DeserializeObject<User>(result);
             if (u != null)
                 this.User = u;

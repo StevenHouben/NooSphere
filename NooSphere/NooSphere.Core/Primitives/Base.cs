@@ -1,21 +1,16 @@
-﻿/// <licence>
-/// 
-/// (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
-/// 
-/// Pervasive Interaction Technology Laboratory (pIT lab)
-/// IT University of Copenhagen
-///
-/// This library is free software; you can redistribute it and/or 
-/// modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
-/// as published by the Free Software Foundation. Check 
-/// http://www.gnu.org/licenses/gpl.html for details.
-/// 
-/// </licence>
+﻿/****************************************************************************
+ (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
+
+ Pervasive Interaction Technology Laboratory (pIT lab)
+ IT University of Copenhagen
+
+ This library is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
+ as published by the Free Software Foundation. Check 
+ http://www.gnu.org/licenses/gpl.html for details.
+****************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace NooSphere.Core.Primitives
 {
@@ -23,9 +18,9 @@ namespace NooSphere.Core.Primitives
     {
         public Base()
         {
-            this.Name = "default";
-            this.Id = Guid.NewGuid();
-            this.Description = "default activity";
+            Name = "default";
+            Id = Guid.NewGuid();
+            Description = "default activity";
         }
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -33,7 +28,7 @@ namespace NooSphere.Core.Primitives
         public string Uri { get; set; }
         public bool Equals(Base id)
         {
-            return this.Id == id.Id;
+            return Id == id.Id;
         }
     }
 }

@@ -37,16 +37,7 @@
       <HintPath>..\packages\Newtonsoft.Json.4.5.7\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.Services.Client" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Devices\Device.cs" />
@@ -55,21 +46,16 @@
     <Compile Include="ActivityModel\Actor.cs" />
     <Compile Include="ActivityModel\Collaborator.cs" />
     <Compile Include="ActivityModel\Credentials.cs" />
-    <Compile Include="Logger\Logger.cs" />
     <Compile Include="ActivityModel\Metadata.cs" />
     <Compile Include="ActivityModel\User.cs" />
     <Compile Include="ActivityModel\Service.cs" />
-    <Compile Include="ContextModel\Context.cs" />
     <Compile Include="ActivityModel\Resource.cs" />
     <Compile Include="ActivityModel\Role.cs" />
     <Compile Include="ActivityModel\Workflow.cs" />
-    <Compile Include="ContextModel\ComponentModel\IRule.cs" />
-    <Compile Include="ContextModel\ComponentModel\IView.cs" />
-    <Compile Include="ContextModel\ComponentModel\ILifecycle.cs" />
+    <Compile Include="Devices\IDevice.cs" />
     <Compile Include="Parser\Parser.cs" />
     <Compile Include="Primitives\Base.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ContextModel\ComponentModel\ITool.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -90,12 +76,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <ProjectReference Include="..\NooSphere.Helper\NooSphere.Helpers.csproj">
-      <Project>{6424191D-5C04-43E6-B610-FD4B41E8A340}</Project>
-      <Name>NooSphere.Helpers</Name>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

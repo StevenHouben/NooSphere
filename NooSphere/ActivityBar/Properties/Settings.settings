@@ -26,5 +26,8 @@
     <Setting Name="DEVICE_TYPE" Type="NooSphere.Core.Devices.DeviceType" Scope="User">
       <Value Profile="(Default)">Laptop</Value>
     </Setting>
+    <Setting Name="DISCOVERY_TYPE" Type="NooSphere.ActivitySystem.Discovery.DiscoveryType" Scope="User">
+      <Value Profile="(Default)">WSDiscovery</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

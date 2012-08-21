@@ -14,21 +14,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Runtime.InteropServices;
-using NooSphere.Core.ActivityModel;
 using System.Windows.Interop;
-using NooSphere.Platform.Windows.Interopt;
+using ActivityUI.Xaml;
 using NooSphere.Core.Devices;
+using NooSphere.Platform.Windows.Interopt;
 
 namespace ActivityUI.PopUp
 {
@@ -44,72 +35,75 @@ namespace ActivityUI.PopUp
 
         protected override void OnSourceInitialized(EventArgs e)
         {
-            IntPtr hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
             User32.SetWindowLong(hwnd, GWL_STYLE,
-                User32.GetWindowLong(hwnd, GWL_STYLE) & (0xFFFFFFFF ^ WS_SYSMENU));
+                                 User32.GetWindowLong(hwnd, GWL_STYLE) & (0xFFFFFFFF ^ WS_SYSMENU));
 
             base.OnSourceInitialized(e);
         }
+
         #endregion
 
-        private ActivityBar taskbar;
+        private readonly ActivityBar taskbar;
+
         public DeviceWindow(ActivityBar bar)
         {
             InitializeComponent();
-            this.Topmost = true;
-            this.ShowInTaskbar = false;
-            this.WindowStyle = System.Windows.WindowStyle.None;
-            this.ResizeMode = System.Windows.ResizeMode.CanResize;
-            this.MinHeight = this.MaxHeight = this.Height;
-            this.MinWidth = this.MaxWidth = this.Width;
-            this.taskbar = bar;
+            Topmost = true;
+            ShowInTaskbar = false;
+            WindowStyle = WindowStyle.None;
+            ResizeMode = ResizeMode.CanResize;
+            MinHeight = MaxHeight = Height;
+            MinWidth = MaxWidth = Width;
+            taskbar = bar;
         }
-        public void Show(int offset,List<Device> devices)
+
+        public void Show(int offset, List<Device> devices)
         {
-            if (offset + this.Width > System.Windows.SystemParameters.PrimaryScreenWidth)
-                this.Left = System.Windows.SystemParameters.PrimaryScreenWidth-this.Width;
+            if (offset + Width > SystemParameters.PrimaryScreenWidth)
+                Left = SystemParameters.PrimaryScreenWidth - Width;
             else
-                this.Left = offset;
-            this.Top = taskbar.Height+5;
-            this.Show();
+                Left = offset;
+            Top = taskbar.Height + 5;
+            Show();
             VisualizeDevices(devices);
         }
-        
-        private void VisualizeDevices(List<Device> devices)
+
+        private void VisualizeDevices(IEnumerable<Device> devices)
         {
-            btnTabletop.Visibility = System.Windows.Visibility.Hidden;
-            btnPhone.Visibility = System.Windows.Visibility.Hidden;
-            btnLaptop.Visibility = System.Windows.Visibility.Hidden;
-            btnTablet.Visibility = System.Windows.Visibility.Hidden;
+            btnTabletop.Visibility = Visibility.Hidden;
+            btnPhone.Visibility = Visibility.Hidden;
+            btnLaptop.Visibility = Visibility.Hidden;
+            btnTablet.Visibility = Visibility.Hidden;
 
             foreach (Device dev in devices)
             {
                 if (dev.DeviceType == DeviceType.Tabletop)
-                    btnTabletop.Visibility = System.Windows.Visibility.Visible;
+                    btnTabletop.Visibility = Visibility.Visible;
                 else if (dev.DeviceType == DeviceType.SmartPhone)
-                    btnPhone.Visibility = System.Windows.Visibility.Visible;
+                    btnPhone.Visibility = Visibility.Visible;
                 else if (dev.DeviceType == DeviceType.Laptop)
-                    btnLaptop.Visibility = System.Windows.Visibility.Visible;
+                    btnLaptop.Visibility = Visibility.Visible;
                 else if (dev.DeviceType == DeviceType.Tablet)
-                    btnTablet.Visibility = System.Windows.Visibility.Visible;
+                    btnTablet.Visibility = Visibility.Visible;
             }
         }
+
         private void btnDone_Click(object sender, RoutedEventArgs e)
         {
-
-            this.Hide();
+            Hide();
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
             e.Cancel = true;
-            this.Visibility = Visibility.Hidden;
+            Visibility = Visibility.Hidden;
         }
 
         private void btnDelete_Click(object sender, RoutedEventArgs e)
         {
             taskbar.DeleteActivity();
-            this.Hide();
+            Hide();
         }
     }
 }

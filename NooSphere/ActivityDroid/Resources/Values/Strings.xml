@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="ApplicationName">ActivityDroid</string>
+  <string name="Username">Username</string>
+  <string name="Email">Email</string>
+  <string name="DeviceName">Device name</string>
+  <string name="DeviceType">Device type</string>
+  <string name="Stop">Stop</string>
+  <string name="Go">Go</string>
+  <string name="Status">Status</string>
+  <string name="ApiPath">http://activitycloud-1.apphb.com/Api/</string>
+  <string name="AddActivity">AddActivity</string>
+</resources>
