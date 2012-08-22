@@ -602,7 +602,7 @@ namespace NooSphere.ActivitySystem.Base.Service
         {
             var cc = new ConnectedClient(device.Name, device.BaseAddress, device);
             if (Registry.ConnectedClients.ContainsKey(device.Id.ToString()))
-                return new Guid("null");
+                return Guid.NewGuid();
             Registry.ConnectedClients.Add(device.Id.ToString(), cc);
             _publisher.Publish( DeviceEvent.DeviceAdded.ToString(), device);
             Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.DeviceEvents, DeviceEvent.DeviceAdded);
