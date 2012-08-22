@@ -38,7 +38,10 @@ namespace ActivityDroid
 		{
 			
 			// aapt resource value: 0x7f050006
-			public const int AddActivity = 2131034118;
+			public const int Activities = 2131034118;
+			
+			// aapt resource value: 0x7f050007
+			public const int AddActivity = 2131034119;
 			
 			// aapt resource value: 0x7f050003
 			public const int Email = 2131034115;
@@ -79,6 +82,9 @@ namespace ActivityDroid
 		
 		public partial class String
 		{
+			
+			// aapt resource value: 0x7f04000b
+			public const int Activities = 2130968587;
 			
 			// aapt resource value: 0x7f04000a
 			public const int AddActivity = 2130968586;

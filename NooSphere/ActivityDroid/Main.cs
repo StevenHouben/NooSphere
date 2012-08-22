@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using Android.App;
+using Android.Content;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
@@ -20,11 +21,15 @@ namespace ActivityDroid
     public class Main : Activity
     {
         #region Properties
-
         private ActivityClient _client;
         private User _user;
         private Device _device;
         private DiscoveryManager _discovery;
+        #endregion
+
+        #region UI Adapter
+
+        private ActivityAdapter _activityAdapter;
         #endregion
 
         #region OnCreate
@@ -36,6 +41,9 @@ namespace ActivityDroid
 
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
+
+            _activityAdapter = new ActivityAdapter(this);
+            FindViewById<GridView>(Resource.Id.Activities).Adapter = _activityAdapter;
 
             var btnAddActivity = FindViewById<Button>(Resource.Id.AddActivity);
             btnAddActivity.Click += BtnAddActivity;
@@ -74,8 +82,16 @@ namespace ActivityDroid
         void _discovery_DiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
             if (_client != null) return;
-            SetStatus("Connecting to " + e.ServiceInfo.Name + "...");
-            StartClient(e.ServiceInfo.Address);
+            var builder = new AlertDialog.Builder(this);
+            builder.SetPositiveButton("Yes", (sender, args) =>
+            {
+                SetStatus("Connecting to " + e.ServiceInfo.Name + "...");
+                StartClient(e.ServiceInfo.Address);
+            });
+            builder.SetNegativeButton("No", (sender, args) => { });
+            builder.SetMessage("Found service on " + e.ServiceInfo.Name + ". Do you want to connect?");
+            builder.SetTitle("Connect to service");
+            RunOnUiThread(() => builder.Show());
         }
 
         private void StartClient(string activityManagerHttpAddress)
@@ -111,13 +127,8 @@ namespace ActivityDroid
         #region UI Changes
         private void AddActivityUI(NooSphere.Core.ActivityModel.Activity activity)
         {
-            //RunOnUiThread(() =>
-            //                  {
-            //                      var f = new ActivityFragment();
-            //                      var ft = FragmentManager.BeginTransaction();
-            //                      ft.Add(Resource.Id.Activities, f);
-            //                      ft.Commit();
-            //                  });
+            _activityAdapter.Add(activity);
+            FindViewById<GridView>(Resource.Id.Activities).InvalidateViews();
         }
         private void SetStatus(string status)
         {

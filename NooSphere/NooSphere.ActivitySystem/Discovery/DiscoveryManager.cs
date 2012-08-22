@@ -16,12 +16,12 @@ using System.Net;
 using System.Net.Sockets;
 #if !ANDROID
 using System.ServiceModel.Discovery;
+using Mono.Zeroconf;
 #else
 using Android.Util;
 #endif
 using System.Text;
 using System.Xml;
-using Mono.Zeroconf;
 
 namespace NooSphere.ActivitySystem.Discovery
 {
@@ -147,7 +147,6 @@ namespace NooSphere.ActivitySystem.Discovery
                                          Address = match.SelectNodes("//*[local-name() = 'string']")[2].InnerText,
                                          Code = match.SelectNodes("//*[local-name() = 'string']")[3].InnerText
                                      };
-                    Log.Debug("UDP", "Found " + serviceInfo.Name + " at " + serviceInfo.Address);
                     ActivityServices.Add(serviceInfo);
                     OnDiscoveryAddressAdded(new DiscoveryAddressAddedEventArgs(serviceInfo));
                 }

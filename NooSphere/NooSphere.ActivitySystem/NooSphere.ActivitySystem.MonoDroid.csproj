@@ -109,22 +109,6 @@
       <Project>{145e495f-e3ab-42cf-8b77-117196955068}</Project>
       <Name>MonoDroid.SignalR.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Libs\MonoDroid.Zeroconf\MonoDroid.Zeroconf.csproj">
-      <Project>{07c8141f-a6ea-430f-983f-a78af4dd6615}</Project>
-      <Name>MonoDroid.Zeroconf</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Libs\ServiceStack.Common.Android\ServiceStack.Common.Android.csproj">
-      <Project>{bea92e9f-00b1-4923-bd81-7f3a9ca24408}</Project>
-      <Name>ServiceStack.Common.Android</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Libs\ServiceStack.Interfaces.Android\ServiceStack.Interfaces.Android.csproj">
-      <Project>{05a5ddbf-a1a2-4b28-9ff0-c07060a8aefc}</Project>
-      <Name>ServiceStack.Interfaces.Android</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Libs\ServiceStack.Text.Android\ServiceStack.Text.Android\ServiceStack.Text.Android.csproj">
-      <Project>{56838cd4-8ebc-4860-a3e1-1697875bbc61}</Project>
-      <Name>ServiceStack.Text.Android</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NooSphere.Core\NooSphere.Core.MonoDroid.csproj">
       <Project>{9e4955ac-977e-43c4-b721-ceb107337ca3}</Project>
       <Name>NooSphere.Core.MonoDroid</Name>
