@@ -14,6 +14,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace NooSphere.Helpers
@@ -28,11 +29,13 @@ namespace NooSphere.Helpers
         /// <param name="content">The content that needs to be added to the http request</param>
         /// <param name="connectionId">The id of the connection</param>
         /// <returns></returns>
-        public static string SendRequest(string url, HttpMethod method, object content = null, string connectionId = null)
+        private static Task<string> SendRequest(string url, HttpMethod method, object content = null, string connectionId = null)
         {
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = method.ToString().ToUpper();
             request.ContentLength = 0;
+            request.Timeout = 20000;
+            request.Proxy = null;
 
             if (connectionId != null)
                 request.Headers.Add(HttpRequestHeader.Authorization, connectionId);
@@ -46,7 +49,6 @@ namespace NooSphere.Helpers
                     var bytes = Encoding.UTF8.GetBytes(json);
 
                     request.ContentLength = bytes.Length;
-
                     using (var requestStream = request.GetRequestStream())
                     {
                         // Send the file as body request. 
@@ -54,20 +56,26 @@ namespace NooSphere.Helpers
                         requestStream.Close();
                     }
                 }
-                using (var response = (HttpWebResponse) request.GetResponse())
-                {
-                    if (response.StatusCode == HttpStatusCode.InternalServerError |
-                        response.StatusCode == HttpStatusCode.BadRequest)
-                        throw (new Exception(response.ToString()));
 
-                    using (var streamReader = new StreamReader(response.GetResponseStream()))
-                        return streamReader.ReadToEnd();
-                }
+                var task = Task.Factory.FromAsync(
+                        request.BeginGetResponse,
+                        asyncResult => request.EndGetResponse(asyncResult), null);
+
+                return task.ContinueWith(t => ReadStreamFromResponse(t.Result));
             }
-            catch(WebException ex)
+            catch (WebException wex)
             {
-                //Log.Out("Rest",ex.Response.ToString(),LogCode.Err);
-                return "";
+                throw wex;
+            }
+        }
+        private static string ReadStreamFromResponse(WebResponse response)
+        {
+            using (var responseStream = response.GetResponseStream())
+            using (var sr = new StreamReader(responseStream))
+            {
+                //Need to return this response 
+                var strContent = sr.ReadToEnd();
+                return strContent;
             }
         }
 
@@ -143,9 +151,9 @@ namespace NooSphere.Helpers
         /// </summary>
         /// <param name="uri">Uri to the webservice</param>
         /// <returns>JSON formatted response string from the server</returns>
-        public static string Get(string uri)
+        public static string Get(string uri, object obj = null, string connectionId = null)
         {
-            return SendRequest(uri, HttpMethod.Get);
+            return SendRequest(uri, HttpMethod.Get,obj,connectionId).Result;
         }
         /// <summary>
         /// Get JSON response string through a HTTP POST request
@@ -153,9 +161,9 @@ namespace NooSphere.Helpers
         /// <param name="uri">Uri to the webservice</param>
         /// <param name="obj">object to serialize</param>
         /// <returns>JSON formatted response string from the server</returns>
-        public static string Post(string uri, object obj = null)
+        public static string Post(string uri, object obj = null, string connectionId = null)
         {
-            return SendRequest(uri, HttpMethod.Post, obj);
+            return SendRequest(uri, HttpMethod.Post, obj, connectionId).Result;
         }
         /// <summary>
         /// Get JSON response string through a HTTP PUT request
@@ -163,9 +171,9 @@ namespace NooSphere.Helpers
         /// <param name="uri">Uri to the webservice</param>
         /// <param name="obj">object to serialize</param>
         /// <returns>JSON formatted response string from the server</returns>
-        public static string Put(string uri, object obj = null)
+        public static string Put(string uri, object obj = null, string connectionId = null)
         {
-            return SendRequest(uri, HttpMethod.Put, obj);
+            return SendRequest(uri, HttpMethod.Put, obj, connectionId).Result;
         }
         /// <summary>
         /// Get JSON response string through a HTTP DELETE request
@@ -173,9 +181,9 @@ namespace NooSphere.Helpers
         /// <param name="uri">Uri to the webservice</param>
         /// <param name="obj">object to serialize</param>
         /// <returns>JSON formatted response string from the server</returns>
-        public static string Delete(string uri, object obj = null)
+        public static string Delete(string uri, object obj = null, string connectionId = null)
         {
-            return SendRequest(uri, HttpMethod.Delete, obj);
+            return SendRequest(uri, HttpMethod.Delete, obj, connectionId).Result;
         }
     }
 

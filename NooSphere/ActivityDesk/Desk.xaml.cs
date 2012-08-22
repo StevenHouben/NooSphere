@@ -25,6 +25,7 @@ using System.Windows.Threading;
 using System.Collections.Generic;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Service;
+using NooSphere.ActivitySystem.Contracts.Service;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.ActivitySystem.Contracts;

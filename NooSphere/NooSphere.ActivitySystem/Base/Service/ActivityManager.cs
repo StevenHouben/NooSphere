@@ -18,6 +18,7 @@ using System.Threading;
 using System.IO;
 using Newtonsoft.Json;
 using NooSphere.ActivitySystem.Contracts.Client;
+using NooSphere.ActivitySystem.Contracts.Service;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using NooSphere.ActivitySystem.Contracts;

@@ -27,7 +27,7 @@ using System.Windows.Interop;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.ActivitySystem.Base.Service;
-using NooSphere.ActivitySystem.Contracts;
+using NooSphere.ActivitySystem.Contracts.Service;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.Core.ActivityModel;
@@ -37,7 +37,6 @@ using NooSphere.Platform.Windows.VDM;
 using ActivityUI.Properties;
 using ActivityUI.Login;
 using ActivityUI.PopUp;
-using NooSphere.Context.Multicast;
 
 namespace ActivityUI.Xaml
 {
@@ -694,7 +693,7 @@ namespace ActivityUI.Xaml
                 Description = "This is the description of the test activity - " + DateTime.Now
             };
             ac.Uri = "http://tempori.org/" + ac.Id;
-
+            ac.Participants.Add(new User() { Email = " 	snielsen@itu.dk" });
             ac.Meta.Data = "added meta data";
             ac.Owner = _owner;
             return ac;
