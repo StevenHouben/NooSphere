@@ -77,6 +77,11 @@
     <Compile Include="Contracts\IMessenger.cs" />
     <Compile Include="Contracts\INetEvent.cs" />
     <Compile Include="Contracts\IUserEvent.cs" />
+    <Compile Include="Discovery\DiscoveryAddressAddedEventArgs.cs" />
+    <Compile Include="Discovery\DiscoveryEventArgs.cs" />
+    <Compile Include="Discovery\DiscoveryManager.cs" />
+    <Compile Include="Discovery\DiscoveryType.cs" />
+    <Compile Include="Discovery\ServiceInfo.cs" />
     <Compile Include="FileServer\FileRequest.cs" />
     <Compile Include="FileServer\FileSource.cs" />
     <Compile Include="FileServer\FileStore.cs" />

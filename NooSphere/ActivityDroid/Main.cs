@@ -8,6 +8,7 @@ using Android.OS;
 using Newtonsoft.Json;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
+using NooSphere.ActivitySystem.Discovery;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using NooSphere.Helpers;
@@ -23,6 +24,7 @@ namespace ActivityDroid
         private ActivityClient _client;
         private User _user;
         private Device _device;
+        private DiscoveryManager _discovery;
         #endregion
 
         #region OnCreate
@@ -57,19 +59,29 @@ namespace ActivityDroid
 
         private void StartActivityManager()
         {
+            _discovery = new DiscoveryManager();
+            _discovery.DiscoveryAddressAdded += _discovery_DiscoveryAddressAdded;
             _device = new Device
                             {
                                 DeviceType = DeviceType.SmartPhone,
                                 DevicePortability = DevicePortability.Mobile,
                                 Name = Build.Device
                             };
-            StartClient("http://10.1.1.190:52836/");
-            AddActivityUI(GetInitializedActivity());
+            _discovery.Find();
+            //AddActivityUI(GetInitializedActivity());
+        }
+
+        void _discovery_DiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
+        {
+            if (_client != null) return;
+            SetStatus("Connecting to " + e.ServiceInfo.Name + "...");
+            StartClient(e.ServiceInfo.Address);
         }
 
         private void StartClient(string activityManagerHttpAddress)
         {
             var path = GetExternalFilesDir("ActivityCloud").AbsolutePath;
+            SetStatus("Connecting to Activity Manager on " + activityManagerHttpAddress);
             _client = new ActivityClient(path, _device) { CurrentUser = _user };
 
             _client.ActivityAdded += ClientActivityAdded;

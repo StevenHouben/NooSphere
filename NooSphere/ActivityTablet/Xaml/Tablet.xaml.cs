@@ -89,7 +89,7 @@ namespace ActivityTablet
             {
                 DiscoveryManager disc = new DiscoveryManager();
                 disc.Find(DiscoveryType.Zeroconf);
-                disc.DiscoveryAddressAdded += new DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
+                disc.DiscoveryAddressAdded += new DiscoveryManager.DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
             });
             t.IsBackground = true;
             t.Start();

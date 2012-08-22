@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -42,7 +43,7 @@ namespace ActivityDroid
         private void BtnGoClick(object sender, EventArgs e)
         {
             SetStatus("Logging in...");
-            LogIn();
+            ThreadPool.QueueUserWorkItem(o => LogIn());
         }
 
         private void CreateUser(string baseUrl)
