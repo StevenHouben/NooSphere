@@ -184,6 +184,7 @@ namespace NooSphere.ActivitySystem.Base.Client
         public event ActivityAddedHandler ActivityAdded;
         public event ActivityRemovedHandler ActivityRemoved;
         public event ActivityChangedHandler ActivityChanged;
+        public event ActivitySwitchedHandler ActivitySwitched = null;
 
         public event DeviceAddedHandler DeviceAdded;
         public event DeviceRemovedHandler DeviceRemoved;
@@ -206,11 +207,15 @@ namespace NooSphere.ActivitySystem.Base.Client
         public event EventHandler UserOffline;
 
         public event ServiceDownHandler ServiceIsDown;
-
         #endregion
 
         #region Net Event handlers
 
+        public virtual void ActivityNetSwitched(Activity act)
+        {
+            if (ActivitySwitched != null)
+                ActivitySwitched(this, new ActivityEventArgs(act));
+        }
         protected virtual void OnUserOffline(EventArgs e)
         {
             if (UserOffline != null)

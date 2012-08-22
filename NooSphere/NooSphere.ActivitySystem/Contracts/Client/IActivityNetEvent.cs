@@ -15,7 +15,7 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using NooSphere.Core.ActivityModel;
 
-namespace NooSphere.ActivitySystem.Contracts
+namespace NooSphere.ActivitySystem.Contracts.Client
 {
     [ServiceContract]
     public interface IActivityNetEvent
@@ -34,12 +34,18 @@ namespace NooSphere.ActivitySystem.Contracts
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json,
             UriTemplate = "ActivityChanged", Method = "POST")]
         void ActivityNetChanged(Activity act);
+
+        [OperationContract]
+        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json,
+            UriTemplate = "ActivitySwitched", Method = "POST")]
+        void ActivityNetSwitched(Activity act);
     }
 
     public enum ActivityEvent
     {
         ActivityAdded,
         ActivityRemoved,
-        ActivityChanged
+        ActivityChanged,
+        ActivitySwitched
     }
 }

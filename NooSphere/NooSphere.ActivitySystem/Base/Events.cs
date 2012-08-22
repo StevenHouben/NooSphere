@@ -20,6 +20,7 @@ namespace NooSphere.ActivitySystem.Base
     public delegate void ActivityAddedHandler(Object sender, ActivityEventArgs e);
     public delegate void ActivityRemovedHandler(Object sender, ActivityRemovedEventArgs e);
     public delegate void ActivityChangedHandler(Object sender, ActivityEventArgs e);
+    public delegate void ActivitySwitchedHandler(Object sender, ActivityEventArgs e);
 
     /// <summary>
     /// Context events

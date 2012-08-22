@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using NooSphere.ActivitySystem.Contracts;
+using NooSphere.ActivitySystem.Contracts.Client;
 using NooSphere.Core.ActivityModel;
 using System.Collections.Concurrent;
 
