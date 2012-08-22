@@ -197,24 +197,20 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         private void SaveToDisk(byte[] fileInBytes, Resource resource)
         {
-            ThreadPool.QueueUserWorkItem(
-                delegate
-                    {
-                        var path = Path.Combine(BasePath, resource.RelativePath);
-                        var dir = Path.GetDirectoryName(path);
-                        if (dir != null && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
-                        using (var fileToupload = new FileStream(@path, FileMode.OpenOrCreate))
-                        {
-                            fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
-                            fileToupload.Close();
-                            fileToupload.Dispose();
+            var path = Path.Combine(BasePath, resource.RelativePath);
+            var dir = Path.GetDirectoryName(path);
+            if (dir != null && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+            using (var fileToupload = new FileStream(@path, FileMode.OpenOrCreate))
+            {
+                fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
+                fileToupload.Close();
+                fileToupload.Dispose();
 
-                            //File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
-                            //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
-                            Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,
-                                              path);
-                        }
-                    });
+                //File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
+                //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
+                Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,
+                                    path);
+            }
         }
         #endregion
     }
