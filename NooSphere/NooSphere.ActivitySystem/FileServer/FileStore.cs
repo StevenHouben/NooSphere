@@ -155,10 +155,11 @@ namespace NooSphere.ActivitySystem.FileServer
         /// <param name="relative"> </param>
         public void IntializePath(object relative)
         {
+            var path = Path.Combine(BasePath, relative.ToString());
             //In case the activity path does not exist yet, we'll create one
-            if (!Directory.Exists(BasePath + relative))
+            if (!Directory.Exists(path))
             {
-                var dInfo = Directory.CreateDirectory(BasePath + relative);
+                var dInfo = Directory.CreateDirectory(path);
                 Console.WriteLine("FileStore: Folder {0} initialized", dInfo.FullName); 
             }
         }

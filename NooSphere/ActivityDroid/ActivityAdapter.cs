@@ -1,13 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
-using Android.App;
 using Android.Content;
 using Android.Graphics;
-using Android.OS;
-using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Activity = NooSphere.Core.ActivityModel.Activity;
@@ -23,26 +18,27 @@ namespace ActivityDroid
         public ActivityAdapter(Context context)
         {
             this.context = context;
-            activities = new List<Activity> {GetInitializedActivity()};
-        }
-        private Activity GetInitializedActivity()
-        {
-            var ac = new Activity
-            {
-                Name = "phone activity - " + DateTime.Now,
-                Description = "This is the description of the test activity - " + DateTime.Now
-            };
-            ac.Uri = "http://tempori.org/" + ac.Id;
-
-            ac.Meta.Data = "added meta data";
-            return ac;
+            activities = new List<Activity>();
         }
 
         public void Add(Activity activity)
         {
-            activities.Add(activity);
+            lock (activities)
+            {
+                activities.Add(activity);
+                NotifyDataSetChanged();
+            }
+        }
+
+        public void Remove(Guid activityId)
+        {
+            lock(activities)
+            {
+                var act = activities.SingleOrDefault(a => a.Id == activityId);
+                if (act != null)
+                    activities.Remove(act);
+            }
             NotifyDataSetChanged();
-            NotifyDataSetInvalidated();
         }
 
         public override Object GetItem(int position)
@@ -64,8 +60,6 @@ namespace ActivityDroid
                 tv = (ActivityView)convertView;
             }
             tv.Name = activities[position].Name;
-            var rnd = new Random(); 
-            tv.SetBackgroundColor(Color.Argb(255, rnd.Next(256), rnd.Next(256), rnd.Next(256)));
             return tv;
         }
 

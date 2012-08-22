@@ -45,12 +45,25 @@ namespace ActivityDroid
             _activityAdapter = new ActivityAdapter(this);
             FindViewById<GridView>(Resource.Id.Activities).Adapter = _activityAdapter;
 
+            RunOnUiThread(() => _activityAdapter.NotifyDataSetChanged());
+
             var btnAddActivity = FindViewById<Button>(Resource.Id.AddActivity);
             btnAddActivity.Click += BtnAddActivity;
 
             SetUser(Intent.GetStringExtra("User"));
             SetStatus("Hi " + _user.Name + ", you are logged in.");
             ThreadPool.QueueUserWorkItem(o => StartActivityManager());
+        }
+        #endregion
+
+        #region Public Methods
+        public void AddActivity(NooSphere.Core.ActivityModel.Activity activity)
+        {
+            _client.AddActivity(activity);
+        }
+        public void RemoveActivity(NooSphere.Core.ActivityModel.Activity activity)
+        {
+            _client.RemoveActivity(activity.Id);
         }
         #endregion
 
@@ -68,7 +81,7 @@ namespace ActivityDroid
         private void StartActivityManager()
         {
             _discovery = new DiscoveryManager();
-            _discovery.DiscoveryAddressAdded += _discovery_DiscoveryAddressAdded;
+            _discovery.DiscoveryAddressAdded += OnDiscoveryAddressAdded;
             _device = new Device
                             {
                                 DeviceType = DeviceType.SmartPhone,
@@ -78,7 +91,7 @@ namespace ActivityDroid
             _discovery.Find();
         }
 
-        void _discovery_DiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
+        private void OnDiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
             if (_client != null) return;
             var builder = new AlertDialog.Builder(this);
@@ -115,17 +128,16 @@ namespace ActivityDroid
 
             _client.Open(activityManagerHttpAddress);
         }
-
-        private void AddActivity(NooSphere.Core.ActivityModel.Activity activity)
-        {
-            _client.AddActivity(activity);
-        }
         #endregion
 
         #region UI Changes
         private void AddActivityUI(NooSphere.Core.ActivityModel.Activity activity)
         {
-            //_activityAdapter.Add(activity);
+            RunOnUiThread(() => _activityAdapter.Add(activity));
+        }
+        private void RemoveActivityUI(Guid activityId)
+        {
+            RunOnUiThread(() => _activityAdapter.Remove(activityId));
         }
         private void SetStatus(string status)
         {
@@ -144,6 +156,7 @@ namespace ActivityDroid
         private void OnActivityRemoved(object sender, ActivityRemovedEventArgs e)
         {
             Log.Out("Main", "Activity Removed");
+            RemoveActivityUI(e.Id);
         }
 
         private void OnActivityChanged(object sender, ActivityEventArgs e)
