@@ -340,6 +340,11 @@ namespace NooSphere.ActivitySystem.Base.Service
             return !_useCloud || _connectionActive;
         }
 
+        public void ServiceDown()
+        {
+            _publisher.Publish(Status.ServiceDown.ToString(),"name");
+        }
+
         #endregion
 
         #region Activity Management

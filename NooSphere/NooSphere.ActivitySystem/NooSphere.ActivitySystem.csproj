@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Base\Client\ActivityClient.cs" />
     <Compile Include="Base\Client\Configuration.cs" />
+    <Compile Include="Base\Heartbeat.cs" />
     <Compile Include="Base\ContextEventArgs.cs" />
     <Compile Include="Base\Client\NetEventHandler.cs" />
     <Compile Include="Base\Client\StartupMode.cs" />
@@ -71,7 +72,8 @@
     <Compile Include="Base\Service\ActivityStore.cs" />
     <Compile Include="Base\Service\ParticipantStore.cs" />
     <Compile Include="Base\Service\Syncer.cs" />
-    <Compile Include="Contracts\INetEvent.cs" />
+    <Compile Include="Contracts\Client\INetEventHandler.cs" />
+    <Compile Include="Contracts\IServiceBase.cs" />
     <Compile Include="Discovery\DiscoveryType.cs" />
     <Compile Include="Base\ActivityEventArgs.cs" />
     <Compile Include="Base\Service\CloudEvents.cs" />
@@ -86,19 +88,19 @@
     <Compile Include="FileServer\FileSource.cs" />
     <Compile Include="FileServer\FileStore.cs" />
     <Compile Include="Base\IActivityNode.cs" />
-    <Compile Include="Contracts\IFileServer.cs" />
-    <Compile Include="Contracts\IUserEvent.cs" />
+    <Compile Include="Contracts\Service\IFileServer.cs" />
+    <Compile Include="Contracts\Client\IUserNetEvent.cs" />
     <Compile Include="FileServer\IFileStore.cs" />
     <Compile Include="PubSub\Concurrency.cs" />
     <Compile Include="Base\Service\ConnectedClient.cs" />
-    <Compile Include="Contracts\IActivityManager.cs" />
-    <Compile Include="Contracts\IMessenger.cs" />
-    <Compile Include="Discovery\IDiscovery.cs" />
+    <Compile Include="Contracts\Service\IActivityManager.cs" />
+    <Compile Include="Contracts\Service\IMessenger.cs" />
+    <Compile Include="Contracts\Discovery\IDiscovery.cs" />
     <Compile Include="Contracts\EventType.cs" />
-    <Compile Include="Contracts\IActivityNetEvent.cs" />
-    <Compile Include="Contracts\IComNetEvent.cs" />
-    <Compile Include="Contracts\IDeviceNetEvent.cs" />
-    <Compile Include="Contracts\IFileNetEvent.cs" />
+    <Compile Include="Contracts\Client\IActivityNetEvent.cs" />
+    <Compile Include="Contracts\Client\IComNetEvent.cs" />
+    <Compile Include="Contracts\Client\IDeviceNetEvent.cs" />
+    <Compile Include="Contracts\Client\IFileNetEvent.cs" />
     <Compile Include="Discovery\DiscoveryAddressAddedEventArgs.cs" />
     <Compile Include="Discovery\DiscoveryEventArgs.cs" />
     <Compile Include="Discovery\DiscoveryManager.cs" />

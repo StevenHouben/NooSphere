@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
  (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
 
  Pervasive Interaction Technology Laboratory (pIT lab)
@@ -16,6 +16,10 @@ using System.Net;
 using System.Net.Sockets;
 #if !ANDROID
 using System.ServiceModel.Discovery;
+using Android.Util;
+#endif
+using System.Text;
+using System.Xml;
 using Mono.Zeroconf;
 #else
 using Android.Util;
@@ -153,6 +157,7 @@ namespace NooSphere.ActivitySystem.Discovery
             }
             _udpClient.BeginReceive(HandleRequest, _udpClient);
         }
+#else
 #else
         /// <summary>
         /// Adds a discovered service to the service list and send a DiscoverAddressAdded event

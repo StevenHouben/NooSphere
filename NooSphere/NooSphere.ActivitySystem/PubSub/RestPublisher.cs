@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.Helpers;
@@ -29,36 +30,33 @@ namespace NooSphere.ActivitySystem.PubSub
         /// <param name="sendToSource">Enables or disable self-publishing to source</param>
         public void Publish(string publishUrl, object netObject, object source = null, bool sendToSource = false)
         {
-            Log.Out("Publisher", string.Format("Published {0}",publishUrl), LogCode.Net);
+            //Log.Out("Publisher", string.Format("Published {0}",publishUrl), LogCode.Net);
             var toRemove = new List<string>();
-            var t = new Thread(() =>
-            {
-                lock (Concurrency.SubscriberLock)
-                {
-                    foreach (var entry in Registry.ConnectedClients)
-                    {
-                        try
-                        {
-                            if (source != null && entry.Value == source && sendToSource)
-                                Rest.Post(entry.Value.Device.BaseAddress + publishUrl, netObject);
-                            else Rest.Post(entry.Value.Device.BaseAddress + publishUrl, netObject);
-                        }
-                        catch (Exception)
-                        {
-                            
-                            toRemove.Add(entry.Key);
-                        }
 
-                    }
-                    if (toRemove.Count > 0)
+            lock (Concurrency.SubscriberLock)
+            {
+                //foreach (var entry in Registry.ConnectedClients)
+                var devices = Registry.ConnectedClients.Values.ToList();
+                for (int i = 0; i < devices.Count;i++ )
+                {
+                    try
                     {
-                        foreach (var id in toRemove)
-                            Registry.ConnectedClients.Remove(id);
+                        var addr = devices[i].Device.BaseAddress;
+                        ThreadPool.QueueUserWorkItem(
+                            delegate
+                                {
+                                    Rest.Post(addr + publishUrl, netObject);
+                                    Log.Out("Publisher",
+                                            string.Format("Published {0} to {1}", publishUrl, addr),
+                                            LogCode.Net);
+                                });
+                    }   
+                    catch (Exception)
+                    {
+      
                     }
                 }
-
-            });
-            t.Start();
+            }
         }
 
         /// <summary>
@@ -69,16 +67,13 @@ namespace NooSphere.ActivitySystem.PubSub
         /// <param name="subscriber"> </param>
         public void PublishToSubscriber(string publishUrl, object netObject,object subscriber)
         {
-            Log.Out("Publisher", string.Format("Publishing {0} to {1}", publishUrl,subscriber), LogCode.Net);
-            var t = new Thread(() =>
-            {
-                lock (Concurrency.SubscriberLock)
-                {
-                    Rest.Post(subscriber + publishUrl, netObject);
-                }
 
+            ThreadPool.QueueUserWorkItem(
+             delegate
+             {
+                 Rest.Post(subscriber + publishUrl, netObject);
+                    Log.Out("Publisher", string.Format("Publishing {0} to {1}", publishUrl, subscriber), LogCode.Net);
             });
-            t.Start();
         }
     }
 }

@@ -141,15 +141,11 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         public void Updatefile(Resource resource, byte[] fileInBytes)
         {
-            var t = new Thread(() =>
-            {
-                _files[resource.Id] = resource;
-                SaveToDisk(fileInBytes,resource);
-                if (FileChanged != null)
-                    FileChanged(this, new FileEventArgs(resource));
-                Console.WriteLine("FileStore: Updated file {0} in store", resource.Name); 
-            }) {IsBackground = true};
-            t.Start();
+            _files[resource.Id] = resource;
+            SaveToDisk(fileInBytes, resource);
+            if (FileChanged != null)
+                FileChanged(this, new FileEventArgs(resource));
+            Console.WriteLine("FileStore: Updated file {0} in store", resource.Name);
         }
 
         /// <summary>
@@ -214,7 +210,7 @@ namespace NooSphere.ActivitySystem.FileServer
                 //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
                 Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,
                                     path);
-                }
+            }
         }
         #endregion
     }

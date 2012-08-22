@@ -1,4 +1,5 @@
-﻿/****************************************************************************
+
+/****************************************************************************
  (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
 
  Pervasive Interaction Technology Laboratory (pIT lab)
@@ -31,14 +32,11 @@ using NooSphere.ActivitySystem.Discovery;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
-using NooSphere.Helpers;
 using NooSphere.Platform.Windows.Glass;
 using NooSphere.Platform.Windows.VDM;
 using ActivityUI.Properties;
 using ActivityUI.Login;
 using ActivityUI.PopUp;
-using NooSphere.Platform.Windows.Hooks;
-using NooSphere.Context.IO;
 using NooSphere.Context.Multicast;
 
 namespace ActivityUI.Xaml
@@ -77,7 +75,6 @@ namespace ActivityUI.Xaml
         //Debug
         //private PointerNode _pointer = new PointerNode(PointerRole.Controller);
 
-        private UdpPerformanceTest test = new UdpPerformanceTest();
 
         #endregion
 
@@ -103,8 +100,6 @@ namespace ActivityUI.Xaml
             _login = new LoginWindow();
             _login.LoggedIn += LoginLoggedIn;
             _login.Show();
-
-            test.Test(1000);
         }
         #endregion
 
@@ -136,13 +131,13 @@ namespace ActivityUI.Xaml
         {
             _serviceList.Clear();
 
-            var t = new Thread(() =>
-            {
-                _disc = new DiscoveryManager();
-                _disc.DiscoveryAddressAdded += DiscDiscoveryAddressAdded;
-                _disc.Find(Settings.Default.DISCOVERY_TYPE);
-            }) {IsBackground = true};
-            t.Start();
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        _disc = new DiscoveryManager();
+                        _disc.DiscoveryAddressAdded += DiscDiscoveryAddressAdded;
+                        _disc.Find(Settings.Default.DISCOVERY_TYPE);
+                    });
         }
         #endregion
 
@@ -205,15 +200,15 @@ namespace ActivityUI.Xaml
         /// </summary>
         public void StartActivityManager()
         {
-            var t = new Thread(() =>
-            {
-                _host = new GenericHost();
-                _host.HostLaunched += HostHostLaunched;
-                _host.Open(new ActivityManager(_owner, "c:/files/"), typeof(IActivityManager), _device.Name);
-                _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE,_device.Name,"207", _device.Location);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        _host = new GenericHost();
+                        _host.HostLaunched += HostHostLaunched;
+                        _host.Open(new ActivityManager(_owner, "c:/files/"), typeof (IActivityManager), _device.Name);
+                        _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE, _device.Name, "205", _device.Location);
 
-            }) {IsBackground = true};
-            t.Start();
+                    });
         }
 
         /// <summary>
@@ -241,13 +236,17 @@ namespace ActivityUI.Xaml
             _client.FriendDeleted += client_FriendDeleted;
             _client.FriendRequestReceived += ClientFriendRequestReceived;
 
-            _client.FileUploadRequest += ClientFileUploadRequest;
-            _client.FileDownloadRequest += ClientFileDownloadRequest;
-            _client.FileDeleteRequest += ClientFileDeleteRequest;
             _client.ContextMessageReceived += _client_ContextMessageReceived;
 
             _client.ConnectionEstablished += ClientConnectionEstablished;
+            _client.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
             _client.Open(activityManagerHttpAddress);
+        }
+
+        void _client_ServiceIsDown(object sender, EventArgs e)
+        {
+            MessageBox.Show("Service is down -> shutting down");
+            Environment.Exit(0);
         }
 
         void _client_ContextMessageReceived(object sender, ContextEventArgs e)
@@ -262,18 +261,6 @@ namespace ActivityUI.Xaml
         {
             BuildUi();
             _startingUp = false;
-        }
-        void ClientFileDeleteRequest(object sender, FileEventArgs e)
-        {
-            Log.Out("Interface",string.Format("Received {0} for {1}",FileEvent.FileDeleteRequest,e.Resource.Name),LogCode.Net);
-        }
-        void ClientFileDownloadRequest(object sender, FileEventArgs e)
-        {
-            Log.Out("Interface", string.Format("Received {0} for {1}", FileEvent.FileDownloadRequest, e.Resource.Name), LogCode.Net);
-        }
-        void ClientFileUploadRequest(object sender, FileEventArgs e)
-        {
-            Log.Out("Interface", string.Format("Received {0} for {1}", FileEvent.FileUploadRequest, e.Resource.Name), LogCode.Net);
         }
 
         /// <summary>
@@ -527,15 +514,15 @@ namespace ActivityUI.Xaml
             //Hide all popUps
             HideAllPopups();
 
-            if(_startMode == StartUpMode.Client)
+            if (_startMode == StartUpMode.Client)
                 _client.Close();
-
-            //Close the taskbar
-            Close();
 
             //Close the host if running
             if(_host.IsRunning)
                 _host.Close();
+
+            //Close the taskbar
+            Close();
 
             //Uninitialize the virtual desktop manager
             VirtualDesktopManager.UninitDesktops();
@@ -649,7 +636,7 @@ namespace ActivityUI.Xaml
             AddActivityUi(e.Activity);
             Console.WriteLine("Activity Added\n");
 
-            //   _client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
+            //_client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
         }
         private void BtnAddClick(object sender, RoutedEventArgs e)
         {

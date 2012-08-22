@@ -17,10 +17,16 @@ namespace NooSphere.ActivitySystem.Base
     public class FileEventArgs
     {
         public Resource Resource { get; set; }
+        public string LocalPath { get; set; }
         public FileEventArgs() { }
         public FileEventArgs(Resource resource)
         {
             Resource = resource;
+        }
+        public FileEventArgs(Resource resource,string localPath)
+        {
+            Resource = resource;
+            LocalPath = localPath;
         }
     }
     public class GenericEventArgs<T>

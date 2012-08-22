@@ -13,13 +13,10 @@
 using System.ServiceModel;
 using System.ServiceModel.Web;
 
-namespace NooSphere.ActivitySystem.Discovery
+namespace NooSphere.ActivitySystem.Contracts
 {
     [ServiceContract]
-    public interface IDiscovery
+    public interface IDiscovery:IServiceBase
     {
-        [OperationContract]
-        [WebGet(ResponseFormat = WebMessageFormat.Json, UriTemplate = "")]
-        bool Alive();
     }
 }

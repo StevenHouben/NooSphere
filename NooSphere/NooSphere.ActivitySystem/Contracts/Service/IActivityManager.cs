@@ -20,7 +20,7 @@ using System.ServiceModel.Web;
 namespace NooSphere.ActivitySystem.Contracts
 {
     [ServiceContract]
-    public interface IActivityManager : IMessenger,IFileServer
+    public interface IActivityManager :IServiceBase, IMessenger,IFileServer
     {
         [OperationContract]
         [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "POST")]
@@ -68,9 +68,5 @@ namespace NooSphere.ActivitySystem.Contracts
         [OperationContract]
         [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "users", Method = "PUT")]
         void RespondToFriendRequest(Guid friendId, bool approval, string deviceId);
-
-        [OperationContract]
-        [WebGet(ResponseFormat = WebMessageFormat.Json, UriTemplate = "")]
-        bool Alive();
     }
 }
