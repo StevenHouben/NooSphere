@@ -25,5 +25,20 @@ namespace ActivityDesk.Visualizer.Visualization
         public BaseVisualization(){}
         public virtual void Enter() { }
         public virtual void Leave() { }
+        public event LockedEventHandler Locked = null;
+        protected virtual void OnLocked()
+        {
+            if (Locked != null)
+                Locked(this, new LockedEventArgs(VisualizedTag.Value.ToString()));
+        }
+    }
+    public delegate void LockedEventHandler(Object sender, LockedEventArgs e);
+    public class LockedEventArgs
+    {
+        public string VisualizedTag { get; set; }
+        public LockedEventArgs(string tag)
+        {
+            VisualizedTag = tag;
+        }
     }
 }

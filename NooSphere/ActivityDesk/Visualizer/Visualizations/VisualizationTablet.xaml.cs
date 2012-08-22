@@ -106,7 +106,12 @@ namespace BaseVis
 
         private void SurfaceButton_Click(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("Clicked the pin button");
+            OnLocked();   
+        }
+
+        protected override void OnLocked()
+        {
+            base.OnLocked();
         }
     }
 }
