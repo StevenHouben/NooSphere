@@ -18,16 +18,16 @@ namespace ActivityDroid
     public class ActivityAdapter : BaseAdapter {
 
         private Context context;
-        private List<NooSphere.Core.ActivityModel.Activity> activities;
+        private List<Activity> activities;
 
         public ActivityAdapter(Context context)
         {
             this.context = context;
             activities = new List<Activity> {GetInitializedActivity()};
         }
-        private NooSphere.Core.ActivityModel.Activity GetInitializedActivity()
+        private Activity GetInitializedActivity()
         {
-            var ac = new NooSphere.Core.ActivityModel.Activity
+            var ac = new Activity
             {
                 Name = "phone activity - " + DateTime.Now,
                 Description = "This is the description of the test activity - " + DateTime.Now
@@ -55,14 +55,15 @@ namespace ActivityDroid
         }
 
         public override View GetView(int position, View convertView, ViewGroup parent) {
-            TextView tv;
-            if (convertView == null) {
-                tv = new TextView(context) {LayoutParameters = new GridView.LayoutParams(85, 85)};
+            ActivityView tv;
+            if (convertView == null)
+            {
+                tv = new ActivityView(context, activities.ElementAt(position));
             }
             else {
-                tv = (TextView) convertView;
+                tv = (ActivityView)convertView;
             }
-            tv.Text = activities[position].Name;
+            tv.Name = activities[position].Name;
             var rnd = new Random(); 
             tv.SetBackgroundColor(Color.Argb(255, rnd.Next(256), rnd.Next(256), rnd.Next(256)));
             return tv;

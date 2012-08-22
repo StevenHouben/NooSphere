@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActivityAdapter.cs" />
+    <Compile Include="ActivityView.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Login.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />

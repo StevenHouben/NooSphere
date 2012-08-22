@@ -11,21 +11,18 @@
 ****************************************************************************/
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Sockets;
 #if !ANDROID
 using System.ServiceModel.Discovery;
-using Android.Util;
-#endif
-using System.Text;
-using System.Xml;
 using Mono.Zeroconf;
+using NooSphere.ActivitySystem.Contracts;
 #else
-using Android.Util;
-#endif
+using System.Net;
 using System.Text;
 using System.Xml;
+#endif
 
 namespace NooSphere.ActivitySystem.Discovery
 {
@@ -151,13 +148,15 @@ namespace NooSphere.ActivitySystem.Discovery
                                          Address = match.SelectNodes("//*[local-name() = 'string']")[2].InnerText,
                                          Code = match.SelectNodes("//*[local-name() = 'string']")[3].InnerText
                                      };
-                    ActivityServices.Add(serviceInfo);
-                    OnDiscoveryAddressAdded(new DiscoveryAddressAddedEventArgs(serviceInfo));
+                    if (ActivityServices.SingleOrDefault(si => si.Address == serviceInfo.Address) == null)
+                    {
+                        ActivityServices.Add(serviceInfo);
+                        OnDiscoveryAddressAdded(new DiscoveryAddressAddedEventArgs(serviceInfo));
+                    }
                 }
             }
             _udpClient.BeginReceive(HandleRequest, _udpClient);
         }
-#else
 #else
         /// <summary>
         /// Adds a discovered service to the service list and send a DiscoverAddressAdded event

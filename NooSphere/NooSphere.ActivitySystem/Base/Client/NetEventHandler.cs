@@ -11,6 +11,8 @@
 ****************************************************************************/
 
 using System;
+using System.IO;
+using System.Net;
 using NooSphere.Core.ActivityModel;
 using System.ServiceModel;
 using NooSphere.Core.Devices;
@@ -19,6 +21,8 @@ using NooSphere.ActivitySystem.Contracts.Client;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NooSphere.Helpers;
+
 #endif
 #if !ANDROID
 #endif
