@@ -33,8 +33,8 @@ namespace NooSphere.ActivitySystem.PubSub
             //Log.Out("Publisher", string.Format("Published {0}",publishUrl), LogCode.Net);
             var toRemove = new List<string>();
 
-            lock (Concurrency.SubscriberLock)
-            {
+            //lock (Concurrency.SubscriberLock)
+            //{
                 //foreach (var entry in Registry.ConnectedClients)
                 var devices = Registry.ConnectedClients.Values.ToList();
                 for (int i = 0; i < devices.Count;i++ )
@@ -56,7 +56,7 @@ namespace NooSphere.ActivitySystem.PubSub
       
                     }
                 }
-            }
+            //}
         }
 
         /// <summary>

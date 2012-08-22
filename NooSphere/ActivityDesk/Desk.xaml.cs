@@ -17,7 +17,6 @@ using Microsoft.Surface.Presentation.Controls;
 using System.Windows.Media;
 using Microsoft.Surface.Presentation.Controls.TouchVisualizations;
 using ActivityDesk.Windowing;
-using ActivityDesk.Visualizer;
 
 using System.Threading;
 using ActivityDesk.Visualizer.Definitions;

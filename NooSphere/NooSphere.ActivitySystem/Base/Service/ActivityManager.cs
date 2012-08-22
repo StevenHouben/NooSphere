@@ -423,17 +423,21 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// <param name="deviceId"> </param>
         public void AddActivity(Activity act, string deviceId)
         {
-            //Set the path of newly added activity
-            _fileServer.IntializePath(act.Id);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                {
+                //Set the path of newly added activity
+                _fileServer.IntializePath(act.Id);
 
-            //Publish the activity
-            ActivityStore.Activities.Add(act.Id, act);
-            _publisher.Publish(ActivityEvent.ActivityAdded.ToString(), act);
-            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
-                              ActivityEvent.ActivityAdded);
+                //Publish the activity
+                ActivityStore.Activities.Add(act.Id, act);
+                _publisher.Publish(ActivityEvent.ActivityAdded.ToString(), act);
+                Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
+                                  ActivityEvent.ActivityAdded);
 
-            if (_connectionActive)
-                _activityCloudConnector.AddActivity(act);
+                if (_connectionActive)
+                    _activityCloudConnector.AddActivity(act);
+            });
         }
 
         /// <summary>

@@ -301,9 +301,14 @@ namespace NooSphere.ActivitySystem.Base.Client
                               Resouce = resource,
                               Bytes = JsonConvert.SerializeObject(File.ReadAllBytes(fileInfo.FullName))
                           };
-            Rest.Post(ServiceAddress + Url.Files, req);
-            Log.Out("ActivityClient", string.Format("Received Request to upload {0}", resource.Name),
-                    LogCode.Log);
+
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        Rest.Post(ServiceAddress + Url.Files, req);
+                        Log.Out("ActivityClient", string.Format("Received Request to upload {0}", resource.Name),
+                                LogCode.Log);
+                    });
 
         }
 

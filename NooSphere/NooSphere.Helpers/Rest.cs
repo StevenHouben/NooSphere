@@ -34,7 +34,6 @@ namespace NooSphere.Helpers
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = method.ToString().ToUpper();
             request.ContentLength = 0;
-            request.Timeout = 20000;
             request.Proxy = null;
 
             if (connectionId != null)
@@ -73,7 +72,6 @@ namespace NooSphere.Helpers
             using (var responseStream = response.GetResponseStream())
             using (var sr = new StreamReader(responseStream))
             {
-                //Need to return this response 
                 var strContent = sr.ReadToEnd();
                 return strContent;
             }
@@ -99,7 +97,6 @@ namespace NooSphere.Helpers
                         offset += bytesRead;
                     }
                 }
-
                 return bytesToRead;
             }
             catch (Exception)
