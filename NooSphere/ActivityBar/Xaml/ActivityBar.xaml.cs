@@ -230,6 +230,8 @@ namespace ActivityUI.Xaml
             _client.ActivityAdded += ClientActivityAdded;
             _client.ActivityChanged += ClientActivityChanged;
             _client.ActivityRemoved += ClientActivityRemoved;
+            _client.ActivitySwitched += new ActivitySwitchedHandler(_client_ActivitySwitched);
+
             _client.MessageReceived += ClientMessageReceived;
 
             _client.FriendAdded += client_FriendAdded;
@@ -241,6 +243,11 @@ namespace ActivityUI.Xaml
             _client.ConnectionEstablished += ClientConnectionEstablished;
             _client.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
             _client.Open(activityManagerHttpAddress);
+        }
+
+        void _client_ActivitySwitched(object sender, ActivityEventArgs e)
+        {
+            VirtualDesktopManager.CurrentDesktop = _proxies[e.Activity.Id].Desktop;
         }
 
         void _client_ServiceIsDown(object sender, EventArgs e)
@@ -648,7 +655,8 @@ namespace ActivityUI.Xaml
         }
         private void BClick(object sender, RoutedEventArgs e)
         {
-            SwitchToVirtualDesktop(_proxies[((ActivityButton)sender).ActivityId].Desktop);
+            _client.SwitchActivity(_proxies[((ActivityButton) sender).ActivityId].Activity);
+            //SwitchToVirtualDesktop(_proxies[((ActivityButton)sender).ActivityId].Desktop);
         }
         private void BtnStartClick(object sender, RoutedEventArgs e)
         {

@@ -7,7 +7,7 @@
     <WrapPanel HorizontalAlignment="Stretch">
         <Rectangle x:Name="Glow" 
            Width="530" 
-           Height="887" RenderTransformOrigin="0.5,0.5" Fill="#FF004799" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></Rectangle>
-        <s:SurfaceButton Click="SurfaceButton_Click" Name="PinButton" Height="38" Background="#FF030303" />
+           Height="800" RenderTransformOrigin="0.5,0.5" Fill="#FF004799" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></Rectangle>
+        <s:SurfaceButton Click="SurfaceButton_Click" Name="PinButton" Height="50" Background="#FF030303" />
     </WrapPanel>
 </my:BaseVisualization>

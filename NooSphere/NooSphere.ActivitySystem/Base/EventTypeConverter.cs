@@ -12,6 +12,7 @@
 
 using System;
 using NooSphere.ActivitySystem.Contracts;
+using NooSphere.ActivitySystem.Contracts.Client;
 
 namespace NooSphere.ActivitySystem.Base
 {

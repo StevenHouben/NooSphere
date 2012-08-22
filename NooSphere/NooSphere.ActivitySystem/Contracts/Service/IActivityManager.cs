@@ -23,15 +23,23 @@ namespace NooSphere.ActivitySystem.Contracts
     public interface IActivityManager :IServiceBase, IMessenger,IFileServer
     {
         [OperationContract]
-        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "POST")]
+        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, 
+            ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "POST")]
         void AddActivity(Activity act,string deviceId);
 
         [OperationContract]
-        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "PUT")]
+        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, 
+            ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "PUT")]
         void UpdateActivity(Activity act, string deviceId);
 
         [OperationContract]
-        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "DELETE")]
+        [WebInvoke(RequestFormat = WebMessageFormat.Json, 
+            ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities/{id}", Method = "POST")]
+        void SwitchActivity(string id,string deviceId);
+
+        [OperationContract]
+        [WebInvoke(BodyStyle = WebMessageBodyStyle.WrappedRequest, RequestFormat = WebMessageFormat.Json, 
+            ResponseFormat = WebMessageFormat.Json, UriTemplate = "activities", Method = "DELETE")]
         void RemoveActivity(string activityId, string deviceId);
 
         [OperationContract]

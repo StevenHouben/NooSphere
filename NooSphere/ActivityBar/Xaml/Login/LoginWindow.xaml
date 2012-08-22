@@ -19,7 +19,7 @@
         <TextBox Height="23" Margin="95,147,20,0" x:Name="txtEmail" VerticalAlignment="Top" d:LayoutOverrides="GridBox" />
         <TextBox Height="23" Margin="95,180,20,0" x:Name="txtDevicename" VerticalAlignment="Top" d:LayoutOverrides="GridBox" />
         <Image Height="94" HorizontalAlignment="Left" x:Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="144" Source="/ActivityUI;component/Images/activity1.PNG" />
-        <Button Content="Go" Margin="0,0,8,89" Style="{DynamicResource Success}" Foreground="White" FontSize="13.333" HorizontalAlignment="Right" Width="81" RenderTransformOrigin="-0.037,0.75" Height="30" VerticalAlignment="Bottom" Name="btnGo" Click="btnGo_Click" MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" ToolTip="Start the application and connect to the cloud.">
+        <Button Content="Go" Margin="0,0,8,89" Style="{DynamicResource Success}" Foreground="White" FontSize="13.333" HorizontalAlignment="Right" Width="81" RenderTransformOrigin="-0.037,0.75" Height="30" VerticalAlignment="Bottom" Name="btnGo" Click="btnGo_Click" MouseEnter="btnGo_MouseEnter" MouseLeave="btnGo_MouseLeave" ToolTip="Start the application and connect to the cloud." IsDefault="True">
         	<Button.Background>
         		<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
         			<GradientStop Color="#FFF3F3F3" Offset="0"/>
