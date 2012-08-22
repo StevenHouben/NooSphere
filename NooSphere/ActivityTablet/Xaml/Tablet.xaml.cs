@@ -40,7 +40,7 @@ namespace ActivityTablet
         private Device _device;
         private readonly Dictionary<Guid, Proxy> proxies = new Dictionary<Guid, Proxy>();
 
-        private PointerNode _pNode = new PointerNode(PointerRole.Controller);
+        //private PointerNode _pNode = new PointerNode(PointerRole.Controller);
         #endregion
 
         #region Constructor
@@ -85,14 +85,23 @@ namespace ActivityTablet
         }
         private void RunDiscovery()
         {
-            Thread t = new Thread(() =>
+            try
             {
-                DiscoveryManager disc = new DiscoveryManager();
-                disc.Find(DiscoveryType.Zeroconf);
-                disc.DiscoveryAddressAdded += new DiscoveryManager.DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
-            });
-            t.IsBackground = true;
-            t.Start();
+                Thread t = new Thread(() =>
+                {
+                    DiscoveryManager disc = new DiscoveryManager();
+                    disc.DiscoveryAddressAdded += new DiscoveryManager.DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
+                    disc.Find();
+                });
+                t.IsBackground = true;
+                t.Start();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+
+            }
+
         }
         private void StartActivityManager()
         {
@@ -111,13 +120,8 @@ namespace ActivityTablet
             {
                 cvLogin.Visibility = System.Windows.Visibility.Hidden;
                 cvActivityManager.Visibility = System.Windows.Visibility.Visible;
-                contentBrowser.Navigate(@"http://itu.dk/people/shou/pubs/SituatedActivityModelMODIQUITOUS2012.pdf");
+                //contentBrowser.Navigate(@"http://itu.dk/people/shou/pubs/SituatedActivityModelMODIQUITOUS2012.pdf");
             }));
-            List<Activity> lac = _client.GetActivities();
-            foreach (Activity ac in lac)
-            {
-                AddActivityUI(ac);
-            }
 
       
 
@@ -175,25 +179,28 @@ namespace ActivityTablet
         }
         private void StartClient(string addr)
         {
-            _client = new ActivityClient(@"c:/abc/", _device) { CurrentUser = new User() };
+            try
+            {
+                _client = new ActivityClient(@"c:/abc/", _device) { CurrentUser = new User() };
 
-            //_client.ActivityAdded += ClientActivityAdded;
-            //_client.ActivityChanged += ClientActivityChanged;
-            //_client.ActivityRemoved += ClientActivityRemoved;
-            //_client.MessageReceived += ClientMessageReceived;
+                _client.ActivityAdded += ClientActivityAdded;
+                _client.ConnectionEstablished += new ConnectionEstablishedHandler(_client_ConnectionEstablished);
+                _client.Open(addr);
+            }
+            catch (Exception ex)
+            {
 
-            //_client.FriendAdded += client_FriendAdded;
-            //_client.FriendDeleted += client_FriendDeleted;
-            //_client.FriendRequestReceived += ClientFriendRequestReceived;
+                MessageBox.Show(ex.ToString());
+            }
+           
 
-            //_client.FileUploadRequest += ClientFileUploadRequest;
-            //_client.FileDownloadRequest += ClientFileDownloadRequest;
-            //_client.FileDeleteRequest += ClientFileDeleteRequest;
-            //_client.ContextMessageReceived += _client_ContextMessageReceived;
 
-            //_client.ConnectionEstablished += ClientConnectionEstablished;
-            _client.Open(addr);
+        }
 
+        void _client_ConnectionEstablished(object sender, EventArgs e)
+        {
+            BuildUI();
+            
         }
         #endregion
 
@@ -202,7 +209,6 @@ namespace ActivityTablet
 
         private void client_DeviceAdded(object sender, DeviceEventArgs e)
         {
-
         }
         private void client_MessageReceived(object sender, ComEventArgs e)
         {
@@ -210,12 +216,13 @@ namespace ActivityTablet
         private void client_ActivityRemoved(object sender, ActivityRemovedEventArgs e)
         {
         }
-        private void client_ActivityAdded(object obj, ActivityEventArgs e)
+        private void ClientActivityAdded(object obj, ActivityEventArgs e)
         {
+            AddActivityUI(e.Activity);
         }
         private void b_Click(object sender, RoutedEventArgs e)
         {
-               // throw new NotImplementedException();
+            _client.SwitchActivity(proxies[((ActivityButton)sender).ActivityId].Activity);
         }
         private void b_TouchDown(object sender, TouchEventArgs e)
         {

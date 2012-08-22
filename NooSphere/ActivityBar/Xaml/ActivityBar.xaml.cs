@@ -655,7 +655,8 @@ namespace ActivityUI.Xaml
         }
         private void BClick(object sender, RoutedEventArgs e)
         {
-            SwitchToVirtualDesktop(_proxies[((ActivityButton)sender).ActivityId].Desktop);
+            _client.SwitchActivity(_proxies[((ActivityButton) sender).ActivityId].Activity);
+            //SwitchToVirtualDesktop(_proxies[((ActivityButton)sender).ActivityId].Desktop);
         }
         private void BtnStartClick(object sender, RoutedEventArgs e)
         {

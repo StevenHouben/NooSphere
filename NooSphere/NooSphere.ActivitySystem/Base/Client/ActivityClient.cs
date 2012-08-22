@@ -184,18 +184,23 @@ namespace NooSphere.ActivitySystem.Base.Client
         /// </summary>
         /// <returns>The port of the deployed service</returns>
 #if !ANDROID
+        private object _lock = new object();
         private int StartCallbackService()
         {
-            try
+            lock (_lock)
             {
-                _callbackService.Open(this, typeof(INetEventHandler), "CallbackService");
-                Log.Out("ActivityClient", string.Format("Callback service initialized at {0}", _callbackService.Address), LogCode.Log);
+                try
+                {
+                    _callbackService.Open(this, typeof (INetEventHandler), "CallbackService");
+                    Log.Out("ActivityClient",
+                            string.Format("Callback service initialized at {0}", _callbackService.Address), LogCode.Log);
+                }
+                catch (Exception ex)
+                {
+                    throw new ApplicationException(ex.ToString());
+                }
+                return _callbackService.Port;
             }
-            catch (Exception ex)
-            {
-                throw new ApplicationException(ex.ToString());
-            }
-            return _callbackService.Port;
         }
 #endif
         #endregion
@@ -571,6 +576,19 @@ namespace NooSphere.ActivitySystem.Base.Client
         }
         #endregion
 
+
+        public void SwitchActivity(Activity activity)
+        {
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                {
+                    if (_connected)
+                        Rest.Post(ServiceAddress + Url.Activities+"/"+activity.Id,_connectionId );
+                    else
+                        throw new Exception(
+                            "ActivityClient: Not connected to service. Call connect() method or check address");
+                });   
+        }
     }
     public enum Url
     {
