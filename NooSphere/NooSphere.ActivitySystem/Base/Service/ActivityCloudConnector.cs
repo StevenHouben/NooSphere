@@ -13,6 +13,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Net;
 using System.Threading;
 using System.Web;
 
@@ -33,6 +35,10 @@ namespace NooSphere.ActivitySystem.Base
         #endregion
 
         public string BaseUrl { get; set; }
+        public string ConnectionId
+        {
+            get { return _connection.ConnectionId; }
+        }
 
         #region Events
         public event EventHandler ConnectionSetup;
@@ -134,12 +140,16 @@ namespace NooSphere.ActivitySystem.Base
             ThreadPool.QueueUserWorkItem(
                 delegate
                     {
-                        Rest.SendStreamingRequest(
-                            BaseUrl + resource.CloudPath + "?size=" +
-                            resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" +
-                            resource.CreationTime
-                            + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" +
-                            HttpUtility.UrlEncode(resource.RelativePath), localPath, _connection.ConnectionId);
+                         var uploader = new WebClient();
+                         uploader.Headers.Add(HttpRequestHeader.Authorization, _connection.ConnectionId);
+                        uploader.UploadDataAsync(
+                            new Uri(
+                                BaseUrl + resource.CloudPath + "?size=" +
+                                resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" +
+                                resource.CreationTime
+                                + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" +
+                                HttpUtility.UrlEncode(resource.RelativePath)),
+                                File.ReadAllBytes(localPath));
                     });
         }
 
@@ -196,9 +206,7 @@ namespace NooSphere.ActivitySystem.Base
             var eventType = content["Event"].ToString();
             var data = content["Data"].ToObject<object>();
 
-            ThreadPool.QueueUserWorkItem(
-                delegate
-                    {
+
                         switch (eventType)
                         {
                             case "ActivityAdded":
@@ -299,7 +307,7 @@ namespace NooSphere.ActivitySystem.Base
                                     UserOffline(this, new EventArgs());
                                 break;
                         }
-                    });
+
         }
 
         #endregion
