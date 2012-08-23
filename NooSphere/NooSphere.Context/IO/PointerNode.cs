@@ -95,7 +95,6 @@ namespace NooSphere.Context.IO
                 //    DataReceived(this,new DataEventArgs(msg));
                 //}
             }
-            Console.WriteLine(e.NewObject);
         }
 
         private void HandleMessage(PointerMessage res)

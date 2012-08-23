@@ -30,9 +30,11 @@ using NooSphere.ActivitySystem.Base.Service;
 using NooSphere.ActivitySystem.Contracts.Service;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.ActivitySystem.Host;
+using NooSphere.Context.IO;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using NooSphere.Platform.Windows.Glass;
+using NooSphere.Platform.Windows.Hooks;
 using NooSphere.Platform.Windows.VDM;
 using ActivityUI.Properties;
 using ActivityUI.Login;
@@ -72,7 +74,7 @@ namespace ActivityUI.Xaml
         public bool ClickDetected = false;
 
         //Debug
-        //private PointerNode _pointer = new PointerNode(PointerRole.Controller);
+        private PointerNode _pointer = new PointerNode(PointerRole.Controller);
 
 
         #endregion
@@ -92,6 +94,10 @@ namespace ActivityUI.Xaml
             _popUpWindows.Add(_startMenu);
             _deviceWindow = new DeviceWindow(this);
             _popUpWindows.Add(_deviceWindow);
+
+            MouseHook.Register();
+            MouseHook.MouseDown += MouseHookMouseClick;
+            //MouseHook.MouseMove += MouseHookMouseMove;
 
             DisableUi();
 
@@ -550,7 +556,7 @@ namespace ActivityUI.Xaml
             if(!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
         }
-        void MouseHook_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
+        private void MouseHookMouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
