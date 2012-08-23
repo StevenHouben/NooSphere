@@ -55,53 +55,28 @@ namespace NooSphere.Helpers
                         requestStream.Close();
                     }
                 }
-
+                Log.Out("REST", String.Format("{0} request send to {1}",request.Method,request.RequestUri.ToString()));
                 var task = Task.Factory.FromAsync(
                         request.BeginGetResponse,
                         asyncResult => request.EndGetResponse(asyncResult), null);
+
 
                 return task.ContinueWith(t => ReadStreamFromResponse(t.Result));
             }
             catch (WebException wex)
             {
-                throw wex;
+                Log.Out("REST",String.Format("Web Exception {0} caused by {1} call",wex,request.RequestUri));
+                return null;
             }
         }
         private static string ReadStreamFromResponse(WebResponse response)
         {
+            Log.Out("REST", String.Format("Recieved response from {0}",response.ResponseUri));
             using (var responseStream = response.GetResponseStream())
             using (var sr = new StreamReader(responseStream))
             {
                 var strContent = sr.ReadToEnd();
                 return strContent;
-            }
-        }
-
-        public static byte[] DownloadFromHttpStream(string url, int fileLength, string connectionId=null)
-        {
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            request.Method = HttpMethod.Get.ToString();
-            if (connectionId != null)
-                request.Headers.Add(HttpRequestHeader.Authorization, connectionId);
-
-            var bytesToRead = new byte[fileLength];
-            var bytesRead = 0;
-            var offset = 0;
-            try
-            {
-                using (var requestStream = request.GetResponse().GetResponseStream())
-                {
-                    while(requestStream != null && (fileLength>0 && (bytesRead=requestStream.Read(bytesToRead,offset,fileLength))>0))
-                    {
-                        fileLength -= bytesRead;
-                        offset += bytesRead;
-                    }
-                }
-                return bytesToRead;
-            }
-            catch (Exception)
-            {
-                return null;
             }
         }
 

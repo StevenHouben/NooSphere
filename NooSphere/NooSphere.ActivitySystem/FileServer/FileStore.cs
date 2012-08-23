@@ -18,6 +18,7 @@ using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Base;
 using System.Threading;
 using NooSphere.Helpers;
+using System.Net;
 
 namespace NooSphere.ActivitySystem.FileServer
 {
@@ -37,7 +38,8 @@ namespace NooSphere.ActivitySystem.FileServer
 
         #region Private Members
         private readonly Dictionary<Guid, Resource> _files = new Dictionary<Guid, Resource>();
-        private object _lock = new object();
+        private readonly object _lookUpLock = new object();
+        private readonly object _fileLock = new object();
 
         #endregion
 
@@ -82,6 +84,19 @@ namespace NooSphere.ActivitySystem.FileServer
             }
             Log.Out("FileService", string.Format("Added file {0} to store", resource.Name), LogCode.Log);
         }
+        public void DownloadFile(Resource resource,string path,FileSource source)
+        {
+            var client = new WebClient();
+            client.DownloadDataCompleted += client_DownloadDataCompleted;
+            client.DownloadDataAsync(new Uri(path),new DownloadState(resource,source));
+        }
+
+        private void client_DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
+        {
+            var ds = (DownloadState) e.UserState;
+            AddFile(ds.Resource,e.Result,ds.FileSource);
+        }
+
         private bool IsNewer(Resource resourceInFileStore, Resource requestedResource)
         {
             return false;
@@ -122,30 +137,36 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         public bool LookUp(Guid id)
         {
-            lock(_lock) 
+            lock(_lookUpLock) 
                 return _files.ContainsKey(id);
         }
         public Stream GetStreamFromFile(Resource resource)
         {
-            return new FileStream(BasePath + resource.RelativePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            lock(_fileLock)
+                return new FileStream(BasePath + resource.RelativePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
         public byte[] GetBytesFromFile(Resource resource)
         {
             var fi = new FileInfo(BasePath + resource.RelativePath);
             var buffer = new byte[fi.Length];
-
-            using (var fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
-                fs.Read(buffer, 0, (int)fs.Length);
+            
+            lock (_fileLock)
+                using (var fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    fs.Read(buffer, 0, (int)fs.Length);
 
             return buffer;
         }
         public void Updatefile(Resource resource, byte[] fileInBytes)
         {
-            _files[resource.Id] = resource;
-            SaveToDisk(fileInBytes, resource);
-            if (FileChanged != null)
-                FileChanged(this, new FileEventArgs(resource));
-            Console.WriteLine("FileStore: Updated file {0} in store", resource.Name);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        _files[resource.Id] = resource;
+                        SaveToDisk(fileInBytes, resource);
+                        if (FileChanged != null)
+                            FileChanged(this, new FileEventArgs(resource));
+                        Console.WriteLine("FileStore: Updated file {0} in store", resource.Name);
+                    });
         }
 
         /// <summary>
@@ -186,32 +207,47 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         private void Check(Resource resource, byte[] fileInBytes)
         {
-            if (_files == null)
-                throw new Exception("Filestore: Not initialized");
-            if (resource == null)
-                throw new Exception(("Filestore: Resource not found"));
-            if (fileInBytes == null)
-                throw new Exception(("Filestore: Bytearray null"));
-            if (fileInBytes.Length == 0)
-                throw new Exception(("Filestore: Bytearray empty"));
+            //if (_files == null)
+            //    throw new Exception("Filestore: Not initialized");
+            //if (resource == null)
+            //    throw new Exception(("Filestore: Resource not found"));
+            //if (fileInBytes == null)
+            //    throw new Exception(("Filestore: Bytearray null"));
+            //if (fileInBytes.Length == 0)
+            //    throw new Exception(("Filestore: Bytearray empty"));
         }
         private void SaveToDisk(byte[] fileInBytes, Resource resource)
         {
             var path = Path.Combine(BasePath, resource.RelativePath);
             var dir = Path.GetDirectoryName(path);
             if (dir != null && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
-            using (var fileToupload = new FileStream(@path, FileMode.OpenOrCreate))
-            {
-                fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
-                fileToupload.Close();
-                fileToupload.Dispose();
 
-                //File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
-                //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
-                Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,
-                                    path);
+            lock (_fileLock)
+            {
+                using (var fileToupload = new FileStream(@path, FileMode.OpenOrCreate))
+                {
+                    fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
+                    fileToupload.Close();
+                    fileToupload.Dispose();
+
+                    //File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
+                    //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
+                    Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,
+                                      path);
+                }
             }
         }
         #endregion
+    }
+    internal class DownloadState
+    {
+        public Resource Resource { get; set; }
+        public FileSource FileSource { get; set; }
+
+        public DownloadState(Resource resource, FileSource fileSource)
+        {
+            Resource = resource;
+            FileSource = fileSource;
+        }
     }
 }

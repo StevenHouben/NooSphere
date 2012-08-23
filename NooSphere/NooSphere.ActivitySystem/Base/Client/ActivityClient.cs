@@ -110,15 +110,6 @@ namespace NooSphere.ActivitySystem.Base.Client
 
         #region Private Methods
 
-        /// <summary>
-        /// Downloads a resource
-        /// </summary>
-        /// <param name="resource"></param>
-        /// <returns></returns>
-        private byte[] DownloadResource(Resource resource)
-        {
-            return Rest.DownloadFromHttpStream(ServiceAddress + Url.Files+ "/" + resource.ActivityId + "/" + resource.Id, resource.Size);
-        }
 
         /// <summary>
         /// Tests the connection to the service
@@ -318,10 +309,14 @@ namespace NooSphere.ActivitySystem.Base.Client
         /// <param name="r"></param>
         private void UploadResource(Resource r)
         {
-            Rest.SendStreamingRequest(ServiceAddress + "Files/" + r.ActivityId + "/" + r.Id,
-                                        _fileStore.BasePath + r.RelativePath);
-            //_fileServer.BasePath + r.RelativePath);
-            Log.Out("ActivityClient", string.Format("Received Request to upload {0}", r.Name), LogCode.Log);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        Rest.SendStreamingRequest(ServiceAddress + "Files/" + r.ActivityId + "/" + r.Id,
+                                                  _fileStore.BasePath + r.RelativePath);
+                        //_fileServer.BasePath + r.RelativePath);
+                        Log.Out("ActivityClient", string.Format("Received Request to upload {0}", r.Name), LogCode.Log);
+                    });
         }
 
         /// <summary>
@@ -510,7 +505,8 @@ namespace NooSphere.ActivitySystem.Base.Client
 
         private void ActivityClientFileDownloadRequest(object sender, FileEventArgs e)
         {
-            _fileStore.AddFile(e.Resource, DownloadResource(e.Resource), FileSource.ActivityManager);
+            _fileStore.DownloadFile(e.Resource, ServiceAddress + Url.Files + "/" + e.Resource.ActivityId + "/" + 
+                e.Resource.Id, FileSource.ActivityManager);
         }
         private void ActivityClientDeviceRemoved(object sender, DeviceRemovedEventArgs e)
         {

@@ -29,9 +29,10 @@ namespace NooSphere.ActivitySystem.Base
     public class ActivityCloudConnector
     {
         #region Private Members
-        private readonly string _baseUrl;
         private readonly Connection _connection;
         #endregion
+
+        public string BaseUrl { get; set; }
 
         #region Events
         public event EventHandler ConnectionSetup;
@@ -61,7 +62,7 @@ namespace NooSphere.ActivitySystem.Base
         #region Constructor
         public ActivityCloudConnector(string baseUrl,User user)
         {
-            _baseUrl = baseUrl;
+            BaseUrl = baseUrl;
             _connection = new Connection(baseUrl + "Connect");
             Connect(user);
         }
@@ -74,68 +75,72 @@ namespace NooSphere.ActivitySystem.Base
         #region Public Members
         public void AddParticipant(Guid activityId, Guid userId)
         {
-            Rest.Post(_baseUrl + "Activities/" + activityId + "/Participants/" + userId, null, _connection.ConnectionId);
+            Rest.Post(BaseUrl + "Activities/" + activityId + "/Participants/" + userId, null, _connection.ConnectionId);
         }
         public void RemoveParticipant(Guid activityId, Guid userId)
         {
-            Rest.Delete(_baseUrl + "Activities/" + activityId + "/Participants/" + userId, null, _connection.ConnectionId);
+            Rest.Delete(BaseUrl + "Activities/" + activityId + "/Participants/" + userId, null, _connection.ConnectionId);
         }
         public void Register(Guid userId)
         {
-            Rest.Post(_baseUrl + "Users/" + userId + "/Device", null, _connection.ConnectionId);
+            Rest.Post(BaseUrl + "Users/" + userId + "/Device", null, _connection.ConnectionId);
         }
         public void Unregister(Guid userId)
         {
-            Rest.Delete(_baseUrl + "Users/" + userId + "/Device", null, _connection.ConnectionId);
+            Rest.Delete(BaseUrl + "Users/" + userId + "/Device", null, _connection.ConnectionId);
         }
         public List<Activity> GetActivities()
         {
-            var result = Rest.Get(_baseUrl + "Activities", null, _connection.ConnectionId);
+            var result = Rest.Get(BaseUrl + "Activities", null, _connection.ConnectionId);
             return JsonConvert.DeserializeObject<List<Activity>>(result);
         }
         public Activity GetActivity(Guid activityId)
         {
             return JsonConvert.DeserializeObject<Activity>(
-                Rest.Get(_baseUrl + "Activities/" + activityId, null, _connection.ConnectionId));
+                Rest.Get(BaseUrl + "Activities/" + activityId, null, _connection.ConnectionId));
         }
         public void AddActivity(Activity activity)
         {
-            Rest.Post(_baseUrl + "Activities/", activity, _connection.ConnectionId);
+            Rest.Post(BaseUrl + "Activities/", activity, _connection.ConnectionId);
         }
         public void UpdateActivity(Activity activity)
         {
-            Rest.Put(_baseUrl + "Activities/" + activity.Id, activity,
-                                _connection.ConnectionId);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+
+                        Rest.Put(BaseUrl + "Activities/" + activity.Id, activity,
+                                 _connection.ConnectionId);
+                        Console.WriteLine("UPDATE TO CLOUD========================");
+                    });
         }
         public void DeleteActivity(Guid activityId)
         {
-            Rest.Delete(_baseUrl + "Activities/" + activityId, null,
+            Rest.Delete(BaseUrl + "Activities/" + activityId, null,
                                 _connection.ConnectionId);;
         }
         public Guid GetIdFromUserEmail(string email)
         {
-            return JsonConvert.DeserializeObject<User>(Rest.Get(_baseUrl + "Users?email=" + email)).Id;
+            return JsonConvert.DeserializeObject<User>(Rest.Get(BaseUrl + "Users?email=" + email)).Id;
         }
         public List<User> GetUsers(Guid userId)
         {
-           var bare =Rest.Get(_baseUrl + "Users/"+userId+"/Friends/", null, _connection.ConnectionId);
+           var bare =Rest.Get(BaseUrl + "Users/"+userId+"/Friends/", null, _connection.ConnectionId);
            var res=JsonConvert.DeserializeObject<List<User>>(bare);
            return res;
         }
-        public byte[] GetResource(Resource resource)
-        {
-            var res=Rest.DownloadFromHttpStream(_baseUrl + resource.CloudPath,
-                                               resource.Size, _connection.ConnectionId);
-            return res;
-        }
         public void AddResource(Resource resource, string localPath)
         {
-            Rest.SendStreamingRequest(
-                _baseUrl + resource.CloudPath + "?size=" +
-                resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" +
-                resource.CreationTime
-                + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" +
-                HttpUtility.UrlEncode(resource.RelativePath), localPath, _connection.ConnectionId);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        Rest.SendStreamingRequest(
+                            BaseUrl + resource.CloudPath + "?size=" +
+                            resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" +
+                            resource.CreationTime
+                            + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" +
+                            HttpUtility.UrlEncode(resource.RelativePath), localPath, _connection.ConnectionId);
+                    });
         }
 
         public void DeleteFile(Resource resource)
@@ -144,17 +149,17 @@ namespace NooSphere.ActivitySystem.Base
         }
         public void RequestFriendShip(Guid userId,Guid friendId)
         {
-            Rest.Post(_baseUrl + "Users/" + userId + "/Friends/" + friendId, null,
+            Rest.Post(BaseUrl + "Users/" + userId + "/Friends/" + friendId, null,
                                 _connection.ConnectionId);
         }
         public void RemoveFriend(Guid userId,Guid friendId)
         {
-            Rest.Delete(_baseUrl + "Users/" + userId + "/Friends/" + friendId, null,
+            Rest.Delete(BaseUrl + "Users/" + userId + "/Friends/" + friendId, null,
                                 _connection.ConnectionId);
         }
         public void RespondToFriendRequest(Guid userId,Guid friendId,bool approve)
         {
-            Rest.Post(_baseUrl + "Users/" + userId + "/Friends/" + friendId+"?approve="+approve, null, _connection.ConnectionId);
+            Rest.Post(BaseUrl + "Users/" + userId + "/Friends/" + friendId+"?approve="+approve, null, _connection.ConnectionId);
         }
         #endregion
 

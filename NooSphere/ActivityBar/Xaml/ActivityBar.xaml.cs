@@ -251,7 +251,6 @@ namespace ActivityUI.Xaml
 
         void _client_ServiceIsDown(object sender, EventArgs e)
         {
-            MessageBox.Show("Service is down -> shutting down");
             Environment.Exit(0);
         }
 
@@ -641,7 +640,7 @@ namespace ActivityUI.Xaml
         {
             AddActivityUi(e.Activity);
             Console.WriteLine("Activity Added\n");
-
+            
             _client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
         }
         private void BtnAddClick(object sender, RoutedEventArgs e)

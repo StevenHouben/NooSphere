@@ -42,6 +42,7 @@ namespace NooSphere.ActivitySystem.Base.Service
 
         private readonly Syncer _localSyncer = new Syncer(SyncType.Local); //Buffer for local file sharing
         private readonly object _syncLock = new object(); //Sync lock
+        private readonly object _activityStoreLock = new object();
 
         private bool _connectionActive; //Connected to the cloud
 
@@ -282,8 +283,7 @@ namespace NooSphere.ActivitySystem.Base.Service
         {
             Log.Out("ActivityManager", string.Format("Cloud download request from file: " + e.Resource.RelativePath),
                     LogCode.Log);
-            _fileServer.AddFile(e.Resource, _activityCloudConnector.GetResource(e.Resource),
-                                FileSource.ActivityCloud);
+            _fileServer.DownloadFile(e.Resource, _activityCloudConnector.BaseUrl + e.Resource.CloudPath,FileSource.ActivityCloud);
         }
 
         private void ActivityCloudConnectorFileDeleteRequest(object sender, FileEventArgs e)
@@ -447,12 +447,16 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// <param name="deviceId"> </param>
         public void RemoveActivity(string id, string deviceId)
         {
-            if (_useCloud && _connectionActive)
-                _activityCloudConnector.DeleteActivity(new Guid(id));
-            ActivityStore.Activities.Remove(new Guid(id));
-            _publisher.Publish(ActivityEvent.ActivityRemoved.ToString(), id);
-            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
-                              ActivityEvent.ActivityRemoved);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        if (_useCloud && _connectionActive)
+                            _activityCloudConnector.DeleteActivity(new Guid(id));
+                        ActivityStore.Activities.Remove(new Guid(id));
+                        _publisher.Publish(ActivityEvent.ActivityRemoved.ToString(), id);
+                        Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
+                                          ActivityEvent.ActivityRemoved);
+                    });
         }
 
         /// <summary>
@@ -462,26 +466,17 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// <param name="deviceId"> </param>
         public void UpdateActivity(Activity act, string deviceId)
         {
-            //Check if the activity has resources
-            if (act.GetResources().Count > 0)
-            {
-                //Buffer the activities until all resources are uploaded
-                KeepActivity(act, deviceId, ActivityEvent.ActivityChanged);
-                Console.WriteLine("ActivityManager: Received activity with {0} resources", act.GetResources().Count);
-            }
-            else
-            {
-                //No resource, so update to the cloud
-                Console.WriteLine("ActivityManager: Received activity with 0 resources");
-                if (_connectionActive)
-                    _activityCloudConnector.UpdateActivity(act);
-            }
-
-            //Publish the activityChangedEvent to local system
-            ActivityStore.Activities[act.Id] = act;
-            _publisher.Publish(ActivityEvent.ActivityChanged.ToString(), act);
-            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
-                              ActivityEvent.ActivityChanged);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        //Publish the activityChangedEvent to local system
+                        ActivityStore.Activities[act.Id] = act;
+                        _publisher.Publish(ActivityEvent.ActivityChanged.ToString(), act);
+                        Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
+                                          ActivityEvent.ActivityChanged);
+                        if (_connectionActive)
+                            _activityCloudConnector.UpdateActivity(act);
+                    });
         }
 
         #endregion
@@ -493,15 +488,20 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// </summary>
         public void AddFile(FileRequest fileRequest)
         {
-            if (fileRequest == null)
-                throw new ArgumentNullException("fileRequest");
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        if (fileRequest == null)
+                            throw new ArgumentNullException("fileRequest");
 
-            //Find the activity and attach the resource
-            ActivityStore.Activities[fileRequest.Resouce.ActivityId].Resources.Add(fileRequest.Resouce);
+                        //Find the activity and attach the resource
+                        ActivityStore.Activities[fileRequest.Resouce.ActivityId].Resources.Add(fileRequest.Resouce);
 
-            //Add the file to the fileserver
-            _fileServer.AddFile(fileRequest.Resouce, JsonConvert.DeserializeObject<byte[]>(fileRequest.Bytes),
-                                FileSource.ActivityManager);
+                        //Add the file to the fileserver
+                        _fileServer.AddFile(fileRequest.Resouce,
+                                            JsonConvert.DeserializeObject<byte[]>(fileRequest.Bytes),
+                                            FileSource.ActivityManager);
+                    });
         }
 
         /// <summary>
@@ -512,7 +512,8 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// <returns>Resource</returns>
         private Resource GetResourceFromId(string aId, string resId)
         {
-            return ActivityStore.Activities[new Guid(aId)].GetResources().FirstOrDefault(
+            lock(_activityStoreLock)
+                return ActivityStore.Activities[new Guid(aId)].GetResources().FirstOrDefault(
                 res => (res.Id.ToString() == resId) && (res.ActivityId.ToString() == aId));
         }
 
@@ -522,8 +523,12 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// <param name="resource">Resource that represents the file</param>
         public void RemoveFile(Resource resource)
         {
-            _fileServer.RemoveFile(resource);
-            Console.WriteLine("ActivityManager: Deleted file {0}", resource.Name);
+            ThreadPool.QueueUserWorkItem(
+                delegate
+                    {
+                        _fileServer.RemoveFile(resource);
+                        Console.WriteLine("ActivityManager: Deleted file {0}", resource.Name);
+                    });
         }
 
         /// <summary>
