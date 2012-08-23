@@ -11,6 +11,9 @@
 ****************************************************************************/
 
 using System;
+using System.IO;
+using System.Net;
+using System.Threading;
 using NooSphere.Core.ActivityModel;
 using System.ServiceModel;
 using NooSphere.Core.Devices;
@@ -19,6 +22,8 @@ using NooSphere.ActivitySystem.Contracts.Client;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NooSphere.Helpers;
+
 #endif
 #if !ANDROID
 #endif
@@ -34,6 +39,7 @@ namespace NooSphere.ActivitySystem.Base.Client
 #if ANDROID
         #region Private Members
         private readonly HttpListener _httpListener;
+        private static readonly AutoResetEvent ListenForNextRequest = new AutoResetEvent(false);
         #endregion
 
         #region Protected Members
@@ -44,19 +50,47 @@ namespace NooSphere.ActivitySystem.Base.Client
         public NetEventHandler()
         {
             BaseUrl = Net.GetUrl(Net.GetIp(IPType.All), Net.FindPort(), "").ToString();
+            ServicePointManager.DefaultConnectionLimit = 100;
             _httpListener = new HttpListener();
             _httpListener.Prefixes.Add(BaseUrl);
 
             _httpListener.Start();
-            _httpListener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
-            _httpListener.BeginGetContext(HandleRequest, _httpListener);
+            ThreadPool.QueueUserWorkItem(Listen);
         }
         #endregion
 
         #region HttpHandlers
+        private void Listen(object state)
+        {
+            while(_httpListener.IsListening)
+            {
+                _httpListener.BeginGetContext(HandleRequest, _httpListener);
+                ListenForNextRequest.WaitOne();
+            }
+        }
         private void HandleRequest(IAsyncResult result)
         {
-            var context = _httpListener.EndGetContext(result);
+            var listener = result.AsyncState as HttpListener;
+            HttpListenerContext context;
+
+            if (listener == null) return;
+
+            try
+            {
+                context = listener.EndGetContext(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+                return;
+            }
+            finally
+            {
+                ListenForNextRequest.Set();
+            }
+
+            if (context == null) return;
+
             var url = context.Request.RawUrl;
             var path = url.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
@@ -170,11 +204,12 @@ namespace NooSphere.ActivitySystem.Base.Client
         private void Respond(HttpListenerContext context, int statusCode, string content)
         {
             context.Response.StatusCode = statusCode;
+            
             var buffer = Encoding.UTF8.GetBytes(content);
+            context.Response.ContentLength64 = buffer.Length;
             context.Response.OutputStream.Write(buffer, 0, buffer.Length);
             context.Response.OutputStream.Close();
             context.Response.Close();
-            _httpListener.BeginGetContext(HandleRequest, _httpListener);
         }
         #endregion
         #endif

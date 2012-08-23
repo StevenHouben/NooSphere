@@ -53,6 +53,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActivityAdapter.cs" />
+    <Compile Include="ActivityView.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Login.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
@@ -64,7 +66,9 @@
     <AndroidResource Include="Resources\Layout\Login.axml" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\Layout\Main.axml" />
+    <AndroidResource Include="Resources\Layout\Main.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\Values\Strings.xml" />
