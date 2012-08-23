@@ -108,7 +108,7 @@ namespace ActivityTablet
         {
             Thread t = new Thread(() =>
             {
-                _host = new GenericHost();
+                _host = new GenericHost(7891);
                 _host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
                 _host.StartBroadcast(DiscoveryType.WSDiscovery, "Tablet","204");
                 _host.Open(new ActivityManager(_user, "c:/files/"), typeof(IActivityManager), "Tablet manager");

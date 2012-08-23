@@ -46,7 +46,7 @@ namespace NooSphere.ActivitySystem.Base.Client
 
         #region Private Members
 #if !ANDROID
-        private readonly GenericHost _callbackService = new GenericHost();
+        private readonly GenericHost _callbackService = new GenericHost(7890);
 #endif
         private readonly ConcurrentDictionary<Guid, Activity> _activityBuffer = new ConcurrentDictionary<Guid, Activity>(); 
         private FileStore _fileStore;

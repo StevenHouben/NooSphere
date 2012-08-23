@@ -93,7 +93,6 @@ namespace ActivityUI.Xaml
             _deviceWindow = new DeviceWindow(this);
             _popUpWindows.Add(_deviceWindow);
 
-
             DisableUi();
 
             _login = new LoginWindow();
@@ -202,7 +201,7 @@ namespace ActivityUI.Xaml
             Task.Factory.StartNew(
                    delegate
                    {
-                        _host = new GenericHost();
+                       _host = new GenericHost(7891);
                         _host.HostLaunched += HostHostLaunched;
                         _host.Open(new ActivityManager(_owner, "c:/files/"), typeof (IActivityManager), _device.Name);
                         _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE, _device.Name, "205", _device.Location);
@@ -340,11 +339,6 @@ namespace ActivityUI.Xaml
 
                 _proxies.Add(p.Activity.Id, p);
             }));
-        }
-
-        void BDrop(object sender, DragEventArgs e)
-        {
-            MessageBox.Show(e.Data.ToString());
         }
 
         /// <summary>
@@ -800,7 +794,7 @@ namespace ActivityUI.Xaml
         }
         #endregion
 
-        private void Window_DragEnter(object sender, DragEventArgs e)
+        private void BDragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -810,9 +804,17 @@ namespace ActivityUI.Xaml
 
         }
 
-        private void Window_Drop(object sender, DragEventArgs e)
+        private void BDrop(object sender, DragEventArgs e)
         {
-            MessageBox.Show( e.Data.ToString());
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+
+                var droppedFilePaths =
+                e.Data.GetData(DataFormats.FileDrop, true) as string[];
+
+                _client.AddResource(new FileInfo(droppedFilePaths[0]), ((ActivityButton) sender).ActivityId);
+
+            }
         }
 
     }

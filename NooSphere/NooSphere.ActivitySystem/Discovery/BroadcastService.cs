@@ -74,7 +74,7 @@ namespace NooSphere.ActivitySystem.Discovery
         /// <param name="physicalLocation">The physical location of the service that needs to be broadcasted</param>
         /// <param name="addressToBroadcast">The address of the service that needs to be broadcasted</param>
         /// <param name="broadcastPort">The port of the broadcast service. Default=56789</param>
-        public void Start(DiscoveryType type,string nameToBroadcast,string physicalLocation,string code,Uri addressToBroadcast,int broadcastPort=56789)
+        public void Start(DiscoveryType type,string nameToBroadcast,string physicalLocation,string code,Uri addressToBroadcast,int broadcastPort=7892)
         {
             DiscoveryType = type;
 

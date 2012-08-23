@@ -7,7 +7,8 @@
             d:DesignHeight="60" 
             d:DesignWidth="750" 
             Width="auto"
-            Height="45" Loaded="WindowLoaded" BorderThickness="2" WindowStyle="None" ShowInTaskbar="False" Topmost="True" Background="{DynamicResource NonGlassBrush}" AllowDrop="True" DragEnter="Window_DragEnter" Drop="Window_Drop">
+            Height="45" Loaded="WindowLoaded" BorderThickness="2" WindowStyle="None" ShowInTaskbar="False" 
+        Topmost="True" Background="{DynamicResource NonGlassBrush}" AllowDrop="True">
     <Grid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Width="auto" Margin="0,0,124,0">
             <StackPanel Name="Add" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="auto">

@@ -67,7 +67,7 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// <param name="localPath"></param>
         /// <param name="useLocalCloud"></param>
         /// <param name="useCloud"></param>
-        public ActivityManager(User owner, string localPath, bool useLocalCloud = false, bool useCloud = true)
+        public ActivityManager(User owner, string localPath, bool useLocalCloud = false, bool useCloud = false)
         {
             Owner = owner;
             _useLocalCloud = useLocalCloud;
@@ -433,13 +433,16 @@ namespace NooSphere.ActivitySystem.Base.Service
                 //Set the path of newly added activity
                 _fileServer.IntializePath(act.Id);
 
-                ////Publish the activity
-                //ActivityStore.Activities.Add(act.Id, act);
-                //_publisher.Publish(ActivityEvent.ActivityAdded.ToString(), act);
-                //Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
-                //                  ActivityEvent.ActivityAdded);
+                if (!_useCloud)
+                {
+                    //Publish the activity
+                    ActivityStore.Activities.Add(act.Id, act);
+                    _publisher.Publish(ActivityEvent.ActivityAdded.ToString(), act);
+                    Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
+                                      ActivityEvent.ActivityAdded);
+                }
 
-                if (_connectionActive)
+                if (_connectionActive && _useCloud)
                     _activityCloudConnector.AddActivity(act);
             });
         }
