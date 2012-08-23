@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using NooSphere.ActivitySystem.Contracts;
 using NooSphere.Helpers;
 
@@ -42,9 +43,9 @@ namespace NooSphere.ActivitySystem.PubSub
                     try
                     {
                         var addr = devices[i].Device.BaseAddress;
-                        ThreadPool.QueueUserWorkItem(
-                            delegate
-                                {
+                        Task.Factory.StartNew(
+                           delegate
+                           {
                                     Rest.Post(addr + publishUrl, netObject);
                                     Log.Out("Publisher",
                                             string.Format("Published {0} to {1}", publishUrl, addr),
@@ -68,9 +69,9 @@ namespace NooSphere.ActivitySystem.PubSub
         public void PublishToSubscriber(string publishUrl, object netObject,object subscriber)
         {
 
-            ThreadPool.QueueUserWorkItem(
-             delegate
-             {
+            Task.Factory.StartNew(
+           delegate
+           {
                  Rest.Post(subscriber + publishUrl, netObject);
                     Log.Out("Publisher", string.Format("Publishing {0} to {1}", publishUrl, subscriber), LogCode.Net);
             });

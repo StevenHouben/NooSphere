@@ -17,6 +17,7 @@ using System.ServiceModel;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using NooSphere.Helpers;
@@ -294,9 +295,9 @@ namespace NooSphere.ActivitySystem.Base.Client
                               Bytes = JsonConvert.SerializeObject(File.ReadAllBytes(fileInfo.FullName))
                           };
 
-            ThreadPool.QueueUserWorkItem(
+            Task.Factory.StartNew(
                 delegate
-                    {
+                {
                         Rest.Post(ServiceAddress + Url.Files, req);
                         Log.Out("ActivityClient", string.Format("Received Request to upload {0}", resource.Name),
                                 LogCode.Log);
@@ -310,9 +311,9 @@ namespace NooSphere.ActivitySystem.Base.Client
         /// <param name="r"></param>
         private void UploadResource(Resource r)
         {
-            ThreadPool.QueueUserWorkItem(
-                delegate
-                    {
+            Task.Factory.StartNew(
+                   delegate
+                   {
                         var uploader = new WebClient();
                         uploader.UploadDataAsync(new Uri(ServiceAddress + "Files/" + r.ActivityId + "/" + r.Id),
                                                  File.ReadAllBytes(Path.Combine(_fileStore.BasePath, r.RelativePath)));

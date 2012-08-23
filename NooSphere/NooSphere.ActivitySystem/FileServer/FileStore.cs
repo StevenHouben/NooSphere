@@ -14,6 +14,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Base;
 using System.Threading;
@@ -86,7 +87,6 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         public void DownloadFile(Resource resource,string path,FileSource source,string _connectionId=null)
         {
-            Thread.Sleep(5000);
             var client = new WebClient();
             if (_connectionId != null)
                 client.Headers.Add(HttpRequestHeader.Authorization, _connectionId);
@@ -163,9 +163,9 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         public void Updatefile(Resource resource, byte[] fileInBytes)
         {
-            ThreadPool.QueueUserWorkItem(
-                delegate
-                    {
+            Task.Factory.StartNew(
+                   delegate
+                   {
                         _files[resource.Id] = resource;
                         SaveToDisk(fileInBytes, resource);
                         if (FileChanged != null)

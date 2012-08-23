@@ -16,6 +16,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 
 using SignalR.Client;
@@ -111,9 +112,9 @@ namespace NooSphere.ActivitySystem.Base
         }
         public void UpdateActivity(Activity activity)
         {
-            ThreadPool.QueueUserWorkItem(
+            Task.Factory.StartNew(
                 delegate
-                    {
+                {
 
                         Rest.Put(BaseUrl + "Activities/" + activity.Id, activity,
                                  _connection.ConnectionId);
@@ -137,9 +138,9 @@ namespace NooSphere.ActivitySystem.Base
         }
         public void AddResource(Resource resource, string localPath)
         {
-            ThreadPool.QueueUserWorkItem(
-                delegate
-                    {
+            Task.Factory.StartNew(
+       delegate
+       {
                          var uploader = new WebClient();
                          uploader.Headers.Add(HttpRequestHeader.Authorization, _connection.ConnectionId);
                         uploader.UploadDataAsync(

@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -129,9 +130,9 @@ namespace ActivityUI.Xaml
         {
             _serviceList.Clear();
 
-            ThreadPool.QueueUserWorkItem(
-                delegate
-                    {
+         Task.Factory.StartNew(
+                delegate 
+                {
                         _disc = new DiscoveryManager();
                         _disc.DiscoveryAddressAdded += DiscDiscoveryAddressAdded;
                         _disc.Find(Settings.Default.DISCOVERY_TYPE);
@@ -198,9 +199,9 @@ namespace ActivityUI.Xaml
         /// </summary>
         public void StartActivityManager()
         {
-            ThreadPool.QueueUserWorkItem(
-                delegate
-                    {
+            Task.Factory.StartNew(
+                   delegate
+                   {
                         _host = new GenericHost();
                         _host.HostLaunched += HostHostLaunched;
                         _host.Open(new ActivityManager(_owner, "c:/files/"), typeof (IActivityManager), _device.Name);
