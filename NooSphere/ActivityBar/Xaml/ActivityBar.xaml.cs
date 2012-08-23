@@ -1,4 +1,3 @@
-
 /****************************************************************************
  (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
 
@@ -27,7 +26,7 @@ using System.Windows.Interop;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.ActivitySystem.Base.Service;
-using NooSphere.ActivitySystem.Contracts;
+using NooSphere.ActivitySystem.Contracts.Service;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.Core.ActivityModel;
@@ -37,7 +36,6 @@ using NooSphere.Platform.Windows.VDM;
 using ActivityUI.Properties;
 using ActivityUI.Login;
 using ActivityUI.PopUp;
-using NooSphere.Context.Multicast;
 
 namespace ActivityUI.Xaml
 {
@@ -206,7 +204,7 @@ namespace ActivityUI.Xaml
                         _host = new GenericHost();
                         _host.HostLaunched += HostHostLaunched;
                         _host.Open(new ActivityManager(_owner, "c:/files/"), typeof (IActivityManager), _device.Name);
-                        _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE, _device.Name, "207", _device.Location);
+                        _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE, _device.Name, "205", _device.Location);
 
                     });
         }
@@ -252,7 +250,6 @@ namespace ActivityUI.Xaml
 
         void _client_ServiceIsDown(object sender, EventArgs e)
         {
-            MessageBox.Show("Service is down -> shutting down");
             Environment.Exit(0);
         }
 
@@ -642,8 +639,8 @@ namespace ActivityUI.Xaml
         {
             AddActivityUi(e.Activity);
             Console.WriteLine("Activity Added\n");
-
-            //_client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
+            
+            _client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
         }
         private void BtnAddClick(object sender, RoutedEventArgs e)
         {
@@ -694,7 +691,7 @@ namespace ActivityUI.Xaml
                 Description = "This is the description of the test activity - " + DateTime.Now
             };
             ac.Uri = "http://tempori.org/" + ac.Id;
-
+            ac.Participants.Add(new User() { Email = " 	snielsen@itu.dk" });
             ac.Meta.Data = "added meta data";
             ac.Owner = _owner;
             return ac;

@@ -17,7 +17,6 @@ using Microsoft.Surface.Presentation.Controls;
 using System.Windows.Media;
 using Microsoft.Surface.Presentation.Controls.TouchVisualizations;
 using ActivityDesk.Windowing;
-using ActivityDesk.Visualizer;
 
 using System.Threading;
 using ActivityDesk.Visualizer.Definitions;
@@ -25,6 +24,7 @@ using System.Windows.Threading;
 using System.Collections.Generic;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Service;
+using NooSphere.ActivitySystem.Contracts.Service;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.ActivitySystem.Contracts;

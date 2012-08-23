@@ -17,7 +17,7 @@ using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using System.ServiceModel.Web;
 
-namespace NooSphere.ActivitySystem.Contracts
+namespace NooSphere.ActivitySystem.Contracts.Service
 {
     [ServiceContract]
     public interface IActivityManager :IServiceBase, IMessenger,IFileServer

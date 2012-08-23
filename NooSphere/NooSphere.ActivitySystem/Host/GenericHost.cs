@@ -147,7 +147,7 @@ namespace NooSphere.ActivitySystem.Host
         /// <param name="name">The name the service</param>
         public void Open(IServiceBase implementation, Type description, string name)
         {
-            this.Service = implementation;
+            Service = implementation;
 
             Log.Out("BasicHost", string.Format(" Attemting to find an IP for endPoint"), LogCode.Net);
             Ip = Net.GetIp(IPType.All);

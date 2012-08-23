@@ -6,7 +6,7 @@ namespace NooSphere.Helpers
     {
         public static void Out(string sender,string message,LogCode code=LogCode.Log)
         {
-            Console.WriteLine(sender + "["+code+"]: " + message);
+            Console.WriteLine("[" +DateTime.Now + "]" +sender + "["+code+"]: " + message);
         }
         
     }

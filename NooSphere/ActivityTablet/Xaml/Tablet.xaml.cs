@@ -19,6 +19,7 @@ using System.Threading;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.ActivitySystem.Base.Service;
+using NooSphere.ActivitySystem.Contracts.Service;
 using NooSphere.ActivitySystem.Host;
 using NooSphere.Context.IO;
 using NooSphere.Core.ActivityModel;
