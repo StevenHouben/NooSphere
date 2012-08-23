@@ -25,6 +25,7 @@ using NooSphere.ActivitySystem.FileServer;
 #if !ANDROID
 using NooSphere.ActivitySystem.Host;
 using NooSphere.ActivitySystem.Contracts.Client;
+using System.Net;
 #endif
 
 namespace NooSphere.ActivitySystem.Base.Client
@@ -312,8 +313,9 @@ namespace NooSphere.ActivitySystem.Base.Client
             ThreadPool.QueueUserWorkItem(
                 delegate
                     {
-                        Rest.SendStreamingRequest(ServiceAddress + "Files/" + r.ActivityId + "/" + r.Id,
-                                                  _fileStore.BasePath + r.RelativePath);
+                        var uploader = new WebClient();
+                        uploader.UploadDataAsync(new Uri(ServiceAddress + "Files/" + r.ActivityId + "/" + r.Id),
+                                                 File.ReadAllBytes(Path.Combine(_fileStore.BasePath, r.RelativePath)));
                         //_fileServer.BasePath + r.RelativePath);
                         Log.Out("ActivityClient", string.Format("Received Request to upload {0}", r.Name), LogCode.Log);
                     });

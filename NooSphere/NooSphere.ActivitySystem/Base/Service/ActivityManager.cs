@@ -281,9 +281,11 @@ namespace NooSphere.ActivitySystem.Base.Service
 
         private void ActivityCloudConnectorFileDownloadRequest(object sender, FileEventArgs e)
         {
-            Log.Out("ActivityManager", string.Format("Cloud download request from file: " + e.Resource.RelativePath),
+            Log.Out("ActivityManager",
+                    string.Format("Cloud download request from file: " + e.Resource.RelativePath),
                     LogCode.Log);
-            _fileServer.DownloadFile(e.Resource, _activityCloudConnector.BaseUrl + e.Resource.CloudPath,FileSource.ActivityCloud);
+            _fileServer.DownloadFile(e.Resource, _activityCloudConnector.BaseUrl + e.Resource.CloudPath,
+                                        FileSource.ActivityCloud, _activityCloudConnector.ConnectionId);
         }
 
         private void ActivityCloudConnectorFileDeleteRequest(object sender, FileEventArgs e)
@@ -429,11 +431,11 @@ namespace NooSphere.ActivitySystem.Base.Service
                 //Set the path of newly added activity
                 _fileServer.IntializePath(act.Id);
 
-                //Publish the activity
-                ActivityStore.Activities.Add(act.Id, act);
-                _publisher.Publish(ActivityEvent.ActivityAdded.ToString(), act);
-                Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
-                                  ActivityEvent.ActivityAdded);
+                ////Publish the activity
+                //ActivityStore.Activities.Add(act.Id, act);
+                //_publisher.Publish(ActivityEvent.ActivityAdded.ToString(), act);
+                //Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
+                //                  ActivityEvent.ActivityAdded);
 
                 if (_connectionActive)
                     _activityCloudConnector.AddActivity(act);

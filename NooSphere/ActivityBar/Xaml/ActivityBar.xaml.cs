@@ -639,9 +639,12 @@ namespace ActivityUI.Xaml
         {
             AddActivityUi(e.Activity);
             Console.WriteLine("Activity Added\n");
-            
-            _client.AddResource(new FileInfo("c:/dump/abc.jpg"),e.Activity.Id );
+
+            //_client.AddResource(new FileInfo("c:/dump/abc" + count.ToString() + ".jpg"), e.Activity.Id);
+            //count++;
         }
+
+        private int count = 1;
         private void BtnAddClick(object sender, RoutedEventArgs e)
         {
             AddEmptyActivity();

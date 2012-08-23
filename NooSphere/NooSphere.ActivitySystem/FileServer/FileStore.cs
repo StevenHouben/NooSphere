@@ -82,19 +82,24 @@ namespace NooSphere.ActivitySystem.FileServer
                         FileCopied(this, new FileEventArgs(resource));
                     break; 
             }
-            Log.Out("FileService", string.Format("Added file {0} to store", resource.Name), LogCode.Log);
+            Log.Out("FileStore", string.Format("Added file {0} to store", resource.Name), LogCode.Log);
         }
-        public void DownloadFile(Resource resource,string path,FileSource source)
+        public void DownloadFile(Resource resource,string path,FileSource source,string _connectionId=null)
         {
+            Thread.Sleep(5000);
             var client = new WebClient();
+            if (_connectionId != null)
+                client.Headers.Add(HttpRequestHeader.Authorization, _connectionId);
             client.DownloadDataCompleted += client_DownloadDataCompleted;
-            client.DownloadDataAsync(new Uri(path),new DownloadState(resource,source));
+            client.DownloadDataAsync(new Uri(path), new DownloadState(resource, source));
+            Log.Out("FileStore", string.Format("Started download for {0}", resource.Name), LogCode.Log);
         }
 
         private void client_DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
         {
             var ds = (DownloadState) e.UserState;
-            AddFile(ds.Resource,e.Result,ds.FileSource);
+            Log.Out("FileStore", string.Format("Finished download for {0}", ds.Resource.Name), LogCode.Log);
+            AddFile(ds.Resource, e.Result, ds.FileSource);
         }
 
         private bool IsNewer(Resource resourceInFileStore, Resource requestedResource)
@@ -125,7 +130,7 @@ namespace NooSphere.ActivitySystem.FileServer
                         FileChanged(this, new FileEventArgs(resource));
                     break;
             }
-            Log.Out("FileService", string.Format("Updated file {0} to store", resource.Name), LogCode.Log);
+            Log.Out("FileStore", string.Format("Updated file {0} to store", resource.Name), LogCode.Log);
         }
         public void RemoveFile(Resource resource)
         {
@@ -133,7 +138,7 @@ namespace NooSphere.ActivitySystem.FileServer
             File.Delete(BasePath+resource.RelativePath);
             if (FileRemoved != null)
                 FileRemoved(this, new FileEventArgs(resource));
-            Console.WriteLine("FileStore: Removed file {0} from store", resource.Name); 
+            Log.Out("FileStore", string.Format("FileStore: Removed file {0} from store", resource.Name), LogCode.Log);
         }
         public bool LookUp(Guid id)
         {
@@ -165,7 +170,7 @@ namespace NooSphere.ActivitySystem.FileServer
                         SaveToDisk(fileInBytes, resource);
                         if (FileChanged != null)
                             FileChanged(this, new FileEventArgs(resource));
-                        Console.WriteLine("FileStore: Updated file {0} in store", resource.Name);
+                        Log.Out("FileStore", string.Format("FileStore: Updated file {0} in store", resource.Name), LogCode.Log);
                     });
         }
 
@@ -181,7 +186,6 @@ namespace NooSphere.ActivitySystem.FileServer
             if (!Directory.Exists(path))
             {
                 var dInfo = Directory.CreateDirectory(path);
-                Console.WriteLine("FileStore: Folder {0} initialized", dInfo.FullName); 
             }
         }
         public void CleanUp(string path)
@@ -208,14 +212,14 @@ namespace NooSphere.ActivitySystem.FileServer
         }
         private void Check(Resource resource, byte[] fileInBytes)
         {
-            //if (_files == null)
-            //    throw new Exception("Filestore: Not initialized");
-            //if (resource == null)
-            //    throw new Exception(("Filestore: Resource not found"));
-            //if (fileInBytes == null)
-            //    throw new Exception(("Filestore: Bytearray null"));
-            //if (fileInBytes.Length == 0)
-            //    throw new Exception(("Filestore: Bytearray empty"));
+            if (_files == null)
+                throw new Exception("Filestore: Not initialized");
+            if (resource == null)
+                throw new Exception(("Filestore: Resource not found"));
+            if (fileInBytes == null)
+                throw new Exception(("Filestore: Bytearray null"));
+            if (fileInBytes.Length == 0)
+                throw new Exception(("Filestore: Bytearray empty"));
         }
         private void SaveToDisk(byte[] fileInBytes, Resource resource)
         {
@@ -235,6 +239,8 @@ namespace NooSphere.ActivitySystem.FileServer
                     //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
                     Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,
                                       path);
+                    Log.Out("FileStore", string.Format("FileStore: Saved file {0} to disk at {1}", resource.Name,
+                                      path), LogCode.Log);
                 }
             }
         }
