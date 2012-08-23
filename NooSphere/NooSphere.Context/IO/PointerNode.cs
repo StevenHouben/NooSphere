@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using NooSphere.Context.Multicast;
@@ -45,11 +46,7 @@ namespace NooSphere.Context.IO
                     MouseHook.MouseUp += new MouseEventHandler(MouseHookMouseUp);
                     break;
                 case PointerRole.Slave:
-                    _mSocket.StartReceiving();
-                    break;
-                default:
-                    MouseHook.Register();
-                                        MouseHook.MouseDown += new MouseEventHandler(MouseHookMouseDown);
+                    MouseHook.MouseDown += new MouseEventHandler(MouseHookMouseDown);
                     MouseHook.MouseMove+=new MouseEventHandler(MouseHookMouseMove);
                     MouseHook.MouseUp += new MouseEventHandler(MouseHookMouseUp);
                     _mSocket.StartReceiving();
@@ -57,17 +54,32 @@ namespace NooSphere.Context.IO
             }
         }
 
+        private Point _previousPoint;
+        private bool _unInitializedMouse = true;
         private void MouseHookMouseUp(object sender, MouseEventArgs e)
         {
-            Send(new PointerMessage(e.X, e.Y, PointerEvent.Up).ToString());
+            if(PointerRole == PointerRole.Controller)
+                Send(new PointerMessage(e.X, e.Y, PointerEvent.Up).ToString());
         }
         private void MouseHookMouseMove(object sender, MouseEventArgs e)
         {
-            Send(new PointerMessage(e.X, e.Y, PointerEvent.Move).ToString());
+            if (_unInitializedMouse)
+            {
+                _previousPoint = e.Location;
+                _unInitializedMouse = false;
+            }
+            var xDif = _previousPoint.X - e.Location.X;
+            var yDif = _previousPoint.Y - e.Location.Y;
+            Console.WriteLine(xDif+"---"+yDif);
+
+            if (PointerRole == PointerRole.Controller)
+                Send(new PointerMessage(_previousPoint.X + xDif, _previousPoint.Y+yDif, PointerEvent.Move).ToString());
+            _previousPoint = e.Location;
         }
         private void MouseHookMouseDown(object sender, MouseEventArgs e)
         {
-            Send(new PointerMessage(e.X, e.Y, PointerEvent.Down).ToString());
+            if (PointerRole == PointerRole.Controller)
+                Send(new PointerMessage(e.X, e.Y, PointerEvent.Down).ToString());
         }
 
         [DllImport("User32.dll")]
