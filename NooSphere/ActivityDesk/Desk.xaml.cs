@@ -259,7 +259,7 @@ namespace ActivityDesk
         {
             var t = new Thread(() =>
             {
-                _host = new GenericHost(7891);
+                _host = new GenericHost();
                 _host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
                 _host.Open(new ActivityManager(new User(),"c:/files/"), typeof(IActivityManager),"desk");
 

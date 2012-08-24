@@ -46,7 +46,7 @@ namespace NooSphere.ActivitySystem.Base.Client
 
         #region Private Members
 #if !ANDROID
-        private readonly GenericHost _callbackService = new GenericHost(7890);
+        private GenericHost _callbackService;
 #endif
         private readonly ConcurrentDictionary<Guid, Activity> _activityBuffer = new ConcurrentDictionary<Guid, Activity>(); 
         private FileStore _fileStore;
@@ -166,17 +166,24 @@ namespace NooSphere.ActivitySystem.Base.Client
         private readonly object _callbackInitialisationLock = new object();
         private int StartCallbackService()
         {
+            if (_callbackService != null)
+                return _callbackService.Port;
+
             lock (_callbackInitialisationLock)
             {
                 try
                 {
+                    _callbackService = new GenericHost(7890);
                     _callbackService.Open(this, typeof (INetEventHandler), "CallbackService");
                     Log.Out("ActivityClient",
                             string.Format("Callback service initialized at {0}", _callbackService.Address), LogCode.Log);
                 }
                 catch (Exception ex)
                 {
-                    throw new ApplicationException(ex.ToString());
+                    _callbackService = new GenericHost();
+                    _callbackService.Open(this, typeof(INetEventHandler), "CallbackService");
+                    Log.Out("ActivityClient",
+                            string.Format("Callback service initialized at {0}", _callbackService.Address), LogCode.Log);
                 }
                 return _callbackService.Port;
             }
