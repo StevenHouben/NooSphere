@@ -25,6 +25,7 @@ using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.PubSub;
 using NooSphere.ActivitySystem.FileServer;
 using NooSphere.Helpers;
+using System.Threading.Tasks;
 
 namespace NooSphere.ActivitySystem.Base.Service
 {
@@ -66,7 +67,7 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// <param name="localPath"></param>
         /// <param name="useLocalCloud"></param>
         /// <param name="useCloud"></param>
-        public ActivityManager(User owner, string localPath, bool useLocalCloud = false, bool useCloud = true)
+        public ActivityManager(User owner, string localPath, bool useLocalCloud = false, bool useCloud = false)
         {
             Owner = owner;
             _useLocalCloud = useLocalCloud;
@@ -284,7 +285,9 @@ namespace NooSphere.ActivitySystem.Base.Service
             Log.Out("ActivityManager",
                     string.Format("Cloud download request from file: " + e.Resource.RelativePath),
                     LogCode.Log);
-            _fileServer.DownloadFile(e.Resource, _activityCloudConnector.BaseUrl + e.Resource.CloudPath,
+
+            if(!_fileServer.LookUp(e.Resource.Id))
+                _fileServer.DownloadFile(e.Resource, _activityCloudConnector.BaseUrl + e.Resource.CloudPath,
                                         FileSource.ActivityCloud, _activityCloudConnector.ConnectionId);
         }
 
@@ -425,19 +428,21 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// <param name="deviceId"> </param>
         public void AddActivity(Activity act, string deviceId)
         {
-            ThreadPool.QueueUserWorkItem(
-                delegate
-                {
+            Task.Factory.StartNew(
+                delegate {
                 //Set the path of newly added activity
                 _fileServer.IntializePath(act.Id);
 
-                ////Publish the activity
-                //ActivityStore.Activities.Add(act.Id, act);
-                //_publisher.Publish(ActivityEvent.ActivityAdded.ToString(), act);
-                //Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
-                //                  ActivityEvent.ActivityAdded);
+                if (!_useCloud)
+                {
+                    //Publish the activity
+                    ActivityStore.Activities.Add(act.Id, act);
+                    _publisher.Publish(ActivityEvent.ActivityAdded.ToString(), act);
+                    Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
+                                      ActivityEvent.ActivityAdded);
+                }
 
-                if (_connectionActive)
+                if (_connectionActive && _useCloud)
                     _activityCloudConnector.AddActivity(act);
             });
         }
@@ -449,9 +454,9 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// <param name="deviceId"> </param>
         public void RemoveActivity(string id, string deviceId)
         {
-            ThreadPool.QueueUserWorkItem(
-                delegate
-                    {
+            Task.Factory.StartNew(
+                   delegate
+                   {
                         if (_useCloud && _connectionActive)
                             _activityCloudConnector.DeleteActivity(new Guid(id));
                         ActivityStore.Activities.Remove(new Guid(id));
@@ -468,9 +473,9 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// <param name="deviceId"> </param>
         public void UpdateActivity(Activity act, string deviceId)
         {
-            ThreadPool.QueueUserWorkItem(
-                delegate
-                    {
+            Task.Factory.StartNew(
+                   delegate
+                   {
                         //Publish the activityChangedEvent to local system
                         ActivityStore.Activities[act.Id] = act;
                         _publisher.Publish(ActivityEvent.ActivityChanged.ToString(), act);
@@ -490,9 +495,9 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// </summary>
         public void AddFile(FileRequest fileRequest)
         {
-            ThreadPool.QueueUserWorkItem(
-                delegate
-                    {
+            Task.Factory.StartNew(
+                   delegate
+                   {
                         if (fileRequest == null)
                             throw new ArgumentNullException("fileRequest");
 
@@ -525,7 +530,7 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// <param name="resource">Resource that represents the file</param>
         public void RemoveFile(Resource resource)
         {
-            ThreadPool.QueueUserWorkItem(
+         Task.Factory.StartNew(
                 delegate
                     {
                         _fileServer.RemoveFile(resource);

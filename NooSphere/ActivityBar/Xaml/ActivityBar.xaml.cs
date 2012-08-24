@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -29,9 +30,11 @@ using NooSphere.ActivitySystem.Base.Service;
 using NooSphere.ActivitySystem.Contracts.Service;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.ActivitySystem.Host;
+using NooSphere.Context.IO;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using NooSphere.Platform.Windows.Glass;
+using NooSphere.Platform.Windows.Hooks;
 using NooSphere.Platform.Windows.VDM;
 using ActivityUI.Properties;
 using ActivityUI.Login;
@@ -71,7 +74,7 @@ namespace ActivityUI.Xaml
         public bool ClickDetected = false;
 
         //Debug
-        //private PointerNode _pointer = new PointerNode(PointerRole.Controller);
+        private PointerNode _pointer = new PointerNode(PointerRole.Controller);
 
 
         #endregion
@@ -92,6 +95,9 @@ namespace ActivityUI.Xaml
             _deviceWindow = new DeviceWindow(this);
             _popUpWindows.Add(_deviceWindow);
 
+            MouseHook.Register();
+            MouseHook.MouseDown += MouseHookMouseClick;
+            //MouseHook.MouseMove += MouseHookMouseMove;
 
             DisableUi();
 
@@ -129,9 +135,9 @@ namespace ActivityUI.Xaml
         {
             _serviceList.Clear();
 
-            ThreadPool.QueueUserWorkItem(
-                delegate
-                    {
+         Task.Factory.StartNew(
+                delegate 
+                {
                         _disc = new DiscoveryManager();
                         _disc.DiscoveryAddressAdded += DiscDiscoveryAddressAdded;
                         _disc.Find(Settings.Default.DISCOVERY_TYPE);
@@ -198,10 +204,10 @@ namespace ActivityUI.Xaml
         /// </summary>
         public void StartActivityManager()
         {
-            ThreadPool.QueueUserWorkItem(
-                delegate
-                    {
-                        _host = new GenericHost();
+            Task.Factory.StartNew(
+                   delegate
+                   {
+                       _host = new GenericHost(7891);
                         _host.HostLaunched += HostHostLaunched;
                         _host.Open(new ActivityManager(_owner, "c:/files/"), typeof (IActivityManager), _device.Name);
                         _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE, _device.Name, "205", _device.Location);
@@ -339,11 +345,6 @@ namespace ActivityUI.Xaml
 
                 _proxies.Add(p.Activity.Id, p);
             }));
-        }
-
-        void BDrop(object sender, DragEventArgs e)
-        {
-            MessageBox.Show(e.Data.ToString());
         }
 
         /// <summary>
@@ -555,7 +556,7 @@ namespace ActivityUI.Xaml
             if(!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
         }
-        void MouseHook_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
+        private void MouseHookMouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (!HitTestAllPopWindow(e.Location))
                 HideAllPopups();
@@ -799,7 +800,7 @@ namespace ActivityUI.Xaml
         }
         #endregion
 
-        private void Window_DragEnter(object sender, DragEventArgs e)
+        private void BDragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -809,9 +810,17 @@ namespace ActivityUI.Xaml
 
         }
 
-        private void Window_Drop(object sender, DragEventArgs e)
+        private void BDrop(object sender, DragEventArgs e)
         {
-            MessageBox.Show( e.Data.ToString());
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+
+                var droppedFilePaths =
+                e.Data.GetData(DataFormats.FileDrop, true) as string[];
+
+                _client.AddResource(new FileInfo(droppedFilePaths[0]), ((ActivityButton) sender).ActivityId);
+
+            }
         }
 
     }

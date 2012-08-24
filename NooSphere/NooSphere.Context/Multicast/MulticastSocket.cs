@@ -15,6 +15,7 @@ using System.Text;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace NooSphere.Context.Multicast
@@ -173,12 +174,11 @@ namespace NooSphere.Context.Multicast
 
         private void NotifyMulticastSocketListener(MulticastSocketMessageType messageType, Object obj)
         {
-            ThreadPool.QueueUserWorkItem(ThreadedNotifyMulticastSocketListener, new NotifyMulticastSocketListenerEventArgs(messageType, obj));
+                     Task.Factory.StartNew(ThreadedNotifyMulticastSocketListener, new NotifyMulticastSocketListenerEventArgs(messageType, obj));
         }
-
         private void NotifyMulticastSocketListener(MulticastSocketMessageType messageType, Object obj, int consecutive)
         {
-            ThreadPool.QueueUserWorkItem(ThreadedNotifyMulticastSocketListener, new NotifyMulticastSocketListenerEventArgs(messageType, obj, consecutive));
+            Task.Factory.StartNew(ThreadedNotifyMulticastSocketListener, new NotifyMulticastSocketListenerEventArgs(messageType, obj, consecutive));
         }
 
         private void ThreadedNotifyMulticastSocketListener(Object argsObj)
