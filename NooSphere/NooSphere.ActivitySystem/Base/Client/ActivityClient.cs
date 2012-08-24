@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
  (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
 
  Pervasive Interaction Technology Laboratory (pIT lab)
@@ -13,6 +13,7 @@
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.ServiceModel;
 using System;
 using System.Collections.Generic;
