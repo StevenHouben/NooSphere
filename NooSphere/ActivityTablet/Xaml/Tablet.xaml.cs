@@ -180,6 +180,8 @@ namespace ActivityTablet
         }
         private void StartClient(string addr)
         {
+            if (_client != null)
+                return;
             try
             {
                 _client = new ActivityClient(@"c:/abc/", _device) { CurrentUser = new User() };

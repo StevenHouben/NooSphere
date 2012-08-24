@@ -87,42 +87,9 @@ namespace NooSphere.ActivitySystem.FileServer
             }
             Log.Out("FileStore", string.Format("Added file {0} to store", resource.Name), LogCode.Log);
         }
-        public void _DownloadFile(Resource resource,string path,FileSource source,string _connectionId=null)
-        {
-            var client = new WebClient();
-            if (_connectionId != null)
-                client.Headers.Add(HttpRequestHeader.Authorization, _connectionId);
-            client.DownloadDataCompleted += client_DownloadDataCompleted;
-            client.DownloadDataAsync(new Uri(path), new DownloadState(resource, source));
-            Log.Out("FileStore", string.Format("Started download for {0}", resource.Name), LogCode.Log);
-        }
+      
         public void DownloadFile(Resource resource, string path, FileSource source, string _connectionId = null)
         {
-            //Task.Factory.StartNew(delegate
-            //                          {
-                                          //var req = WebRequest.Create(path);
-                                          //if (_connectionId != null)
-                                          //    req.Headers.Add(HttpRequestHeader.Authorization, _connectionId);
-                                          //req.Timeout = 5000;
-                                          //var buffer = new byte[resource.Size];
-                                          //var fileLength = resource.Size;
-                                          //var offset = 0;
-                                          //using (var response = req.GetResponse())
-                                          //{
-                                          //    using (var responseStream = response.GetResponseStream())
-                                          //    {
-                                          //        var bytesRead = 0;
-                                          //        while (fileLength > 0 &&
-                                          //               (bytesRead = responseStream.Read(buffer, offset, fileLength)) >
-                                          //               0)
-                                          //        {
-                                          //            fileLength -= bytesRead;
-                                          //            offset += bytesRead;
-                                          //        }
-                                          //    }
-                                          //}
-                                          //AddFile(resource, buffer, source);
-                                      //});
             if (_connectionId != null)
                 _httpClient.DefaultRequestHeaders.Authorization = System.Net.Http.Headers.AuthenticationHeaderValue.Parse(_connectionId);
             _httpClient.GetAsync(path).ContinueWith(resp =>
@@ -136,22 +103,13 @@ namespace NooSphere.ActivitySystem.FileServer
             });
             Log.Out("FileStore", string.Format("Started download for {0}", resource.Name), LogCode.Log);
         }
-
-
-        private void client_DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
-        {
-            var ds = (DownloadState) e.UserState;
-            Log.Out("FileStore", string.Format("Finished download for {0}", ds.Resource.Name), LogCode.Log);
-            AddFile(ds.Resource, e.Result, ds.FileSource);
-        }
-
         private bool IsNewer(Resource resourceInFileStore, Resource requestedResource)
         {
             return false;
         }
         public void AddFile(Resource resource, Stream stream, FileSource source)
         {
-            AddFile(resource, GetBytesFromStream(resource, stream), FileSource.ActivityManager);
+            AddFile(resource, GetBytesFromStream(resource, stream), source);
         }
         public void UpdateFile(Resource resource,Stream stream,FileSource source)
         {

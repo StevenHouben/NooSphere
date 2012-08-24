@@ -67,7 +67,7 @@ namespace NooSphere.ActivitySystem.Base.Service
         /// <param name="localPath"></param>
         /// <param name="useLocalCloud"></param>
         /// <param name="useCloud"></param>
-        public ActivityManager(User owner, string localPath, bool useLocalCloud = false, bool useCloud = false)
+        public ActivityManager(User owner, string localPath, bool useLocalCloud = false, bool useCloud = true)
         {
             Owner = owner;
             _useLocalCloud = useLocalCloud;
@@ -139,29 +139,6 @@ namespace NooSphere.ActivitySystem.Base.Service
         #region Privat Methods
 
         /// <summary>
-        /// Publish activity to cloud
-        /// </summary>
-        /// <param name="act">Activity that needs to be published</param>
-        /// <param name="aEvent"> </param>
-        private void PublishActivity(Activity act, ActivityEvent aEvent)
-        {
-            Console.WriteLine("ActivityManager: Publishing activity {0} to cloud", act.Name);
-            if (_useCloud && _connectionActive)
-            {
-                switch (aEvent)
-                {
-                    case ActivityEvent.ActivityAdded:
-                        _activityCloudConnector.AddActivity(act);
-                        break;
-                    case ActivityEvent.ActivityChanged:
-                        _activityCloudConnector.UpdateActivity(act);
-                        break;
-                }
-            }
-
-        }
-
-        /// <summary>
         /// Adds an activity to the manager that is pushed from the cloud
         /// </summary>
         /// <param name="act"></param>
@@ -180,76 +157,6 @@ namespace NooSphere.ActivitySystem.Base.Service
             _publisher.Publish(ActivityEvent.ActivityAdded.ToString(), act);
         }
 
-        /// <summary>
-        /// Buffer activity locally until resources are uploaded
-        /// </summary>
-        /// <param name="act">Activity that needs to be buffered</param>
-        /// <param name="deviceId">The id of the device </param>
-        /// <param name="aEvent"> The type of event</param>
-        private void KeepActivity(Activity act, string deviceId, ActivityEvent aEvent)
-        {
-            Log.Out("ActivityManager", string.Format("Keeping activity {0} in buffer", act), LogCode.Log);
-
-            //Loop throught the resource and check which ones are already uploaded
-            var resList = act.GetResources()
-                .Where(resource => !_fileServer.LookUp(resource.Id)).ToList();
-
-            //If all files are uploaded, publish the activity
-            if (resList.Count == 0)
-                PublishActivity(act, aEvent);
-
-            //Create a buffer id
-            var bufferId = Guid.NewGuid();
-
-            lock (_syncLock)
-            {
-                //Buffer the activity into a local buffer
-                _localSyncer.Buffer.GetOrAdd(bufferId, act);
-                _localSyncer.Resources.GetOrAdd(bufferId, resList);
-                _localSyncer.EventType.GetOrAdd(bufferId, aEvent);
-            }
-
-            //Send File upload request to the client that has added the activity
-            foreach (var resource in resList)
-                _publisher.PublishToSubscriber(FileEvent.FileUploadRequest.ToString(), resource,
-                                               Registry.ConnectedClients[deviceId]);
-        }
-
-        /// <summary>
-        /// Track uploaded resources
-        /// </summary>
-        /// <param name="res">Resource that needs to be checked against activity buffer</param>
-        /// <param name="syncer"> </param>
-        private void ResourceTracker(Resource res, Syncer syncer)
-        {
-            var t = new Thread(() =>
-                                   {
-                                       if (syncer.Buffer.Count == 0) return;
-                                       foreach (var pair in syncer.Resources.ToList())
-                                       {
-                                           var bufferid = pair.Key;
-                                           var resList = pair.Value;
-                                           foreach (var resource in resList.ToList())
-                                           {
-                                               if (res.Id != resource.Id) continue;
-                                               resList.Remove(resource);
-                                               if (resList.Count == 0)
-                                               {
-                                                   PublishActivity(syncer.Buffer[bufferid], syncer.EventType[bufferid]);
-                                                   Activity removedActivity;
-                                                   ActivityEvent removedActivityEvent;
-                                                   syncer.Buffer.TryRemove(bufferid, out removedActivity);
-                                                   syncer.EventType.TryRemove(bufferid, out removedActivityEvent);
-
-                                                   return;
-                                               }
-                                               syncer.Resources[bufferid] = resList;
-                                           }
-                                       }
-                                   }) {IsBackground = true};
-            t.Start();
-        }
-
         #endregion
 
         #region Net Handlers
@@ -265,7 +172,7 @@ namespace NooSphere.ActivitySystem.Base.Service
             if (_connectionActive && _useCloud)
                 _activityCloudConnector.DeleteFile(e.Resource);
         }
-
+        
         private void FileServerFileChanged(object sender, FileEventArgs e)
         {
             _publisher.Publish(FileEvent.FileDownloadRequest.ToString(), e.Resource);
