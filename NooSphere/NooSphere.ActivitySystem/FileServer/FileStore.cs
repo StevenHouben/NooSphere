@@ -14,6 +14,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Base;
@@ -38,6 +39,7 @@ namespace NooSphere.ActivitySystem.FileServer
         #endregion
 
         #region Private Members
+        private readonly HttpClient _httpClient = new HttpClient();
         private readonly Dictionary<Guid, Resource> _files = new Dictionary<Guid, Resource>();
         private readonly object _lookUpLock = new object();
         private readonly object _fileLock = new object();
@@ -98,29 +100,41 @@ namespace NooSphere.ActivitySystem.FileServer
         {
             //Task.Factory.StartNew(delegate
             //                          {
-                                          var req = WebRequest.Create(path);
-                                          if (_connectionId != null)
-                                              req.Headers.Add(HttpRequestHeader.Authorization, _connectionId);
-                                          req.Timeout = 5000;
-                                          var buffer = new byte[resource.Size];
-                                          var fileLength = resource.Size;
-                                          var offset = 0;
-                                          using (var response = req.GetResponse())
-                                          {
-                                              using (var responseStream = response.GetResponseStream())
-                                              {
-                                                  var bytesRead = 0;
-                                                  while (fileLength > 0 &&
-                                                         (bytesRead = responseStream.Read(buffer, offset, fileLength)) >
-                                                         0)
-                                                  {
-                                                      fileLength -= bytesRead;
-                                                      offset += bytesRead;
-                                                  }
-                                              }
-                                          }
-                                          AddFile(resource, buffer, source);
+                                          //var req = WebRequest.Create(path);
+                                          //if (_connectionId != null)
+                                          //    req.Headers.Add(HttpRequestHeader.Authorization, _connectionId);
+                                          //req.Timeout = 5000;
+                                          //var buffer = new byte[resource.Size];
+                                          //var fileLength = resource.Size;
+                                          //var offset = 0;
+                                          //using (var response = req.GetResponse())
+                                          //{
+                                          //    using (var responseStream = response.GetResponseStream())
+                                          //    {
+                                          //        var bytesRead = 0;
+                                          //        while (fileLength > 0 &&
+                                          //               (bytesRead = responseStream.Read(buffer, offset, fileLength)) >
+                                          //               0)
+                                          //        {
+                                          //            fileLength -= bytesRead;
+                                          //            offset += bytesRead;
+                                          //        }
+                                          //    }
+                                          //}
+                                          //AddFile(resource, buffer, source);
                                       //});
+            if (_connectionId != null)
+                _httpClient.DefaultRequestHeaders.Authorization = System.Net.Http.Headers.AuthenticationHeaderValue.Parse(_connectionId);
+            _httpClient.GetAsync(path).ContinueWith(resp =>
+            {
+                resp.Result.Content.ReadAsStreamAsync().ContinueWith(s =>
+                {
+                    Log.Out("FileStore", string.Format("Finished download for {0}", resource.Name), LogCode.Log);
+                    AddFile(resource, s.Result, source);
+                    return s.Result;
+                });
+            });
+            Log.Out("FileStore", string.Format("Started download for {0}", resource.Name), LogCode.Log);
         }
 
 
