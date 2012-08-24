@@ -294,8 +294,8 @@ namespace NooSphere.ActivitySystem.Base.Client
             var resource = new Resource((int)fileInfo.Length, fileInfo.Name)
             {
                 ActivityId = activityId,
-                CreationTime = DateTime.Now.ToUniversalTime().ToString(CultureInfo.InvariantCulture),
-                LastWriteTime = DateTime.Now.ToUniversalTime().ToString(CultureInfo.InvariantCulture)                   
+                CreationTime = DateTime.Now.ToString(),
+                LastWriteTime = DateTime.Now.ToString()  
             };
             var req = new FileRequest
                           {

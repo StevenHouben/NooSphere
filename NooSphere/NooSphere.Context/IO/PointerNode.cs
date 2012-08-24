@@ -27,14 +27,20 @@ namespace NooSphere.Context.IO
 
         public PointerNode(PointerRole role)
         {
+            PointerRole = role;
+
+        }
+        public void Start()
+        {
             _mSocket = new MulticastSocket("225.5.6.7", 5000, 10);
             _mSocket.OnNotifyMulticastSocketListener += _mSocket_OnNotifyMulticastSocketListener;
-
-
-            this.PointerRole = role;
             Initialize(PointerRole);
         }
 
+        public void Stop()
+        {
+            MouseHook.UnRegister();
+        }
         private void Initialize(PointerRole role)
         {
             switch(role)
@@ -136,6 +142,7 @@ namespace NooSphere.Context.IO
         public event DataReceivedHandler DataReceived;
         public event System.EventHandler Started;
         public event System.EventHandler Stopped;
+
     }
 
     public class PointerMessage

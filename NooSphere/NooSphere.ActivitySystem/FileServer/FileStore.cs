@@ -11,7 +11,6 @@
 ****************************************************************************/
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 #if ANDROID
@@ -22,9 +21,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Base;
-using System.Threading;
 using NooSphere.Helpers;
-using System.Net;
 
 namespace NooSphere.ActivitySystem.FileServer
 {
@@ -90,8 +87,7 @@ namespace NooSphere.ActivitySystem.FileServer
                     break; 
             }
             Log.Out("FileStore", string.Format("Added file {0} to store", resource.Name), LogCode.Log);
-        }
-      
+        }   
         public void DownloadFile(Resource resource, string path, FileSource source, string _connectionId = null)
         {
             Rest.DownloadStream(path, _connectionId).ContinueWith(stream =>
