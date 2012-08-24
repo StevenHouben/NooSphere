@@ -74,7 +74,7 @@ namespace ActivityUI.Xaml
         public bool ClickDetected = false;
 
         //Debug
-        private PointerNode _pointer = new PointerNode(PointerRole.Controller);
+        //private PointerNode _pointer = new PointerNode(PointerRole.Controller);
 
 
         #endregion
