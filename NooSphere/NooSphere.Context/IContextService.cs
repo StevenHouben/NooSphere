@@ -21,6 +21,8 @@ namespace NooSphere.Context
         string Name { get; set; }
 
         void Send(string message);
+        void Start();
+        void Stop();
 
         event DataReceivedHandler DataReceived;
     }
