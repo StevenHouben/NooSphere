@@ -79,7 +79,7 @@ namespace NooSphere.ActivitySystem.Host
         public GenericHost(int port = -1)
         {
             if (port == -1)
-                Port = Net.FindPort();
+                port = Net.FindPort();
             Ip = Net.GetIp(IPType.All);
             Port = port;
 
