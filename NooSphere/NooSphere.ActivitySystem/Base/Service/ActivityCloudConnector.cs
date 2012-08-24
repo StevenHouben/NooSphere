@@ -15,6 +15,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net;
+#if ANDROID
+#else
+using System.Net.Http;
+#endif
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -33,6 +37,10 @@ namespace NooSphere.ActivitySystem.Base
     {
         #region Private Members
         private readonly Connection _connection;
+#if ANDROID
+#else
+        private readonly HttpClient _httpClient = new HttpClient();
+#endif
         #endregion
 
         public string BaseUrl { get; set; }
@@ -138,20 +146,13 @@ namespace NooSphere.ActivitySystem.Base
         }
         public void AddResource(Resource resource, string localPath)
         {
-            Task.Factory.StartNew(
-       delegate
-       {
-                         var uploader = new WebClient();
-                         uploader.Headers.Add(HttpRequestHeader.Authorization, _connection.ConnectionId);
-                        uploader.UploadDataAsync(
-                            new Uri(
-                                BaseUrl + resource.CloudPath + "?size=" +
+            var path = BaseUrl + resource.CloudPath + "?size=" +
                                 resource.Size.ToString(CultureInfo.InvariantCulture) + "&creationTime=" +
                                 resource.CreationTime
                                 + "&lastWriteTime=" + resource.LastWriteTime + "&relativePath=" +
-                                HttpUtility.UrlEncode(resource.RelativePath)),
-                                File.ReadAllBytes(localPath));
-                    });
+                                HttpUtility.UrlEncode(resource.RelativePath);
+            Rest.UploadStream(path, localPath, ConnectionId).ContinueWith(r => Log.Out("ActivityCloudConnector", string.Format("Finished upload of {0}", resource.Name), LogCode.Log));
+            Log.Out("ActivityCloudConnector", string.Format("Started upload of {0}", resource.Name), LogCode.Log);
         }
 
         public void DeleteFile(Resource resource)

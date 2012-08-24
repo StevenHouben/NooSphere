@@ -21,7 +21,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;ANDROID</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -51,6 +51,10 @@
     <ProjectReference Include="..\Libs\MonoDroid.Newtonsoft.Json\MonoDroid.Newtonsoft.Json.csproj">
       <Project>{e6c3413c-919b-486d-8b6c-225cbd921b98}</Project>
       <Name>MonoDroid.Newtonsoft.Json</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Libs\MonoDroid.System.Net.Http\MonoDroid.System.Net.Http.csproj">
+      <Project>{627261eb-2df1-4f85-b6a5-fe067164c86c}</Project>
+      <Name>MonoDroid.System.Net.Http</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />

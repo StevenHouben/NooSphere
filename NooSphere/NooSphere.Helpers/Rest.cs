@@ -15,12 +15,22 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+#if ANDROID
+using Microsoft.Http;
+#else
+using System.Net.Http;
+#endif
 using Newtonsoft.Json;
 
 namespace NooSphere.Helpers
 {
     public static class Rest
     {
+#if ANDROID
+        private static HttpClient _httpClient = new HttpClient();
+#else
+        private static HttpClient _httpClient = new HttpClient();
+#endif
         /// <summary>
         /// Sends an Http request
         /// </summary>
@@ -69,6 +79,55 @@ namespace NooSphere.Helpers
                 return null;
             }
         }
+
+        public static Task<Stream> DownloadStream(string path, string connectionId)
+        {
+#if ANDROID
+            if (connectionId != null)
+                _httpClient.DefaultHeaders.Authorization = Microsoft.Http.Headers.Credential.Parse(connectionId);
+            _httpClient.BaseAddress = new Uri(path);
+            return Task<Stream>.Factory.StartNew(() =>
+                                      {
+                                          Stream stream = null;
+                                            _httpClient.GetAsync(delegate(HttpResponseMessage message)
+                                            {
+                                                stream = message.Content.ReadAsStream();
+                                            });
+                                          return stream;
+                                      });
+#else
+            if (connectionId != null)
+                _httpClient.DefaultRequestHeaders.Authorization = System.Net.Http.Headers.AuthenticationHeaderValue.Parse(connectionId);
+
+            return _httpClient.GetAsync(path).ContinueWith(resp => resp.Result.Content.ReadAsStreamAsync().ContinueWith(s => s.Result).Result);
+#endif
+        }
+        public static Task<bool> UploadStream(string path, string localPath, string connectionId)
+        {
+#if ANDROID
+            if (connectionId != null)
+                _httpClient.DefaultHeaders.Authorization = Microsoft.Http.Headers.Credential.Parse(connectionId);
+            _httpClient.BaseAddress = new Uri(path);
+            return Task<bool>.Factory.StartNew(() =>
+                                      {
+                                          using(var fs = new FileStream(localPath, FileMode.Open))
+                                          {
+                                              var ok = false;
+                                              _httpClient.PostAsync(path, HttpContent.Create(fs), delegate(HttpResponseMessage message)
+                                                    {
+                                                        ok = message.StatusCode == HttpStatusCode.OK;
+                                                    });
+                                              return ok;
+                                          }
+                                      });
+#else
+            if (connectionId != null)
+                _httpClient.DefaultRequestHeaders.Authorization = System.Net.Http.Headers.AuthenticationHeaderValue.Parse(connectionId);
+
+            return _httpClient.PostAsync(path, new ByteArrayContent(File.ReadAllBytes(localPath))).ContinueWith(r => r.IsCompleted);
+#endif
+        }
+
         private static string ReadStreamFromResponse(WebResponse response)
         {
             Log.Out("REST", String.Format("Recieved response from {0}",response.ResponseUri));

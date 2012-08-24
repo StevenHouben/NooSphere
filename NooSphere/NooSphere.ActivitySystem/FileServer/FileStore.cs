@@ -14,7 +14,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+#if ANDROID
+using Microsoft.Http;
+#else
 using System.Net.Http;
+#endif
 using System.Threading.Tasks;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Base;
@@ -90,16 +94,10 @@ namespace NooSphere.ActivitySystem.FileServer
       
         public void DownloadFile(Resource resource, string path, FileSource source, string _connectionId = null)
         {
-            if (_connectionId != null)
-                _httpClient.DefaultRequestHeaders.Authorization = System.Net.Http.Headers.AuthenticationHeaderValue.Parse(_connectionId);
-            _httpClient.GetAsync(path).ContinueWith(resp =>
+            Rest.DownloadStream(path, _connectionId).ContinueWith(stream =>
             {
-                resp.Result.Content.ReadAsStreamAsync().ContinueWith(s =>
-                {
-                    Log.Out("FileStore", string.Format("Finished download for {0}", resource.Name), LogCode.Log);
-                    AddFile(resource, s.Result, source);
-                    return s.Result;
-                });
+                Log.Out("FileStore", string.Format("Finished download for {0}", resource.Name), LogCode.Log);
+                AddFile(resource, stream.Result, source);
             });
             Log.Out("FileStore", string.Format("Started download for {0}", resource.Name), LogCode.Log);
         }

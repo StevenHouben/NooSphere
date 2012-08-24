@@ -111,6 +111,10 @@
       <Project>{145e495f-e3ab-42cf-8b77-117196955068}</Project>
       <Name>MonoDroid.SignalR.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Libs\MonoDroid.System.Net.Http\MonoDroid.System.Net.Http.csproj">
+      <Project>{627261eb-2df1-4f85-b6a5-fe067164c86c}</Project>
+      <Name>MonoDroid.System.Net.Http</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NooSphere.Core\NooSphere.Core.MonoDroid.csproj">
       <Project>{9e4955ac-977e-43c4-b721-ceb107337ca3}</Project>
       <Name>NooSphere.Core.MonoDroid</Name>
