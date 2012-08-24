@@ -498,11 +498,6 @@ namespace NooSphere.ActivitySystem.Base.Client
         {
 
         }
-
-        private void FileServerFileAdded(object sender, FileEventArgs e)
-        {
-         
-        }
         private void ActivityClientActivityRemoved(object sender, ActivityRemovedEventArgs e)
         {
             Activity removedActivity;
