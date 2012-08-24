@@ -266,15 +266,25 @@ namespace ActivityDesk
 
         void StartClient(string addr)
         {
-            _client = new ActivityClient(@"c:/abcdesk/", _device) { CurrentUser = new User() };
+            if (_client != null)
+                return;
+            try
+            {
+                _client = new ActivityClient(@"c:/abcdesk/", _device) { CurrentUser = new User() };
 
-            _client.ActivityAdded += ClientActivityAdded;
-            _client.ActivityRemoved += ClientActivityRemoved;
-            _client.FileAdded += new FileAddedHandler(_client_FileAdded);
-            _client.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
-            _client.ActivitySwitched += new ActivitySwitchedHandler(_client_ActivitySwitched);
-            _client.Open(addr);
-            InitializeUI();
+                _client.ActivityAdded += ClientActivityAdded;
+                _client.ActivityRemoved += ClientActivityRemoved;
+                _client.FileAdded += new FileAddedHandler(_client_FileAdded);
+                _client.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
+                _client.ActivitySwitched += new ActivitySwitchedHandler(_client_ActivitySwitched);
+                _client.Open(addr);
+                InitializeUI();
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.ToString());
+            }
         }
 
         void _client_ActivitySwitched(object sender, ActivityEventArgs e)
