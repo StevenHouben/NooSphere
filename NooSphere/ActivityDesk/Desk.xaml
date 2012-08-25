@@ -17,7 +17,7 @@
         <ImageBrush x:Key="green" ImageSource="/ActivityDesk;component/Images/green.jpg" />
         <ImageBrush x:Key="yellow" ImageSource="/ActivityDesk;component/Images/yellow.jpg" />
     </s:SurfaceWindow.Resources>
-    <s:TagVisualizer x:Name="Visualizer" tve:TagVisualizerEvents.Mode="Off" VisualizationAdded="Visualizer_VisualizationAdded" VisualizationRemoved="Visualizer_VisualizationRemoved" VisualizationMoved="Visualizer_VisualizationMoved" Loaded="Visualizer_Loaded">
+    <s:TagVisualizer x:Name="Visualizer" tve:TagVisualizerEvents.Mode="Off" VisualizationAdded="Visualizer_VisualizationAdded" VisualizationRemoved="Visualizer_VisualizationRemoved" VisualizationMoved="Visualizer_VisualizationMoved">
     <Grid Name="grid">
             <s:ScatterView Name="view">
                 <s:ScatterView.Background>

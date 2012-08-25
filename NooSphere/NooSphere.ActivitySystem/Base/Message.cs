@@ -18,5 +18,24 @@ namespace NooSphere.ActivitySystem.Base
         public string From { get; set; }
         public string To { get; set; }
         public string Content { get; set; }
+        public string[] Extensions { get; set; }
+        public MessageType Type { get; set; }
+
+        public Message()
+        {
+            Type = MessageType.Communication;
+        }
+    }
+    public class BulkMessage:Message
+    {
+        public Message[] Bulk { get; set; }
+    }
+    public enum MessageType
+    {
+        Control,
+        Device,
+        Communication,
+        Notification,
+        Custom
     }
 }
