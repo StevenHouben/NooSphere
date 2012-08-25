@@ -12,7 +12,6 @@
 
 using System;
 using System.Windows;
-using Microsoft.Surface;
 using Microsoft.Surface.Presentation.Controls;
 using System.Windows.Media;
 using Microsoft.Surface.Presentation.Controls.TouchVisualizations;
@@ -46,7 +45,9 @@ namespace ActivityDesk
     {
         #region Members
 
-        private ActivityClient _client;
+        private ActivityClient _pairedManager;
+        private List<ActivityClient> _clients;
+
         private GenericHost _host;
         private DiscoveryManager _disc;
         private readonly User _user;
@@ -83,6 +84,7 @@ namespace ActivityDesk
                 DeviceType = DeviceType.Tabletop,
                 Name = "Surface"
             };
+
         }
 
         public BitmapSource ToBitmapSource(System.Drawing.Bitmap source)
@@ -185,18 +187,21 @@ namespace ActivityDesk
         }
         private void StartClient(string addr)
         {
-            if (_client != null)
+            if (_pairedManager != null)
+            {
+                StartRoleChangeProcedure( addr);
                 return;
+            }
             try
             {
-                _client = new ActivityClient(@"c:/abcdesk/", _device) { CurrentUser = new User() };
+                _pairedManager = new ActivityClient(@"c:/abcdesk/", _device) { CurrentUser = new User() };
 
-                _client.ActivityAdded += ClientActivityAdded;
-                _client.ActivityRemoved += ClientActivityRemoved;
-                _client.FileAdded += new FileAddedHandler(_client_FileAdded);
-                _client.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
-                _client.ActivitySwitched += new ActivitySwitchedHandler(_client_ActivitySwitched);
-                _client.Open(addr);
+                _pairedManager.ActivityAdded += ClientActivityAdded;
+                _pairedManager.ActivityRemoved += ClientActivityRemoved;
+                _pairedManager.FileAdded += new FileAddedHandler(_client_FileAdded);
+                _pairedManager.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
+                _pairedManager.ActivitySwitched += new ActivitySwitchedHandler(_client_ActivitySwitched);
+                _pairedManager.Open(addr);
                 InitializeUI();
             }
             catch (Exception ex)
@@ -204,6 +209,28 @@ namespace ActivityDesk
 
                 MessageBox.Show(ex.ToString());
             }
+        }
+
+        private void StartRoleChangeProcedure(string addr)
+        {
+            try
+            {
+                var actCli = new ActivityClient("", null);
+                actCli.ConnectionEstablished += ActCliConnectionEstablished;
+                actCli.Open(addr);
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        private void ActCliConnectionEstablished(object sender, EventArgs e)
+        {
+            var msg= new Message
+                         {Type = MessageType.Connect, Content = _pairedManager.ServiceAddress, From = "Mediator"};
+            ((ActivityClient)sender).SendMessage(msg);
         }
         private void RunDiscovery()
         {
@@ -244,16 +271,16 @@ namespace ActivityDesk
             view.Items.Clear();
             if (e.Activity.Resources.Count != 0)
                 foreach (Resource res in e.Activity.Resources)
-                    VisualizeResouce(res, _client.LocalPath + res.RelativePath);
+                    VisualizeResouce(res, _pairedManager.LocalPath + res.RelativePath);
         }
         private void _client_ServiceIsDown(object sender, EventArgs e)
         {
             SetDeskState(ActivityDesk.DeskState.Locked);
 
-            if (_client != null)
+            if (_pairedManager != null)
             {
-                _client.Close();
-                _client = null;
+                _pairedManager.Close();
+                _pairedManager = null;
             }
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
@@ -374,10 +401,10 @@ namespace ActivityDesk
                 {
                     SetDeskState(ActivityDesk.DeskState.Ready);
                 }
-                if (_client != null)
+                if (_pairedManager != null)
                 {
-                    _client.Close();
-                    _client = null;
+                    _pairedManager.Close();
+                    _pairedManager = null;
                 }
 
 

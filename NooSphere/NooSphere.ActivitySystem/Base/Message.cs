@@ -32,6 +32,7 @@ namespace NooSphere.ActivitySystem.Base
     }
     public enum MessageType
     {
+        Connect,
         Control,
         Device,
         Communication,

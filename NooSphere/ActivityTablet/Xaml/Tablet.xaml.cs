@@ -182,7 +182,7 @@ namespace ActivityTablet
             try
             {
                 _client = new ActivityClient(@"c:/abc/", _device) { CurrentUser = new User() };
-
+                _client.MessageReceived += new MessageReceivedHandler(_client_MessageReceived);
                 _client.ActivityAdded += ClientActivityAdded;
                 _client.ConnectionEstablished += new ConnectionEstablishedHandler(_client_ConnectionEstablished);
                 _client.Open(addr);
@@ -195,6 +195,20 @@ namespace ActivityTablet
            
 
 
+        }
+
+        void _client_MessageReceived(object sender, ComEventArgs e)
+        {
+            HandleMessage(e.Message);
+        }
+
+        private void HandleMessage(Message message)
+        {
+            if(message.Type==MessageType.Connect)
+            {
+                _client = null;
+                StartClient(message.Content);
+            }
         }
 
         void _client_ConnectionEstablished(object sender, EventArgs e)
