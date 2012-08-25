@@ -38,13 +38,11 @@ namespace NooSphere.ActivitySystem.Context
         #region Constructor
         public ContextMonitor(Dictionary<Guid,IContextService> services =null)
         {
-            if (services == null)
-                Services = new Dictionary<Guid, IContextService>();
-            else
-                Services = services;
+            Services = services ?? new Dictionary<Guid, IContextService>();
 
             Running = false;
         }
+
         public void Start()
         {
             Tasks = new List<Task>(Services.Count);
@@ -88,7 +86,7 @@ namespace NooSphere.ActivitySystem.Context
         }
         #endregion
 
-        #region Private Members
+        #region Event Handler
         private void ContextServiceDataReceived(object sender, DataEventArgs e)
         {
             if (DataReceived != null)
