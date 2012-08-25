@@ -19,6 +19,7 @@ namespace NooSphere.Core.Devices
         public DeviceType DeviceType { get; set; }
         public DeviceRole DeviceRole { get; set; }
         public DevicePortability DevicePortability { get; set; }
+        public int Code { get; set; }
 
         public string Location { get; set; }
         public string BaseAddress { get; set; }

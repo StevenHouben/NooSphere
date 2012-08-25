@@ -54,6 +54,10 @@ namespace ActivityUI.Login
         {
             SourceInitialized += new EventHandler(LoginWindow_SourceInitialized);
             InitializeComponent();
+
+            for (int i = 0; i < 223; i++)
+                cbTag.Items.Add(i);
+
             LoadSettings();
 
             ToolTipService.SetIsEnabled(btnInfo, false);
@@ -61,6 +65,9 @@ namespace ActivityUI.Login
             ToolTipService.SetIsEnabled(btnGo, false);
 
             this.cbType.ItemsSource = Enum.GetValues(typeof(DeviceType)).Cast<DeviceType>();
+
+
+
         }
         #endregion
 
@@ -71,6 +78,7 @@ namespace ActivityUI.Login
             txtEmail.Text = Settings.Default.USER_EMAIL;
             txtDevicename.Text = Settings.Default.DEVICE_NAME;
             cbType.SelectedValue = Settings.Default.DEVICE_TYPE;
+            cbTag.SelectedValue = Settings.Default.DEVICE_TAG;
         }
         private void SaveSettings()
         {
@@ -78,6 +86,7 @@ namespace ActivityUI.Login
             Settings.Default.USER_EMAIL = txtEmail.Text;
             Settings.Default.DEVICE_NAME = txtDevicename.Text;
             Settings.Default.DEVICE_TYPE = (DeviceType)cbType.SelectedValue;
+            Settings.Default.DEVICE_TAG = (int)cbTag.SelectedValue;
             Settings.Default.Save();
         }
         private void CreateUser(string baseUrl)
@@ -107,6 +116,7 @@ namespace ActivityUI.Login
             this.Device = new Device();
             this.Device.Name = txtDevicename.Text;
             this.Device.DeviceType = (DeviceType)cbType.SelectedValue;
+            Device.Code = (int)cbTag.SelectedValue;
 
             if (rbClient.IsChecked == true)
                 this.Mode = StartUpMode.Client;

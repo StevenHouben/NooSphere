@@ -32,8 +32,8 @@ namespace NooSphere.Core.ActivityModel
 
         private void InitializeTimeStamps()
         {
-            CreationTime = DateTime.Now.ToString();
-            LastWriteTime = DateTime.Now.ToString();
+            CreationTime = DateTime.Now.ToString("u");
+            LastWriteTime = DateTime.Now.ToString("u");
         }
 
         public Guid ActivityId { get; set; }
