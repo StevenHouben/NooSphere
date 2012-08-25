@@ -12,12 +12,11 @@
 
 using System;
 using System.ServiceModel;
-using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.Threading;
+using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Discovery;
-using NooSphere.Helpers;
-using NooSphere.ActivitySystem.Contracts;
+using NooSphere.ActivitySystem.Helpers;
 
 namespace NooSphere.ActivitySystem.Host
 {

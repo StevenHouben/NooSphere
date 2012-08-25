@@ -175,17 +175,9 @@
       <Project>{5CD6DD93-3EA1-425F-89D7-A80FD23BBC71}</Project>
       <Name>NooSphere.ActivitySystem</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NooSphere.Context\NooSphere.Context.csproj">
-      <Project>{579056D5-469B-4BAA-8F2B-E522A3E76C8E}</Project>
-      <Name>NooSphere.Context</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NooSphere.Core\NooSphere.Core.csproj">
       <Project>{03C072A4-5960-4A5D-B0CC-98EBD854E970}</Project>
       <Name>NooSphere.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NooSphere.Helpers\NooSphere.Helpers.csproj">
-      <Project>{6424191D-5C04-43E6-B610-FD4B41E8A340}</Project>
-      <Name>NooSphere.Helpers</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

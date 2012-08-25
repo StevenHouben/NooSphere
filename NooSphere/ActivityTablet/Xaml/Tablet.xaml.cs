@@ -19,14 +19,11 @@ using System.Threading;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.ActivitySystem.Base.Service;
-using NooSphere.ActivitySystem.Contracts.Service;
+using NooSphere.ActivitySystem.Helpers;
 using NooSphere.ActivitySystem.Host;
-using NooSphere.Context.IO;
 using NooSphere.Core.ActivityModel;
-using NooSphere.ActivitySystem.Contracts;
 using Newtonsoft.Json;
 using ActivityTablet.Properties;
-using NooSphere.Helpers;
 using NooSphere.Core.Devices;
 using NooSphere.ActivitySystem.Discovery;
 

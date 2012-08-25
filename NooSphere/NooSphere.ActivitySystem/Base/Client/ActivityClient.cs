@@ -11,7 +11,6 @@
 ****************************************************************************/
 
 using System.Collections.Concurrent;
-using System.Globalization;
 using System.IO;
 using System.Net;
 using System.ServiceModel;
@@ -19,9 +18,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
-using NooSphere.Helpers;
 using Newtonsoft.Json;
 using NooSphere.ActivitySystem.FileServer;
 #if !ANDROID
@@ -391,7 +390,7 @@ namespace NooSphere.ActivitySystem.Base.Client
         /// Sends a "Send Message" request to the activity manager
         /// </summary>
         /// <param name="msg">The message that needs to be included in the request</param>
-        public void SendMessage(string msg)
+        public void SendMessage(Message msg)
         {
 
             if (_connected)

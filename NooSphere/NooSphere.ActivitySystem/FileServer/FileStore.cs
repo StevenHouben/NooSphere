@@ -19,9 +19,9 @@ using Microsoft.Http;
 using System.Net.Http;
 #endif
 using System.Threading.Tasks;
+using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Base;
-using NooSphere.Helpers;
 
 namespace NooSphere.ActivitySystem.FileServer
 {

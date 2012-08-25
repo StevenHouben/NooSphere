@@ -24,10 +24,9 @@ using System.Windows.Threading;
 using System.Collections.Generic;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Service;
-using NooSphere.ActivitySystem.Contracts.Service;
+using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Host;
-using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.Core.Devices;
 using System.Windows.Media.Imaging;
@@ -36,7 +35,6 @@ using System.Runtime.InteropServices;
 using NooSphere.ActivitySystem.Base.Client;
 using System.Windows.Controls;
 using ActivityDesk.Visualizer.Visualization;
-using NooSphere.Helpers;
 
 namespace ActivityDesk
 {
@@ -344,7 +342,8 @@ namespace ActivityDesk
 
         void client_MessageReceived(object sender, ComEventArgs e)
         {
-            MessageBox.Show(e.Message);
+            MessageBox.Show(e.Message.Content);
+
         }
 
         void ClientActivityRemoved(object sender, ActivityRemovedEventArgs e)

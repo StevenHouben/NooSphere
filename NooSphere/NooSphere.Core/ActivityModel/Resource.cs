@@ -17,7 +17,7 @@ using NooSphere.Core.Primitives;
 
 namespace NooSphere.Core.ActivityModel
 {
-    public class Resource : Base
+    public class Resource : Noo
     {
         public Resource()
         {
@@ -42,6 +42,5 @@ namespace NooSphere.Core.ActivityModel
         public string LastWriteTime { get; set; }
         public string RelativePath { get {return ActivityId +"/"+ Name; }}
         public string CloudPath { get { return "Activities/" + ActivityId + "/Resources/" + Id; } }
-        public Service Service { get; set; }
     }
 }

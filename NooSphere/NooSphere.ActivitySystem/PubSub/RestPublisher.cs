@@ -13,10 +13,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using NooSphere.ActivitySystem.Contracts;
-using NooSphere.Helpers;
+using NooSphere.ActivitySystem.Helpers;
 
 namespace NooSphere.ActivitySystem.PubSub
 {
@@ -34,30 +32,26 @@ namespace NooSphere.ActivitySystem.PubSub
             //Log.Out("Publisher", string.Format("Published {0}",publishUrl), LogCode.Net);
             var toRemove = new List<string>();
 
-            //lock (Concurrency.SubscriberLock)
-            //{
-                //foreach (var entry in Registry.ConnectedClients)
-                var devices = Registry.ConnectedClients.Values.ToList();
-                for (int i = 0; i < devices.Count;i++ )
+            var devices = Registry.ConnectedClients.Values.ToList();
+            for (int i = 0; i < devices.Count;i++ )
+            {
+                try
                 {
-                    try
-                    {
-                        var addr = devices[i].Device.BaseAddress;
-                        Task.Factory.StartNew(
-                           delegate
-                           {
-                                    Rest.Post(addr + publishUrl, netObject);
-                                    Log.Out("Publisher",
-                                            string.Format("Published {0} to {1}", publishUrl, addr),
-                                            LogCode.Net);
-                                });
-                    }   
-                    catch (Exception)
-                    {
+                    var addr = devices[i].Device.BaseAddress;
+                    Task.Factory.StartNew(
+                        delegate
+                        {
+                                Rest.Post(addr + publishUrl, netObject);
+                                Log.Out("Publisher",
+                                        string.Format("Published {0} to {1}", publishUrl, addr),
+                                        LogCode.Net);
+                            });
+                }   
+                catch (Exception)
+                {
       
-                    }
                 }
-            //}
+            }
         }
 
         /// <summary>
@@ -68,13 +62,12 @@ namespace NooSphere.ActivitySystem.PubSub
         /// <param name="subscriber"> </param>
         public void PublishToSubscriber(string publishUrl, object netObject,object subscriber)
         {
-
             Task.Factory.StartNew(
-           delegate
-           {
-                 Rest.Post(subscriber + publishUrl, netObject);
-                    Log.Out("Publisher", string.Format("Publishing {0} to {1}", publishUrl, subscriber), LogCode.Net);
-            });
+                delegate
+                {
+                        Rest.Post(subscriber + publishUrl, netObject);
+                        Log.Out("Publisher", string.Format("Publishing {0} to {1}", publishUrl, subscriber), LogCode.Net);
+                });
         }
     }
 }

@@ -10,9 +10,7 @@
  http://www.gnu.org/licenses/gpl.html for details.
 ****************************************************************************/
 
-using System;
 using System.Collections.Generic;
-using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Base;
 
 namespace NooSphere.ActivitySystem.PubSub
@@ -20,5 +18,12 @@ namespace NooSphere.ActivitySystem.PubSub
     public class Registry
     {
         public static Dictionary<string, ConnectedClient> ConnectedClients = new Dictionary<string, ConnectedClient>();
+        public static void Register(EventType eventType)
+        {
+ 	 	
+           if (!Store.ContainsKey(eventType))
+               Store.Add(eventType, new Dictionary<string, object>());
+        }
+       public static Dictionary<EventType, Dictionary<string, object>> Store = new Dictionary<EventType, Dictionary<string, object>>();
     }
 }

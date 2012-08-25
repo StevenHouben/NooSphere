@@ -14,17 +14,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
-using System.Threading;
 using System.IO;
 using Newtonsoft.Json;
+using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.ActivitySystem.Contracts.Client;
-using NooSphere.ActivitySystem.Contracts.Service;
+using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
-using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.PubSub;
 using NooSphere.ActivitySystem.FileServer;
-using NooSphere.Helpers;
 using System.Threading.Tasks;
 
 namespace NooSphere.ActivitySystem.Base.Service
@@ -614,9 +612,9 @@ namespace NooSphere.ActivitySystem.Base.Service
     #endregion
 
         #region Messenger
-        public void SendMessage( string message,string deviceId)
+        public void SendMessage(Message message,string deviceId)
         {
-            _publisher.Publish( ComEvent.MessageReceived.ToString(), message);
+            _publisher.Publish(ComEvent.MessageReceived.ToString(), message);
         }
         #endregion
     }

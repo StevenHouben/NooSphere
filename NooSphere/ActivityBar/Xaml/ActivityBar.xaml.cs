@@ -21,16 +21,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Collections.ObjectModel;
 using System.Windows.Threading;
-using System.Threading;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.ActivitySystem.Base.Service;
-using NooSphere.ActivitySystem.Contracts.Service;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.ActivitySystem.Host;
-using NooSphere.Context.IO;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using NooSphere.Platform.Windows.Glass;
@@ -85,6 +82,8 @@ namespace ActivityUI.Xaml
         /// </summary>
         public ActivityBar()
         {
+
+
             InitializeComponent();
             _activityWindow = new ActivityWindow(this);
             _popUpWindows.Add(_activityWindow);
@@ -117,7 +116,7 @@ namespace ActivityUI.Xaml
         /// Sends a message to the activity manager
         /// </summary>
         /// <param name="message">Message that needs to be send to the activity manager</param>
-        public void SendMessage(string message)
+        public void SendMessage(Message message)
         {
             _client.SendMessage(message);
             txtInput.Text = "";
@@ -210,7 +209,7 @@ namespace ActivityUI.Xaml
                        _host = new GenericHost(7891);
                         _host.HostLaunched += HostHostLaunched;
                         _host.Open(new ActivityManager(_owner, "c:/files/"), typeof (IActivityManager), _device.Name);
-                        _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE, _device.Name, _device.Code.ToString(), _device.Location);
+                        _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE, _device.Name, _device.TagValue.ToString(), _device.Location);
 
                     });
         }
@@ -603,7 +602,7 @@ namespace ActivityUI.Xaml
         }
         private void BtnSendClick(object sender, RoutedEventArgs e)
         {
-            SendMessage(txtInput.Text);
+
         }
         private void LoginLoggedIn(object sender, EventArgs e)
         {
@@ -806,7 +805,6 @@ namespace ActivityUI.Xaml
             {
                 e.Effects = DragDropEffects.Copy;
             }
-
 
         }
 

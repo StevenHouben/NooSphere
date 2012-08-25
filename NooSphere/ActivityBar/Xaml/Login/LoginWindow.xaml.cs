@@ -24,10 +24,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.Devices;
 using NooSphere.Core.ActivityModel;
 using ActivityUI.Properties;
-using NooSphere.Helpers;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
@@ -116,7 +116,7 @@ namespace ActivityUI.Login
             this.Device = new Device();
             this.Device.Name = txtDevicename.Text;
             this.Device.DeviceType = (DeviceType)cbType.SelectedValue;
-            Device.Code = (int)cbTag.SelectedValue;
+            Device.TagValue = (int)cbTag.SelectedValue;
 
             if (rbClient.IsChecked == true)
                 this.Mode = StartUpMode.Client;

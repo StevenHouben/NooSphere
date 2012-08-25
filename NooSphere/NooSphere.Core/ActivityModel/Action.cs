@@ -16,7 +16,7 @@ using System.ComponentModel;
 
 namespace NooSphere.Core.ActivityModel
 {
-    public class Action : Base, INotifyPropertyChanged
+    public class Action : Noo, INotifyPropertyChanged
     {
         public Action()
         {
