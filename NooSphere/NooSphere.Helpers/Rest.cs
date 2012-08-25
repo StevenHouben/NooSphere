@@ -96,10 +96,18 @@ namespace NooSphere.Helpers
                                           return stream;
                                       });
 #else
-            if (connectionId != null)
-                _httpClient.DefaultRequestHeaders.Authorization = System.Net.Http.Headers.AuthenticationHeaderValue.Parse(connectionId);
+            try
+            {
+                if (connectionId != null)
+                    _httpClient.DefaultRequestHeaders.Authorization = System.Net.Http.Headers.AuthenticationHeaderValue.Parse(connectionId);
 
-            return _httpClient.GetAsync(path).ContinueWith(resp => resp.Result.Content.ReadAsStreamAsync().ContinueWith(s => s.Result).Result);
+                return _httpClient.GetAsync(path).ContinueWith(resp => resp.Result.Content.ReadAsStreamAsync().ContinueWith(s => s.Result).Result);
+            }
+            catch(Exception ex)
+            {
+                Log.Out("REST", string.Format("{0} while downloading from stream",ex), LogCode.Err);
+                throw ex;
+            }
 #endif
         }
         public static Task<bool> UploadStream(string path, string localPath, string connectionId)
