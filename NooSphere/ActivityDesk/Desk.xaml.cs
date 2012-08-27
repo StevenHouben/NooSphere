@@ -46,8 +46,7 @@ namespace ActivityDesk
         #region Members
 
         private ActivityClient _pairedManager;
-        private List<ActivityClient> _clients;
-
+        private string _pairedTag;
         private GenericHost _host;
         private DiscoveryManager _disc;
         private readonly User _user;
@@ -55,6 +54,7 @@ namespace ActivityDesk
         private DeskState _deskState;
         private Activity _currentActivity;
         private readonly List<string> _lockedTags = new List<string>();
+        private readonly List<string> _connectedDeviceTags = new List<string>();
         private Dictionary<Guid, SurfaceButton> _proxies = new Dictionary<Guid, SurfaceButton>();
 
         #endregion
@@ -185,37 +185,41 @@ namespace ActivityDesk
             });
             t.Start();
         }
-        private void StartClient(string addr)
+        private void StartClient(string addr,string tag)
         {
-            if (_pairedManager != null)
+            if (_pairedManager == null)
             {
-                StartRoleChangeProcedure( addr);
+                try
+                {
+                    _pairedTag = tag;
+                    _pairedManager = new ActivityClient(@"c:/abcdesk/", _device) { CurrentUser = new User() };
+                    _pairedManager.ActivityAdded += ClientActivityAdded;
+                    _pairedManager.ActivityRemoved += ClientActivityRemoved;
+                    _pairedManager.FileAdded += new FileAddedHandler(_client_FileAdded);
+                    _pairedManager.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
+                    _pairedManager.ActivitySwitched += new ActivitySwitchedHandler(_client_ActivitySwitched);
+                    _pairedManager.Open(addr);
+                    InitializeUI();
+                }
+                catch (Exception ex)
+                {
+
+                    MessageBox.Show(ex.ToString());
+                }
+            }
+            else if (tag != _pairedTag)
+            {
+                StartRoleChangeProcedure(addr);
                 return;
             }
-            try
-            {
-                _pairedManager = new ActivityClient(@"c:/abcdesk/", _device) { CurrentUser = new User() };
 
-                _pairedManager.ActivityAdded += ClientActivityAdded;
-                _pairedManager.ActivityRemoved += ClientActivityRemoved;
-                _pairedManager.FileAdded += new FileAddedHandler(_client_FileAdded);
-                _pairedManager.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
-                _pairedManager.ActivitySwitched += new ActivitySwitchedHandler(_client_ActivitySwitched);
-                _pairedManager.Open(addr);
-                InitializeUI();
-            }
-            catch (Exception ex)
-            {
-
-                MessageBox.Show(ex.ToString());
-            }
         }
 
         private void StartRoleChangeProcedure(string addr)
         {
             try
             {
-                var actCli = new ActivityClient("", null);
+                var actCli = new ActivityClient(@"c:/abcdesk/", _device) { CurrentUser = new User() };
                 actCli.ConnectionEstablished += ActCliConnectionEstablished;
                 actCli.Open(addr);
             }
@@ -257,13 +261,17 @@ namespace ActivityDesk
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
                 foreach (var tv in q)
+                {
                     if (e.ServiceInfo.Code == Convert.ToString(tv.VisualizedTag.Value))
-                        StartClient(e.ServiceInfo.Address);
+                    {
+                        StartClient(e.ServiceInfo.Address, e.ServiceInfo.Code);
+                    }
+                }
             }));
         }
         private void host_HostLaunched(object sender, EventArgs e)
         {
-            StartClient(_host.Address);
+            //StartClient(_host.Address,);
         }
         private void _client_ActivitySwitched(object sender, ActivityEventArgs e)
         {
@@ -289,8 +297,9 @@ namespace ActivityDesk
         }
         private void _client_FileAdded(object sender, FileEventArgs e)
         {
-            if(e.Resource.ActivityId == _currentActivity.Id)
-                VisualizeResouce(e.Resource,e.LocalPath);
+            if(_currentActivity != null)
+                if(e.Resource.ActivityId == _currentActivity.Id)
+                    VisualizeResouce(e.Resource,e.LocalPath);
         }
         private void ClientActivityAdded(object sender, ActivityEventArgs e)
         {
@@ -371,13 +380,13 @@ namespace ActivityDesk
         {
             if (!_lockedTags.Contains(e.TagVisualization.VisualizedTag.Value.ToString()))
             {
-                if (Visualizer.ActiveVisualizations.Count == 1)
+                if (Visualizer.ActiveVisualizations.Count >0 && _pairedManager ==null)
                 {
-                    RunDiscovery();
                     SetDeskState(ActivityDesk.DeskState.Active);
                 }
             }
             ((BaseVisualization)e.TagVisualization).Locked += new LockedEventHandler(Desk_Locked);
+            RunDiscovery();
         }
         private void Desk_Locked(object sender, LockedEventArgs e)
         {

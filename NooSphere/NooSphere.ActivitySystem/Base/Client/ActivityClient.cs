@@ -122,18 +122,17 @@ namespace NooSphere.ActivitySystem.Base.Client
         private bool TestConnection(string addr,int reconnectAttempts)
         {
             Log.Out("ActivityClient", string.Format("Attempt to connect to {0}", addr), LogCode.Net);
-            bool res;
             var attempts = 0;
             do
             {
                 ServiceAddress = addr;
-                res = JsonConvert.DeserializeObject<bool>(Rest.Get(ServiceAddress));
-                Log.Out("ActivityClient", string.Format("Service active? -> {0}", res), LogCode.Net);
+                _connected = JsonConvert.DeserializeObject<bool>(Rest.Get(ServiceAddress));
+                Log.Out("ActivityClient", string.Format("Service active? -> {0}", _connected), LogCode.Net);
                 Thread.Sleep(200);
                 attempts++;
             }
-            while (res == false && attempts < reconnectAttempts);
-            if (res)
+            while (_connected == false && attempts < reconnectAttempts);
+            if (_connected)
                 OnConnectionEstablishedEvent(new EventArgs());
             else
                 throw new Exception("ActivityClient: Could not connect to: " + addr);
@@ -204,6 +203,7 @@ namespace NooSphere.ActivitySystem.Base.Client
             Ip = Net.GetIp(IPType.All);
 
             //Test if connected to manager. Exception is thrown if not
+            //Set connected flag true
             TestConnection(address, 25);
 
             //Listen to some of the internal events
@@ -212,8 +212,6 @@ namespace NooSphere.ActivitySystem.Base.Client
             DeviceAdded += ActivityClientDeviceAdded;
             DeviceRemoved += ActivityClientDeviceRemoved;
 
-            //Set connected flag true
-            _connected = true;
 
             //Register this device with the manager
             Register(Device);
@@ -393,7 +391,6 @@ namespace NooSphere.ActivitySystem.Base.Client
         /// <param name="msg">The message that needs to be included in the request</param>
         public void SendMessage(Message msg)
         {
-
             if (_connected)
                 Rest.Post(ServiceAddress + Url.Messages, new {message = msg, deviceId = _connectionId});
             else
