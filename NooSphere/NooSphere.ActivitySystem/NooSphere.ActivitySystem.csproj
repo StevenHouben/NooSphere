@@ -151,4 +151,149 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5CD6DD93-3EA1-425F-89D7-A80FD23BBC71}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NooSphere.ActivitySystem</RootNamespace>
+    <AssemblyName>NooSphere.ActivitySystem</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Zeroconf, Version=4.0.0.90, Culture=neutral, PublicKeyToken=e60c4f4a95e1099e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Zeroconf.0.9.0.0\lib\Net20\Mono.Zeroconf.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Zeroconf.Providers.Bonjour, Version=4.0.0.90, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Zeroconf.0.9.0.0\lib\Net20\Mono.Zeroconf.Providers.Bonjour.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.7\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SignalR.Client">
+      <HintPath>..\packages\SignalR.Client.0.5.2\lib\net40\SignalR.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http">
+      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.WebRequest.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Discovery" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Base\Client\ActivityClient.cs" />
+    <Compile Include="Base\Client\Configuration.cs" />
+    <Compile Include="Base\Controller\ActivityController.cs" />
+    <Compile Include="Base\Controller\Configuration.cs" />
+    <Compile Include="Base\Controller\IActivityProxy.cs" />
+    <Compile Include="Base\Heartbeat.cs" />
+    <Compile Include="Base\ContextEventArgs.cs" />
+    <Compile Include="Base\Client\NetEventHandler.cs" />
+    <Compile Include="Base\Client\StartupMode.cs" />
+    <Compile Include="Base\Service\ActivityCloudConnector.cs" />
+    <Compile Include="Base\Service\ActivityManager.cs" />
+    <Compile Include="Base\Service\ActivityStore.cs" />
+    <Compile Include="Base\Service\ParticipantStore.cs" />
+    <Compile Include="Base\Service\Syncer.cs" />
+    <Compile Include="Contracts\Client\INetEventHandler.cs" />
+    <Compile Include="Contracts\IServiceBase.cs" />
+    <Compile Include="Discovery\DiscoveryType.cs" />
+    <Compile Include="Base\ActivityEventArgs.cs" />
+    <Compile Include="Base\Service\CloudEvents.cs" />
+    <Compile Include="Base\ComEventArgs.cs" />
+    <Compile Include="Base\DeviceEventArgs.cs" />
+    <Compile Include="Base\Events.cs" />
+    <Compile Include="Base\EventTypeConverter.cs" />
+    <Compile Include="Base\FileEventArgs.cs" />
+    <Compile Include="Base\ParticipantsEventArgs.cs" />
+    <Compile Include="Base\FriendEventArgs.cs" />
+    <Compile Include="FileServer\FileRequest.cs" />
+    <Compile Include="FileServer\FileSource.cs" />
+    <Compile Include="FileServer\FileStore.cs" />
+    <Compile Include="Base\IActivityNode.cs" />
+    <Compile Include="Contracts\Service\IFileServer.cs" />
+    <Compile Include="Contracts\Client\IUserNetEvent.cs" />
+    <Compile Include="FileServer\IFileStore.cs" />
+    <Compile Include="PubSub\Concurrency.cs" />
+    <Compile Include="Base\Service\ConnectedClient.cs" />
+    <Compile Include="Contracts\Service\IActivityManager.cs" />
+    <Compile Include="Contracts\Service\IMessenger.cs" />
+    <Compile Include="Contracts\Discovery\IDiscovery.cs" />
+    <Compile Include="Contracts\EventType.cs" />
+    <Compile Include="Contracts\Client\IActivityNetEvent.cs" />
+    <Compile Include="Contracts\Client\IComNetEvent.cs" />
+    <Compile Include="Contracts\Client\IDeviceNetEvent.cs" />
+    <Compile Include="Contracts\Client\IFileNetEvent.cs" />
+    <Compile Include="Discovery\DiscoveryAddressAddedEventArgs.cs" />
+    <Compile Include="Discovery\DiscoveryEventArgs.cs" />
+    <Compile Include="Discovery\DiscoveryManager.cs" />
+    <Compile Include="Discovery\BroadcastService.cs" />
+    <Compile Include="Discovery\ServiceInfo.cs" />
+    <Compile Include="PubSub\Registry.cs" />
+    <Compile Include="PubSub\RestPublisher.cs" />
+    <Compile Include="PubSub\RestSubscriber.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Host\GenericHost.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NooSphere.Core\NooSphere.Core.csproj">
+      <Project>{03C072A4-5960-4A5D-B0CC-98EBD854E970}</Project>
+      <Name>NooSphere.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NooSphere.Helpers\NooSphere.Helpers.csproj">
+      <Project>{6424191D-5C04-43E6-B610-FD4B41E8A340}</Project>
+      <Name>NooSphere.Helpers</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
 </Project>
