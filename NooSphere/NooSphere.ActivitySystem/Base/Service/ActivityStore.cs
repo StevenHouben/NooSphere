@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using NooSphere.Core.ActivityModel;
 
-namespace NooSphere.ActivitySystem.Base
+namespace NooSphere.ActivitySystem.Base.Service
 {
     public class ActivityStore
     {

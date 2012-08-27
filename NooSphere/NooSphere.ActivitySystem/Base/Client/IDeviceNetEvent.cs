@@ -17,7 +17,7 @@ using System.ServiceModel.Web;
 namespace NooSphere.ActivitySystem.Base.Client
 {
     [ServiceContract]
-    public interface IDeviceNetEvent
+    interface IDeviceNetEvent
     {
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "DeviceAdded", Method = "POST")]

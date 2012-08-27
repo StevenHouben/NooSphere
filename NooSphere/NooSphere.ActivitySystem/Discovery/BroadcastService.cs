@@ -14,7 +14,6 @@ using System;
 using System.ServiceModel;
 using System.ServiceModel.Discovery;
 using System.ServiceModel.Description;
-using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Helpers;
 using Mono.Zeroconf;
 

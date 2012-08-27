@@ -12,13 +12,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using NooSphere.ActivitySystem.Contracts;
-using NooSphere.ActivitySystem.Contracts.Client;
+using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.Core.ActivityModel;
 using System.Collections.Concurrent;
 
-namespace NooSphere.ActivitySystem.Base
+namespace NooSphere.ActivitySystem.Base.Service
 {
     public class Syncer
     {

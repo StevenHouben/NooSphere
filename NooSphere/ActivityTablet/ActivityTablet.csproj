@@ -94,6 +94,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="DisplayMode.cs" />
     <Compile Include="Xaml\ActivityButton.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -169,6 +170,7 @@
     <Resource Include="activity1.PNG" />
     <Resource Include="activity_trans.png" />
     <Resource Include="logo.PNG" />
+    <Resource Include="Xaml\blue.jpg" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NooSphere.ActivitySystem\NooSphere.ActivitySystem.csproj">

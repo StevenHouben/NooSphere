@@ -26,7 +26,6 @@ using Newtonsoft.Json;
 using NooSphere.ActivitySystem.FileServer;
 #if !ANDROID
 using NooSphere.ActivitySystem.Host;
-using NooSphere.ActivitySystem.Contracts.Client;
 using System.Net;
 #endif
 

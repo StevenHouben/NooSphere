@@ -14,9 +14,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using System.Threading;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.ActivitySystem.Base.Service;
@@ -37,7 +39,8 @@ namespace ActivityTablet.Xaml
         private GenericHost _host;
         private User _user;
         private Device _device;
-        private readonly Dictionary<Guid, Proxy> proxies = new Dictionary<Guid, Proxy>();
+        private readonly Dictionary<Guid, Proxy> _proxies = new Dictionary<Guid, Proxy>();
+        private Activity _currentActivity;
 
         //private PointerNode _pNode = new PointerNode(PointerRole.Controller);
         #endregion
@@ -86,14 +89,11 @@ namespace ActivityTablet.Xaml
         {
             try
             {
-                Thread t = new Thread(() =>
-                {
-                    DiscoveryManager disc = new DiscoveryManager();
+                Task.Factory.StartNew(delegate {  
+                    var disc = new DiscoveryManager();
                     disc.DiscoveryAddressAdded += new DiscoveryManager.DiscoveryAddressAddedHandler(DiscDiscoveryAddressAdded);
                     disc.Find();
                 });
-                t.IsBackground = true;
-                t.Start();
             }
             catch (Exception ex)
             {
@@ -107,29 +107,25 @@ namespace ActivityTablet.Xaml
             Task.Factory.StartNew(
                 delegate {
                 _host = new GenericHost();
-                _host.HostLaunched += new HostLaunchedHandler(HostHostLaunched);
+                _host.HostLaunched += HostHostLaunched;
                 _host.Open(new ActivityManager(_user, "c:/files/"), typeof(IActivityManager), "Tablet manager");
                 _host.StartBroadcast(DiscoveryType.WSDiscovery, "Tablet", "205");
             });
         }
         private void BuildUI()
         {
-            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
                 cvLogin.Visibility = System.Windows.Visibility.Hidden;
                 cvActivityManager.Visibility = System.Windows.Visibility.Visible;
                 //contentBrowser.Navigate(@"http://itu.dk/people/shou/pubs/SituatedActivityModelMODIQUITOUS2012.pdf");
             }));
-
-      
-
         }
         private void AddActivityUI(Activity ac)
         {
             Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
                 var p = new Proxy {Activity = ac};
-
                 var b = new ActivityButton(new Uri("pack://application:,,,/Images/activity.PNG"), ac.Name)
                             {RenderMode = RenderMode.Image};
                 b.TouchDown += new EventHandler<TouchEventArgs>(b_TouchDown);
@@ -145,18 +141,17 @@ namespace ActivityTablet.Xaml
                 p.Button = b;
 
                 ActivityDock.Children.Add(b);
-                proxies.Add(p.Activity.Id, p);
+                _proxies.Add(p.Activity.Id, p);
             }));
         }
         private void RemoveActivityUI(Guid id)
         {
             Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                ActivityDock.Children.Remove(proxies[id].Button);
-                proxies.Remove(id);
+                ActivityDock.Children.Remove(_proxies[id].Button);
+                _proxies.Remove(id);
             }));
         }
-
         private void LoadSettings()
         {
             txtUsername.Text = Settings.Default.USER_NAME;
@@ -194,7 +189,8 @@ namespace ActivityTablet.Xaml
                 _client.ActivityAdded += ClientActivityAdded;
                 _client.ActivityRemoved += ClientActivityRemoved;
                 _client.ConnectionEstablished += ClientConnectionEstablished;
-                _client.FileAdded += _client_FileAdded;
+                _client.FileAdded += ClientFileAdded;
+                _client.ActivitySwitched += ClientActivitySwitched;
                 _client.Open(addr);
             }
             catch (Exception ex)
@@ -203,16 +199,106 @@ namespace ActivityTablet.Xaml
                 MessageBox.Show(ex.ToString());
             }
         }
+       
+        private void PopulateResource(Activity activity)
+        {
+            Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                resourceDock.Children.Clear();
+                ContentScroller.Content = null;
+                foreach (
+                    var resource in
+                        activity.Resources)
+                {
+                    AddResource(resource,
+                                _client.
+                                    LocalPath +
+                                resource.
+                                    RelativePath);
+                }
+            }));
+        }
 
-        void _client_FileAdded(object sender, FileEventArgs e)
+        private void AddResource(Resource resource,string path)
+        {
+            Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                try
+                {
+                    var i = new Image();
+                    i.Width = i.Height = 100;
+                    var src = new BitmapImage();
+                    src.BeginInit();
+                    src.UriSource =
+                        new Uri(path,
+                                UriKind.
+                                    Relative);
+                    src.CacheOption =
+                        BitmapCacheOption.
+                            OnLoad;
+                    src.EndInit();
+                    i.Source = src;
+                    i.Stretch = Stretch.Uniform;
+                    i.MouseDown += IMouseDown;
+                    i.TouchDown += ITouchDown;
+
+                    resourceDock.Children.Add(i);
+                }
+                catch (Exception)
+                {
+                    //not an image -> do better implementation here
+                }
+
+            }));
+        }
+
+
+        private void HandleMessage(Message message)
+        {
+            if(message.Type==MessageType.Connect)
+            {
+                _client = null;
+                StartClient(message.Content);
+            }
+        }
+        #endregion
+
+        #region Public Methods
+        private void ITouchDown(object sender, TouchEventArgs e)
+        {
+            ShowResource(sender);
+        }
+        private void ClientActivitySwitched(object sender, ActivityEventArgs e)
+        {
+            _currentActivity = e.Activity;
+            PopulateResource(e.Activity);
+        }
+        private void ClientFileAdded(object sender, FileEventArgs e)
+        {
+            if (e.Resource.ActivityId != _currentActivity.Id)
+                return;
+            AddResource(e.Resource, e.LocalPath);
+        }
+
+        private void IMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ShowResource(sender);
+        }
+
+        private void ShowResource(object sender)
         {
             try
             {
-                var image = new BadImageFormatException()
+                ContentScroller.Content = new Image
+                                              {
+                                                  Source = ((Image) sender).Source,
+                                                  MaxHeight = ContentScroller.Height,
+                                                  MaxWidth = ContentScroller.Width
+                                              };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //not an image -> do better implementation here
+                MessageBox.Show(ex.ToString());
             }
         }
 
@@ -232,26 +318,14 @@ namespace ActivityTablet.Xaml
         {
             ExitApplication();
         }
-
-        private void HandleMessage(Message message)
-        {
-            if(message.Type==MessageType.Connect)
-            {
-                _client = null;
-                StartClient(message.Content);
-            }
-        }
-        #endregion
-
-        #region Public Methods
-
         private void ClientActivityAdded(object obj, ActivityEventArgs e)
         {
             AddActivityUI(e.Activity);
+            _currentActivity = e.Activity;
         }
         private void BClick(object sender, RoutedEventArgs e)
         {
-            _client.SwitchActivity(proxies[((ActivityButton)sender).ActivityId].Activity);
+            _client.SwitchActivity(_proxies[((ActivityButton)sender).ActivityId].Activity);
         }
         private void b_TouchDown(object sender, TouchEventArgs e)
         {
@@ -276,6 +350,24 @@ namespace ActivityTablet.Xaml
             Environment.Exit(0);
         }
         #endregion
+
+        private void BtnAddClick(object sender, RoutedEventArgs e)
+        {
+            _client.AddActivity(GetInitializedActivity());
+        }
+        public Activity GetInitializedActivity()
+        {
+            var ac = new Activity
+            {
+                Name = "test activity - " + DateTime.Now,
+                Description = "This is the description of the test activity - " + DateTime.Now
+            };
+            ac.Uri = "http://tempori.org/" + ac.Id;
+            ac.Participants.Add(new User() { Email = " 	snielsen@itu.dk" });
+            ac.Meta.Data = "added meta data";
+            ac.Owner = _user;
+            return ac;
+        }
 
     }
 }

@@ -12,7 +12,6 @@
 
 using System;
 using NooSphere.ActivitySystem.Base;
-using NooSphere.ActivitySystem.Contracts;
 
 namespace NooSphere.ActivitySystem.PubSub
 {

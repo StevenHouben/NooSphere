@@ -3,9 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:s="http://schemas.microsoft.com/surface/2008"
     Title="ActivityTablet" mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" d:Height="1024" d:Width="687
-                 
-                 " SizeToContent="WidthAndHeight"  WindowStyle="None" WindowState="Maximized" Width="978" Height="624" ResizeMode="NoResize">
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" d:Height="1024" d:Width="687" 
+          WindowStyle="None" Width="978" Height="624" ResizeMode="NoResize" WindowState="Maximized">
 	<Window.Resources>
 		<Style x:Key="Success" TargetType="{x:Type Button}">
 			<Setter Property="Template">
@@ -190,7 +189,7 @@
 		</Style>
 	</Window.Resources>
     <Grid Name="grid" Background="White" d:LayoutOverrides="HorizontalMargin">
-    	<Image Source="pack://siteoforigin:,,,/back.png" Stretch="None" d:IsLocked="True"/>
+    	<Image Source="blue.jpg" Stretch="None"/>
     	<Canvas x:Name="cvLogin" d:IsLocked="True" d:IsHidden="True">
     		<Canvas x:Name="pnlLogin" Height="383.757" Width="468" Background="White" Canvas.Left="272.5" Canvas.Top="98.673" d:IsHidden="True">
                 <Rectangle Fill="Black" Height="36.666" Stroke="Black" Width="468" Canvas.Top="285.664" d:IsHidden="True"/>
@@ -210,22 +209,22 @@
             </Canvas>
     		<Border BorderBrush="Black" BorderThickness="8" Height="399" Width="482.333" Canvas.Left="265.167" Canvas.Top="91.5" CornerRadius="10" d:IsHidden="True"/>
         </Canvas>
-    	<Canvas x:Name="cvActivityManager" Margin="8">
+    	<Canvas x:Name="cvActivityManager" Margin="8" Visibility="Hidden">
             <s:SurfaceScrollViewer x:Name="activityDockScroller" Height="558" 
                                    Width="158" VerticalContentAlignment="Center" 
-                                   HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Hidden" Background="#FF006DFF" >
+                                   HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Hidden" >
     			<StackPanel Orientation="Vertical" x:Name="ActivityDock"/>
             </s:SurfaceScrollViewer>
-            <s:SurfaceScrollViewer x:Name="ContentScroller" Height="436" 
+            <s:SurfaceScrollViewer x:Name="ContentScroller" Height="451" 
             	Width="800" VerticalContentAlignment="Center" 
-            	HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Hidden" Canvas.Left="162" Canvas.Top="122" Background="Red" />
-            <s:SurfaceScrollViewer x:Name="resourceScroller" Height="118" 
+            	HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Hidden" Canvas.Left="162" Canvas.Top="107" />
+            <s:SurfaceScrollViewer x:Name="resourceScroller" Height="100" 
             	Width="800" VerticalContentAlignment="Center" 
-            	HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Hidden" Canvas.Left="162" Background="#FFE6FF00" >
-            	<StackPanel Orientation="Horizontal" x:Name="ActivityDock_Copy"/>
+            	HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Hidden" Canvas.Left="162" >
+            	<StackPanel Orientation="Horizontal" x:Name="resourceDock"/>
             </s:SurfaceScrollViewer>
         </Canvas>
     	<s:SurfaceButton Content="Quit" Style="{DynamicResource Danger}" Foreground="White" FontSize="13.333" Width="98.858" RenderTransformOrigin="-0.037,0.75" Height="38.338" ToolTip="Stop the login process and exit the application." x:Name="btnQuit" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="BtnQuitClick" HorizontalAlignment="Right" Margin="0,0,8,8" VerticalAlignment="Bottom" />
-    	<s:SurfaceButton Content="Add Activity" FontSize="13.333" Foreground="White" Height="38.338" RenderTransformOrigin="-0.037,0.75" Style="{DynamicResource Success}" Width="98.858"  ToolTip="Adds a new empty activity" x:Name="btnAdd" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="8,0,0,8" VerticalAlignment="Bottom" />
+    	<s:SurfaceButton Content="Add Activity" FontSize="13.333" Foreground="White" Height="38.338" RenderTransformOrigin="-0.037,0.75" Style="{DynamicResource Success}" Width="98.858"  ToolTip="Adds a new empty activity" x:Name="btnAdd" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Margin="8,0,0,8" VerticalAlignment="Bottom" Click="BtnAddClick" />
     </Grid>
 </Window>

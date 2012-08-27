@@ -12,7 +12,7 @@
 
 using NooSphere.Core.Devices;
 
-namespace NooSphere.ActivitySystem.Base
+namespace NooSphere.ActivitySystem.Base.Service
 {
     public class ConnectedClient
     {

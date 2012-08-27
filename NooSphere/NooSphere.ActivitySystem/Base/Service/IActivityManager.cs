@@ -13,7 +13,6 @@
 using System;
 using System.Collections.Generic;
 using System.ServiceModel;
-using NooSphere.ActivitySystem.Contracts;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 using System.ServiceModel.Web;

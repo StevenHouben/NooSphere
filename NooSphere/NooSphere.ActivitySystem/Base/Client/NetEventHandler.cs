@@ -11,13 +11,10 @@
 ****************************************************************************/
 
 using System;
-using System.IO;
-using System.Net;
-using System.Threading;
 using NooSphere.Core.ActivityModel;
 using System.ServiceModel;
 using NooSphere.Core.Devices;
-using NooSphere.ActivitySystem.Contracts.Client;
+
 #if ANDROID
 using System.Text;
 using Newtonsoft.Json;

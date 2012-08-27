@@ -522,7 +522,7 @@ namespace ActivityUI.Xaml
                 _client.Close();
 
             //Close the host if running
-            if(_host.IsRunning)
+            if(_host != null &&_host.IsRunning)
                 _host.Close();
 
             //Close the taskbar
