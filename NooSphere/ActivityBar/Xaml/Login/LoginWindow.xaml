@@ -57,7 +57,11 @@
         <RadioButton Content="I don't know" GroupName="startup" Height="16" HorizontalAlignment="Left" Margin="270,248,0,0" Name="radioButton1" VerticalAlignment="Top" />
         <Image Height="47" x:Name="imgLogo" Stretch="None" VerticalAlignment="Top" Source="/ActivityUI;component/Images/logo.PNG" Margin="107,35,0,0" />
         <Label Content="Device type" Height="28" HorizontalAlignment="Left" Margin="8,211,0,0" Name="label2" VerticalAlignment="Top" Width="83" />
+        <Label Content="Device tag" Height="28" HorizontalAlignment="Left" Margin="220,211,0,0" Name="label4" VerticalAlignment="Top" Width="83" />
         <Label Content="Connection" Height="28" HorizontalAlignment="Left" Margin="8,243,0,0" Name="label3" VerticalAlignment="Top" Width="83" />
-        <ComboBox Height="23" HorizontalAlignment="Left" Margin="95,211,0,0" Name="cbType" VerticalAlignment="Top" Width="281" ItemsSource="{Binding}" Tag="Unknown" />
+        
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="95,211,0,0" Name="cbType" VerticalAlignment="Top" Width="127" ItemsSource="{Binding}" Tag="Unknown" />
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="285,211,0,0" Name="cbTag" VerticalAlignment="Top" Width="91" ItemsSource="{Binding}" Tag="Unknown" />
+
     </Grid>
 </Window>

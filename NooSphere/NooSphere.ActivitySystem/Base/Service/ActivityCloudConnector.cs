@@ -22,14 +22,13 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-
+using NooSphere.ActivitySystem.Helpers;
 using SignalR.Client;
 
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 
 using NooSphere.Core.ActivityModel;
-using NooSphere.Helpers;
 
 namespace NooSphere.ActivitySystem.Base
 {
@@ -278,7 +277,7 @@ namespace NooSphere.ActivitySystem.Base
                                 if (MessageReceived != null)
                                     MessageReceived(this,
                                                     new ComEventArgs(
-                                                        JsonConvert.DeserializeObject<String>(data.ToString())));
+                                                        JsonConvert.DeserializeObject<Message>(data.ToString())));
                                 break;
                             case "ParticipantAdded":
                                 if (ParticipantAdded != null)

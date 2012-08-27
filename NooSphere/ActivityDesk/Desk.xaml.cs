@@ -12,7 +12,6 @@
 
 using System;
 using System.Windows;
-using Microsoft.Surface;
 using Microsoft.Surface.Presentation.Controls;
 using System.Windows.Media;
 using Microsoft.Surface.Presentation.Controls.TouchVisualizations;
@@ -24,10 +23,9 @@ using System.Windows.Threading;
 using System.Collections.Generic;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Service;
-using NooSphere.ActivitySystem.Contracts.Service;
+using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Host;
-using NooSphere.ActivitySystem.Contracts;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.Core.Devices;
 using System.Windows.Media.Imaging;
@@ -36,7 +34,7 @@ using System.Runtime.InteropServices;
 using NooSphere.ActivitySystem.Base.Client;
 using System.Windows.Controls;
 using ActivityDesk.Visualizer.Visualization;
-using NooSphere.Helpers;
+using System.Threading.Tasks;
 
 namespace ActivityDesk
 {
@@ -47,18 +45,17 @@ namespace ActivityDesk
     {
         #region Members
 
-        private ActivityClient _client;
+        private ActivityClient _pairedManager;
+        private string _pairedTag;
         private GenericHost _host;
         private DiscoveryManager _disc;
         private readonly User _user;
         private readonly Device _device;
         private DeskState _deskState;
-
-        private Thread _discoveryThread;
-
+        private Activity _currentActivity;
+        private readonly List<string> _lockedTags = new List<string>();
+        private readonly List<string> _connectedDeviceTags = new List<string>();
         private Dictionary<Guid, SurfaceButton> _proxies = new Dictionary<Guid, SurfaceButton>();
-
-        // private PointerNode pn = new PointerNode(PointerRole.Slave);
 
         #endregion
 
@@ -87,6 +84,7 @@ namespace ActivityDesk
                 DeviceType = DeviceType.Tabletop,
                 Name = "Surface"
             };
+
         }
 
         public BitmapSource ToBitmapSource(System.Drawing.Bitmap source)
@@ -154,6 +152,192 @@ namespace ActivityDesk
         {
             SetDeskState(ActivityDesk.DeskState.Occupied);
         }
+
+        /// <summary>
+        /// Initializes the tag defintions
+        /// </summary>
+        private void InitializeTags()
+        {
+            TagVisualizationDefinition definition = new SmartPhoneDefinition();
+            definition.Source = new Uri("Visualizer/Visualizations/SmartPhone.xaml", UriKind.Relative);
+            definition.TagRemovedBehavior = TagRemovedBehavior.Disappear;
+            definition.LostTagTimeout = 1000;
+
+            TagVisualizationDefinition definition2 = new TabletDefinition();
+            definition2.Source = new Uri("Visualizer/Visualizations/VisualizationTablet.xaml", UriKind.Relative);
+            definition2.LostTagTimeout = 1000;
+
+            Visualizer.Definitions.Add(definition);
+            Visualizer.Definitions.Add(definition2);
+        }
+        #endregion
+
+        #region NooSphere
+
+        private void StartHost()
+        {
+            var t = new Thread(() =>
+            {
+                _host = new GenericHost(7891);
+                _host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
+                _host.Open(new ActivityManager(new User(), "c:/files/"), typeof(IActivityManager), "desk");
+
+            });
+            t.Start();
+        }
+        private void StartClient(string addr,string tag)
+        {
+            if (_pairedManager == null)
+            {
+                try
+                {
+                    _pairedTag = tag;
+                    _pairedManager = new ActivityClient(@"c:/abcdesk/", _device) { CurrentUser = new User() };
+                    _pairedManager.ActivityAdded += ClientActivityAdded;
+                    _pairedManager.ActivityRemoved += ClientActivityRemoved;
+                    _pairedManager.FileAdded += new FileAddedHandler(_client_FileAdded);
+                    _pairedManager.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
+                    _pairedManager.ActivitySwitched += new ActivitySwitchedHandler(_client_ActivitySwitched);
+                    _pairedManager.Open(addr);
+                    InitializeUI();
+                }
+                catch (Exception ex)
+                {
+
+                    MessageBox.Show(ex.ToString());
+                }
+            }
+            else if (tag != _pairedTag)
+            {
+                StartRoleChangeProcedure(addr);
+                return;
+            }
+
+        }
+
+        private void StartRoleChangeProcedure(string addr)
+        {
+            try
+            {
+                var actCli = new ActivityClient(@"c:/abcdesk/", _device) { CurrentUser = new User() };
+                actCli.ConnectionEstablished += ActCliConnectionEstablished;
+                actCli.Open(addr);
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        private void ActCliConnectionEstablished(object sender, EventArgs e)
+        {
+            var msg= new Message
+                         {Type = MessageType.Connect, Content = _pairedManager.ServiceAddress, From = "Mediator"};
+            ((ActivityClient)sender).SendMessage(msg);
+        }
+        private void RunDiscovery()
+        {
+            Task.Factory.StartNew(() =>
+            {
+                _disc = new DiscoveryManager();
+                _disc.DiscoveryAddressAdded += DiscDiscoveryAddressAdded;
+                _disc.DiscoveryFinished += DiscDiscoveryFinished;
+                _disc.Find(DiscoveryType.WSDiscovery);
+            });
+        }
+        private void DiscDiscoveryFinished(object o, DiscoveryEventArgs e)
+        {
+            if (_disc.ActivityServices.Count == 0)
+                if (Visualizer.ActiveVisualizations.Count == 0)
+                    SetDeskState(DeskState.Ready);
+                else
+                    SetDeskState(DeskState.Locked);
+        }
+        private void DiscDiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
+        {
+            var q = new List<TagVisualization>(Visualizer.ActiveVisualizations);
+
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                foreach (var tv in q)
+                {
+                    if (e.ServiceInfo.Code == Convert.ToString(tv.VisualizedTag.Value))
+                    {
+                        StartClient(e.ServiceInfo.Address, e.ServiceInfo.Code);
+                    }
+                }
+            }));
+        }
+        private void host_HostLaunched(object sender, EventArgs e)
+        {
+            //StartClient(_host.Address,);
+        }
+        private void _client_ActivitySwitched(object sender, ActivityEventArgs e)
+        {
+            _currentActivity = e.Activity;
+            view.Items.Clear();
+            if (e.Activity.Resources.Count != 0)
+                foreach (Resource res in e.Activity.Resources)
+                    VisualizeResouce(res, _pairedManager.LocalPath + res.RelativePath);
+        }
+        private void _client_ServiceIsDown(object sender, EventArgs e)
+        {
+            SetDeskState(ActivityDesk.DeskState.Locked);
+
+            if (_pairedManager != null)
+            {
+                _pairedManager.Close();
+                _pairedManager = null;
+            }
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                view.Items.Clear();
+            }));
+        }
+        private void _client_FileAdded(object sender, FileEventArgs e)
+        {
+            if(_currentActivity != null)
+                if(e.Resource.ActivityId == _currentActivity.Id)
+                    VisualizeResouce(e.Resource,e.LocalPath);
+        }
+        private void ClientActivityAdded(object sender, ActivityEventArgs e)
+        {
+            //AddActivityUI(e.Activity);
+        }
+        private void client_DeviceAdded(object sender, DeviceEventArgs e)
+        {
+           
+        }
+        private void client_MessageReceived(object sender, ComEventArgs e)
+        {
+            MessageBox.Show(e.Message.Content);
+
+        }
+        private void ClientActivityRemoved(object sender, ActivityRemovedEventArgs e)
+        {
+            //RemoveActivityUI(e.Id);
+        }
+        #endregion
+
+        #region UI
+        private void VisualizeResouce(Resource res, string path)
+        {
+            try
+            {
+                Image i = new Image();
+                BitmapImage src = new BitmapImage();
+                src.BeginInit();
+                src.UriSource = new Uri(path, UriKind.Relative);
+                src.CacheOption = BitmapCacheOption.OnLoad;
+                src.EndInit();
+                i.Source = src;
+                i.Stretch = Stretch.Uniform;
+
+                view.Items.Add(i);
+            }
+            catch { }
+        }
         private void AddResourceWindow()
         {
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
@@ -169,7 +353,6 @@ namespace ActivityDesk
                 b.HorizontalContentAlignment = System.Windows.HorizontalAlignment.Center;
                 b.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
                 b.Background = System.Windows.Media.Brushes.Gray;
-                b.Click += new RoutedEventHandler(b_Click);
                 b.Width = 300;
                 b.Tag = activity.Id;
                 b.Height = Double.NaN;
@@ -190,183 +373,21 @@ namespace ActivityDesk
                 }
             }));
         }
-
-        void b_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-        /// <summary>
-        /// Initializes the tag defintions
-        /// </summary>
-        private void InitializeTags()
-        {
-            TagVisualizationDefinition definition = new SmartPhoneDefinition();
-            definition.Source = new Uri("Visualizer/Visualizations/SmartPhone.xaml", UriKind.Relative);
-            definition.TagRemovedBehavior = TagRemovedBehavior.Disappear;
-            definition.LostTagTimeout = 1000;
-
-            TagVisualizationDefinition definition2 = new TabletDefinition();
-            definition2.Source = new Uri("Visualizer/Visualizations/VisualizationTablet.xaml", UriKind.Relative);
-            definition2.LostTagTimeout = 1000;
-
-            Visualizer.Definitions.Add(definition);
-            Visualizer.Definitions.Add(definition2);
-        }
         #endregion
 
-
-        #region NooSphere
-
-        void StartHost()
-        {
-            var t = new Thread(() =>
-            {
-                _host = new GenericHost(7891);
-                _host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
-                _host.Open(new ActivityManager(new User(), "c:/files/"), typeof(IActivityManager), "desk");
-
-            });
-            t.Start();
-        }
-        void host_HostLaunched(object sender, EventArgs e)
-        {
-            StartClient(_host.Address);
-        }
-
-        private void RunDiscovery()
-        {
-            _discoveryThread = new Thread(() =>
-            {
-                _disc = new DiscoveryManager();
-                _disc.DiscoveryAddressAdded += DiscDiscoveryAddressAdded;
-                _disc.DiscoveryFinished += DiscDiscoveryFinished;
-                _disc.Find(DiscoveryType.WSDiscovery);
-            }) { IsBackground = true };
-            _discoveryThread.Start();
-        }
-        private void DiscDiscoveryFinished(object o, DiscoveryEventArgs e)
-        {
-            if (_disc.ActivityServices.Count == 0)
-                if (Visualizer.ActiveVisualizations.Count == 0)
-                    SetDeskState(DeskState.Ready);
-                else
-                    SetDeskState(DeskState.Locked);
-        }
-        private void DiscDiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
-        {
-            var q = new List<TagVisualization>(Visualizer.ActiveVisualizations);
-
-            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
-            {
-                foreach (var tv in q)
-                    if (e.ServiceInfo.Code == Convert.ToString(tv.VisualizedTag.Value))
-                        StartClient(e.ServiceInfo.Address);
-            }));
-        }
-
-        void StartClient(string addr)
-        {
-            if (_client != null)
-                return;
-            try
-            {
-                _client = new ActivityClient(@"c:/abcdesk/", _device) { CurrentUser = new User() };
-
-                _client.ActivityAdded += ClientActivityAdded;
-                _client.ActivityRemoved += ClientActivityRemoved;
-                _client.FileAdded += new FileAddedHandler(_client_FileAdded);
-                _client.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
-                _client.ActivitySwitched += new ActivitySwitchedHandler(_client_ActivitySwitched);
-                _client.Open(addr);
-                InitializeUI();
-            }
-            catch (Exception ex)
-            {
-
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
-        void _client_ActivitySwitched(object sender, ActivityEventArgs e)
-        {
-            view.Items.Clear();
-            if (e.Activity.Resources.Count != 0)
-                foreach (Resource res in e.Activity.Resources)
-                    VisualizeResouce(res, _client.LocalPath + res.RelativePath);
-        }
-        void _client_ServiceIsDown(object sender, EventArgs e)
-        {
-            SetDeskState(ActivityDesk.DeskState.Locked);
-
-            if (_client != null)
-            {
-                _client.Close();
-                _client = null;
-            }
-            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
-            {
-                view.Items.Clear();
-            }));
-        }
-
-        void _client_FileAdded(object sender, FileEventArgs e)
-        {
-            //VisualizeResouce(e.Resource,e.LocalPath);
-        }
-
-        void ClientActivityAdded(object sender, ActivityEventArgs e)
-        {
-            AddActivityUI(e.Activity);
-        }
-
-        private void VisualizeResouce(Resource res, string path)
-        {
-            try
-            {
-                Image i = new Image();
-                BitmapImage src = new BitmapImage();
-                src.BeginInit();
-                src.UriSource = new Uri(path, UriKind.Relative);
-                src.CacheOption = BitmapCacheOption.OnLoad;
-                src.EndInit();
-                i.Source = src;
-                i.Stretch = Stretch.Uniform;
-
-                view.Items.Add(i);
-            }
-            catch { }
-        }
-
-        void client_DeviceAdded(object sender, DeviceEventArgs e)
-        {
-            MessageBox.Show(e.Device.Id.ToString());
-        }
-
-        void client_MessageReceived(object sender, ComEventArgs e)
-        {
-            MessageBox.Show(e.Message);
-        }
-
-        void ClientActivityRemoved(object sender, ActivityRemovedEventArgs e)
-        {
-            RemoveActivityUI(e.Id);
-        }
-        #endregion
-
-
+        #region Events
         private void Visualizer_VisualizationAdded(object sender, TagVisualizerEventArgs e)
         {
             if (!_lockedTags.Contains(e.TagVisualization.VisualizedTag.Value.ToString()))
             {
-                if (Visualizer.ActiveVisualizations.Count == 1)
+                if (Visualizer.ActiveVisualizations.Count >0 && _pairedManager ==null)
                 {
-                    RunDiscovery();
                     SetDeskState(ActivityDesk.DeskState.Active);
                 }
             }
             ((BaseVisualization)e.TagVisualization).Locked += new LockedEventHandler(Desk_Locked);
+            RunDiscovery();
         }
-
         private void Desk_Locked(object sender, LockedEventArgs e)
         {
             if (_lockedTags.Contains(e.VisualizedTag))
@@ -380,9 +401,6 @@ namespace ActivityDesk
                 Log.Out("ActivityDesk", String.Format("{0} locked", e.VisualizedTag));
             }
         }
-
-        private readonly List<string> _lockedTags = new List<string>();
-
         private void Visualizer_VisualizationRemoved(object sender, TagVisualizerEventArgs e)
         {
             if (!_lockedTags.Contains(e.TagVisualization.VisualizedTag.Value.ToString()))
@@ -392,10 +410,10 @@ namespace ActivityDesk
                 {
                     SetDeskState(ActivityDesk.DeskState.Ready);
                 }
-                if (_client != null)
+                if (_pairedManager != null)
                 {
-                    _client.Close();
-                    _client = null;
+                    _pairedManager.Close();
+                    _pairedManager = null;
                 }
 
 
@@ -405,15 +423,10 @@ namespace ActivityDesk
                 }));
             }
         }
-
         private void Visualizer_VisualizationMoved(object sender, TagVisualizerEventArgs e)
         {
 
         }
-
-        private void Visualizer_Loaded(object sender, RoutedEventArgs e)
-        {
-            //InitializeTracker();
-        }
+        #endregion
     }
 }

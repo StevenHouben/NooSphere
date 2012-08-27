@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
  (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
 
  Pervasive Interaction Technology Laboratory (pIT lab)
@@ -11,7 +11,6 @@
 ****************************************************************************/
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 #if ANDROID
@@ -20,11 +19,9 @@ using Microsoft.Http;
 using System.Net.Http;
 #endif
 using System.Threading.Tasks;
+using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
 using NooSphere.ActivitySystem.Base;
-using System.Threading;
-using NooSphere.Helpers;
-using System.Net;
 
 namespace NooSphere.ActivitySystem.FileServer
 {
@@ -90,8 +87,7 @@ namespace NooSphere.ActivitySystem.FileServer
                     break; 
             }
             Log.Out("FileStore", string.Format("Added file {0} to store", resource.Name), LogCode.Log);
-        }
-      
+        }   
         public void DownloadFile(Resource resource, string path, FileSource source, string _connectionId = null)
         {
             Rest.DownloadStream(path, _connectionId).ContinueWith(stream =>

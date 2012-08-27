@@ -130,5 +130,17 @@ namespace ActivityUI.Properties {
                 this["DISCOVERY_TYPE"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int DEVICE_TAG {
+            get {
+                return ((int)(this["DEVICE_TAG"]));
+            }
+            set {
+                this["DEVICE_TAG"] = value;
+            }
+        }
     }
 }

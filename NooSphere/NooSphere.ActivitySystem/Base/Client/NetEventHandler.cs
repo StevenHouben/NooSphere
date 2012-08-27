@@ -281,7 +281,7 @@ namespace NooSphere.ActivitySystem.Base.Client
                 ActivityChanged(this, new ActivityEventArgs(act));
         }
 
-        public virtual void MessageNetReceived(string msg)
+        public virtual void MessageNetReceived(Message msg)
         {
             if (MessageReceived != null)
                 MessageReceived(this, new ComEventArgs(msg));

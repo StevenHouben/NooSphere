@@ -14,7 +14,7 @@ using NooSphere.Core.Primitives;
 
 namespace NooSphere.Core.ActivityModel
 {
-    public class User : Base
+    public class User : Noo
     {
 
         #region Properties

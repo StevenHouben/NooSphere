@@ -14,9 +14,9 @@ namespace NooSphere.ActivitySystem.Base
 {
     public class ComEventArgs
     {
-        public string Message { get; set; }
+        public Message Message { get; set; }
         public ComEventArgs() { }
-        public ComEventArgs(string message)
+        public ComEventArgs(Message message)
         {
             Message = message;
         }

@@ -1,3 +1,4 @@
+
 ﻿/****************************************************************************
  (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
 
@@ -16,7 +17,7 @@ using NooSphere.Core.Primitives;
 
 namespace NooSphere.Core.ActivityModel
 {
-    public class Resource : Base
+    public class Resource : Noo
     {
         public Resource()
         {
@@ -31,8 +32,8 @@ namespace NooSphere.Core.ActivityModel
 
         private void InitializeTimeStamps()
         {
-            CreationTime = DateTime.Now.ToString(CultureInfo.InvariantCulture);
-            LastWriteTime = DateTime.Now.ToString(CultureInfo.InvariantCulture);
+            CreationTime = DateTime.Now.ToString("u");
+            LastWriteTime = DateTime.Now.ToString("u");
         }
 
         public Guid ActivityId { get; set; }
@@ -41,6 +42,5 @@ namespace NooSphere.Core.ActivityModel
         public string LastWriteTime { get; set; }
         public string RelativePath { get {return ActivityId +"/"+ Name; }}
         public string CloudPath { get { return "Activities/" + ActivityId + "/Resources/" + Id; } }
-        public Service Service { get; set; }
     }
 }

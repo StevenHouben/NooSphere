@@ -11,13 +11,11 @@
 ****************************************************************************/
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Net.Sockets;
 #if !ANDROID
 using System.ServiceModel.Discovery;
 using Mono.Zeroconf;
-using NooSphere.ActivitySystem.Contracts;
 #else
 using System.Net;
 using System.Text;

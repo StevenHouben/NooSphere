@@ -18,7 +18,7 @@ namespace NooSphere.Core.ActivityModel
     /// <summary>
     /// Activity Base Class
     /// </summary>
-    public class Activity : Base
+    public class Activity : Noo
     {
         #region Constructors
 
@@ -34,7 +34,6 @@ namespace NooSphere.Core.ActivityModel
         private void InitializeProperties()
         {
             Actions = new List<Action>();
-            Workflows = new List<Workflow>();
             Participants = new List<User>();
             Meta = new Metadata();
             Resources =  new List<Resource>();
@@ -46,7 +45,6 @@ namespace NooSphere.Core.ActivityModel
         public User Owner { get; set; }
         public List<User> Participants { get; set; }
         public List<Action> Actions{ get; set; }
-        public List<Workflow> Workflows{ get; set; }
         public Metadata Meta{ get; set; }
         public List<Resource> Resources { get; set; }
 

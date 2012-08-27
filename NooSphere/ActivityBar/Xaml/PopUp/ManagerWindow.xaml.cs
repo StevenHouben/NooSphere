@@ -20,6 +20,7 @@ using System.Windows.Interop;
 using System.Windows.Threading;
 using ActivityUI.Properties;
 using ActivityUI.Xaml;
+using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Discovery;
 using NooSphere.Platform.Windows.Interopt;
 
@@ -107,7 +108,8 @@ namespace ActivityUI.PopUp
 
         private void btnSend_Click(object sender, RoutedEventArgs e)
         {
-            taskbar.SendMessage(txtInput.Text);
+            var msg = new Message() { From = "steven", To = "all", Header = "Controller.RoleChanged", Content = txtInput.Text };
+            taskbar.SendMessage(msg);
         }
 
         private void txtAddFriend_Click(object sender, RoutedEventArgs e)

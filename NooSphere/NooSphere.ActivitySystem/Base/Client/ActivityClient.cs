@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
  (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
 
  Pervasive Interaction Technology Laboratory (pIT lab)
@@ -11,7 +11,6 @@
 ****************************************************************************/
 
 using System.Collections.Concurrent;
-using System.Globalization;
 using System.IO;
 using System.Net;
 using System.ServiceModel;
@@ -19,9 +18,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using NooSphere.ActivitySystem.Discovery;
+using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
-using NooSphere.Helpers;
 using Newtonsoft.Json;
 using NooSphere.ActivitySystem.FileServer;
 #if !ANDROID
@@ -122,18 +122,17 @@ namespace NooSphere.ActivitySystem.Base.Client
         private bool TestConnection(string addr,int reconnectAttempts)
         {
             Log.Out("ActivityClient", string.Format("Attempt to connect to {0}", addr), LogCode.Net);
-            bool res;
             var attempts = 0;
             do
             {
                 ServiceAddress = addr;
-                res = JsonConvert.DeserializeObject<bool>(Rest.Get(ServiceAddress));
-                Log.Out("ActivityClient", string.Format("Service active? -> {0}", res), LogCode.Net);
+                _connected = JsonConvert.DeserializeObject<bool>(Rest.Get(ServiceAddress));
+                Log.Out("ActivityClient", string.Format("Service active? -> {0}", _connected), LogCode.Net);
                 Thread.Sleep(200);
                 attempts++;
             }
-            while (res == false && attempts < reconnectAttempts);
-            if (res)
+            while (_connected == false && attempts < reconnectAttempts);
+            if (_connected)
                 OnConnectionEstablishedEvent(new EventArgs());
             else
                 throw new Exception("ActivityClient: Could not connect to: " + addr);
@@ -204,6 +203,7 @@ namespace NooSphere.ActivitySystem.Base.Client
             Ip = Net.GetIp(IPType.All);
 
             //Test if connected to manager. Exception is thrown if not
+            //Set connected flag true
             TestConnection(address, 25);
 
             //Listen to some of the internal events
@@ -212,8 +212,6 @@ namespace NooSphere.ActivitySystem.Base.Client
             DeviceAdded += ActivityClientDeviceAdded;
             DeviceRemoved += ActivityClientDeviceRemoved;
 
-            //Set connected flag true
-            _connected = true;
 
             //Register this device with the manager
             Register(Device);
@@ -294,8 +292,8 @@ namespace NooSphere.ActivitySystem.Base.Client
             var resource = new Resource((int)fileInfo.Length, fileInfo.Name)
             {
                 ActivityId = activityId,
-                CreationTime = DateTime.Now.ToUniversalTime().ToString(CultureInfo.InvariantCulture),
-                LastWriteTime = DateTime.Now.ToUniversalTime().ToString(CultureInfo.InvariantCulture)                   
+                CreationTime = DateTime.Now.ToString("u"),
+                LastWriteTime = DateTime.Now.ToString("u")  
             };
             var req = new FileRequest
                           {
@@ -391,9 +389,8 @@ namespace NooSphere.ActivitySystem.Base.Client
         /// Sends a "Send Message" request to the activity manager
         /// </summary>
         /// <param name="msg">The message that needs to be included in the request</param>
-        public void SendMessage(string msg)
+        public void SendMessage(Message msg)
         {
-
             if (_connected)
                 Rest.Post(ServiceAddress + Url.Messages, new {message = msg, deviceId = _connectionId});
             else

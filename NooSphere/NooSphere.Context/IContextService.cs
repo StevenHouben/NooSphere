@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
  (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
 
  Pervasive Interaction Technology Laboratory (pIT lab)
@@ -21,6 +21,8 @@ namespace NooSphere.Context
         string Name { get; set; }
 
         void Send(string message);
+        void Start();
+        void Stop();
 
         event DataReceivedHandler DataReceived;
     }
@@ -40,6 +42,4 @@ namespace NooSphere.Context
         Serial,
         Net
     }
-
-
 }

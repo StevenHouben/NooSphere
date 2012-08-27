@@ -29,5 +29,8 @@
     <Setting Name="DISCOVERY_TYPE" Type="NooSphere.ActivitySystem.Discovery.DiscoveryType" Scope="User">
       <Value Profile="(Default)">WSDiscovery</Value>
     </Setting>
+    <Setting Name="DEVICE_TAG" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

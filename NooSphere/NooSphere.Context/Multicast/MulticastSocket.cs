@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
  (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
 
  Pervasive Interaction Technology Laboratory (pIT lab)
@@ -27,7 +27,6 @@ namespace NooSphere.Context.Multicast
     /// </summary>
     public class MulticastSocket
     {
-
         public event NotifyMulticastSocketListener OnNotifyMulticastSocketListener;
 
         //Socket creation, regular UDP socket 
@@ -180,7 +179,6 @@ namespace NooSphere.Context.Multicast
         {
             Task.Factory.StartNew(ThreadedNotifyMulticastSocketListener, new NotifyMulticastSocketListenerEventArgs(messageType, obj, consecutive));
         }
-
         private void ThreadedNotifyMulticastSocketListener(Object argsObj)
         {
             try
