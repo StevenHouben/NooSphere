@@ -19,6 +19,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using ActivityTablet.Context;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.ActivitySystem.Base.Service;
@@ -191,6 +192,9 @@ namespace ActivityTablet.Xaml
                 _client.ConnectionEstablished += ClientConnectionEstablished;
                 _client.FileAdded += ClientFileAdded;
                 _client.ActivitySwitched += ClientActivitySwitched;
+
+                _client.ContextMonitor.AddContextService(new InputRedirect(PointerRole.Controller));
+                
                 _client.Open(addr);
             }
             catch (Exception ex)
@@ -199,6 +203,7 @@ namespace ActivityTablet.Xaml
                 MessageBox.Show(ex.ToString());
             }
         }
+
        
         private void PopulateResource(Activity activity)
         {
@@ -312,6 +317,7 @@ namespace ActivityTablet.Xaml
         }
         private void ClientConnectionEstablished(object sender, EventArgs e)
         {
+            _client.ContextMonitor.Start();
             BuildUI();
         }
         private void BtnQuitClick(object sender, RoutedEventArgs e)

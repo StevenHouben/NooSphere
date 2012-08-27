@@ -84,6 +84,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Activity\Proxy.cs" />
+    <Compile Include="Context\InputRedirect.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Xaml\ActivityButton.cs" />
     <Compile Include="Xaml\IconToAvgColorBrushConverter.cs" />

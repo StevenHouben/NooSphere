@@ -23,6 +23,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Threading;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
+using ActivityUI.Context;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.ActivitySystem.Base.Service;
@@ -244,7 +245,10 @@ namespace ActivityUI.Xaml
             _client.ContextMessageReceived += _client_ContextMessageReceived;
 
             _client.ConnectionEstablished += ClientConnectionEstablished;
-            _client.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
+            _client.ServiceIsDown += _client_ServiceIsDown;
+
+            _client.ContextMonitor.AddContextService(new InputRedirect(PointerRole.Slave));
+
             _client.Open(activityManagerHttpAddress);
         }
 
@@ -268,6 +272,7 @@ namespace ActivityUI.Xaml
 
         void ClientConnectionEstablished(object sender, EventArgs e)
         {
+            _client.ContextMonitor.Start();
             BuildUi();
             _startingUp = false;
         }

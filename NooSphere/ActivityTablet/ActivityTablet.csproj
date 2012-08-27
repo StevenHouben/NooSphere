@@ -94,6 +94,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Context\InputRedirect.cs" />
     <Compile Include="DisplayMode.cs" />
     <Compile Include="Xaml\ActivityButton.cs" />
     <Compile Include="App.xaml.cs">
@@ -180,6 +181,10 @@
     <ProjectReference Include="..\NooSphere.Core\NooSphere.Core.csproj">
       <Project>{03C072A4-5960-4A5D-B0CC-98EBD854E970}</Project>
       <Name>NooSphere.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NooSphere.Platform.Windows\NooSphere.Platform.Windows.csproj">
+      <Project>{B3333919-EE66-441A-8AB3-6E6601A8A0B1}</Project>
+      <Name>NooSphere.Platform.Windows</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
