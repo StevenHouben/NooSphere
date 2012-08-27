@@ -15,11 +15,11 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Net.Http;
 using Newtonsoft.Json;
 #if ANDROID
 using Microsoft.Http;
 #else
+using System.Net.Http;
 #endif
 
 namespace NooSphere.ActivitySystem.Helpers

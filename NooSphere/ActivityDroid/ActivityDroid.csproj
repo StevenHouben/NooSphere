@@ -92,10 +92,6 @@
       <Project>{9e4955ac-977e-43c4-b721-ceb107337ca3}</Project>
       <Name>NooSphere.Core.MonoDroid</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NooSphere.Helpers\NooSphere.Helpers.MonoDroid.csproj">
-      <Project>{e067586e-d181-40d3-a253-e7e3dbd2f7d8}</Project>
-      <Name>NooSphere.Helpers.MonoDroid</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

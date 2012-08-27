@@ -6,8 +6,8 @@ using Android.OS;
 using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json;
+using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
-using NooSphere.Helpers;
 using Activity = Android.App.Activity;
 
 namespace ActivityDroid

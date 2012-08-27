@@ -10,9 +10,9 @@ using Newtonsoft.Json;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.ActivitySystem.Discovery;
+using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
-using NooSphere.Helpers;
 using Activity = Android.App.Activity;
 
 namespace ActivityDroid

@@ -14,6 +14,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading;
+using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
 using System.ServiceModel;
 using NooSphere.Core.Devices;
@@ -22,10 +23,6 @@ using NooSphere.ActivitySystem.Contracts.Client;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NooSphere.Helpers;
-
-#endif
-#if !ANDROID
 #endif
 
 namespace NooSphere.ActivitySystem.Base.Client
@@ -116,7 +113,7 @@ namespace NooSphere.ActivitySystem.Base.Client
                             break;
                         case "MessageReceived":
                             using (var streamReader = new StreamReader(context.Request.InputStream))
-                                MessageNetReceived(JsonConvert.DeserializeObject<string[]>(streamReader.ReadToEnd())[0]);
+                                MessageNetReceived(JsonConvert.DeserializeObject<Message>(streamReader.ReadToEnd()));
                             Respond(context, 200, String.Empty);
                             break;
                         case "DeviceAdded":
