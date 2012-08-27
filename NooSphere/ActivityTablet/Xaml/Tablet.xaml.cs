@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -27,7 +28,7 @@ using ActivityTablet.Properties;
 using NooSphere.Core.Devices;
 using NooSphere.ActivitySystem.Discovery;
 
-namespace ActivityTablet
+namespace ActivityTablet.Xaml
 {
     public partial class Tablet
     {
@@ -88,7 +89,7 @@ namespace ActivityTablet
                 Thread t = new Thread(() =>
                 {
                     DiscoveryManager disc = new DiscoveryManager();
-                    disc.DiscoveryAddressAdded += new DiscoveryManager.DiscoveryAddressAddedHandler(disc_DiscoveryAddressAdded);
+                    disc.DiscoveryAddressAdded += new DiscoveryManager.DiscoveryAddressAddedHandler(DiscDiscoveryAddressAdded);
                     disc.Find();
                 });
                 t.IsBackground = true;
@@ -103,14 +104,13 @@ namespace ActivityTablet
         }
         private void StartActivityManager()
         {
-            Thread t = new Thread(() =>
-            {
+            Task.Factory.StartNew(
+                delegate {
                 _host = new GenericHost();
-                _host.HostLaunched += new HostLaunchedHandler(host_HostLaunched);
+                _host.HostLaunched += new HostLaunchedHandler(HostHostLaunched);
                 _host.Open(new ActivityManager(_user, "c:/files/"), typeof(IActivityManager), "Tablet manager");
                 _host.StartBroadcast(DiscoveryType.WSDiscovery, "Tablet", "205");
             });
-            t.Start();
         }
         private void BuildUI()
         {
@@ -126,15 +126,14 @@ namespace ActivityTablet
         }
         private void AddActivityUI(Activity ac)
         {
-            this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                Proxy p = new Proxy();
-                p.Activity = ac;
+                var p = new Proxy {Activity = ac};
 
-                ActivityButton b = new ActivityButton(new Uri("pack://application:,,,/Images/activity.PNG"), ac.Name);
-                b.RenderMode = RenderMode.Image;
+                var b = new ActivityButton(new Uri("pack://application:,,,/Images/activity.PNG"), ac.Name)
+                            {RenderMode = RenderMode.Image};
                 b.TouchDown += new EventHandler<TouchEventArgs>(b_TouchDown);
-                b.Click += new RoutedEventHandler(b_Click);
+                b.Click += new RoutedEventHandler(BClick);
                 b.Height = b.Width = 100;
                 b.ActivityId = p.Activity.Id;
                 b.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
@@ -149,6 +148,15 @@ namespace ActivityTablet
                 proxies.Add(p.Activity.Id, p);
             }));
         }
+        private void RemoveActivityUI(Guid id)
+        {
+            Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+            {
+                ActivityDock.Children.Remove(proxies[id].Button);
+                proxies.Remove(id);
+            }));
+        }
+
         private void LoadSettings()
         {
             txtUsername.Text = Settings.Default.USER_NAME;
@@ -182,9 +190,11 @@ namespace ActivityTablet
             try
             {
                 _client = new ActivityClient(@"c:/abc/", _device) { CurrentUser = new User() };
-                _client.MessageReceived += new MessageReceivedHandler(_client_MessageReceived);
+                _client.MessageReceived += ClientMessageReceived;
                 _client.ActivityAdded += ClientActivityAdded;
-                _client.ConnectionEstablished += new ConnectionEstablishedHandler(_client_ConnectionEstablished);
+                _client.ActivityRemoved += ClientActivityRemoved;
+                _client.ConnectionEstablished += ClientConnectionEstablished;
+                _client.FileAdded += _client_FileAdded;
                 _client.Open(addr);
             }
             catch (Exception ex)
@@ -192,14 +202,35 @@ namespace ActivityTablet
 
                 MessageBox.Show(ex.ToString());
             }
-           
-
-
         }
 
-        void _client_MessageReceived(object sender, ComEventArgs e)
+        void _client_FileAdded(object sender, FileEventArgs e)
+        {
+            try
+            {
+                var image = new BadImageFormatException()
+            }
+            catch (Exception)
+            {
+                //not an image -> do better implementation here
+            }
+        }
+
+        private void ClientActivityRemoved(object sender, ActivityRemovedEventArgs e)
+        {
+            RemoveActivityUI(e.Id);
+        }
+        private void ClientMessageReceived(object sender, ComEventArgs e)
         {
             HandleMessage(e.Message);
+        }
+        private void ClientConnectionEstablished(object sender, EventArgs e)
+        {
+            BuildUI();
+        }
+        private void BtnQuitClick(object sender, RoutedEventArgs e)
+        {
+            ExitApplication();
         }
 
         private void HandleMessage(Message message)
@@ -210,31 +241,15 @@ namespace ActivityTablet
                 StartClient(message.Content);
             }
         }
-
-        void _client_ConnectionEstablished(object sender, EventArgs e)
-        {
-            BuildUI();
-            
-        }
         #endregion
 
         #region Public Methods
 
-
-        private void client_DeviceAdded(object sender, DeviceEventArgs e)
-        {
-        }
-        private void client_MessageReceived(object sender, ComEventArgs e)
-        {
-        }
-        private void client_ActivityRemoved(object sender, ActivityRemovedEventArgs e)
-        {
-        }
         private void ClientActivityAdded(object obj, ActivityEventArgs e)
         {
             AddActivityUI(e.Activity);
         }
-        private void b_Click(object sender, RoutedEventArgs e)
+        private void BClick(object sender, RoutedEventArgs e)
         {
             _client.SwitchActivity(proxies[((ActivityButton)sender).ActivityId].Activity);
         }
@@ -242,59 +257,25 @@ namespace ActivityTablet
         {
             throw new NotImplementedException();
         }
-        private void disc_DiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
+        private void DiscDiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
             StartClient(e.ServiceInfo.Address);
         }
-        private void btnGo_Click(object sender, RoutedEventArgs e)
+        private void BtnGoClick(object sender, RoutedEventArgs e)
         {
             LogIn();
-
         }
-        private void host_HostLaunched(object sender, EventArgs e)
+        private void HostHostLaunched(object sender, EventArgs e)
         {
             StartClient(_host.Address);
         }
-        private void cancel_Click(object sender, RoutedEventArgs e)
-        {
-            ExitApplication();
-        }
-
         private void ExitApplication()
         {
             if (_client != null)
                 _client.Close();
             Environment.Exit(0);
         }
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void btnGo_ManipulationBoundaryFeedback(object sender, ManipulationBoundaryFeedbackEventArgs e)
-        {
-
-        }
-        private void btnGo_MouseEnter(object sender, MouseEventArgs e)
-        {
-
-        }
-        private void btnGo_MouseLeave(object sender, MouseEventArgs e)
-        {
-
-        }
-        private void activityTouchButton_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
         #endregion
 
-        private void btnQuit_Click(object sender, RoutedEventArgs e)
-        {
-            ExitApplication();
-        }
     }
 }
