@@ -48,10 +48,10 @@ namespace ActivityTablet.Context
             switch (role)
             {
                 case PointerRole.Controller:
-                    MouseHook.Register();
                     MouseHook.MouseDown += MouseHookMouseDown;
                     MouseHook.MouseMove += MouseHookMouseMove;
                     MouseHook.MouseUp += MouseHookMouseUp;
+                    _mSocket.StartReceiving();
                     break;
                 case PointerRole.Slave:
                     MouseHook.MouseDown += MouseHookMouseDown;
@@ -61,8 +61,6 @@ namespace ActivityTablet.Context
                     break;
             }
         }
-
-
         private void MouseHookMouseUp(object sender, MouseEventArgs e)
         {
             if (PointerRole == PointerRole.Controller)
@@ -77,10 +75,9 @@ namespace ActivityTablet.Context
             }
             var xDif = _previousPoint.X - e.Location.X;
             var yDif = _previousPoint.Y - e.Location.Y;
-            Console.WriteLine(xDif + "---" + yDif);
 
             if (PointerRole == PointerRole.Controller)
-                Send(new PointerMessage(_previousPoint.X + xDif, _previousPoint.Y + yDif, PointerEvent.MouseMove).ToString());
+                Send(new PointerMessage(e.Location.X,e.Location.Y, PointerEvent.MouseMove).ToString());
             _previousPoint = e.Location;
         }
         private void MouseHookMouseDown(object sender, MouseEventArgs e)

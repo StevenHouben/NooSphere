@@ -77,10 +77,9 @@ namespace ActivityUI.Context
             }
             var xDif = _previousPoint.X - e.Location.X;
             var yDif = _previousPoint.Y - e.Location.Y;
-            Console.WriteLine(xDif + "---" + yDif);
 
             if (PointerRole == PointerRole.Controller)
-                Send(new PointerMessage(e.Location.X, e.Location.Y+ yDif, PointerEvent.MouseMove).ToString());
+                Send(new PointerMessage(e.Location.X, e.Location.Y, PointerEvent.MouseMove).ToString());
             _previousPoint = e.Location;
         }
         private void MouseHookMouseDown(object sender, MouseEventArgs e)

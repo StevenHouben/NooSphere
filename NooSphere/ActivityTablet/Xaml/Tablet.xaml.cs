@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,7 +20,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using ActivityTablet.Context;
+using Microsoft.Surface.Presentation.Controls;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.ActivitySystem.Base.Service;
@@ -43,7 +44,6 @@ namespace ActivityTablet.Xaml
         private readonly Dictionary<Guid, Proxy> _proxies = new Dictionary<Guid, Proxy>();
         private Activity _currentActivity;
 
-        //private PointerNode _pNode = new PointerNode(PointerRole.Controller);
         #endregion
 
         #region Constructor
@@ -51,6 +51,10 @@ namespace ActivityTablet.Xaml
         {
             //Initializes design-time components
             InitializeComponent();
+
+            resourceViewer.Visibility = Visibility.Hidden;
+            inputView.Visibility = Visibility.Hidden;
+            menu.Visibility = Visibility.Hidden;
             LoadSettings();
         }
         #endregion
@@ -117,39 +121,39 @@ namespace ActivityTablet.Xaml
         {
             Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                cvLogin.Visibility = System.Windows.Visibility.Hidden;
-                cvActivityManager.Visibility = System.Windows.Visibility.Visible;
-                //contentBrowser.Navigate(@"http://itu.dk/people/shou/pubs/SituatedActivityModelMODIQUITOUS2012.pdf");
+                //Hide login
+                cvLogin.Visibility = Visibility.Hidden;
+
+                //Show menu
+                menu.Visibility = Visibility.Visible;
+                
+                //Show resource mode by default
+                resourceViewer.Visibility = Visibility.Visible;
             }));
         }
         private void AddActivityUI(Activity ac)
         {
             Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                var p = new Proxy {Activity = ac};
-                var b = new ActivityButton(new Uri("pack://application:,,,/Images/activity.PNG"), ac.Name)
-                            {RenderMode = RenderMode.Image};
-                b.TouchDown += new EventHandler<TouchEventArgs>(b_TouchDown);
-                b.Click += new RoutedEventHandler(BClick);
-                b.Height = b.Width = 100;
-                b.ActivityId = p.Activity.Id;
-                b.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
-                b.HorizontalContentAlignment = System.Windows.HorizontalAlignment.Center;
-                b.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-                b.Padding = new Thickness(10);
-                b.Style = (Style)FindResource("ActivityTouchButton");
-
-                p.Button = b;
-
-                ActivityDock.Children.Add(b);
+                var srfcBtn = new SurfaceButton();
+                srfcBtn.Width = activityScroller.Width;
+                srfcBtn.Tag = ac.Id;
+                var p = new Proxy {Activity = ac, Ui = srfcBtn};
+                srfcBtn.Content = ac.Name;
+                srfcBtn.Click += new RoutedEventHandler(SrfcBtnClick);
+                activityStack.Children.Add(srfcBtn);
                 _proxies.Add(p.Activity.Id, p);
             }));
+        }
+        private void SrfcBtnClick(object sender, RoutedEventArgs e)
+        {
+            _client.SwitchActivity(_proxies[(Guid)((SurfaceButton)sender).Tag].Activity);
         }
         private void RemoveActivityUI(Guid id)
         {
             Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                ActivityDock.Children.Remove(_proxies[id].Button);
+                activityStack.Children.Remove((UIElement)_proxies[id].Ui);
                 _proxies.Remove(id);
             }));
         }
@@ -168,10 +172,8 @@ namespace ActivityTablet.Xaml
         }
         private void CreateUser(string baseUrl)
         {
-            User user = new User();
-            user.Email = txtEmail.Text;
-            user.Name = txtUsername.Text;
-            string added = Rest.Post(baseUrl + "Users", user);
+            var user = new User {Email = txtEmail.Text, Name = txtUsername.Text};
+            var added = Rest.Post(baseUrl + "Users", user);
             if (JsonConvert.DeserializeObject<bool>(added))
             {
                 var result = Rest.Get(baseUrl + "Users?email=" + txtEmail.Text);
@@ -192,8 +194,6 @@ namespace ActivityTablet.Xaml
                 _client.ConnectionEstablished += ClientConnectionEstablished;
                 _client.FileAdded += ClientFileAdded;
                 _client.ActivitySwitched += ClientActivitySwitched;
-
-                _client.ContextMonitor.AddContextService(new InputRedirect(PointerRole.Controller));
                 
                 _client.Open(addr);
             }
@@ -203,14 +203,34 @@ namespace ActivityTablet.Xaml
                 MessageBox.Show(ex.ToString());
             }
         }
+        private void ShowResource(object sender)
+        {
+            try
+            {
+                ContentHolder.Strokes.Clear();
 
-       
+                var src = ((Image)sender).Source;
+                ContentHolder.Height = src.Height;
+                ContentHolder.Background = new ImageBrush(src);
+                ContentHolder.Tag = ((Image) sender).Tag;
+                //{
+                //    Source = ((Image)sender).Source,
+                //    MaxHeight = ContentScroller.Height,
+                //    MaxWidth = ContentScroller.Width
+                //};
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
         private void PopulateResource(Activity activity)
         {
             Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
+                ContentHolder.Strokes.Clear();
                 resourceDock.Children.Clear();
-                ContentScroller.Content = null;
+                ContentHolder.Background = null;
                 foreach (
                     var resource in
                         activity.Resources)
@@ -223,40 +243,45 @@ namespace ActivityTablet.Xaml
                 }
             }));
         }
-
         private void AddResource(Resource resource,string path)
         {
             Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                try
-                {
-                    var i = new Image();
-                    i.Width = i.Height = 100;
-                    var src = new BitmapImage();
-                    src.BeginInit();
-                    src.UriSource =
-                        new Uri(path,
-                                UriKind.
-                                    Relative);
-                    src.CacheOption =
-                        BitmapCacheOption.
-                            OnLoad;
-                    src.EndInit();
-                    i.Source = src;
-                    i.Stretch = Stretch.Uniform;
-                    i.MouseDown += IMouseDown;
-                    i.TouchDown += ITouchDown;
-
-                    resourceDock.Children.Add(i);
-                }
-                catch (Exception)
-                {
-                    //not an image -> do better implementation here
-                }
-
+                if (Path.GetExtension(path) == ".pdf")
+                    _client.AddResource(new FileInfo(PDFConverter.Convert(path)),resource.ActivityId);
+                else
+                    TryToAddImage(resource, path);
             }));
         }
 
+        private void TryToAddImage(Resource resource, string path)
+        {
+            try
+            {
+                var i = new Image {Tag = resource};
+                i.Width = i.Height = 100;
+                var src = new BitmapImage();
+                src.BeginInit();
+                src.UriSource =
+                    new Uri(path,
+                            UriKind.
+                                Relative);
+                src.CacheOption =
+                    BitmapCacheOption.
+                        OnLoad;
+                src.EndInit();
+                i.Source = src;
+                i.Stretch = Stretch.Uniform;
+                i.MouseDown += IMouseDown;
+                i.TouchDown += ITouchDown;
+
+                resourceDock.Children.Add(i);
+            }
+            catch (Exception)
+            {
+                //not an image -> do better implementation here
+            }
+        }
 
         private void HandleMessage(Message message)
         {
@@ -268,10 +293,15 @@ namespace ActivityTablet.Xaml
         }
         #endregion
 
-        #region Public Methods
+        #region Events Handlers
         private void ITouchDown(object sender, TouchEventArgs e)
         {
             ShowResource(sender);
+        }
+        private void ClientActivityAdded(object obj, ActivityEventArgs e)
+        {
+            AddActivityUI(e.Activity);
+            _currentActivity = e.Activity;
         }
         private void ClientActivitySwitched(object sender, ActivityEventArgs e)
         {
@@ -284,29 +314,6 @@ namespace ActivityTablet.Xaml
                 return;
             AddResource(e.Resource, e.LocalPath);
         }
-
-        private void IMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            ShowResource(sender);
-        }
-
-        private void ShowResource(object sender)
-        {
-            try
-            {
-                ContentScroller.Content = new Image
-                                              {
-                                                  Source = ((Image) sender).Source,
-                                                  MaxHeight = ContentScroller.Height,
-                                                  MaxWidth = ContentScroller.Width
-                                              };
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-        }
-
         private void ClientActivityRemoved(object sender, ActivityRemovedEventArgs e)
         {
             RemoveActivityUI(e.Id);
@@ -317,25 +324,19 @@ namespace ActivityTablet.Xaml
         }
         private void ClientConnectionEstablished(object sender, EventArgs e)
         {
-            _client.ContextMonitor.Start();
             BuildUI();
+        }
+        private void BtnAddClick(object sender, RoutedEventArgs e)
+        {
+            _client.AddActivity(GetInitializedActivity());
+        }
+        private void IMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ShowResource(sender);
         }
         private void BtnQuitClick(object sender, RoutedEventArgs e)
         {
             ExitApplication();
-        }
-        private void ClientActivityAdded(object obj, ActivityEventArgs e)
-        {
-            AddActivityUI(e.Activity);
-            _currentActivity = e.Activity;
-        }
-        private void BClick(object sender, RoutedEventArgs e)
-        {
-            _client.SwitchActivity(_proxies[((ActivityButton)sender).ActivityId].Activity);
-        }
-        private void b_TouchDown(object sender, TouchEventArgs e)
-        {
-            throw new NotImplementedException();
         }
         private void DiscDiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
@@ -357,15 +358,12 @@ namespace ActivityTablet.Xaml
         }
         #endregion
 
-        private void BtnAddClick(object sender, RoutedEventArgs e)
-        {
-            _client.AddActivity(GetInitializedActivity());
-        }
+        #region Helpers
         public Activity GetInitializedActivity()
         {
             var ac = new Activity
             {
-                Name = "test activity - " + DateTime.Now,
+                Name = "nameless",
                 Description = "This is the description of the test activity - " + DateTime.Now
             };
             ac.Uri = "http://tempori.org/" + ac.Id;
@@ -373,6 +371,80 @@ namespace ActivityTablet.Xaml
             ac.Meta.Data = "added meta data";
             ac.Owner = _user;
             return ac;
+        }
+        #endregion
+
+        private void btnEdit_Click(object sender, RoutedEventArgs e)
+        {
+            var path = _client.LocalPath + ((Resource) ContentHolder.Tag).RelativePath;
+            var filename = Path.GetFileNameWithoutExtension(path);
+            var ext = Path.GetExtension(path);
+            if (!Directory.Exists("c:/temp/"))
+                Directory.CreateDirectory("c:/temp/");
+            var newFile = new Uri("c:/temp/" + filename + "_edit"+Guid.NewGuid().ToString() + ext);
+            SaveToFile(newFile, ContentHolder);
+            _client.AddResource(new FileInfo(newFile.AbsolutePath), _currentActivity.Id);
+
+            PopulateResource(_currentActivity);
+        }
+
+        private void SaveToFile(Uri path, InkCanvas surface)
+        {
+            //get the dimensions of the ink control
+            var margin = (int)surface.Margin.Left;
+            var width = (int)surface.ActualWidth - margin;
+            var height = (int)surface.ActualHeight - margin;
+            //render ink to bitmap
+            var rtb = new RenderTargetBitmap(width, height, 96d, 96d, PixelFormats.Default);
+            rtb.Render(surface);
+            //save the ink to a memory stream
+            var encoder = new BmpBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(rtb));
+            using (var ms = new FileStream(path.LocalPath, FileMode.Create))
+            {
+                encoder.Save(ms);
+            }
+        }
+        public void ExportToPng(Uri path, InkCanvas surface)
+        {
+            if (path == null) return;
+
+            // Save current canvas transform
+            Transform transform = surface.LayoutTransform;
+            // reset current transform (in case it is scaled or rotated)
+            surface.LayoutTransform = null;
+
+            // Get the size of canvas
+            Size size = new Size(surface.Width, surface.Height);
+            // Measure and arrange the surface
+            // VERY IMPORTANT
+            surface.Measure(size);
+            surface.Arrange(new Rect(size));
+
+            // Create a render bitmap and push the surface to it
+            RenderTargetBitmap renderBitmap =
+              new RenderTargetBitmap(
+                (int)size.Width,
+                (int)size.Height,
+                96d,
+                96d,
+                PixelFormats.Pbgra32);
+            renderBitmap.Render(surface);
+
+            // Create a file stream for saving image
+            using (FileStream outStream = new FileStream(path.LocalPath, FileMode.Create))
+            {
+                surface.Strokes.Save(outStream);
+                // Use png encoder for our data
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                // push the rendered bitmap to it
+                encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
+                // save the data to the stream
+                encoder.Save(outStream);
+            }
+
+            // Restore previously saved layout
+            surface.LayoutTransform = transform;
         }
 
     }

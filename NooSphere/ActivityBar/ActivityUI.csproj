@@ -85,6 +85,7 @@
     </ApplicationDefinition>
     <Compile Include="Activity\Proxy.cs" />
     <Compile Include="Context\InputRedirect.cs" />
+    <Compile Include="PDFConverter.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Xaml\ActivityButton.cs" />
     <Compile Include="Xaml\IconToAvgColorBrushConverter.cs" />
@@ -170,6 +171,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="packages.config" />
