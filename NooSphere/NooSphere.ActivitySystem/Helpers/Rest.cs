@@ -39,7 +39,7 @@ namespace NooSphere.ActivitySystem.Helpers
         /// <param name="content">The content that needs to be added to the http request</param>
         /// <param name="connectionId">The id of the connection</param>
         /// <returns></returns>
-        private static Task<string> SendRequest(string url, HttpMethod method, object content = null, string connectionId = null)
+        private static string SendRequest(string url, HttpMethod method, object content = null, string connectionId = null)
         {
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = method.ToString().ToUpper();
@@ -71,12 +71,12 @@ namespace NooSphere.ActivitySystem.Helpers
                         asyncResult => request.EndGetResponse(asyncResult), null);
 
 
-                return task.ContinueWith(t => ReadStreamFromResponse(t.Result));
+                return task.ContinueWith(t => ReadStreamFromResponse(t.Result)).Result;
             }
             catch (WebException wex)
             {
                 Log.Out("REST",String.Format("Web Exception {0} caused by {1} call",wex,request.RequestUri));
-                return null;
+                return "";
             }
         }
 
@@ -138,7 +138,7 @@ namespace NooSphere.ActivitySystem.Helpers
         /// <returns>JSON formatted response string from the server</returns>
         public static string Get(string uri, object obj = null, string connectionId = null)
         {
-            return SendRequest(uri, HttpMethod.Get,obj,connectionId).Result;
+            return SendRequest(uri, HttpMethod.Get,obj,connectionId);
         }
         /// <summary>
         /// Get JSON response string through a HTTP POST request
@@ -148,7 +148,7 @@ namespace NooSphere.ActivitySystem.Helpers
         /// <returns>JSON formatted response string from the server</returns>
         public static string Post(string uri, object obj = null, string connectionId = null)
         {
-            return SendRequest(uri, HttpMethod.Post, obj, connectionId).Result;
+            return SendRequest(uri, HttpMethod.Post, obj, connectionId);
         }
         /// <summary>
         /// Get JSON response string through a HTTP PUT request
@@ -158,7 +158,7 @@ namespace NooSphere.ActivitySystem.Helpers
         /// <returns>JSON formatted response string from the server</returns>
         public static string Put(string uri, object obj = null, string connectionId = null)
         {
-            return SendRequest(uri, HttpMethod.Put, obj, connectionId).Result;
+            return SendRequest(uri, HttpMethod.Put, obj, connectionId);
         }
         /// <summary>
         /// Get JSON response string through a HTTP DELETE request
@@ -168,7 +168,7 @@ namespace NooSphere.ActivitySystem.Helpers
         /// <returns>JSON formatted response string from the server</returns>
         public static string Delete(string uri, object obj = null, string connectionId = null)
         {
-            return SendRequest(uri, HttpMethod.Delete, obj, connectionId).Result;
+            return SendRequest(uri, HttpMethod.Delete, obj, connectionId);
         }
     }
 

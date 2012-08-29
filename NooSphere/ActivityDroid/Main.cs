@@ -44,7 +44,9 @@ namespace ActivityDroid
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
 
-            RegisterReceiver(new TextMessageListener(this), new IntentFilter("android.provider.Telephony.SMS_RECEIVED"));
+            var intent = new IntentFilter(TextMessageListener.INTENT_ACTION);
+            intent.AddCategory(Intent.CategoryDefault);
+            RegisterReceiver(new TextMessageListener(), intent);
 
             _activityAdapter = new ActivityAdapter(this);
             FindViewById<GridView>(Resource.Id.Activities).Adapter = _activityAdapter;
