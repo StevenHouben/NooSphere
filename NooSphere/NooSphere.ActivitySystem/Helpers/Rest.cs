@@ -86,15 +86,7 @@ namespace NooSphere.ActivitySystem.Helpers
             if (connectionId != null)
                 _httpClient.DefaultHeaders.Authorization = Microsoft.Http.Headers.Credential.Parse(connectionId);
             _httpClient.BaseAddress = new Uri(path);
-            return Task<Stream>.Factory.StartNew(() =>
-                                      {
-                                          Stream stream = null;
-                                            _httpClient.GetAsync(delegate(HttpResponseMessage message)
-                                            {
-                                                stream = message.Content.ReadAsStream();
-                                            });
-                                          return stream;
-                                      });
+            return Task<Stream>.Factory.StartNew(() => _httpClient.GetStreamAsync());
 #else
             if (connectionId != null)
                 _httpClient.DefaultRequestHeaders.Authorization = System.Net.Http.Headers.AuthenticationHeaderValue.Parse(connectionId);

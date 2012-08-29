@@ -49,8 +49,14 @@ namespace ActivityDroid
 			// aapt resource value: 0x7f050004
 			public const int Go = 2131034116;
 			
+			// aapt resource value: 0x7f050009
+			public const int SendTextMessage = 2131034121;
+			
 			// aapt resource value: 0x7f050005
 			public const int Status = 2131034117;
+			
+			// aapt resource value: 0x7f050008
+			public const int TextMessage = 2131034120;
 			
 			// aapt resource value: 0x7f050001
 			public const int Username = 2131034113;
@@ -110,11 +116,17 @@ namespace ActivityDroid
 			// aapt resource value: 0x7f040006
 			public const int Go = 2130968582;
 			
+			// aapt resource value: 0x7f04000c
+			public const int SendTextMessage = 2130968588;
+			
 			// aapt resource value: 0x7f040007
 			public const int Status = 2130968583;
 			
 			// aapt resource value: 0x7f040005
 			public const int Stop = 2130968581;
+			
+			// aapt resource value: 0x7f04000d
+			public const int TextMessage = 2130968589;
 			
 			// aapt resource value: 0x7f040001
 			public const int Username = 2130968577;

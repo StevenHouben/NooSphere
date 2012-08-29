@@ -16,13 +16,14 @@ using System.Net;
 using System.Threading;
 using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
-using System.ServiceModel;
 using NooSphere.Core.Devices;
-using NooSphere.ActivitySystem.Contracts.Client;
 #if ANDROID
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+#else
+using System.ServiceModel;
+using NooSphere.ActivitySystem.Contracts.Client;
 #endif
 
 namespace NooSphere.ActivitySystem.Base.Client
@@ -209,7 +210,7 @@ namespace NooSphere.ActivitySystem.Base.Client
             context.Response.Close();
         }
         #endregion
-        #endif
+#endif
 
         #region Events
 

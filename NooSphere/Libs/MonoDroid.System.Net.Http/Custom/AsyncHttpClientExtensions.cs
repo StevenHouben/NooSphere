@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.Http
 {
@@ -23,12 +25,19 @@ namespace Microsoft.Http
       ThreadPool.QueueUserWorkItem(s => callback(client.Get(uri)));
     }
 
+    public static Stream GetStreamAsync(this HttpClient client)
+    {
+        CheckNull(client, "client");
+
+        return Task<Stream>.Factory.StartNew(client.GetStreamAsync).Result;
+    }
+
     public static void GetAsync(this HttpClient client, Action<HttpResponseMessage> callback)
     {
-      CheckNull(client, "client");
-      CheckNull(callback, "callback");
+        CheckNull(client, "client");
+        CheckNull(callback, "callback");
 
-      ThreadPool.QueueUserWorkItem(s => callback(client.Get()));
+        ThreadPool.QueueUserWorkItem(s => callback(client.Get()));
     }
 
     public static void GetAsync(this HttpClient client, Uri uri, HttpQueryString queryString,

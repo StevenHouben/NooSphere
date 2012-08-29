@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
+using Android.Telephony;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
@@ -42,6 +44,8 @@ namespace ActivityDroid
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
 
+            RegisterReceiver(new TextMessageListener(this), new IntentFilter("android.provider.Telephony.SMS_RECEIVED"));
+
             _activityAdapter = new ActivityAdapter(this);
             FindViewById<GridView>(Resource.Id.Activities).Adapter = _activityAdapter;
 
@@ -50,9 +54,12 @@ namespace ActivityDroid
             var btnAddActivity = FindViewById<Button>(Resource.Id.AddActivity);
             btnAddActivity.Click += BtnAddActivity;
 
+            var btnSendTextMessage = FindViewById<Button>(Resource.Id.SendTextMessage);
+            btnSendTextMessage.Click += BtnSendTextMessage;
+
             SetUser(Intent.GetStringExtra("User"));
             SetStatus("Hi " + _user.Name + ", you are logged in.");
-            ThreadPool.QueueUserWorkItem(o => StartActivityManager());
+            Task.Factory.StartNew(StartActivityManager);
         }
         #endregion
 
@@ -65,12 +72,27 @@ namespace ActivityDroid
         {
             _client.RemoveActivity(activity.Id);
         }
+        public void ShowMessage(string message)
+        {
+            Toast.MakeText(this, message, ToastLength.Long);
+        }
         #endregion
 
         #region Private Methods
+        private void SendTextMessage(string number, string message)
+        {
+            SmsManager.Default.SendTextMessage(number, null, message, null, null);
+        }
+
+        private void BtnSendTextMessage(object sender, EventArgs e)
+        {
+            var message = FindViewById<EditText>(Resource.Id.TextMessage).Text;
+            Task.Factory.StartNew(() => SendTextMessage("+4551842410", message));
+        }
+
         private void BtnAddActivity(object sender, EventArgs e)
         {
-            ThreadPool.QueueUserWorkItem(o => AddActivity(GetInitializedActivity()));
+            Task.Factory.StartNew(() => AddActivity(GetInitializedActivity()));
         }
 
         private void SetUser(string json)

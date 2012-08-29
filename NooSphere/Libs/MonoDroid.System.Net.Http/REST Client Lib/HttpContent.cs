@@ -1,6 +1,10 @@
 ﻿//----------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 //----------------------------------------------------------------
+
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Microsoft.Http
 {
     using System;
@@ -202,6 +206,20 @@ namespace Microsoft.Http
             }
             this.state = ContentState.ConsumedRead;
             return this.content.ReadAsBytes(this.contentLength);
+        }
+
+        public Task<Stream> ReadAsStreamAsync()
+        {
+            ThrowIfDisposedOrConsumed();
+            return Task<Stream>.Factory.StartNew(() =>
+                {
+                    if (state == ContentState.Buffered)
+                    {
+                        return CreateReadOnlyMemoryStream(this.buffer);
+                    }
+                    this.state = ContentState.ConsumedRead;
+                    return content.ReadAsStream();
+                });
         }
 
         public Stream ReadAsStream()

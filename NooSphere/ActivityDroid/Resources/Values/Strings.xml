@@ -12,4 +12,6 @@
   <string name="Find">Find</string>
   <string name="AddActivity">AddActivity</string>
   <string name="Activities">Activities</string>
+  <string name="SendTextMessage">SendTextMessage</string>
+  <string name="TextMessage">TextMessage</string>
 </resources>
