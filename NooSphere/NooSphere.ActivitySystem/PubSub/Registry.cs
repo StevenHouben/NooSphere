@@ -12,6 +12,7 @@
 
 using System.Collections.Generic;
 using NooSphere.ActivitySystem.Base;
+using NooSphere.ActivitySystem.Base.Service;
 
 namespace NooSphere.ActivitySystem.PubSub
 {

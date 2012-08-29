@@ -45,24 +45,17 @@ namespace NooSphere.ActivitySystem.Context
 
         public void Start()
         {
-            Tasks = new List<Task>(Services.Count);
             foreach (var contextService in Services.Values)
             {
                 var service = contextService;
-                Tasks.Add(StartService(service));
+                Task.Factory.StartNew(() =>
+                {
+                    service.DataReceived += ContextServiceDataReceived;
+                    service.Start();
+                }, _cancellation.Token);
             }
             if(Started !=null)
                 Started(this, new EventArgs());
-        }
-
-        private Task StartService(IContextService service)
-        {
-            return 
-                Task.Factory.StartNew(()=>
-                    {
-                        service.DataReceived += ContextServiceDataReceived;
-                        service.Start();
-                    }, _cancellation.Token);
         }
 
         public void Stop()

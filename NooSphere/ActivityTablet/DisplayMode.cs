@@ -10,20 +10,13 @@
  http://www.gnu.org/licenses/gpl.html for details.
 ****************************************************************************/
 
-using System.ServiceModel;
-using System.ServiceModel.Web;
-
-namespace NooSphere.ActivitySystem.Base.Client
+namespace ActivityTablet
 {
-    [ServiceContract]
-    interface IComNetEvent
+    public enum ViewMode
     {
-        [OperationContract]
-        [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "MessageReceived", Method = "POST")]
-        void MessageNetReceived(Message msg);
-    }
-    public enum ComEvent
-    {
-        MessageReceived
+        ControllerView,
+        ResourceView,
+        ReadingView,
+        InputView
     }
 }

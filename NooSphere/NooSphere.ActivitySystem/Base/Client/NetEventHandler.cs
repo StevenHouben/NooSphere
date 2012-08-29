@@ -11,9 +11,6 @@
 ****************************************************************************/
 
 using System;
-using System.IO;
-using System.Net;
-using System.Threading;
 using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;

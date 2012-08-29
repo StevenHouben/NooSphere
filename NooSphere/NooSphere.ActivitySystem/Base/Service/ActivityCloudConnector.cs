@@ -13,24 +13,19 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Net;
-#if ANDROID
-#else
 using System.Net.Http;
-#endif
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using NooSphere.ActivitySystem.Helpers;
 using SignalR.Client;
-
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-
 using NooSphere.Core.ActivityModel;
+#if ANDROID
+#else
+#endif
 
-namespace NooSphere.ActivitySystem.Base
+namespace NooSphere.ActivitySystem.Base.Service
 {
     public class ActivityCloudConnector
     {

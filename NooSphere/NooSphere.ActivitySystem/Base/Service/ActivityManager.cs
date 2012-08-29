@@ -17,7 +17,6 @@ using System.ServiceModel;
 using System.IO;
 using Newtonsoft.Json;
 using NooSphere.ActivitySystem.Base.Client;
-using NooSphere.ActivitySystem.Contracts.Client;
 using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
@@ -261,6 +260,8 @@ namespace NooSphere.ActivitySystem.Base.Service
         {
             ActivityStore.Activities.Remove(e.Id);
             _publisher.Publish(ActivityEvent.ActivityRemoved.ToString(), e.Id);
+            Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
+                              ActivityEvent.ActivityRemoved);
         }
 
         private void ActivityCloudConnectorActivityAdded(object sender, ActivityEventArgs e)
@@ -364,11 +365,16 @@ namespace NooSphere.ActivitySystem.Base.Service
                    {
                         if (_useCloud && _connectionActive)
                             _activityCloudConnector.DeleteActivity(new Guid(id));
-                        ActivityStore.Activities.Remove(new Guid(id));
-                        _publisher.Publish(ActivityEvent.ActivityRemoved.ToString(), id);
-                        Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
-                                          ActivityEvent.ActivityRemoved);
-                    });
+
+                       if(!_useCloud)
+                       {
+                           ActivityStore.Activities.Remove(new Guid(id));
+                           _publisher.Publish(ActivityEvent.ActivityRemoved.ToString(), id);
+                           Console.WriteLine("ActivityManager: Published {0}: {1}", EventType.ActivityEvents,
+                                             ActivityEvent.ActivityRemoved);
+                       }
+
+                   });
         }
 
         /// <summary>

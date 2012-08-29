@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NooSphere.ActivitySystem.Helpers;
+using NooSphere.ActivitySystem.Base.Service;
 
 namespace NooSphere.ActivitySystem.PubSub
 {
@@ -32,12 +33,12 @@ namespace NooSphere.ActivitySystem.PubSub
             //Log.Out("Publisher", string.Format("Published {0}",publishUrl), LogCode.Net);
             var toRemove = new List<string>();
 
-            var devices = Registry.ConnectedClients.Values.ToList();
-            for (int i = 0; i < devices.Count;i++ )
+            var devices = Registry.ConnectedClients;
+            for (var i = 0; i < devices.Count;i++ )
             {
+                var addr = devices.Values.ToList()[i].Device.BaseAddress;
                 try
                 {
-                    var addr = devices[i].Device.BaseAddress;
                     Task.Factory.StartNew(
                         delegate
                         {
@@ -49,9 +50,11 @@ namespace NooSphere.ActivitySystem.PubSub
                 }   
                 catch (Exception)
                 {
-      
+                    toRemove.Add(devices.Keys.ToList()[i]);
                 }
             }
+            foreach (var addr in toRemove)
+                Registry.ConnectedClients.Remove(addr);
         }
 
         /// <summary>

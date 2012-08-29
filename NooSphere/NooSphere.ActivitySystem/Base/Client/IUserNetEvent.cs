@@ -18,7 +18,7 @@ using NooSphere.Core.ActivityModel;
 namespace NooSphere.ActivitySystem.Base.Client
 {
     [ServiceContract]
-    public interface IUserEvent
+    interface IUserEvent
     {
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "FriendAdded", Method = "POST")]

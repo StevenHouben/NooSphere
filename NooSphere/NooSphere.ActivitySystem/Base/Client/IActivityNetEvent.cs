@@ -15,10 +15,10 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using NooSphere.Core.ActivityModel;
 
-namespace NooSphere.ActivitySystem.Contracts.Client
+namespace NooSphere.ActivitySystem.Base.Client
 {
     [ServiceContract]
-    public interface IActivityNetEvent
+    interface IActivityNetEvent
     {
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json,

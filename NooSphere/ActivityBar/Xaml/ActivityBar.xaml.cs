@@ -23,6 +23,8 @@ using System.Collections.ObjectModel;
 using System.Windows.Threading;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
+using ActivityUI.Context;
+using ActivityUI.Xaml.Login;
 using NooSphere.ActivitySystem.Base;
 using NooSphere.ActivitySystem.Base.Client;
 using NooSphere.ActivitySystem.Base.Service;
@@ -34,7 +36,6 @@ using NooSphere.Platform.Windows.Glass;
 using NooSphere.Platform.Windows.Hooks;
 using NooSphere.Platform.Windows.VDM;
 using ActivityUI.Properties;
-using ActivityUI.Login;
 using ActivityUI.PopUp;
 
 namespace ActivityUI.Xaml
@@ -233,7 +234,7 @@ namespace ActivityUI.Xaml
             _client.ActivityAdded += ClientActivityAdded;
             _client.ActivityChanged += ClientActivityChanged;
             _client.ActivityRemoved += ClientActivityRemoved;
-            _client.ActivitySwitched += new ActivitySwitchedHandler(_client_ActivitySwitched);
+            _client.ActivitySwitched += ClientActivitySwitched;
 
             _client.MessageReceived += ClientMessageReceived;
 
@@ -241,19 +242,20 @@ namespace ActivityUI.Xaml
             _client.FriendDeleted += client_FriendDeleted;
             _client.FriendRequestReceived += ClientFriendRequestReceived;
 
+            _client.ConnectionEstablished += ClientConnectionEstablished;
+            _client.ServiceIsDown += ClientServiceIsDown;
+            _client.ContextMonitor.AddContextService(new InputRedirect(PointerRole.Controller));
             _client.ContextMessageReceived += _client_ContextMessageReceived;
 
-            _client.ConnectionEstablished += ClientConnectionEstablished;
-            _client.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
             _client.Open(activityManagerHttpAddress);
         }
 
-        void _client_ActivitySwitched(object sender, ActivityEventArgs e)
+        void ClientActivitySwitched(object sender, ActivityEventArgs e)
         {
             VirtualDesktopManager.CurrentDesktop = _proxies[e.Activity.Id].Desktop;
         }
 
-        void _client_ServiceIsDown(object sender, EventArgs e)
+        void ClientServiceIsDown(object sender, EventArgs e)
         {
             Environment.Exit(0);
         }
@@ -268,6 +270,7 @@ namespace ActivityUI.Xaml
 
         void ClientConnectionEstablished(object sender, EventArgs e)
         {
+            _client.ContextMonitor.Start();
             BuildUi();
             _startingUp = false;
         }
@@ -435,7 +438,7 @@ namespace ActivityUI.Xaml
         public void EditActivity(Activity ac)
         {
             _currentButton.Text = ac.Name;
-            //client.UpdateActivity(ac);
+            _client.UpdateActivity(ac);
         }
 
         /// <summary>
@@ -522,7 +525,7 @@ namespace ActivityUI.Xaml
                 _client.Close();
 
             //Close the host if running
-            if(_host.IsRunning)
+            if(_host != null &&_host.IsRunning)
                 _host.Close();
 
             //Close the taskbar
@@ -690,7 +693,7 @@ namespace ActivityUI.Xaml
         {
             var ac = new Activity
             {
-                Name = "test activity - " + DateTime.Now,
+                Name = "nameless",
                 Description = "This is the description of the test activity - " + DateTime.Now
             };
             ac.Uri = "http://tempori.org/" + ac.Id;
@@ -802,25 +805,18 @@ namespace ActivityUI.Xaml
         private void BDragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
                 e.Effects = DragDropEffects.Copy;
-            }
-
         }
 
         private void BDrop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-
-                var droppedFilePaths =
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
+            var droppedFilePaths =
                 e.Data.GetData(DataFormats.FileDrop, true) as string[];
-
-                _client.AddResource(new FileInfo(droppedFilePaths[0]), ((ActivityButton) sender).ActivityId);
-
-            }
+            if (droppedFilePaths == null) return;
+            var fInfo = new FileInfo(droppedFilePaths[0]);
+            _client.AddResource(fInfo, ((ActivityButton)sender).ActivityId);
         }
-
     }
     public enum RenderStyle
     {

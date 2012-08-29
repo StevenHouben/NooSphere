@@ -26,8 +26,8 @@ using Newtonsoft.Json;
 using NooSphere.ActivitySystem.FileServer;
 #if !ANDROID
 using NooSphere.ActivitySystem.Host;
-using NooSphere.ActivitySystem.Contracts.Client;
 using System.Net;
+using NooSphere.ActivitySystem.Context;
 #endif
 
 namespace NooSphere.ActivitySystem.Base.Client
@@ -63,6 +63,7 @@ namespace NooSphere.ActivitySystem.Base.Client
         public User CurrentUser { get; set; }
         public string LocalPath { get { return _fileStore.BasePath; } }
         public Dictionary<string,Device> DeviceList { get; set; }
+        public ContextMonitor ContextMonitor { get; set; }
 
         #endregion
 
@@ -77,7 +78,10 @@ namespace NooSphere.ActivitySystem.Base.Client
         {
             InitializeFileService(localFileDirectory);
             Device = d;
+            ContextMonitor = new ContextMonitor();
+
             OnInitializedEvent(new EventArgs());
+
 
             ActivityChanged += ActivityClientActivityChanged;
             ActivityRemoved += ActivityClientActivityRemoved;

@@ -76,7 +76,7 @@ namespace NooSphere.ActivitySystem.Helpers
             catch (WebException wex)
             {
                 Log.Out("REST",String.Format("Web Exception {0} caused by {1} call",wex,request.RequestUri));
-                throw wex;
+                return null;
             }
         }
 

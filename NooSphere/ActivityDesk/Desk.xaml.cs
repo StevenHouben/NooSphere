@@ -325,8 +325,8 @@ namespace ActivityDesk
         {
             try
             {
-                Image i = new Image();
-                BitmapImage src = new BitmapImage();
+                var i = new Image();
+                var src = new BitmapImage();
                 src.BeginInit();
                 src.UriSource = new Uri(path, UriKind.Relative);
                 src.CacheOption = BitmapCacheOption.OnLoad;

@@ -17,7 +17,7 @@ using NooSphere.Core.ActivityModel;
 namespace NooSphere.ActivitySystem.Base.Client
 {
     [ServiceContract]
-    public interface IFileNetEvent
+    interface IFileNetEvent
     {
         [OperationContract]
         [WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "FileDownloadRequest", Method = "POST")]
