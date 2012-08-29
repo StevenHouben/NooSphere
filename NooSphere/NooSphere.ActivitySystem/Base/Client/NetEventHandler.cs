@@ -11,16 +11,18 @@
 ****************************************************************************/
 
 using System;
-using NooSphere.ActivitySystem.Helpers;
 using NooSphere.Core.ActivityModel;
 using NooSphere.Core.Devices;
 #if ANDROID
+using System.IO;
+using System.Net;
+using System.Threading;
+using NooSphere.ActivitySystem.Helpers;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 #else
 using System.ServiceModel;
-using NooSphere.ActivitySystem.Contracts.Client;
 #endif
 
 namespace NooSphere.ActivitySystem.Base.Client

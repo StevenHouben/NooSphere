@@ -13,7 +13,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using NooSphere.ActivitySystem.Helpers;
@@ -23,6 +22,7 @@ using Newtonsoft.Json;
 using NooSphere.Core.ActivityModel;
 #if ANDROID
 #else
+using System.Net.Http;
 #endif
 
 namespace NooSphere.ActivitySystem.Base.Service

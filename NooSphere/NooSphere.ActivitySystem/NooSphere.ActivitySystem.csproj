@@ -83,7 +83,6 @@
     <Compile Include="Context\ContextMonitor.cs" />
     <Compile Include="Context\DataEventArgs.cs" />
     <Compile Include="Context\IContextService.cs" />
-    <Compile Include="Context\IO\PointerNode.cs" />
     <Compile Include="Context\Multicast\MulticastSocket.cs" />
     <Compile Include="Context\Multicast\MulticastSocketListener.cs" />
     <Compile Include="Context\Multicast\StateObject.cs" />
