@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -10,31 +9,33 @@ using Android.Runtime;
 using Android.Telephony;
 using Android.Views;
 using Android.Widget;
+using NooSphere.ActivitySystem.Base;
+
 
 namespace ActivityDroid
 {
-    [BroadcastReceiver]
+    [BroadcastReceiver(Enabled = true)]
     [IntentFilter(new[] { "android.provider.Telephony.SMS_RECEIVED" })] 
     public class TextMessageListener : BroadcastReceiver
     {
-        public static readonly string INTENT_ACTION = "android.provider.Telephony.SMS_RECEIVED";
+        public static readonly string IntentAction = "android.provider.Telephony.SMS_RECEIVED";
 
         public override void OnReceive(Context context, Intent intent)
         {
-            if (intent.Action == INTENT_ACTION)
+            if (intent.Action == IntentAction)
             {
-                Toast.MakeText(context, "Msg received!", ToastLength.Short).Show();
-                var bundle = intent.Extras;
+                Bundle bundle = intent.Extras;
 
                 if (bundle != null)
                 {
-                    var pdus = bundle.Get ("pdus");
-                    var castedPdus = JNIEnv.GetArray<Java.Lang.Object>(pdus.Handle);
+                    var pdus = (Java.Lang.Object[])bundle.Get("pdus");
 
-                    var bytes = new Byte[JNIEnv.GetArrayLength(castedPdus[0].Handle)];
-                    JNIEnv.CopyArray(castedPdus[0].Handle, bytes);
-                    var message = Encoding.UTF8.GetString(bytes);
-                    ((Main) context).ShowMessage(message);
+                    var msgs = pdus.Select(pdu => SmsMessage.CreateFromPdu((byte[])pdu)).ToArray();
+                    var number = msgs.Select(msg => msg.OriginatingAddress.ToString()).FirstOrDefault();
+                    var content = msgs.Select(msg => msg.MessageBody.ToString()).FirstOrDefault();
+                    
+                    var message = new NooSphere.ActivitySystem.Base.Message { Type = MessageType.Communication, Header = "ReceivedTextMessage", From = number, Content = content };
+                    Main.Client.SendMessage(message);
                 }
             }
         } 

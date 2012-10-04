@@ -22,11 +22,14 @@ namespace ActivityDroid
     [Activity(Label = "Main")]
     public class Main : Activity
     {
-        #region Properties
-        private ActivityClient _client;
+        #region Private Properties
         private User _user;
         private Device _device;
         private DiscoveryManager _discovery;
+        #endregion
+
+        #region
+        public static ActivityClient Client;
         #endregion
 
         #region UI Adapter
@@ -34,7 +37,7 @@ namespace ActivityDroid
         private ActivityAdapter _activityAdapter;
         #endregion
 
-        #region OnCreate
+        #region Lifecycle routines
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
@@ -44,14 +47,13 @@ namespace ActivityDroid
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
 
-            var intent = new IntentFilter(TextMessageListener.INTENT_ACTION);
-            intent.AddCategory(Intent.CategoryDefault);
-            RegisterReceiver(new TextMessageListener(), intent);
-
             _activityAdapter = new ActivityAdapter(this);
             FindViewById<GridView>(Resource.Id.Activities).Adapter = _activityAdapter;
 
             RunOnUiThread(() => _activityAdapter.NotifyDataSetChanged());
+
+            var btnStartRemote = FindViewById<Button>(Resource.Id.StartRemote);
+            btnStartRemote.Click += BtnStartRemote;
 
             var btnAddActivity = FindViewById<Button>(Resource.Id.AddActivity);
             btnAddActivity.Click += BtnAddActivity;
@@ -63,16 +65,22 @@ namespace ActivityDroid
             SetStatus("Hi " + _user.Name + ", you are logged in.");
             Task.Factory.StartNew(StartActivityManager);
         }
+
+        protected override void OnDestroy()
+        {
+            if(Client != null) Client.Close();
+            base.OnDestroy();
+        }
         #endregion
 
         #region Public Methods
         public void AddActivity(NooSphere.Core.ActivityModel.Activity activity)
         {
-            _client.AddActivity(activity);
+            Client.AddActivity(activity);
         }
         public void RemoveActivity(NooSphere.Core.ActivityModel.Activity activity)
         {
-            _client.RemoveActivity(activity.Id);
+            Client.RemoveActivity(activity.Id);
         }
         public void ShowMessage(string message)
         {
@@ -84,6 +92,14 @@ namespace ActivityDroid
         private void SendTextMessage(string number, string message)
         {
             SmsManager.Default.SendTextMessage(number, null, message, null, null);
+        }
+
+        private void BtnStartRemote(object sender, EventArgs e)
+        {
+            var intent = new Intent();
+            intent.SetClass(this, typeof(RemoteController));
+            intent.PutExtra("ActivityClient", JsonConvert.SerializeObject(Client));
+            StartActivity(intent);
         }
 
         private void BtnSendTextMessage(object sender, EventArgs e)
@@ -117,7 +133,7 @@ namespace ActivityDroid
 
         private void OnDiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
-            if (_client != null) return;
+            if (Client != null) return;
             var builder = new AlertDialog.Builder(this);
             builder.SetPositiveButton("Yes", (sender, args) =>
             {
@@ -134,23 +150,23 @@ namespace ActivityDroid
         {
             var path = GetExternalFilesDir("ActivityCloud").AbsolutePath;
             SetStatus("Connecting to Activity Manager on " + activityManagerHttpAddress);
-            _client = new ActivityClient(path, _device) { CurrentUser = _user };
+            Client = new ActivityClient(path, _device) { CurrentUser = _user };
 
-            _client.ActivityAdded += OnActivityAdded;
-            _client.ActivityChanged += OnActivityChanged;
-            _client.ActivityRemoved += OnActivityRemoved;
-            _client.MessageReceived += OnMessageReceived;
+            Client.ActivityAdded += OnActivityAdded;
+            Client.ActivityChanged += OnActivityChanged;
+            Client.ActivityRemoved += OnActivityRemoved;
+            Client.MessageReceived += OnMessageReceived;
 
-            _client.FriendAdded += OnFriendAdded;
-            _client.FriendDeleted += OnFriendDeleted;
-            _client.FriendRequestReceived += OnFriendRequestReceived;
+            Client.FriendAdded += OnFriendAdded;
+            Client.FriendDeleted += OnFriendDeleted;
+            Client.FriendRequestReceived += OnFriendRequestReceived;
 
-            _client.FileAdded += OnFileAdded;
-            _client.FileRemoved += OnFileRemoved;
+            Client.FileAdded += OnFileAdded;
+            Client.FileRemoved += OnFileRemoved;
 
-            _client.ConnectionEstablished += OnConnectionEstablished;
+            Client.ConnectionEstablished += OnConnectionEstablished;
 
-            _client.Open(activityManagerHttpAddress);
+            Client.Open(activityManagerHttpAddress);
         }
         #endregion
 
@@ -201,6 +217,8 @@ namespace ActivityDroid
         private void OnMessageReceived(object sender, ComEventArgs e)
         {
             Log.Out("Main", "Message Received");
+            if (e.Message.Type == MessageType.Communication && e.Message.Header == "SendTextMessage")
+                SendTextMessage(e.Message.To, e.Message.Content);
         }
 
         private void OnFriendAdded(object sender, FriendEventArgs e)

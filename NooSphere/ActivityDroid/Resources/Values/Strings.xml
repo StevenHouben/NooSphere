@@ -14,4 +14,6 @@
   <string name="Activities">Activities</string>
   <string name="SendTextMessage">SendTextMessage</string>
   <string name="TextMessage">TextMessage</string>
+  <string name="RemoteController">RemoteController</string>
+  <string name="StartRemote">StartRemote</string>
 </resources>

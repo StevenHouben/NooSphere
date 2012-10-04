@@ -632,6 +632,12 @@ namespace ActivityUI.Xaml
         private void ClientMessageReceived(object sender,ComEventArgs e)
         {
             AddToLog(e.Message+"\n");
+            if (e.Message.Type == MessageType.Communication && e.Message.Header == "ReceivedTextMessage")
+            {
+                //TODO: Handle incoming text messages here
+                Console.WriteLine("TEXT MESSAGE RECEIVED: " + e.Message.Content + "\n");
+                AddToLog("TEXT MESSAGE RECEIVED: "+e.Message.Content+"\n");
+            }
         }
         private void ClientActivityRemoved(object sender, ActivityRemovedEventArgs e)
         {

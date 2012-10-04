@@ -27,11 +27,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/Status" />
-        <Button
-            android:text="Add Activity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/AddActivity" />
+      <Button
+          android:text="Add Activity"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:id="@+id/AddActivity" />
+      <Button
+          android:text="Remote Controller"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:id="@+id/StartRemote" />
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
