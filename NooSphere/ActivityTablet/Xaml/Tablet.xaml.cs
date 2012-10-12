@@ -135,15 +135,28 @@ namespace ActivityTablet.Xaml
         {
             Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                var srfcBtn = new SurfaceButton();
-                srfcBtn.Width = activityScroller.Width;
-                srfcBtn.Tag = ac.Id;
+                var srfcBtn = new SurfaceButton {Width = activityScroller.Width, Tag = ac.Id};
                 var p = new Proxy {Activity = ac, Ui = srfcBtn};
                 srfcBtn.Content = ac.Name;
-                srfcBtn.Click += new RoutedEventHandler(SrfcBtnClick);
+                srfcBtn.Click += SrfcBtnClick;
                 activityStack.Children.Add(srfcBtn);
+
+                var mtrBtn = CopyButton(srfcBtn);
+                mtrBtn.Width = mtrBtn.Height = 200;
+                mtrBtn.Click += SrfcBtnClick;
+                activityMatrix.Children.Add(mtrBtn);
                 _proxies.Add(p.Activity.Id, p);
             }));
+        }
+        private SurfaceButton CopyButton(SurfaceButton btn)
+        {
+            return new SurfaceButton
+                       {
+                           Content = btn.Content, 
+                           Tag=btn.Tag, 
+                           VerticalContentAlignment = VerticalAlignment.Center,
+                           HorizontalContentAlignment = HorizontalAlignment.Center
+                       };
         }
         private void SrfcBtnClick(object sender, RoutedEventArgs e)
         {
@@ -153,7 +166,12 @@ namespace ActivityTablet.Xaml
         {
             Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                activityStack.Children.Remove((UIElement)_proxies[id].Ui);
+                for (int i = 0; i < activityStack.Children.Count;i++ )
+                    if((Guid)((SurfaceButton)activityStack.Children[i]).Tag ==id)
+                    {
+                        activityStack.Children.RemoveAt(i);
+                        activityMatrix.Children.RemoveAt(i);
+                    }
                 _proxies.Remove(id);
             }));
         }
@@ -187,6 +205,11 @@ namespace ActivityTablet.Xaml
                 return;
             try
             {
+                Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
+                {
+                    activityStack.Children.Clear();
+                    activityMatrix.Children.Clear();
+                }));
                 _client = new ActivityClient(@"c:/abc/", _device) { CurrentUser = new User() };
                 _client.MessageReceived += ClientMessageReceived;
                 _client.ActivityAdded += ClientActivityAdded;
@@ -340,7 +363,8 @@ namespace ActivityTablet.Xaml
         }
         private void DiscDiscoveryAddressAdded(object o, DiscoveryAddressAddedEventArgs e)
         {
-            StartClient(e.ServiceInfo.Address);
+            if(e.ServiceInfo.Code != "139")
+                StartClient(e.ServiceInfo.Address);
         }
         private void BtnGoClick(object sender, RoutedEventArgs e)
         {
@@ -385,7 +409,7 @@ namespace ActivityTablet.Xaml
             SaveToFile(newFile, ContentHolder);
             _client.AddResource(new FileInfo(newFile.AbsolutePath), _currentActivity.Id);
 
-            PopulateResource(_currentActivity);
+            //PopulateResource(_currentActivity);
         }
 
         private void SaveToFile(Uri path, InkCanvas surface)
@@ -447,5 +471,34 @@ namespace ActivityTablet.Xaml
             surface.LayoutTransform = transform;
         }
 
+        private void btnMode_Click(object sender, RoutedEventArgs e)
+        {
+            if (_displayMode == DisplayMode.ResourceViewer)
+                _displayMode = DisplayMode.Controller;
+            else
+                _displayMode = DisplayMode.ResourceViewer;
+            switch (_displayMode)
+            {
+                case DisplayMode.ResourceViewer:
+                    resourceViewer.Visibility = Visibility.Visible;
+                    inputView.Visibility = Visibility.Hidden;
+                    controllerView.Visibility =Visibility.Hidden;
+                    break;
+                case DisplayMode.Controller:
+                    resourceViewer.Visibility = Visibility.Hidden;
+                    inputView.Visibility = Visibility.Hidden;
+                    controllerView.Visibility = Visibility.Visible;
+                    break;
+            }
+        }
+
+        private DisplayMode _displayMode;
+    }
+
+    public enum DisplayMode
+    {
+        ResourceViewer,
+        Controller,
+        input
     }
 }

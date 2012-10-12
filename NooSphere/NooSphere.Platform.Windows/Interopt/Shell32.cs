@@ -32,6 +32,12 @@ namespace NooSphere.Platform.Windows.Interopt
 
         [DllImport(shell32, CharSet = CharSet.Auto, SetLastError = true)]
         public static extern uint SHAppBarMessage(int dwMessage, ref APPBARDATA pData);
+
+        [DllImport(shell32, CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern int SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2);
+
+        [DllImport(shell32, CharSet = CharSet.Auto, SetLastError = true)]
+        public extern static Int32 SHSetKnownFolderPath(ref Guid folderId, uint flags, IntPtr token, [MarshalAs(UnmanagedType.LPWStr)] string path);
         #endregion
 
     }

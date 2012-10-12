@@ -71,6 +71,8 @@ namespace ActivityUI.Xaml
         public RenderStyle RenderStyle { get; set; }
         public bool ClickDetected = false;
 
+        private string _startupDesktopPath;
+
         //Debug
         //private PointerNode _pointer = new PointerNode(PointerRole.Controller);
 
@@ -83,8 +85,7 @@ namespace ActivityUI.Xaml
         /// </summary>
         public ActivityBar()
         {
-
-
+            _startupDesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             InitializeComponent();
             _activityWindow = new ActivityWindow(this);
             _popUpWindows.Add(_activityWindow);
@@ -253,6 +254,10 @@ namespace ActivityUI.Xaml
         void ClientActivitySwitched(object sender, ActivityEventArgs e)
         {
             VirtualDesktopManager.CurrentDesktop = _proxies[e.Activity.Id].Desktop;
+
+            var activityFolder = _client.LocalPath+ e.Activity.Id;
+            if (Directory.Exists(activityFolder))
+                DesktopFolderSwitcher.ChangeDesktopFolder(activityFolder);
         }
 
         void ClientServiceIsDown(object sender, EventArgs e)
@@ -518,6 +523,8 @@ namespace ActivityUI.Xaml
         /// </summary>
         public void ExitApplication()
         {
+
+            DesktopFolderSwitcher.ChangeDesktopFolder(_startupDesktopPath);
             //Hide all popUps
             HideAllPopups();
 

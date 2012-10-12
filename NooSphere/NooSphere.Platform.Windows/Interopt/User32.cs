@@ -210,12 +210,6 @@ namespace NooSphere.Platform.Windows.Interopt
         [DllImport(user32, CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool SetWindowText(IntPtr hwnd, string newText);
 
-        [DllImport(user32, CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern int SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2);
-
-        [DllImport(user32, CharSet = CharSet.Auto, SetLastError = true)]
-        public extern static int SHSetKnownFolderPath(ref Guid folderId, uint flags, IntPtr token, [MarshalAs(UnmanagedType.LPWStr)] string path);
-
         [DllImport(user32, CharSet = CharSet.Ansi, SetLastError = true)]
         public static extern int ShowWindow(IntPtr hwnd, int nCmdShow);
 

@@ -189,7 +189,7 @@
 		</Style>
 	</Window.Resources>
     <Grid Name="grid" Background="#FFE2DCDC" d:LayoutOverrides="HorizontalMargin">
-    	<Canvas x:Name="cvLogin">
+    	<Canvas x:Name="cvLogin" d:IsLocked="True" d:IsHidden="True">
     		<Canvas x:Name="pnlLogin" Height="383.757" Width="468" Background="White" Canvas.Left="272.5" Canvas.Top="98.673" d:IsLocked="True">
                 <Rectangle Fill="Black" Height="36.666" Stroke="Black" Width="468" Canvas.Top="285.664" d:IsHidden="True"/>
                 <Label Content="Username" Height="35.782" x:Name="lblName" Canvas.Left="15" Canvas.Top="148" Width="99" FontSize="17" FontFamily="Segoe360" d:IsHidden="True" />
@@ -207,7 +207,7 @@
             </Canvas>
     		<Border BorderBrush="Black" BorderThickness="8" Height="399" Width="482.333" Canvas.Left="265.167" Canvas.Top="91.5" CornerRadius="10" d:IsHidden="True"/>
         </Canvas>
-    	<Canvas x:Name="menuView" Margin="8" Visibility="Hidden">
+    	<Canvas x:Name="menuView" Margin="8" Visibility="Hidden" d:IsHidden="True">
     		<s:SurfaceScrollViewer x:Name="activityDockScroller1" Height="558" 
     			Width="158" VerticalContentAlignment="Center" 
     			HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Hidden" >
@@ -222,7 +222,7 @@
     			<StackPanel Orientation="Horizontal" x:Name="resourceDock1"/>
     		</s:SurfaceScrollViewer>
     	</Canvas>
-    	<Canvas x:Name="resourceViewer" Margin="0,48,0,0" HorizontalAlignment="Left" Width="992">
+    	<Canvas x:Name="resourceViewer" Margin="0,48,0,0" HorizontalAlignment="Left" Width="992" d:IsLocked="True" d:IsHidden="True">
             <s:SurfaceScrollViewer x:Name="activityScroller" 
             	Width="211" VerticalContentAlignment="Center" VerticalScrollBarVisibility="Visible"
             	HorizontalContentAlignment="Center" Height="530">
@@ -230,7 +230,7 @@
             </s:SurfaceScrollViewer>
             <s:SurfaceScrollViewer x:Name="resourceScroller" Height="100" 
             	Width="769" VerticalContentAlignment="Center" 
-            	HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Hidden" Canvas.Left="215" IsManipulationEnabled="True">
+            	HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Hidden" Canvas.Left="215" IsManipulationEnabled="False">
             	<Canvas>
             		<Label Content="Resources" Background="#00000000" FontSize="96" Foreground="#3B000000" HorizontalAlignment="Left" Height="123.5" Width="468" Canvas.Left="319.5" Canvas.Top="-29.5"/>
             		<StackPanel Orientation="Horizontal" x:Name="resourceDock"/>
@@ -251,9 +251,11 @@
             	Width="98.858"  ToolTip="Adds a new empty activity" x:Name="btnAdd" VerticalContentAlignment="Center" 
             	HorizontalContentAlignment="Center" Margin="0" Click="BtnAddClick" Canvas.Left="8" Canvas.Top="530" d:LayoutOverrides="Height, VerticalMargin" />
         </Canvas>
-    	<Canvas x:Name="controllerView" Margin="8" Visibility="Hidden" d:IsHidden="True"/>
-    	<Canvas x:Name="inputView" Margin="8" Visibility="Hidden" Background="White"/>
-    	<DockPanel x:Name="menu" Height="48" VerticalAlignment="Top" Background="Black">
+        <s:SurfaceScrollViewer x:Name="controllerView" Margin="8,52,8,8" HorizontalAlignment="Left" Visibility="Hidden">
+            <WrapPanel x:Name="activityMatrix" Canvas.Top="8" Width="968" Height="548" Canvas.Left="8" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        </s:SurfaceScrollViewer>
+    	<Canvas x:Name="inputView" Margin="8" Visibility="Hidden" Background="White" d:IsHidden="True"/>
+    	<DockPanel x:Name="menu" Height="48" VerticalAlignment="Top" Background="Black" d:IsLocked="True">
     		<s:SurfaceButton Content="Quit" Style="{DynamicResource Invert}" Foreground="White" 
 			FontSize="13.333" Width="98.858" RenderTransformOrigin="-0.037,0.75" Height="10" 
 			ToolTip="Stop the login process and exit the application." x:Name="btnQuit" 
@@ -261,9 +263,8 @@
 			Click="BtnQuitClick" Margin="0" Canvas.Top="3" Canvas.Left="1" />
     		<s:SurfaceButton FontSize="13.333" Foreground="White" Height="38.338" 
 			RenderTransformOrigin="-0.037,0.75" Style="{DynamicResource Invert}" 
-			Width="98.858"  ToolTip="Adds a new empty activity" x:Name="btnAdd_Copy" 
-			VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0"
-			 Click="BtnAddClick" Canvas.Left="102.858" Canvas.Top="3" Content="Mode" />
+			Width="98.858"  ToolTip="Adds a new empty activity" x:Name="btnMode" 
+			VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0" Canvas.Left="102.858" Canvas.Top="3" Content="Mode" Click="btnMode_Click" />
     		<s:SurfaceButton FontSize="13.333" Foreground="White" Height="38.338" 
     			RenderTransformOrigin="-0.037,0.75" Style="{DynamicResource Invert}" Width="98.858"  
     			ToolTip="Adds a new empty activity" x:Name="btnAdd_Copy1" VerticalContentAlignment="Center"
