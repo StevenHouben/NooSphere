@@ -1,0 +1,275 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Style x:Key="Success" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <ControlTemplate.Resources>
+                        <Storyboard x:Key="OnMouseEnter1">
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                                <EasingColorKeyFrame KeyTime="0" Value="#FF3ECC0E"/>
+                            </ColorAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="OnMouseLeave1">
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                                <EasingColorKeyFrame KeyTime="0" Value="#FF80E25F"/>
+                            </ColorAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="OnMouseDown1">
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                                <EasingColorKeyFrame KeyTime="0" Value="#FF33A50B"/>
+                            </ColorAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </ControlTemplate.Resources>
+                    <Grid>
+                        <Rectangle x:Name="rectangle" RadiusY="3.5" RadiusX="3.5" Stroke="#FF428700">
+                            <Rectangle.Fill>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF4B9F2C" Offset="1"/>
+                                    <GradientStop Color="#FF80E25F" Offset="0.289"/>
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+						<EventTrigger RoutedEvent="Mouse.PreviewMouseUp">
+                			<BeginStoryboard Storyboard="{StaticResource OnMouseEnter1}"/>
+                		</EventTrigger>
+                        <EventTrigger RoutedEvent="Mouse.PreviewMouseDown">
+                            <BeginStoryboard x:Name="OnMouseDown1_BeginStoryboard" Storyboard="{StaticResource OnMouseDown1}"/>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="Mouse.MouseEnter">
+                            <BeginStoryboard x:Name="OnMouseEnter1_BeginStoryboard" Storyboard="{StaticResource OnMouseEnter1}"/>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="Mouse.MouseLeave">
+                            <BeginStoryboard x:Name="OnMouseLeave1_BeginStoryboard" Storyboard="{StaticResource OnMouseLeave1}"/>
+                        </EventTrigger>
+                        <Trigger Property="IsFocused" Value="True"/>
+                        <Trigger Property="IsDefaulted" Value="True"/>
+                        <Trigger Property="IsMouseOver" Value="True"/>
+                        <Trigger Property="IsPressed" Value="True"/>
+                        <Trigger Property="IsEnabled" Value="False"/>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+<Style x:Key="Invert" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+        <Setter.Value>
+            <ControlTemplate TargetType="{x:Type Button}">
+                <ControlTemplate.Resources>
+                    <Storyboard x:Key="OnMouseEnter1">
+                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                            <EasingColorKeyFrame KeyTime="0" Value="#FF4E4E4E"/>
+                        </ColorAnimationUsingKeyFrames>
+                    </Storyboard>
+                    <Storyboard x:Key="OnMouseLeave1">
+                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                            <EasingColorKeyFrame KeyTime="0" Value="#FF929391"/>
+                        </ColorAnimationUsingKeyFrames>
+                    </Storyboard>
+                    <Storyboard x:Key="OnMouseDown1">
+                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                            <EasingColorKeyFrame KeyTime="0" Value="#FF1F1F1F"/>
+                        </ColorAnimationUsingKeyFrames>
+                    </Storyboard>
+                </ControlTemplate.Resources>
+                <Grid>
+                    <Rectangle x:Name="rectangle" RadiusY="3.5" RadiusX="3.5" Stroke="Black">
+                        <Rectangle.Fill>
+                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                <GradientStop Color="#FF141414" Offset="0.474"/>
+                                <GradientStop Color="#FF929391" Offset="0.043"/>
+                            </LinearGradientBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+					<EventTrigger RoutedEvent="Mouse.PreviewMouseUp">
+                		<BeginStoryboard Storyboard="{StaticResource OnMouseEnter1}"/>
+                	</EventTrigger>
+                	<EventTrigger RoutedEvent="Mouse.PreviewMouseUp">
+                		<BeginStoryboard Storyboard="{StaticResource OnMouseEnter1}"/>
+                	</EventTrigger>
+                	<EventTrigger RoutedEvent="Mouse.PreviewMouseDown">
+                		<BeginStoryboard x:Name="OnMouseDown1_BeginStoryboard" Storyboard="{StaticResource OnMouseDown1}"/>
+                	</EventTrigger>
+                	<EventTrigger RoutedEvent="Mouse.MouseEnter">
+                		<BeginStoryboard x:Name="OnMouseEnter1_BeginStoryboard" Storyboard="{StaticResource OnMouseEnter1}"/>
+                	</EventTrigger>
+                	<EventTrigger RoutedEvent="Mouse.MouseLeave">
+                		<BeginStoryboard x:Name="OnMouseLeave1_BeginStoryboard" Storyboard="{StaticResource OnMouseLeave1}"/>
+                	</EventTrigger>
+                	<Trigger Property="IsFocused" Value="True"/>
+                	<Trigger Property="IsDefaulted" Value="True"/>
+                	<Trigger Property="IsMouseOver" Value="True"/>
+                	<Trigger Property="IsPressed" Value="True"/>
+                	<Trigger Property="IsEnabled" Value="False"/>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+        </Setter.Value>
+    </Setter>
+</Style>
+<Style x:Key="Danger" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <ControlTemplate.Resources>
+                        <Storyboard x:Key="OnMouseEnter1">
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                                <EasingColorKeyFrame KeyTime="0" Value="#FFCC0E0E"/>
+                            </ColorAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="OnMouseLeave1">
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                                <EasingColorKeyFrame KeyTime="0" Value="#FFE25F5F"/>
+                            </ColorAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="OnMouseDown1">
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                                <EasingColorKeyFrame KeyTime="0" Value="#FFA50B0B"/>
+                            </ColorAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </ControlTemplate.Resources>
+                    <Grid>
+                        <Rectangle x:Name="rectangle" RadiusY="3.5" RadiusX="3.5" Stroke="#FF870000">
+                            <Rectangle.Fill>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF9F2C2C" Offset="1"/>
+                                    <GradientStop Color="#FFE25F5F" Offset="0.289"/>
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <EventTrigger RoutedEvent="Mouse.PreviewMouseUp">
+                            <BeginStoryboard Storyboard="{StaticResource OnMouseEnter1}"/>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="Mouse.PreviewMouseDown">
+                            <BeginStoryboard x:Name="OnMouseDown1_BeginStoryboard" Storyboard="{StaticResource OnMouseDown1}"/>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="Mouse.MouseEnter">
+                            <BeginStoryboard x:Name="OnMouseEnter1_BeginStoryboard" Storyboard="{StaticResource OnMouseEnter1}"/>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="Mouse.MouseLeave">
+                            <BeginStoryboard x:Name="OnMouseLeave1_BeginStoryboard" Storyboard="{StaticResource OnMouseLeave1}"/>
+                        </EventTrigger>
+                        <Trigger Property="IsFocused" Value="True"/>
+                        <Trigger Property="IsDefaulted" Value="True"/>
+                        <Trigger Property="IsMouseOver" Value="True"/>
+                        <Trigger Property="IsPressed" Value="True"/>
+                        <Trigger Property="IsEnabled" Value="False"/>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Warning" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <ControlTemplate.Resources>
+                        <Storyboard x:Key="OnMouseEnter1">
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                                <EasingColorKeyFrame KeyTime="0" Value="#FFE4CA22"/>
+                            </ColorAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="OnMouseLeave1">
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                                <EasingColorKeyFrame KeyTime="0" Value="#FFE2D75F"/>
+                            </ColorAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="OnMouseDown1">
+                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                                <EasingColorKeyFrame KeyTime="0" Value="#FFA57C0B"/>
+                            </ColorAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </ControlTemplate.Resources>
+                    <Grid>
+                        <Rectangle x:Name="rectangle" RadiusY="3.5" RadiusX="3.5" Stroke="#FF876900">
+                            <Rectangle.Fill>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FFC49512" Offset="1"/>
+                                    <GradientStop Color="#FFE2D75F" Offset="0.289"/>
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <EventTrigger RoutedEvent="Mouse.PreviewMouseDown">
+                            <BeginStoryboard x:Name="OnMouseDown1_BeginStoryboard" Storyboard="{StaticResource OnMouseDown1}"/>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="Mouse.MouseEnter">
+                            <BeginStoryboard x:Name="OnMouseEnter1_BeginStoryboard" Storyboard="{StaticResource OnMouseEnter1}"/>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="Mouse.MouseLeave">
+                            <BeginStoryboard x:Name="OnMouseLeave1_BeginStoryboard" Storyboard="{StaticResource OnMouseLeave1}"/>
+                        </EventTrigger>
+                        <Trigger Property="IsFocused" Value="True"/>
+                        <Trigger Property="IsDefaulted" Value="True"/>
+                        <Trigger Property="IsMouseOver" Value="True"/>
+                        <Trigger Property="IsPressed" Value="True"/>
+                        <Trigger Property="IsEnabled" Value="False"/>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Action" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+        <Setter.Value>
+            <ControlTemplate TargetType="{x:Type Button}">
+                <ControlTemplate.Resources>
+                    <Storyboard x:Key="OnMouseEnter1">
+                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                            <EasingColorKeyFrame KeyTime="0" Value="#FF0E71CC"/>
+                        </ColorAnimationUsingKeyFrames>
+                    </Storyboard>
+                    <Storyboard x:Key="OnMouseLeave1">
+                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                            <EasingColorKeyFrame KeyTime="0" Value="#FF5F85E2"/>
+                        </ColorAnimationUsingKeyFrames>
+                    </Storyboard>
+                    <Storyboard x:Key="OnMouseDown1">
+                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="rectangle">
+                            <EasingColorKeyFrame KeyTime="0" Value="#FF0B2AA5"/>
+                        </ColorAnimationUsingKeyFrames>
+                    </Storyboard>
+                </ControlTemplate.Resources>
+                <Grid>
+                    <Rectangle x:Name="rectangle" RadiusY="3.5" RadiusX="3.5" Stroke="#FF100C8D">
+                        <Rectangle.Fill>
+                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                <GradientStop Color="#FF2C389F" Offset="1"/>
+                                <GradientStop Color="#FF5F85E2" Offset="0.289"/>
+                            </LinearGradientBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                </Grid>
+                <ControlTemplate.Triggers>
+                    <EventTrigger RoutedEvent="Mouse.PreviewMouseDown">
+                        <BeginStoryboard x:Name="OnMouseDown1_BeginStoryboard" Storyboard="{StaticResource OnMouseDown1}"/>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="Mouse.MouseEnter">
+                        <BeginStoryboard x:Name="OnMouseEnter1_BeginStoryboard" Storyboard="{StaticResource OnMouseEnter1}"/>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="Mouse.MouseLeave">
+                        <BeginStoryboard x:Name="OnMouseLeave1_BeginStoryboard" Storyboard="{StaticResource OnMouseLeave1}"/>
+                    </EventTrigger>
+                    <Trigger Property="IsFocused" Value="True"/>
+                    <Trigger Property="IsDefaulted" Value="True"/>
+                    <Trigger Property="IsMouseOver" Value="True"/>
+                    <Trigger Property="IsPressed" Value="True"/>
+                    <Trigger Property="IsEnabled" Value="False"/>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+        </Setter.Value>
+    </Setter>
+</Style>
+</ResourceDictionary>

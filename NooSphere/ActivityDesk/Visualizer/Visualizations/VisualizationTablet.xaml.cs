@@ -44,8 +44,6 @@ namespace BaseVis
         public VisualizationTablet()
         {
             InitializeComponent();
-
-            Glow.RenderTransform = new ScaleTransform(1, 1);
         }
         /// <summary>
         /// Call to indicate that the visualization has entered another UI element.
@@ -98,10 +96,6 @@ namespace BaseVis
                 new Duration(TimeSpan.FromSeconds(seconds)));
             animation.AccelerationRatio = accelerationRatio;
             animation.DecelerationRatio = decelerationRatio;
-            ScaleTransform transform = (ScaleTransform)Glow.RenderTransform;
-            transform.BeginAnimation(ScaleTransform.ScaleXProperty, animation);
-            transform.BeginAnimation(ScaleTransform.ScaleYProperty, animation);
-            Glow.BeginAnimation(OpacityProperty, animation);
         }
 
         private void SurfaceButton_Click(object sender, RoutedEventArgs e)
