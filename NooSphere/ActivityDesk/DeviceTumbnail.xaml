@@ -7,7 +7,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d"
 	x:Class="ActivityDesk.DeviceTumbnail"
-	x:Name="UserControl">
+	x:Name="UserControl" MinHeight="150" MinWidth="150">
     <s:ScatterViewItem.Resources>
         <ControlTemplate x:Key="Floating">
             <Grid x:Name="LayoutRoot" Height="150" Width="300">
@@ -37,7 +37,7 @@
                 <Border x:Name="btnBody" BorderBrush="Black" BorderThickness="15" Margin="0,0,0,0" Background="#6B5A5A5A" CornerRadius="10">
                     <Label x:Name="lblName" Content="{Binding Name}" RenderTransformOrigin="0.5,0.5" Foreground="White" 
                            Background="#00000000" FontSize="18.667" FontWeight="Bold" 
-                           d:LayoutOverrides="Height" HorizontalAlignment="Center">
+                           d:LayoutOverrides="Height" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Label.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>

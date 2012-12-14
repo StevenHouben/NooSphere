@@ -224,19 +224,26 @@ namespace NooSphere.ActivitySystem.FileServer
 
             lock (_fileLock)
             {
-                using (var fileToupload = new FileStream(@path, FileMode.OpenOrCreate))
+                if(!File.Exists(@path))
                 {
-                    fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
-                    fileToupload.Close();
-                    fileToupload.Dispose();
+                    using (var fileToupload = new FileStream(@path, FileMode.OpenOrCreate))
+                    {
+                        fileToupload.Write(fileInBytes, 0, fileInBytes.Length);
+                        fileToupload.Close();
+                        fileToupload.Dispose();
 
-                    //File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
-                    //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
-                    Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,
-                                      path);
-                    Log.Out("FileStore", string.Format("FileStore: Saved file {0} to disk at {1}", resource.Name,
-                                      path), LogCode.Log);
+                        //File.SetCreationTimeUtc(path, DateTime.Parse(resource.CreationTime));
+                        //File.SetLastWriteTimeUtc(path, DateTime.Parse(resource.LastWriteTime));
+                        Console.WriteLine("FileStore: Saved file {0} to disk at {1}", resource.Name,
+                                          path);
+                        Log.Out("FileStore", string.Format("FileStore: Saved file {0} to disk at {1}", resource.Name,
+                                          path), LogCode.Log);
+                    }
                 }
+                else
+                    Log.Out("FileStore", string.Format("FileStore: file {0} already in store", resource.Name,
+                                          path), LogCode.Log);
+
             }
         }
         #endregion

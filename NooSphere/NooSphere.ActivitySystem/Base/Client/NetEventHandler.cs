@@ -213,32 +213,32 @@ namespace NooSphere.ActivitySystem.Base.Client
 
         #region Events
 
-        public event ActivityAddedHandler ActivityAdded;
-        public event ActivityRemovedHandler ActivityRemoved;
-        public event ActivityChangedHandler ActivityChanged;
-        public event ActivitySwitchedHandler ActivitySwitched = null;
+        public event ActivityAddedHandler ActivityAdded = delegate{};
+        public event ActivityRemovedHandler ActivityRemoved = delegate { };
+        public event ActivityChangedHandler ActivityChanged = delegate { };
+        public event ActivitySwitchedHandler ActivitySwitched = delegate { };
 
-        public event DeviceAddedHandler DeviceAdded;
-        public event DeviceRemovedHandler DeviceRemoved;
-        public event DeviceRoleChangedHandler DeviceRoleChanged;
+        public event DeviceAddedHandler DeviceAdded = delegate { };
+        public event DeviceRemovedHandler DeviceRemoved = delegate { };
+        public event DeviceRoleChangedHandler DeviceRoleChanged = delegate { };
 
-        public event MessageReceivedHandler MessageReceived;
+        public event MessageReceivedHandler MessageReceived = delegate { };
 
-        protected event FileDownloadRequestHandler FileDownloadRequest;
-        protected event FileUploadRequestHandler FileUploadRequest;
-        protected event FileDeleteRequestHandler FileDeleteRequest;
+        protected event FileDownloadRequestHandler FileDownloadRequest = delegate { };
+        protected event FileUploadRequestHandler FileUploadRequest = delegate { };
+        protected event FileDeleteRequestHandler FileDeleteRequest = delegate { };
 
-        public event FriendAddedHandler FriendAdded;
-        public event FriendDeletedHandler FriendDeleted;
-        public event FriendRequestReceivedHandler FriendRequestReceived;
+        public event FriendAddedHandler FriendAdded = delegate { };
+        public event FriendDeletedHandler FriendDeleted = delegate { };
+        public event FriendRequestReceivedHandler FriendRequestReceived = delegate { };
 
-        public event ParticipantAddedHandler ParticipantAdded;
-        public event ParticipantRemovedHandler ParticipantRemoved;
+        public event ParticipantAddedHandler ParticipantAdded = delegate { };
+        public event ParticipantRemovedHandler ParticipantRemoved = delegate { };
 
-        public event EventHandler UserOnline;
-        public event EventHandler UserOffline;
+        public event EventHandler UserOnline = delegate { };
+        public event EventHandler UserOffline = delegate { };
 
-        public event ServiceDownHandler ServiceIsDown;
+        public event ServiceDownHandler ServiceIsDown = delegate { };
         #endregion
 
         #region Net Event handlers

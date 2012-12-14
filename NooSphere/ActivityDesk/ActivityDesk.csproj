@@ -94,6 +94,9 @@
     <Compile Include="Note.xaml.cs">
       <DependentUpon>Note.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ResourceViewer.xaml.cs">
+      <DependentUpon>ResourceViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Visualizer\Definitions\SmartPhoneDefinition.cs" />
     <Compile Include="Visualizer\Definitions\TabletDefinition.cs" />
     <Compile Include="Visualizer\Visualizations\SmartPhone.xaml.cs">
@@ -139,6 +142,10 @@
     <Page Include="Note.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ResourceViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Visualizer\Visualizations\SmartPhone.xaml">
       <SubType>Designer</SubType>

@@ -51,17 +51,18 @@ namespace ActivityDesk
 
         private ActivityClient _pairedManager;
         private string _pairedTag;
+
         private GenericHost _host;
         private DiscoveryManager _disc;
+
         private readonly User _user;
         private readonly Device _device;
+
         private DeskState _deskState;
         private Activity _currentActivity;
         private readonly List<string> _lockedTags = new List<string>();
         private readonly List<string> _connectedDeviceTags = new List<string>();
-        private Dictionary<Guid, SurfaceButton> _proxies = new Dictionary<Guid, SurfaceButton>();
-        private Dictionary<string, ScatterViewItem> _lockedTagTumbnails = new Dictionary<string, ScatterViewItem>();
-        private DocumentContainer documentContainer = new DocumentContainer();
+        private DocumentContainer _documentContainer = new DocumentContainer();
 
         #endregion
 
@@ -75,13 +76,13 @@ namespace ActivityDesk
             //Initializes design-time components
             InitializeComponent();
 
-            TouchVisualizer.SetShowsVisualizations(documentContainer, false);
+            TouchVisualizer.SetShowsVisualizations(_documentContainer, false);
 
             Visualizer.VisualizationInitialized += new TagVisualizerEventHandler(Visualizer_VisualizationInitialized);
             //Initializes tag definitions
             InitializeTags();
 
-            this.documentViewContainer.Children.Add(documentContainer);
+            this.documentViewContainer.Children.Add(_documentContainer);
 
             SetDeskState(DeskState.Ready);
 
@@ -132,22 +133,6 @@ namespace ActivityDesk
 
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                //switch (deskState)
-                //{
-                //    case ActivityDesk.DeskState.Active:
-                //        this.Background = (ImageBrush)this.Resources["green"];
-                //        break;
-                //    case ActivityDesk.DeskState.Locked:
-                //        this.Background = (ImageBrush)this.Resources["red"];
-                //        break;
-                //    case ActivityDesk.DeskState.Occupied:
-                //        this.Background = (ImageBrush)this.Resources["yellow"];
-                //        break;
-                //    case ActivityDesk.DeskState.Ready:
-                //        this.Background = (ImageBrush)this.Resources["blue"];
-                //        break;
-                //}
-
                 this.Background = (ImageBrush)this.Resources["back"];
             }));
         }
@@ -160,6 +145,7 @@ namespace ActivityDesk
         private void InitializeUI()
         {
             SetDeskState(ActivityDesk.DeskState.Occupied);
+
         }
 
         /// <summary>
@@ -167,17 +153,21 @@ namespace ActivityDesk
         /// </summary>
         private void InitializeTags()
         {
-            TagVisualizationDefinition definition = new SmartPhoneDefinition();
-            definition.Source = new Uri("Visualizer/Visualizations/SmartPhone.xaml", UriKind.Relative);
-            definition.TagRemovedBehavior = TagRemovedBehavior.Disappear;
-            definition.LostTagTimeout = 1000;
 
-            TagVisualizationDefinition definition2 = new TabletDefinition();
-            definition2.Source = new Uri("Visualizer/Visualizations/VisualizationTablet.xaml", UriKind.Relative);
-            definition2.LostTagTimeout = 1000;
-
-            Visualizer.Definitions.Add(definition);
-            Visualizer.Definitions.Add(definition2);
+            Visualizer.Definitions.Add(
+                new SmartPhoneDefinition()
+                {
+                    Source = new Uri("Visualizer/Visualizations/SmartPhone.xaml", UriKind.Relative),
+                    TagRemovedBehavior = TagRemovedBehavior.Disappear,
+                    LostTagTimeout = 1000
+                });
+            Visualizer.Definitions.Add( 
+                new TabletDefinition()
+                {
+                    Source = new Uri("Visualizer/Visualizations/VisualizationTablet.xaml", UriKind.Relative),
+                    LostTagTimeout = 1000
+                }
+                );
         }
         #endregion
 
@@ -207,6 +197,7 @@ namespace ActivityDesk
                     _pairedManager.FileAdded += new FileAddedHandler(_client_FileAdded);
                     _pairedManager.ServiceIsDown += new ServiceDownHandler(_client_ServiceIsDown);
                     _pairedManager.ActivitySwitched += new ActivitySwitchedHandler(_client_ActivitySwitched);
+                    _pairedManager.DeviceAdded += new DeviceAddedHandler(_pairedManager_DeviceAdded);
                     _pairedManager.Open(addr);
                     InitializeUI();
                 }
@@ -224,6 +215,11 @@ namespace ActivityDesk
 
         }
 
+        void _pairedManager_DeviceAdded(object sender, DeviceEventArgs e)
+        {
+
+        }
+
         private void StartRoleChangeProcedure(string addr)
         {
             try
@@ -234,7 +230,6 @@ namespace ActivityDesk
             }
             catch (Exception ex)
             {
-
                 MessageBox.Show(ex.ToString());
             }
         }
@@ -275,17 +270,17 @@ namespace ActivityDesk
                     {
                         StartClient(e.ServiceInfo.Address, e.ServiceInfo.Code);
                     }
+                    return;
                 }
             }));
         }
         private void host_HostLaunched(object sender, EventArgs e)
         {
-            //StartClient(_host.Address,);
+           
         }
         private void _client_ActivitySwitched(object sender, ActivityEventArgs e)
         {
             _currentActivity = e.Activity;
-            documentContainer.Clear();
             if (e.Activity.Resources.Count != 0)
                 foreach (Resource res in e.Activity.Resources)
                     VisualizeResouce(res, _pairedManager.LocalPath + res.RelativePath);
@@ -301,7 +296,7 @@ namespace ActivityDesk
             }
             this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
             {
-                documentContainer.Clear();
+
             }));
         }
         private void _client_FileAdded(object sender, FileEventArgs e)
@@ -332,20 +327,21 @@ namespace ActivityDesk
         #region UI
         private void VisualizeResouce(Resource res, string path)
         {
-            //try
-            //{
-            //    var i = new Image();
-            //    var src = new BitmapImage();
-            //    src.BeginInit();
-            //    src.UriSource = new Uri(path, UriKind.Relative);
-            //    src.CacheOption = BitmapCacheOption.OnLoad;
-            //    src.EndInit();
-            //    i.Source = src;
-            //    i.Stretch = Stretch.Uniform;
 
-            //    documentContainer.Add(i);
-            //}
-            //catch { }
+            try
+            {
+                var i = new Image();
+                var src = new BitmapImage();
+                src.BeginInit();
+                src.UriSource = new Uri(path, UriKind.Relative);
+                src.CacheOption = BitmapCacheOption.OnLoad;
+                src.EndInit();
+                i.Source = src;
+                i.Stretch = Stretch.Uniform;
+
+                _documentContainer.AddResource(i,res.Name);
+            }
+            catch { }
         }
 
         #endregion
@@ -358,7 +354,6 @@ namespace ActivityDesk
 
         private void Visualizer_VisualizationAdded(object sender, TagVisualizerEventArgs e)
         {
-
             if (lblStart.Visibility == System.Windows.Visibility.Visible)
                 lblStart.Visibility = System.Windows.Visibility.Hidden;
 
@@ -371,8 +366,7 @@ namespace ActivityDesk
             }
             else
             {
-                if(_lockedTagTumbnails.ContainsKey(e.TagVisualization.VisualizedTag.Value.ToString()))
-                    RemoveTagThumbnail(e.TagVisualization.VisualizedTag.Value.ToString());
+                _documentContainer.RemoveDevice(e.TagVisualization.VisualizedTag.Value.ToString());
             }
             ((BaseVisualization)e.TagVisualization).Locked += new LockedEventHandler(Desk_Locked);
             RunDiscovery();
@@ -382,8 +376,7 @@ namespace ActivityDesk
             if (_lockedTags.Contains(e.VisualizedTag))
             {
                 _lockedTags.Remove(e.VisualizedTag);
-                if (_lockedTagTumbnails.ContainsKey(e.VisualizedTag))
-                    RemoveTagThumbnail(e.VisualizedTag);
+                _documentContainer.RemoveDevice(e.VisualizedTag);
                 Log.Out("ActivityDesk", String.Format("{0} unlocked", e.VisualizedTag));
             }
             else
@@ -391,21 +384,6 @@ namespace ActivityDesk
                 _lockedTags.Add(e.VisualizedTag);
                 Log.Out("ActivityDesk", String.Format("{0} locked", e.VisualizedTag));
             }
-        }
-
-        private void RemoveTagThumbnail(string tag)
-        {
-            documentContainer.Remove(_lockedTagTumbnails[tag]);
-            _lockedTagTumbnails.Remove(tag);
-        }
-
-        private void AddTagTumbnail(string name, Point p)
-        {
-            var btn = new DeviceTumbnail();
-            btn.Name = name;
-            btn.Center = p;
-            documentContainer.Add(btn);
-            _lockedTagTumbnails.Add(name, btn);
         }
 
         private void Visualizer_VisualizationRemoved(object sender, TagVisualizerEventArgs e)
@@ -427,11 +405,11 @@ namespace ActivityDesk
 
                 this.Dispatcher.Invoke(DispatcherPriority.Background, new System.Action(() =>
                 {
-                    documentContainer.Clear();
+                    //documentContainer.Clear();
                 }));
             }
             else
-                AddTagTumbnail(e.TagVisualization.VisualizedTag.Value.ToString(), e.TagVisualization.Center);
+                _documentContainer.AddDevice(new Device(){TagValue=e.TagVisualization.VisualizedTag.Value},e.TagVisualization.Center);
 
         }
         private void Visualizer_VisualizationMoved(object sender, TagVisualizerEventArgs e)
@@ -444,15 +422,8 @@ namespace ActivityDesk
             Console.WriteLine(e.TouchDevice.GetIsFingerRecognized().ToString());
             if (e.TouchDevice.GetIsFingerRecognized())
             {
-                var ink = new Note();
-                ink.Close += new EventHandler(ink_Close);
-                documentContainer.Add(ink);
+                _documentContainer.AddNote();
             }
-        }
-
-        void ink_Close(object sender, EventArgs e)
-        {
-            documentContainer.Remove(sender);
         }
 
         private void SurfaceWindow_PreviewTouchDown(object sender, TouchEventArgs e)

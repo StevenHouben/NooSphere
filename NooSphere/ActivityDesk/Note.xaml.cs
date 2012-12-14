@@ -23,6 +23,9 @@ namespace ActivityDesk
         public event EventHandler Save = null;
         public event EventHandler Close = null;
 
+        public string Name { get; set; }
+        public StrokeCollection Strokes { get; set; }
+
 		public Note()
 		{
 			this.InitializeComponent();
@@ -30,19 +33,38 @@ namespace ActivityDesk
 
         private SurfaceButton reset;
         private SurfaceInkCanvas painter;
+        private SurfaceTextBox text;
+        private Label label;
         public override void OnApplyTemplate()
         {
-            DependencyObject d = GetTemplateChild("btnReset");
-            if (d != null)
+            if (painter != null)
+                Strokes = painter.Strokes;
+
+            if (text != null)
+                Name = text.Text;
+
+            if (GetTemplateChild("btnReset") != null)
             {
-                reset = d as SurfaceButton;
+                reset = GetTemplateChild("btnReset") as SurfaceButton;
                 reset.Click += new RoutedEventHandler(btnReset_Click);
             }
 
-            DependencyObject e = GetTemplateChild("Painter");
-            if (e != null)
+            if (GetTemplateChild("txtName") != null)
             {
-                painter = e as SurfaceInkCanvas;
+                text = GetTemplateChild("txtName") as SurfaceTextBox;
+                text.TextChanged += new TextChangedEventHandler(text_TextChanged);
+                text.Text = Name;
+            }
+
+            if (GetTemplateChild("lblName") != null)
+            {
+                label = GetTemplateChild("lblName") as Label;
+                label.Content = Name;
+            }
+
+            if (GetTemplateChild("Painter") != null)
+            {
+                painter = GetTemplateChild("Painter") as SurfaceInkCanvas;
                 // Set up the DrawingAttributes for the pen.
                 var inkDA = new DrawingAttributes();
                 inkDA.Color = Colors.Black;
@@ -52,10 +74,15 @@ namespace ActivityDesk
                 painter.UsesTouchShape = false;
 
                 painter.DefaultDrawingAttributes = inkDA;
+                if(Strokes != null)
+                    painter.Strokes = Strokes;
             }  
-
-
             base.OnApplyTemplate();
+        }
+
+        void text_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Name = text.Text;
         }
         private void btnReset_Click(object sender, RoutedEventArgs e)
         {

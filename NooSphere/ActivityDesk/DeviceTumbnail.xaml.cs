@@ -20,10 +20,16 @@ namespace ActivityDesk
 	/// </summary>
     public partial class DeviceTumbnail : ScatterViewItem 
 	{
+        private string _name;
         public string Name
         {
-            get;
-            set;
+            get{return _name;}
+            set
+            {
+                _name = value;
+                if(_label != null)
+                    _label.Content = Name;
+            }
         }
 
         private Label _label;
@@ -41,7 +47,6 @@ namespace ActivityDesk
 		public DeviceTumbnail()
 		{
 			this.InitializeComponent();
-            CanScale = true;
 		} 
     }
 }
