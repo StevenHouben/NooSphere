@@ -209,7 +209,7 @@ namespace ActivityUI.Xaml
                    {
                        _host = new GenericHost(7891);
                         _host.HostLaunched += HostHostLaunched;
-                        _host.Open(new ActivityManager(_owner, "c:/files/", true), typeof (IActivityManager), _device.Name);
+                        _host.Open(new ActivityManager(_owner, "c:/files/"), typeof (IActivityManager), _device.Name);
                         _host.StartBroadcast(Settings.Default.DISCOVERY_TYPE, _device.Name, _device.TagValue.ToString(), _device.Location);
 
                     });
