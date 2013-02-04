@@ -16,8 +16,8 @@ using System.Globalization;
 using System.Threading.Tasks;
 using System.Web;
 using NooSphere.ActivitySystem.Helpers;
-using SignalR.Client;
 using Newtonsoft.Json.Linq;
+using Microsoft.AspNet.SignalR.Client;
 using Newtonsoft.Json;
 using NooSphere.Core.ActivityModel;
 #if ANDROID
