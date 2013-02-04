@@ -172,21 +172,11 @@ namespace NooSphere.ActivitySystem.Base.Service
         #region Private Members
         private void Connect(User user)
         {
-            _connection.Start().ContinueWith(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    if (task.Exception != null)
-                        Console.WriteLine("Failed to start: {0}", task.Exception.GetBaseException());
-                }
-                else
-                {
-                    Register(user.Id);
-                    if (ConnectionSetup != null)
-                        ConnectionSetup(this, new EventArgs());
-                    _connection.Received += SignalRecieved;
-                }
-            });
+            _connection.Received += SignalRecieved;
+            _connection.Start().Wait();
+            Register(user.Id);
+            if (ConnectionSetup != null)
+                ConnectionSetup(this, new EventArgs());
         }
         private void Disconnect()
         {
