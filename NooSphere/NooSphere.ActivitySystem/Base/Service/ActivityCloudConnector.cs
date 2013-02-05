@@ -17,10 +17,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using NooSphere.ActivitySystem.Helpers;
-using SignalR.Client;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using NooSphere.Core.ActivityModel;
+using Microsoft.AspNet.SignalR.Client;
 #if ANDROID
 #else
 #endif
@@ -30,7 +30,7 @@ namespace NooSphere.ActivitySystem.Base.Service
     public class ActivityCloudConnector
     {
         #region Private Members
-        private readonly Connection _connection;
+        private Connection _connection;
 #if ANDROID
 #else
         private readonly HttpClient _httpClient = new HttpClient();
@@ -69,11 +69,16 @@ namespace NooSphere.ActivitySystem.Base.Service
         #endregion
 
         #region Constructor
-        public ActivityCloudConnector(string baseUrl,User user)
+        public ActivityCloudConnector()
+        {
+
+
+        }
+        public void ConnectToCloud(string baseUrl,User user)
         {
             BaseUrl = baseUrl;
-            _connection = new Connection(baseUrl + "Connect");
-            Connect(user);
+            _connection = new Connection(baseUrl+ "Connect");
+           Connect(user);
         }
         ~ActivityCloudConnector()
         {
@@ -172,21 +177,25 @@ namespace NooSphere.ActivitySystem.Base.Service
         #region Private Members
         private void Connect(User user)
         {
-            _connection.Start().ContinueWith(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    if (task.Exception != null)
-                        Console.WriteLine("Failed to start: {0}", task.Exception.GetBaseException());
-                }
-                else
-                {
-                    Register(user.Id);
-                    if (ConnectionSetup != null)
-                        ConnectionSetup(this, new EventArgs());
-                    _connection.Received += SignalRecieved;
-                }
-            });
+            _connection.Received += SignalRecieved;
+            _connection.Start().Wait();
+            Register(user.Id);
+            if (ConnectionSetup != null)
+                ConnectionSetup(this, new EventArgs());
+            //_connection.Start().ContinueWith(task =>
+            //{
+            //    if (task.IsFaulted)
+            //    {
+            //        if (task.Exception != null)
+            //            Console.WriteLine("Failed to start: {0}", task.Exception.InnerException.ToString());
+            //    }
+            //    else
+            //    {
+            //        Register(user.Id);
+            //        if (ConnectionSetup != null)
+            //            ConnectionSetup(this, new EventArgs());
+            //    }
+            //});
         }
         private void Disconnect()
         {

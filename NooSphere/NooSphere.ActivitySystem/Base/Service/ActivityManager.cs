@@ -88,7 +88,7 @@ namespace NooSphere.ActivitySystem.Base.Service
             if (!_useCloud) return;
             var serviceAddress = _useLocalCloud ? "http://localhost:56002" : "http://activitycloud-1.apphb.com";
 
-            _activityCloudConnector = new ActivityCloudConnector(serviceAddress + "/Api/", owner);
+            _activityCloudConnector = new ActivityCloudConnector();
             _activityCloudConnector.ConnectionSetup += ActivityCloudConnectorConnectionSetup;
             _activityCloudConnector.ActivityAdded += ActivityCloudConnectorActivityAdded;
             _activityCloudConnector.ActivityDeleted += ActivityCloudConnectorActivityDeleted;
@@ -104,8 +104,10 @@ namespace NooSphere.ActivitySystem.Base.Service
             _activityCloudConnector.ParticipantAdded += ActivityCloudConnectorParticipantAdded;
             _activityCloudConnector.ParticipantRemoved += ActivityCloudConnectorParticipantRemoved;
 
-            Log.Out("ActivityManager", string.Format("Cloud connector connected to {0}", serviceAddress), LogCode.Net);
+            _activityCloudConnector.ConnectToCloud(serviceAddress + "/Api/",owner);
 
+            _connectionActive = true;
+            Log.Out("ActivityManager", string.Format("Cloud connector connected to {0}", serviceAddress), LogCode.Net);
         }
 
         /// <summary>

@@ -96,8 +96,8 @@ namespace ActivityUI.Xaml
             _deviceWindow = new DeviceWindow(this);
             _popUpWindows.Add(_deviceWindow);
 
-            MouseHook.Register();
-            MouseHook.MouseDown += MouseHookMouseClick;
+            //MouseHook.Register();
+            //MouseHook.MouseDown += MouseHookMouseClick;
             //MouseHook.MouseMove += MouseHookMouseMove;
 
             DisableUi();

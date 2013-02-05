@@ -132,7 +132,7 @@ namespace NooSphere.ActivitySystem.Base.Client
                 ServiceAddress = addr;
                 _connected = JsonConvert.DeserializeObject<bool>(Rest.Get(ServiceAddress));
                 Log.Out("ActivityClient", string.Format("Service active? -> {0}", _connected), LogCode.Net);
-                Thread.Sleep(200);
+                Thread.Sleep(2000);
                 attempts++;
             }
             while (_connected == false && attempts < reconnectAttempts);
