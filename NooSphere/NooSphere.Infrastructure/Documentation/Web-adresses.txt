@@ -1,0 +1,19 @@
+﻿
+
+Services
+--------
+The systen will automatically assign an IP address to the WEB API and services.
+If there is no available connection, the system will use the localhost address.
+If the locatlhost address is not avilable, the system will not start and throw
+and error.
+
+{ip}:8000 -> REST API
+{ip}:8080 -> Store
+
+Discovery
+---------
+The system supports both WCDiscovery and Zeroconf. The default value is Zeroconf.
+Each node is equiped with both a broadcaster and discovery serv
+
+
+
