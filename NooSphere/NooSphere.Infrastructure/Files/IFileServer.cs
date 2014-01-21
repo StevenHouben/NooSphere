@@ -27,7 +27,7 @@ namespace ABC.Infrastructure.Files
 
         [OperationContract]
         [WebInvoke( RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "files", Method = "DELETE" )]
-        void RemoveFile( Resource resource );
+        void RemoveFile( LegacyResource resource );
 
         [OperationContract]
         [WebInvoke( UriTemplate = "files/{activityId}/{resourceId}", Method = "PUT" )]

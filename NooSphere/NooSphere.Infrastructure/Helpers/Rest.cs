@@ -45,7 +45,7 @@ namespace ABC.Infrastructure.Helpers
 
             try
             {
-                if ( content != null && ( method == HttpMethod.Post || method == HttpMethod.Put ) )
+                if ( content != null)
                 {
                     request.ContentType = "application/json";
 
@@ -64,7 +64,7 @@ namespace ABC.Infrastructure.Helpers
                         // Send the file as body request. 
                         requestStream.Write( bytes, 0, bytes.Length );
                         requestStream.Close();
-                    }
+                    } 
                 }
                 Log.Out( "REST", String.Format( "{0} request send to {1}", request.Method, request.RequestUri ) );
                 var task = Task.Factory.FromAsync(
@@ -120,6 +120,11 @@ namespace ABC.Infrastructure.Helpers
         public static string Get( string uri, string urlParameter, string connectionId = null )
         {
             return SendRequest( uri + "/" + urlParameter, HttpMethod.Get, null, connectionId ).Result;
+        }
+
+        public static string Get(string uri, object obj=null, string connectionId = null)
+        {
+            return SendRequest(uri, HttpMethod.Get, obj, connectionId).Result;
         }
 
         /// <summary>

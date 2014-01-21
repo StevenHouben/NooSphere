@@ -66,28 +66,7 @@ namespace ABC.Infrastructure.Discovery
         {
             ActivityServices.Clear();
 #if !ANDROID
-            switch ( type )
-            {
-                case DiscoveryType.WsDiscovery:
-                    using ( var wsBrowser = new DiscoveryClient( new UdpDiscoveryEndpoint() ) )
-                    {
-                        wsBrowser.FindProgressChanged += WsBrowserFindProgressChanged;
-                        wsBrowser.FindCompleted += WsBrowserFindCompleted;
-                        wsBrowser.FindAsync( new FindCriteria( typeof( IDiscovery ) ) );
-                    }
-                    break;
-                case DiscoveryType.Zeroconf:
-                {
-                    var zcBrowser = new ServiceBrowser();
-                    zcBrowser.ServiceAdded += delegate( object o, ServiceBrowseEventArgs args )
-                    {
-                        args.Service.Resolved += ZcBrowserServiceResolved;
-                        args.Service.Resolve();
-                    };
-                    zcBrowser.Browse( "_am._tcp", "local" );
-                }
-                    break;
-            }
+           
 
             switch ( type )
             {

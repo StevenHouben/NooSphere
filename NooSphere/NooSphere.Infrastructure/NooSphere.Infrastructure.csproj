@@ -172,6 +172,7 @@
     <Compile Include="Helpers\Mime.cs" />
     <Compile Include="Helpers\Net.cs" />
     <Compile Include="Helpers\Rest.cs" />
+    <Compile Include="Helpers\WebConfiguration.cs" />
     <Compile Include="Helpers\XML.cs" />
     <Compile Include="Events\EventDispatcher.cs" />
     <Compile Include="Events\Notifier.cs" />
@@ -180,6 +181,7 @@
     <Compile Include="Web\ConnectedClient.cs" />
     <Compile Include="Web\Controllers\ActivityController.cs" />
     <Compile Include="Web\Controllers\DevicesController.cs" />
+    <Compile Include="Web\Controllers\FilesController.cs" />
     <Compile Include="Web\Controllers\TestController.cs" />
     <Compile Include="Web\Controllers\UsersController.cs" />
     <Compile Include="Services\GenericHost.cs" />
@@ -222,7 +224,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NooSphere.Model\NooSphere.Model.csproj">
       <Project>{dc2a799f-b985-4a95-9b3c-fecfe14b8597}</Project>
-      <Name>SmartWard.Model</Name>
+      <Name>NooSphere.Model</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

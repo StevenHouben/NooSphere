@@ -1,20 +1,24 @@
-﻿using ABC.Infrastructure.Context.Location;
+﻿using System.IO;
+using System.Net;
+using ABC.Infrastructure.Context.Location;
 using ABC.Infrastructure.Helpers;
 using ABC.Model;
 using ABC.Model.Device;
 using ABC.Model.Primitives;
 using ABC.Model.Users;
 using Raven.Abstractions.Data;
+using Raven.Client;
 using Raven.Client.Document;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Raven.Json.Linq;
 
 
 namespace ABC.Infrastructure.ActivityBase
 {
-    public class ActivitySystem : ActivityController
+    public class ActivitySystem : ActivityNode
     {
         #region Members
 
@@ -25,10 +29,10 @@ namespace ABC.Infrastructure.ActivityBase
 
         #region Constructor
 
-        public ActivitySystem( string systemName = "activitysystem" )
+        public ActivitySystem( string databaseName)
         {
 
-            Name = systemName;
+            DatabaseName = databaseName;
             Ip = Net.GetIp( IpType.All );
             Port = 8000;
             Tracker = new LocationTracker(Ip);
@@ -80,29 +84,38 @@ namespace ABC.Infrastructure.ActivityBase
 
         void InitializeDocumentStore( string address )
         {
-            _documentStore = new DocumentStore
+            try
             {
-                Conventions =
+                _documentStore = new DocumentStore
                 {
-                    FindTypeTagName = type =>
+                    Conventions =
                     {
-                        if ( typeof( IUser ).IsAssignableFrom( type ) )
-                            return "IUser";
-                        if ( typeof( IActivity ).IsAssignableFrom( type ) )
-                            return "IActivity";
-                        if ( typeof( IDevice ).IsAssignableFrom( type ) )
-                            return "IDevice";
-                        return DocumentConvention.DefaultTypeTagName( type );
+                        FindTypeTagName = type =>
+                        {
+                            if (typeof(IUser).IsAssignableFrom(type))
+                                return "IUser";
+                            if (typeof(IActivity).IsAssignableFrom(type))
+                                return "IActivity";
+                            if (typeof(IDevice).IsAssignableFrom(type))
+                                return "IDevice";
+                            return DocumentConvention.DefaultTypeTagName(type);
+                        }
                     }
-                }
-            };
+                };
 
-            _documentStore.ParseConnectionString( "Url = " + address );
-            _documentStore.Initialize();
+                _documentStore.ParseConnectionString("Url = " + address);
+                _documentStore.Initialize();
 
-            LoadStore();
-            SubscribeToChanges();
-            OnConnectionEstablished();
+                LoadStore();
+                SubscribeToChanges();
+                OnConnectionEstablished();
+            }
+            catch (WebException ex)
+            {
+                
+                Console.WriteLine(ex.StackTrace);
+            }
+
         }
 
         public T Cast<T>( object input )
@@ -112,10 +125,10 @@ namespace ABC.Infrastructure.ActivityBase
 
         void SubscribeToChanges()
         {
-            _documentStore.Changes( "activitysystem" ).ForAllDocuments()
+            _documentStore.Changes(DatabaseName).ForAllDocuments()
                           .Subscribe( change =>
                           {
-                              using ( var session = _documentStore.OpenSession( "activitysystem" ) )
+                              using (var session = _documentStore.OpenSession(DatabaseName))
                               {
                                   var obj = session.Load<object>( change.Id );
                                   if ( obj is IUser )
@@ -154,7 +167,7 @@ namespace ABC.Infrastructure.ActivityBase
                     break;
                 case DocumentChangeTypes.Put:
                 {
-                    using ( var session = _documentStore.OpenSession( "activitysystem" ) )
+                    using (var session = _documentStore.OpenSession(DatabaseName))
                     {
                         var device = session.Load<IDevice>( change.Id );
                         if ( devices.ContainsKey( change.Id ) )
@@ -185,7 +198,7 @@ namespace ABC.Infrastructure.ActivityBase
                     break;
                 case DocumentChangeTypes.Put:
                 {
-                    using ( var session = _documentStore.OpenSession( "activitysystem" ) )
+                    using (var session = _documentStore.OpenSession(DatabaseName))
                     {
                         var activity = session.Load<IActivity>( change.Id );
                         if ( activities.ContainsKey( change.Id ) )
@@ -216,7 +229,7 @@ namespace ABC.Infrastructure.ActivityBase
                     break;
                 case DocumentChangeTypes.Put:
                 {
-                    using ( var session = _documentStore.OpenSession( "activitysystem" ) )
+                    using (var session = _documentStore.OpenSession(DatabaseName))
                     {
                         var user = session.Load<IUser>( change.Id );
                         if ( users.ContainsKey( change.Id ) )
@@ -238,7 +251,7 @@ namespace ABC.Infrastructure.ActivityBase
 
         void LoadStore()
         {
-            using ( var session = _documentStore.OpenSession( "activitysystem" ) )
+            using (var session = _documentStore.OpenSession(DatabaseName))
             {
                 var userResult = from user in session.Query<IUser>()
                                  where user.BaseType == typeof( IUser ).Name
@@ -258,20 +271,71 @@ namespace ABC.Infrastructure.ActivityBase
                     activities.AddOrUpdate( entry.Id, entry, ( key, oldValue ) => entry );
                 }
 
-                //var deviceResult = from device in session.Query<IDevice>()
-                //                   where device.BaseType == typeof( IDevice).Name
-                //                   select device;
+                var deviceResult = from device in session.Query<IDevice>()
+                                   where device.BaseType == typeof(IDevice).Name
+                                   select device;
 
-                //foreach (var entry in deviceResult)
-                //{
-                //    devices.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry);
-                //}
+                foreach (var entry in deviceResult)
+                {
+                    devices.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry);
+                }
+            }
+        }
+
+
+        public Resource AddResourceToActivity( Activity activity,Stream stream,string path,string type)
+        {
+           var resource = new Resource()
+            {
+                FileType =  type,
+                Activity = activity
+            };
+
+            //using (var mem = new MemoryStream(File.ReadAllBytes(path)))
+            //{
+                _documentStore.DatabaseCommands.PutAttachment(
+                    activity.Name+"/"+resource.Id,
+                    null,
+                    stream,
+                        new RavenJObject
+                        {
+                            { "Extension", resource.FileType}, 
+                        }
+                    );           
+                    stream.Dispose();
+            //}
+
+            return resource;
+        }
+
+        public void DeleteResource(Resource resource)
+        {
+            _documentStore.DatabaseCommands.DeleteAttachment(resource.Activity.Name + "/" + resource.Id,null);
+        }
+
+        public Stream GetStreamFromResource(Resource resource)
+        {
+            var attachment = _documentStore.DatabaseCommands.GetAttachment(resource.Activity.Name+"/"+resource.Id);
+            if(attachment == null)
+                throw new FileNotFoundException("Resource not found in file store");
+            return attachment.Data();
+        }
+
+        void DeleteAllAttachments(IDocumentStore store)
+        {
+            while (true)
+            {
+                var header = store.DatabaseCommands
+                    .GetAttachmentHeadersStartingWith("", 0, 1)
+                    .FirstOrDefault();
+                if (header == null) return;
+                store.DatabaseCommands.DeleteAttachment(header.Key, null);
             }
         }
 
         void AddToStore( INoo noo )
         {
-            using ( var session = _documentStore.OpenSession( "activitysystem" ) )
+            using (var session = _documentStore.OpenSession(DatabaseName))
             {
                 session.Store( noo );
                 session.SaveChanges();
@@ -280,7 +344,7 @@ namespace ABC.Infrastructure.ActivityBase
 
         void UpdateStore( string id, INoo noo )
         {
-            using ( var session = _documentStore.OpenSession( "activitysystem" ) )
+            using (var session = _documentStore.OpenSession(DatabaseName))
             {
                 var obj = session.Load<INoo>( id );
                 obj.UpdateAllProperties( noo );
@@ -290,7 +354,7 @@ namespace ABC.Infrastructure.ActivityBase
 
         void RemoveFromStore( string id )
         {
-            using ( var session = _documentStore.OpenSession( "activitysystem" ) )
+            using (var session = _documentStore.OpenSession(DatabaseName))
             {
                 var obj = session.Load<INoo>( id );
                 session.Delete( obj );
@@ -306,6 +370,10 @@ namespace ABC.Infrastructure.ActivityBase
         public void Run( string storeAddress )
         {
             InitializeDocumentStore( storeAddress );
+        }
+        public void Run(WebConfiguration configuration)
+        {
+            InitializeDocumentStore(Net.GetUrl(configuration.Address, configuration.Port, "").ToString());
         }
 
         public void StartLocationTracker()
@@ -324,7 +392,7 @@ namespace ABC.Infrastructure.ActivityBase
 
         public IUser FindUserByCid( string cid )
         {
-            using ( var session = _documentStore.OpenSession( "activitysystem" ) )
+            using (var session = _documentStore.OpenSession(DatabaseName))
             {
                 var results = from user in session.Query<IUser>()
                               where user.Cid == cid
@@ -381,7 +449,7 @@ namespace ABC.Infrastructure.ActivityBase
 
         public override void AddDevice( IDevice dev )
         {
-            //AddToStore(dev);
+            AddToStore(dev);
             OnDeviceAdded( new DeviceEventArgs( dev ) );
         }
 

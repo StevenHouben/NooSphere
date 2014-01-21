@@ -12,7 +12,7 @@ using ABC.Model.Users;
 
 namespace ABC.Infrastructure.ActivityBase
 {
-    public abstract class ActivityController
+    public abstract class ActivityNode
     {
         #region Events
 
@@ -101,6 +101,7 @@ namespace ABC.Infrastructure.ActivityBase
 
         #region Properties
 
+        public string DatabaseName { get; set; }
         public string Name { get; set; }
         public string Ip { get; set; }
         public int Port { get; set; }
@@ -161,7 +162,7 @@ namespace ABC.Infrastructure.ActivityBase
 
         #region Constructor
 
-        protected ActivityController()
+        protected ActivityNode()
         {
             ActivityAdded += ActivityNode_ActivityAdded;
             ActivityChanged += ActivityNode_ActivityChanged;

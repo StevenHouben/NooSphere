@@ -31,7 +31,7 @@ namespace ABC.Infrastructure.Files
         #region Private Members
 
         readonly HttpClient _httpClient = new HttpClient();
-        readonly Dictionary<string, Resource> _files = new Dictionary<string, Resource>();
+        readonly Dictionary<string, LegacyResource> _files = new Dictionary<string, LegacyResource>();
         readonly object _lookUpLock = new object();
         readonly object _fileLock = new object();
 
@@ -45,7 +45,7 @@ namespace ABC.Infrastructure.Files
             BasePath = path;
         }
 
-        public void AddFile( Resource resource, byte[] fileInBytes, FileSource source )
+        public void AddFile( LegacyResource resource, byte[] fileInBytes, FileSource source )
         {
             //Check if we have a valid file
             Check( resource, fileInBytes );
@@ -78,7 +78,7 @@ namespace ABC.Infrastructure.Files
             Log.Out( "FileStore", string.Format( "Added file {0} to store", resource.Name ), LogCode.Log );
         }
 
-        public void DownloadFile( Resource resource, string path, FileSource source, string _connectionId = null )
+        public void DownloadFile( LegacyResource resource, string path, FileSource source, string _connectionId = null )
         {
             Rest.DownloadStream( path, _connectionId ).ContinueWith( stream =>
             {
@@ -88,22 +88,22 @@ namespace ABC.Infrastructure.Files
             Log.Out( "FileStore", string.Format( "Started download for {0}", resource.Name ), LogCode.Log );
         }
 
-        bool IsNewer( Resource resourceInFileStore, Resource requestedResource )
+        bool IsNewer( LegacyResource resourceInFileStore, LegacyResource requestedResource )
         {
             return false;
         }
 
-        public void AddFile( Resource resource, Stream stream, FileSource source )
+        public void AddFile( LegacyResource resource, Stream stream, FileSource source )
         {
             AddFile( resource, GetBytesFromStream( resource, stream ), source );
         }
 
-        public void UpdateFile( Resource resource, Stream stream, FileSource source )
+        public void UpdateFile( LegacyResource resource, Stream stream, FileSource source )
         {
             UpdateFile( resource, GetBytesFromStream( resource, stream ), source );
         }
 
-        public void UpdateFile( Resource resource, byte[] fileInBytes, FileSource source )
+        public void UpdateFile( LegacyResource resource, byte[] fileInBytes, FileSource source )
         {
             SaveToDisk( fileInBytes, resource );
             _files[ resource.Id ] = resource;
@@ -118,7 +118,7 @@ namespace ABC.Infrastructure.Files
             Log.Out( "FileStore", string.Format( "Updated file {0} to store", resource.Name ), LogCode.Log );
         }
 
-        public void RemoveFile( Resource resource )
+        public void RemoveFile( LegacyResource resource )
         {
             _files.Remove( resource.Id );
             File.Delete( BasePath + resource.RelativePath );
@@ -133,13 +133,13 @@ namespace ABC.Infrastructure.Files
                 return _files.ContainsKey( id );
         }
 
-        public Stream GetStreamFromFile( Resource resource )
+        public Stream GetStreamFromFile( LegacyResource resource )
         {
             lock ( _fileLock )
                 return new FileStream( BasePath + resource.RelativePath, FileMode.Open, FileAccess.Read, FileShare.Read );
         }
 
-        public byte[] GetBytesFromFile( Resource resource )
+        public byte[] GetBytesFromFile( LegacyResource resource )
         {
             var fi = new FileInfo( BasePath + resource.RelativePath );
             var buffer = new byte[fi.Length];
@@ -151,7 +151,7 @@ namespace ABC.Infrastructure.Files
             return buffer;
         }
 
-        public void Updatefile( Resource resource, byte[] fileInBytes )
+        public void Updatefile( LegacyResource resource, byte[] fileInBytes )
         {
             Task.Factory.StartNew(
                 delegate
@@ -190,7 +190,7 @@ namespace ABC.Infrastructure.Files
 
         #region Private Methods
 
-        byte[] GetBytesFromStream( Resource resource, Stream stream )
+        byte[] GetBytesFromStream( LegacyResource resource, Stream stream )
         {
             var buffer = new byte[resource.Size];
             var ms = new MemoryStream();
@@ -204,7 +204,7 @@ namespace ABC.Infrastructure.Files
             return buffer;
         }
 
-        void Check( Resource resource, byte[] fileInBytes )
+        void Check( LegacyResource resource, byte[] fileInBytes )
         {
             if ( _files == null )
                 throw new Exception( "Filestore: Not initialized" );
@@ -216,7 +216,7 @@ namespace ABC.Infrastructure.Files
                 throw new Exception( ( "Filestore: Bytearray empty" ) );
         }
 
-        void SaveToDisk( byte[] fileInBytes, Resource resource )
+        void SaveToDisk( byte[] fileInBytes, LegacyResource resource )
         {
             var path = Path.Combine( BasePath, resource.RelativePath );
             var dir = Path.GetDirectoryName( path );
@@ -251,10 +251,10 @@ namespace ABC.Infrastructure.Files
 
     class DownloadState
     {
-        public Resource Resource { get; set; }
+        public LegacyResource Resource { get; set; }
         public FileSource FileSource { get; set; }
 
-        public DownloadState( Resource resource, FileSource fileSource )
+        public DownloadState( LegacyResource resource, FileSource fileSource )
         {
             Resource = resource;
             FileSource = fileSource;

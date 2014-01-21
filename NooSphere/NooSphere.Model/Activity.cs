@@ -36,50 +36,50 @@ namespace ABC.Model
 
 		#region Properties
 
-		User owner;
+		User _owner;
 
 		public User Owner
 		{
-			get { return owner; }
+			get { return _owner; }
 			set
 			{
-				owner = value;
+				_owner = value;
 				OnPropertyChanged( "owner" );
 			}
 		}
 
-		List<User> participants;
+		List<User> _participants;
 
 		public List<User> Participants
 		{
-			get { return participants; }
+			get { return _participants; }
 			set
 			{
-				participants = value;
+				_participants = value;
 				OnPropertyChanged( "participants" );
 			}
 		}
 
-		List<Action> actions;
+		List<Action> _actions;
 
 		public List<Action> Actions
 		{
-			get { return actions; }
+			get { return _actions; }
 			set
 			{
-				actions = value;
+				_actions = value;
 				OnPropertyChanged( "actions" );
 			}
 		}
 
-		Metadata meta;
+		Metadata _meta;
 
 		public Metadata Meta
 		{
-			get { return meta; }
+			get { return _meta; }
 			set
 			{
-				meta = value;
+				_meta = value;
 				OnPropertyChanged( "meta" );
 			}
 		}

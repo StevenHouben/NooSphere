@@ -14,7 +14,7 @@ using ABC.Infrastructure.Events;
 
 namespace ABC.Infrastructure.ActivityBase
 {
-    public class ActivityClient : ActivityController
+    public class ActivityClient : ActivityNode
     {
         #region Members
 
@@ -37,6 +37,8 @@ namespace ABC.Infrastructure.ActivityBase
             Device = device;
 
             Initialize();
+
+            AddDevice(Device);
 
             try
             {
@@ -75,12 +77,14 @@ namespace ABC.Infrastructure.ActivityBase
                 activities.AddOrUpdate(item.Id, item, (key, oldValue) => item);
 
             var usrs = GetUsers();
-            foreach ( var item in usrs )
-                users.AddOrUpdate( item.Id, item, ( key, oldValue ) => item );
+            foreach (var item in usrs)
+                users.AddOrUpdate(item.Id, item, (key, oldValue) => item);
 
             var dvs = GetDevices();
             foreach (var item in dvs)
                 devices.AddOrUpdate(item.Id, item, (key, oldValue) => item);
+
+            AddDevice(Device);
         }
 
         void eventHandler_Received( string obj )
@@ -89,7 +93,7 @@ namespace ABC.Infrastructure.ActivityBase
             {
                 _connected = true;
                 Device.ConnectionId = _eventHandler.ConnectionId;
-                AddDevice( Device );
+
                 OnConnectionEstablished();
                 return;
             }
@@ -170,7 +174,7 @@ namespace ABC.Infrastructure.ActivityBase
 
         public override List<IActivity> GetActivities()
         {
-            return Json.ConvertFromTypedJson<List<IActivity>>( Rest.Get( Address + Url.Activities, "" ) );
+            return Json.ConvertFromTypedJson<List<IActivity>>(Rest.Get(Address + Url.Activities, ""));
         }
 
         public override void AddDevice( IDevice dev )

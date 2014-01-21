@@ -1,7 +1,6 @@
-﻿using ABC.Infrastructure.Context.Location.Sonitor;
-using System;
+﻿using System;
 using System.Collections.Generic;
-
+using ABC.Infrastructure.Context.Location.Sonitor;
 
 namespace ABC.Infrastructure.Context.Location
 {
@@ -77,22 +76,22 @@ namespace ABC.Infrastructure.Context.Location
 
         public void Start()
         {
-            if ( !_tracker.IsRunning )
+            if (!_tracker.IsRunning)
                 _tracker.Start();
         }
 
         public void Stop()
         {
-            if ( _tracker.IsRunning )
+            if (_tracker.IsRunning)
                 _tracker.Stop();
         }
 
         public string Name { get; set; }
         public Guid Id { get; set; }
 
-        public void Send( string message )
+        public void Send(string message)
         {
-            _tracker.Send( message );
+            _tracker.Send(message);
         }
 
         #endregion
@@ -100,148 +99,164 @@ namespace ABC.Infrastructure.Context.Location
 
         #region Event Handlers
 
-        void tracker_TagsReceived( object sender, SonitorEventArgs e )
+        void tracker_TagsReceived(object sender, SonitorEventArgs e)
         {
             var msg = (TagsMessage)e.Message;
-            DataReceived( this, new DataEventArgs( msg ) );
-            foreach ( var tag in msg.Tags )
+            DataReceived(this, new DataEventArgs(msg));
+            foreach (var tag in msg.Tags)
             {
-                if ( !Tags.ContainsKey( tag.Id ) )
+                if (!Tags.ContainsKey(tag.Id))
                 {
-                    Tags.Add( tag.Id, tag );
-                    TagAdded( null, new TagEventArgs( tag ) );
+                    Tags.Add(tag.Id, tag);
+                    TagAdded(null, new TagEventArgs(tag));
                 }
                 else
                 {
-                    Tags[ tag.Id ] = tag;
-                    TagStateChanged( null, new TagEventArgs( tag ) );
+                    Tags[tag.Id] = tag;
+                    TagStateChanged(null, new TagEventArgs(tag));
                 }
             }
         }
 
-        void tracker_ProtocolReceived( object sender, SonitorEventArgs e )
+        void tracker_ProtocolReceived(object sender, SonitorEventArgs e)
         {
             var msg = (ProtocolVersionMessage)e.Message;
-            DataReceived( this, new DataEventArgs( msg ) );
+            DataReceived(this, new DataEventArgs(msg));
         }
 
-        void tracker_MapsReceived( object sender, SonitorEventArgs e )
+        void tracker_MapsReceived(object sender, SonitorEventArgs e)
         {
             var msg = (MapsMessage)e.Message;
-            DataReceived( this, new DataEventArgs( msg ) );
+            DataReceived(this, new DataEventArgs(msg));
         }
 
-        void tracker_DetectorStatusReceived( object sender, SonitorEventArgs e )
+        void tracker_DetectorStatusReceived(object sender, SonitorEventArgs e)
         {
             var msg = (DetectorStatusMessage)e.Message;
-            DataReceived( this, new DataEventArgs( msg ) );
+            DataReceived(this, new DataEventArgs(msg));
 
-            foreach ( var state in msg.DetectorStates )
+            foreach (var state in msg.DetectorStates)
             {
-                Detectors[ state.HostName ].Channel = state.Channel;
-                Detectors[ state.HostName ].Status = ( state.Online ? OperationStatus.Online : OperationStatus.Offline );
-                DetectorStateChanged( this, new DetectorEventArgs( Detectors[ state.HostName ] ) );
+                Detectors[state.HostName].Channel = state.Channel;
+                Detectors[state.HostName].Status = (state.Online ? OperationStatus.Online : OperationStatus.Offline);
+                DetectorStateChanged(this, new DetectorEventArgs(Detectors[state.HostName]));
             }
         }
 
-        void tracker_DetectorsReceived( object sender, SonitorEventArgs e )
+        void tracker_DetectorsReceived(object sender, SonitorEventArgs e)
         {
             var msg = (DetectorsMessage)e.Message;
-            DataReceived( this, new DataEventArgs( msg ) );
+            DataReceived(this, new DataEventArgs(msg));
 
-            foreach ( var det in msg.Detectors )
+            foreach (var det in msg.Detectors)
             {
-                if ( !Detectors.ContainsKey( det.HostName ) )
+                if (!Detectors.ContainsKey(det.HostName))
                 {
-                    Detectors.Add( det.HostName, det );
-                    DetectorAdded( this, new DetectorEventArgs( Detectors[ det.HostName ] ) );
+                    Detectors.Add(det.HostName, det);
+                    DetectorAdded(this, new DetectorEventArgs(Detectors[det.HostName]));
                 }
                 else
                 {
-                    Detectors[ det.HostName ] = det;
-                    DetectorStateChanged( this, new DetectorEventArgs( Detectors[ det.HostName ] ) );
+                    Detectors[det.HostName] = det;
+                    DetectorStateChanged(this, new DetectorEventArgs(Detectors[det.HostName]));
                 }
             }
         }
 
-        void tracker_DetectionsReceived( object sender, SonitorEventArgs e )
+        void tracker_DetectionsReceived(object sender, SonitorEventArgs e)
         {
             var msg = (DetectionsMessage)e.Message;
-            DataReceived( this, new DataEventArgs( msg ) );
+            DataReceived(this, new DataEventArgs(msg));
 
-            foreach ( var detection in msg.Detections )
+            foreach (var detection in msg.Detections)
             {
-                CheckDetectorChanges( detection );
-                CheckBatteryData( detection );
-                CheckTagButtonData( detection );
-                CheckTagMove( detection );
+                if (!CheckIfTagExists(detection))
+                    return;
 
-                Detection( Detectors[ detection.HostName ],
+                CheckDetectorChanges(detection);
+                CheckBatteryData(detection);
+                CheckTagButtonData(detection);
+                CheckTagMove(detection);
+
+                Detection(Detectors[detection.HostName],
                            new DetectionEventArgs
                            {
                                Aplitude = detection.Amplitude,
                                Confidence = detection.ConfidenceLevel,
-                               Detector = Detectors[ detection.HostName ],
-                               Tag = Tags[ detection.TagId ],
+                               Detector = Detectors[detection.HostName],
+                               Tag = Tags[detection.TagId],
                                TimeStamp = detection.DateTime
-                           } );
+                           });
             }
         }
 
-        void CheckTagMove( Detection detection )
+        void CheckTagMove(Detection detection)
         {
-            if ( Tags[ detection.TagId ].MovingStatus != detection.MovingStatus )
+            if (Tags[detection.TagId].MovingStatus != detection.MovingStatus)
             {
-                Tags[ detection.TagId ].MovingStatus = detection.MovingStatus;
-                TagMoved( Detectors[ detection.HostName ], new TagEventArgs( Tags[ detection.TagId ] ) );
+                Tags[detection.TagId].MovingStatus = detection.MovingStatus;
+                TagMoved(Detectors[detection.HostName], new TagEventArgs(Tags[detection.TagId]));
             }
         }
 
-        void CheckTagButtonData( Detection detection )
+        void CheckTagButtonData(Detection detection)
         {
-            if ( Tags[ detection.TagId ].ButtonA != detection.ButtonAState ||
-                 Tags[ detection.TagId ].ButtonB != detection.ButtonBState ||
-                 Tags[ detection.TagId ].ButtonC != detection.ButtonCState ||
-                 Tags[ detection.TagId ].ButtonD != detection.ButtonDState )
+            if (Tags[detection.TagId].ButtonA != detection.ButtonAState ||
+                 Tags[detection.TagId].ButtonB != detection.ButtonBState ||
+                 Tags[detection.TagId].ButtonC != detection.ButtonCState ||
+                 Tags[detection.TagId].ButtonD != detection.ButtonDState)
             {
-                Tags[ detection.TagId ].ButtonA = detection.ButtonAState;
-                Tags[ detection.TagId ].ButtonB = detection.ButtonBState;
-                Tags[ detection.TagId ].ButtonC = detection.ButtonCState;
-                Tags[ detection.TagId ].ButtonD = detection.ButtonDState;
+                Tags[detection.TagId].ButtonA = detection.ButtonAState;
+                Tags[detection.TagId].ButtonB = detection.ButtonBState;
+                Tags[detection.TagId].ButtonC = detection.ButtonCState;
+                Tags[detection.TagId].ButtonD = detection.ButtonDState;
 
-                TagButtonDataReceived( Tags[ detection.TagId ], new TagEventArgs( Tags[ detection.TagId ] ) );
+                TagButtonDataReceived(Tags[detection.TagId], new TagEventArgs(Tags[detection.TagId]));
             }
         }
 
-        void CheckBatteryData( Detection detection )
+        void CheckBatteryData(Detection detection)
         {
-            if ( Tags[ detection.TagId ].BatteryStatus != detection.BatteryStatus )
+            if (Tags[detection.TagId].BatteryStatus != detection.BatteryStatus)
             {
-                Tags[ detection.TagId ].BatteryStatus = detection.BatteryStatus;
-                TagBatteryDataReceived( Tags[ detection.TagId ], new TagEventArgs( Tags[ detection.TagId ] ) );
+                Tags[detection.TagId].BatteryStatus = detection.BatteryStatus;
+                TagBatteryDataReceived(Tags[detection.TagId], new TagEventArgs(Tags[detection.TagId]));
             }
         }
 
-        void CheckDetectorChanges( Detection detection )
+        void CheckDetectorChanges(Detection detection)
         {
-            if ( Tags[ detection.TagId ].Detector != null )
+            if (Tags[detection.TagId].Detector != null)
             {
-                if ( detection.HostName != Tags[ detection.TagId ].Detector.HostName )
+                if (detection.HostName != Tags[detection.TagId].Detector.HostName)
                 {
-                    Tags[ detection.TagId ].Detector.DetachTag( Tags[ detection.TagId ] );
-                    TagLeave( Tags[ detection.TagId ].Detector, new TagEventArgs( Tags[ detection.TagId ] ) );
+                    Tags[detection.TagId].Detector.DetachTag(Tags[detection.TagId]);
+                    TagLeave(Tags[detection.TagId].Detector, new TagEventArgs(Tags[detection.TagId]));
 
-                    Detectors[ detection.HostName ].AttachTag( Tags[ detection.TagId ] );
-                    Tags[ detection.TagId ].Detector = Detectors[ detection.HostName ];
-                    TagEnter( Detectors[ detection.HostName ], new TagEventArgs( Tags[ detection.TagId ] ) );
+                    Detectors[detection.HostName].AttachTag(Tags[detection.TagId]);
+                    Tags[detection.TagId].Detector = Detectors[detection.HostName];
+                    TagEnter(Detectors[detection.HostName], new TagEventArgs(Tags[detection.TagId]));
                 }
             }
             else
             {
-                Detectors[ detection.HostName ].AttachTag( Tags[ detection.TagId ] );
-                Tags[ detection.TagId ].Detector = Detectors[ detection.HostName ];
-                TagEnter( Detectors[ detection.HostName ], new TagEventArgs( Tags[ detection.TagId ] ) );
+                if (!CheckIfTagExists(detection))
+                    return;
+
+                Detectors[detection.HostName].AttachTag(Tags[detection.TagId]);
+                Tags[detection.TagId].Detector = Detectors[detection.HostName];
+                TagEnter(Detectors[detection.HostName], new TagEventArgs(Tags[detection.TagId]));
             }
+        }
+
+        private bool CheckIfTagExists(Detection detection)
+        {
+            if (!Detectors.ContainsKey(detection.HostName))
+            {
+                Tags.Remove(detection.TagId);
+                return false;
+            }
+            return true;
         }
 
         #endregion

@@ -4,14 +4,20 @@ using ABC.Model.Primitives;
 
 namespace ABC.Model
 {
-	public class Resource : Noo
+    public class Resource : Noo
+    {
+        public string FileType { get; set; }
+        public Activity Activity { get; set; }
+    }
+
+    public class LegacyResource : Noo
 	{
-		public Resource()
+		public LegacyResource()
 		{
 			InitializeTimeStamps();
 		}
 
-		public Resource( int size, string name )
+		public LegacyResource( int size, string name )
 		{
 			InitializeTimeStamps();
 			Name = name;
