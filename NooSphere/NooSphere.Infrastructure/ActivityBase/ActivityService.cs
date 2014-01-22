@@ -41,6 +41,25 @@ namespace ABC.Infrastructure.ActivityBase
             ActivitySystem.UserChanged += ActivitySystem_UserChanged;
             ActivitySystem.UserRemoved += ActivitySystem_UserRemoved;
 
+            ActivitySystem.ResourceAdded += ActivitySystem_ResourceAdded;
+            ActivitySystem.ResourceChanged += ActivitySystem_ResourceChanged;
+            ActivitySystem.ResourceRemoved += ActivitySystem_ResourceRemoved;
+
+        }
+
+        void ActivitySystem_ResourceRemoved(object sender, ResourceRemovedEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.ResoureRemoved, e.Id);
+        }
+
+        void ActivitySystem_ResourceChanged(object sender, ResourceEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.ResourceChanged, e.Resource);
+        }
+
+        void ActivitySystem_ResourceAdded(object sender, ResourceEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.ResourceAdded, e.Resource);
         }
 
         void ActivitySystem_UserChanged(object sender, UserEventArgs e)

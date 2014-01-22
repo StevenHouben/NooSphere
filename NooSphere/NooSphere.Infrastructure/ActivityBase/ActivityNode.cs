@@ -18,74 +18,74 @@ namespace ABC.Infrastructure.ActivityBase
 
         public event UserAddedHandler UserAdded = delegate { };
 
-        protected virtual void OnUserAdded( UserEventArgs e )
+        protected virtual void OnUserAdded(UserEventArgs e)
         {
             var handler = UserAdded;
-            if ( handler != null ) handler( this, e );
+            if (handler != null) handler(this, e);
         }
 
         public event UserRemovedHandler UserRemoved = delegate { };
 
-        protected virtual void OnUserRemoved( UserRemovedEventArgs e )
+        protected virtual void OnUserRemoved(UserRemovedEventArgs e)
         {
             var handler = UserRemoved;
-            if ( handler != null ) handler( this, e );
+            if (handler != null) handler(this, e);
         }
 
         public event UserChangedHandler UserChanged = delegate { };
 
-        protected virtual void OnUserChanged( UserEventArgs e )
+        protected virtual void OnUserChanged(UserEventArgs e)
         {
             var handler = UserChanged;
-            if ( handler != null ) handler( this, e );
+            if (handler != null) handler(this, e);
         }
 
         public event ActivityAddedHandler ActivityAdded = delegate { };
 
-        protected virtual void OnActivityAdded( ActivityEventArgs e )
+        protected virtual void OnActivityAdded(ActivityEventArgs e)
         {
             var handler = ActivityAdded;
-            if ( handler != null ) handler( this, e );
+            if (handler != null) handler(this, e);
         }
 
         public event ActivityChangedHandler ActivityChanged = delegate { };
 
-        protected virtual void OnActivityChanged( ActivityEventArgs e )
+        protected virtual void OnActivityChanged(ActivityEventArgs e)
         {
             var handler = ActivityChanged;
-            if ( handler != null ) handler( this, e );
+            if (handler != null) handler(this, e);
         }
 
         public event ActivityRemovedHandler ActivityRemoved = delegate { };
 
-        protected virtual void OnActivityRemoved( ActivityRemovedEventArgs e )
+        protected virtual void OnActivityRemoved(ActivityRemovedEventArgs e)
         {
             var handler = ActivityRemoved;
-            if ( handler != null ) handler( this, e );
+            if (handler != null) handler(this, e);
         }
 
         public event DeviceAddedHandler DeviceAdded = delegate { };
 
-        protected virtual void OnDeviceAdded( DeviceEventArgs e )
+        protected virtual void OnDeviceAdded(DeviceEventArgs e)
         {
             var handler = DeviceAdded;
-            if ( handler != null ) handler( this, e );
+            if (handler != null) handler(this, e);
         }
 
         public event DeviceChangedHandler DeviceChanged = delegate { };
 
-        protected virtual void OnDeviceChanged( DeviceEventArgs e )
+        protected virtual void OnDeviceChanged(DeviceEventArgs e)
         {
             var handler = DeviceChanged;
-            if ( handler != null ) handler( this, e );
+            if (handler != null) handler(this, e);
         }
 
         public event DeviceRemovedHandler DeviceRemoved = delegate { };
 
-        protected virtual void OnDeviceRemoved( DeviceRemovedEventArgs e )
+        protected virtual void OnDeviceRemoved(DeviceRemovedEventArgs e)
         {
             var handler = DeviceRemoved;
-            if ( handler != null ) handler( this, e );
+            if (handler != null) handler(this, e);
         }
 
         public event ConnectionEstablishedHandler ConnectionEstablished = delegate { };
@@ -93,7 +93,28 @@ namespace ABC.Infrastructure.ActivityBase
         protected virtual void OnConnectionEstablished()
         {
             var handler = ConnectionEstablished;
-            if ( handler != null ) handler( this, EventArgs.Empty );
+            if (handler != null) handler(this, EventArgs.Empty);
+        }
+
+        public event ResourceAddedHandler ResourceAdded = delegate {};
+        protected virtual void OnResourceAdded(ResourceEventArgs e)
+        {
+            var handler = ResourceAdded;
+            if (handler != null) handler(this, e);
+        }
+
+        public event ResourceChangedHandler ResourceChanged = delegate { };
+        protected virtual void OnResourceChanged(ResourceEventArgs e)
+        {
+            var handler = ResourceChanged;
+            if (handler != null) handler(this, e);
+        }
+
+        public event ResourceRemovedHandler ResourceRemoved = delegate { };
+        protected virtual void OnResourceRemoved(ResourceRemovedEventArgs e)
+        {
+            var handler = ResourceRemoved;
+            if (handler != null) handler(this, e);
         }
 
         #endregion

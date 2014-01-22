@@ -43,4 +43,10 @@ namespace ABC.Infrastructure.ActivityBase
     public delegate void DeviceAddedHandler( Object sender, DeviceEventArgs e );
 
     public delegate void DeviceRemovedHandler( Object sender, DeviceRemovedEventArgs e );
+
+    public delegate void ResourceAddedHandler(object sender, ResourceEventArgs e);
+
+    public delegate void ResourceChangedHandler(object sender, ResourceEventArgs e);
+
+    public delegate void ResourceRemovedHandler(object sender, ResourceRemovedEventArgs e);
 }

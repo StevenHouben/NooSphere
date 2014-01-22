@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Reactive;
 using ABC.Model.Device;
 using ABC.Model.Users;
 
@@ -36,10 +39,6 @@ namespace ABC.Infrastructure.ActivityBase
 
             Device = device;
 
-            Initialize();
-
-            AddDevice(Device);
-
             try
             {
                 _eventHandler = new Connection(Address);
@@ -58,9 +57,17 @@ namespace ABC.Infrastructure.ActivityBase
         {
             if (_connected)
             {
-                RemoveDevice(Device.Id);
+                try
+                {
+                    //RemoveDevice(Device.Id);
 
-                _eventHandler.Stop();
+                    _eventHandler.Stop();
+                }
+                catch (Exception)
+                {
+                    
+                }
+
             }
         }
 
@@ -93,7 +100,8 @@ namespace ABC.Infrastructure.ActivityBase
             {
                 _connected = true;
                 Device.ConnectionId = _eventHandler.ConnectionId;
-
+                Initialize();
+                AddDevice(Device);
                 OnConnectionEstablished();
                 return;
             }
@@ -124,6 +132,18 @@ namespace ABC.Infrastructure.ActivityBase
                     OnUserRemoved(
                         new UserRemovedEventArgs( data ) );
                     break;
+                case NotificationType.ResourceAdded:
+                    OnResourceAdded(
+                            new ResourceEventArgs(Json.ConvertFromTypedJson<Resource>(data)));
+                    break;
+                case NotificationType.ResourceChanged:
+                    OnResourceChanged(
+                            new ResourceEventArgs(Json.ConvertFromTypedJson<Resource>(data)));
+                    break;
+                case NotificationType.ResoureRemoved:
+                    OnResourceRemoved(
+                            new ResourceRemovedEventArgs(data));
+                    break;
             }
         }
 
@@ -131,6 +151,16 @@ namespace ABC.Infrastructure.ActivityBase
 
 
         #region Public Members
+
+        public void AddResource(IActivity activity, MemoryStream stream)
+        {
+            Rest.UploadFile(Address + Url.Resources, activity.Id, stream);
+        }
+
+        public Stream GetResource(Resource resource)
+        {
+            return Rest.DownloadFile(Address + Url.Resources, resource.Id);
+        }
 
         public override void AddActivity( IActivity activity )
         {
@@ -219,6 +249,6 @@ namespace ABC.Infrastructure.ActivityBase
         Subscribers,
         Messages,
         Users,
-        Files
+        Resources
     }
 }

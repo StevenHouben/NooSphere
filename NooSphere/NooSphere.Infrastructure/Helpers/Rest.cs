@@ -1,21 +1,11 @@
-/****************************************************************************
- (c) 2012 Steven Houben(shou@itu.dk) and Søren Nielsen(snielsen@itu.dk)
-
- Pervasive Interaction Technology Laboratory (pIT lab)
- IT University of Copenhagen
-
- This library is free software; you can redistribute it and/or 
- modify it under the terms of the GNU GENERAL PUBLIC LICENSE V3 or later, 
- as published by the Free Software Foundation. Check 
- http://www.gnu.org/licenses/gpl.html for details.
-****************************************************************************/
-
 using System;
 using System.IO;
 using System.Net;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
+using System.Web.UI.WebControls;
 using Newtonsoft.Json;
 
 
@@ -36,6 +26,7 @@ namespace ABC.Infrastructure.Helpers
         static Task<string> SendRequest( string url, HttpMethod method, object content = null, string connectionId = null )
         {
             var request = (HttpWebRequest)WebRequest.Create( url );
+
             request.Method = method.ToString().ToUpper();
             request.ContentLength = 0;
             request.Proxy = null;
@@ -86,15 +77,55 @@ namespace ABC.Infrastructure.Helpers
             if ( connectionId != null )
                 HttpClient.DefaultRequestHeaders.Authorization = System.Net.Http.Headers.AuthenticationHeaderValue.Parse( connectionId );
 
+
             return HttpClient.GetAsync( path ).ContinueWith( resp => resp.Result.Content.ReadAsStreamAsync().ContinueWith( s => s.Result ).Result );
         }
 
-        public static Task<bool> UploadStream( string path, string localPath, string connectionId )
+        public static void UploadFile(string path,string activityId, MemoryStream stream)
+        {
+            var message = new HttpRequestMessage();
+            var content = new StreamContent(stream);
+            content.Headers.Add("activityId",activityId);
+
+            message.Method = System.Net.Http.HttpMethod.Post;
+            message.Content = content;
+            message.RequestUri = new Uri(path);
+
+
+            Log.Out("REST", String.Format("{0} request send to {1}", message.Method, message.RequestUri));
+
+            var client = new HttpClient();
+            client.SendAsync(message).ContinueWith(task => stream.Close());
+        }
+        public static Stream DownloadFile(string path, string id)
+        {
+            var url = path + "/" + id;
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(System.Net.Http.HttpMethod.Get, url))
+                {
+                    Log.Out("REST", String.Format("{0} request send to {1}", request.Method, request.RequestUri));
+                    return httpClient.SendAsync(request).Result.Content.ReadAsStreamAsync().Result;
+                }
+            }
+        }
+
+        private static byte[] ObjectToByteArray(Object obj)
+        {
+            if (obj == null)
+                return null;
+            BinaryFormatter bf = new BinaryFormatter();
+            MemoryStream ms = new MemoryStream();
+            bf.Serialize(ms, obj);
+            return ms.ToArray();
+        }
+        public static Task<bool> UploadStream(string url, byte[] data, string connectionId)
         {
             if ( connectionId != null )
                 HttpClient.DefaultRequestHeaders.Authorization = System.Net.Http.Headers.AuthenticationHeaderValue.Parse( connectionId );
 
-            return HttpClient.PostAsync( path, new ByteArrayContent( File.ReadAllBytes( localPath ) ) ).ContinueWith( r => r.IsCompleted );
+            return HttpClient.PostAsync( url, new ByteArrayContent( data ) ).ContinueWith( r => r.IsCompleted );
         }
 
         static string ReadStreamFromResponse( WebResponse response )
@@ -110,54 +141,22 @@ namespace ABC.Infrastructure.Helpers
             return null;
         }
 
-        /// <summary>
-        /// Get JSON response string through a HTTP GET request
-        /// </summary>
-        /// <param name="uri">Uri to the webservice</param>
-        /// <param name="urlParameter">urlParameter</param>
-        /// <param name="connectionId">Id of the connection</param>
-        /// <returns>JSON formatted response string from the server</returns>
-        public static string Get( string uri, string urlParameter, string connectionId = null )
+        public static string Get(string uri, string urlParameter, string connectionId = null )
         {
             return SendRequest( uri + "/" + urlParameter, HttpMethod.Get, null, connectionId ).Result;
         }
-
-        public static string Get(string uri, object obj=null, string connectionId = null)
+        public static string Get(string uri, object obj=null,string connectionId = null)
         {
             return SendRequest(uri, HttpMethod.Get, obj, connectionId).Result;
         }
-
-        /// <summary>
-        /// Get JSON response string through a HTTP POST request
-        /// </summary>
-        /// <param name="uri">Uri to the webservice</param>
-        /// <param name="obj">object to serialize</param>
-        /// <param name="connectionId">Id of the connection</param>
-        /// <returns>JSON formatted response string from the server</returns>
         public static string Post( string uri, object obj = null, string connectionId = null )
         {
             return SendRequest( uri, HttpMethod.Post, obj, connectionId ).Result;
         }
-
-        /// <summary>
-        /// Get JSON response string through a HTTP PUT request
-        /// </summary>
-        /// <param name="uri">Uri to the webservice</param>
-        /// <param name="obj">object to serialize</param>
-        /// <param name="connectionId">Id of the connection</param>
-        /// <returns>JSON formatted response string from the server</returns>
         public static string Put( string uri, object obj = null, string connectionId = null )
         {
             return SendRequest( uri, HttpMethod.Put, obj, connectionId ).Result;
         }
-
-        /// <summary>
-        /// Get JSON response string through a HTTP DELETE request
-        /// </summary>
-        /// <param name="uri">Uri to the webservice</param>
-        /// <param name="urlParameter">Url paramater</param>
-        /// <param name="connectionId">Id of the connection</param>
-        /// <returns>JSON formatted response string from the server</returns>
         public static string Delete( string uri, string urlParameter, string connectionId = null )
         {
             return SendRequest( uri + "/" + urlParameter, HttpMethod.Delete, null, connectionId ).Result;

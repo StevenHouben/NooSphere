@@ -20,6 +20,9 @@ namespace ABC.Infrastructure.Events
         Message,
         None,
         ParticipantAdded,
-        ParticipantRemoved
+        ParticipantRemoved,
+        ResourceAdded,
+        ResoureRemoved,
+        ResourceChanged
     }
 }

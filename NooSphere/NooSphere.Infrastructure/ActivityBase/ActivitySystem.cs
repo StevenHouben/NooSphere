@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using System.Net;
+using System.ServiceModel;
+using System.Threading.Tasks;
 using ABC.Infrastructure.Context.Location;
 using ABC.Infrastructure.Helpers;
 using ABC.Model;
@@ -34,7 +36,7 @@ namespace ABC.Infrastructure.ActivityBase
 
             DatabaseName = databaseName;
             Ip = Net.GetIp( IpType.All );
-            Port = 8000;
+            Port = 8070;
             Tracker = new LocationTracker(Ip);
         }
 
@@ -109,6 +111,8 @@ namespace ABC.Infrastructure.ActivityBase
                 LoadStore();
                 SubscribeToChanges();
                 OnConnectionEstablished();
+
+                //DeleteAllAttachments(_documentStore);
             }
             catch (WebException ex)
             {
@@ -282,54 +286,104 @@ namespace ABC.Infrastructure.ActivityBase
             }
         }
 
+        public Resource AddResourceToActivity(Activity activity, byte[] data, string path, string type)
+        {
+            var resource = new Resource()
+            {
+                FileType = type,
+                ActivityId = activity.Id
+            };
 
-        public Resource AddResourceToActivity( Activity activity,Stream stream,string path,string type)
+            try
+            {
+                using (var stream = new MemoryStream(data))
+                {
+                    _documentStore.DatabaseCommands.PutAttachment(
+                activity.Name + "/" + resource.Id,
+                null,
+                stream,
+                    new RavenJObject
+                                {
+                                    { "Extension", resource.FileType}, 
+                                }
+                );
+                }
+                
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+
+            return resource;
+        }
+        public void AddResourceToActivity( Activity activity,Stream stream,string path,string type)
         {
            var resource = new Resource()
             {
                 FileType =  type,
-                Activity = activity
+                ActivityId = activity.Id
             };
 
-            //using (var mem = new MemoryStream(File.ReadAllBytes(path)))
-            //{
-                _documentStore.DatabaseCommands.PutAttachment(
-                    activity.Name+"/"+resource.Id,
-                    null,
-                    stream,
-                        new RavenJObject
-                        {
-                            { "Extension", resource.FileType}, 
-                        }
-                    );           
-                    stream.Dispose();
-            //}
+            try
+            {
+                _documentStore.DatabaseCommands.PutAttachment(resource.Id,
+                null,
+                stream,
+                    new RavenJObject
+                                {
+                                    { "Extension", resource.FileType}, 
+                                }
+                );
 
-            return resource;
+                Activities[activity.Id].Resources.Add(resource);
+                OnResourceAdded(new ResourceEventArgs(resource));
+
+            }
+            catch (Exception)
+            {
+                
+                throw;
+            }
+         
+                stream.Dispose();
         }
 
         public void DeleteResource(Resource resource)
         {
-            _documentStore.DatabaseCommands.DeleteAttachment(resource.Activity.Name + "/" + resource.Id,null);
+            _documentStore.DatabaseCommands.DeleteAttachment(resource.Id,null);
+
+            OnResourceRemoved(new ResourceRemovedEventArgs(resource.Id));
         }
 
-        public Stream GetStreamFromResource(Resource resource)
+        public Stream GetStreamFromResource(string resourceId)
         {
-            var attachment = _documentStore.DatabaseCommands.GetAttachment(resource.Activity.Name+"/"+resource.Id);
-            if(attachment == null)
-                throw new FileNotFoundException("Resource not found in file store");
-            return attachment.Data();
-        }
+            try
+            {
+                var attachment = _documentStore.DatabaseCommands.GetAttachment(resourceId);
+                if (attachment == null)
+                    throw new FileNotFoundException("Resource not found in file store");
+                return attachment.Data();
+            }
+            catch (FileNotFoundException ex)
+            {
+                
+               return null;
+            }
 
-        void DeleteAllAttachments(IDocumentStore store)
+        }
+        public void DeleteAllAttachments()
         {
             while (true)
             {
-                var header = store.DatabaseCommands
+                var header = _documentStore.DatabaseCommands
                     .GetAttachmentHeadersStartingWith("", 0, 1)
                     .FirstOrDefault();
                 if (header == null) return;
-                store.DatabaseCommands.DeleteAttachment(header.Key, null);
+                _documentStore.DatabaseCommands.DeleteAttachment(header.Key, null);
             }
         }
 

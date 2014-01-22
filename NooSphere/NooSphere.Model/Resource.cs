@@ -7,7 +7,7 @@ namespace ABC.Model
     public class Resource : Noo
     {
         public string FileType { get; set; }
-        public Activity Activity { get; set; }
+        public string ActivityId { get; set; }
     }
 
     public class LegacyResource : Noo
