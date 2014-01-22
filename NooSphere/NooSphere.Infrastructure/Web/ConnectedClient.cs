@@ -1,7 +1,7 @@
-﻿using ABC.Model.Device;
+﻿using NooSphere.Model.Device;
 
 
-namespace ABC.Infrastructure.Web
+namespace NooSphere.Infrastructure.Web
 {
     public class ConnectedClient
     {

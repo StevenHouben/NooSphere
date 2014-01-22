@@ -1,7 +1,7 @@
-﻿using ABC.Model.Device;
+﻿using NooSphere.Model.Device;
 
 
-namespace ABC.Infrastructure.ActivityBase
+namespace NooSphere.Infrastructure.ActivityBase
 {
     public class DeviceEventArgs
     {

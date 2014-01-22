@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 
 
-namespace ABC.Model.Primitives
+namespace NooSphere.Model.Primitives
 {
 	public class Base : INotifyPropertyChanged
 	{

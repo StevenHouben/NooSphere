@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Reactive;
-using ABC.Model.Device;
-using ABC.Model.Users;
+using NooSphere.Model.Device;
+using NooSphere.Model.Users;
 
-using ABC.Infrastructure.Helpers;
-using ABC.Model;
+using NooSphere.Infrastructure.Helpers;
+using NooSphere.Model;
 
 using Microsoft.AspNet.SignalR.Client;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ABC.Infrastructure.Events;
+using NooSphere.Infrastructure.Events;
 
 
-namespace ABC.Infrastructure.ActivityBase
+namespace NooSphere.Infrastructure.ActivityBase
 {
     public class ActivityClient : ActivityNode
     {

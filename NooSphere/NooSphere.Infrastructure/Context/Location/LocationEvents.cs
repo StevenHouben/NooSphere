@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace ABC.Infrastructure.Context.Location
+namespace NooSphere.Infrastructure.Context.Location
 {
     //Initial tag event, called by the central tracker
     public delegate void TagAddedHandler( Detector detector, TagEventArgs e );

@@ -6,11 +6,11 @@ using Microsoft.Owin.Hosting;
 using Owin;
 using Newtonsoft.Json;
 
-using ABC.Infrastructure.Web.Controllers;
-using ABC.Infrastructure.Events;
+using NooSphere.Infrastructure.Web.Controllers;
+using NooSphere.Infrastructure.Events;
 
 
-namespace ABC.Infrastructure.Web
+namespace NooSphere.Infrastructure.Web
 {
     public class WebApiServer
     {

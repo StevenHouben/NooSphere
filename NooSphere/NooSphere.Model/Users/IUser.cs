@@ -1,8 +1,8 @@
-﻿using ABC.Model.Primitives;
+﻿using NooSphere.Model.Primitives;
 using System.Collections.Generic;
 
 
-namespace ABC.Model.Users
+namespace NooSphere.Model.Users
 {
 	public interface IUser : INoo
 	{

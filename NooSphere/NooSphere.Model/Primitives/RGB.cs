@@ -1,4 +1,4 @@
-﻿namespace ABC.Model.Primitives
+﻿namespace NooSphere.Model.Primitives
 {
 	public class Rgb : Base
 	{

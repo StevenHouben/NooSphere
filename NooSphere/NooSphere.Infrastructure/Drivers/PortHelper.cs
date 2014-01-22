@@ -12,7 +12,7 @@ using System.Threading;
 
 //inspired from http://www.eggheadcafe.com/community/csharp/2/10315145/enabledisable-comm-port-by-programming.aspx
 
-namespace ABC.Infrastructure.Driver
+namespace NooSphere.Infrastructure.Driver
 {
     [Flags()]
     enum SetupDiGetClassDevsFlags

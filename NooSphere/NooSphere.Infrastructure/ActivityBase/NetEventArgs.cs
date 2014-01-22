@@ -1,4 +1,4 @@
-﻿namespace ABC.Infrastructure.ActivityBase
+﻿namespace NooSphere.Infrastructure.ActivityBase
 {
     public class NetEventArgs
     {

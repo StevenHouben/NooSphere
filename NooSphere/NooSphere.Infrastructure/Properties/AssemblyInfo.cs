@@ -7,11 +7,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle( "ABC.Infrastructure" )]
+[assembly: AssemblyTitle( "NooSphere.Infrastructure" )]
 [assembly: AssemblyDescription( "" )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "HP" )]
-[assembly: AssemblyProduct( "ABC.Infrastructure" )]
+[assembly: AssemblyProduct( "NooSphere.Infrastructure" )]
 [assembly: AssemblyCopyright( "Copyright © HP 2013" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]

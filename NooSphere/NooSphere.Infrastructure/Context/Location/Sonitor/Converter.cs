@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 
-namespace ABC.Infrastructure.Context.Location.Sonitor
+namespace NooSphere.Infrastructure.Context.Location.Sonitor
 {
 
 

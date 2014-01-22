@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.Http.Dependencies;
-using ABC.Infrastructure.ActivityBase;
+using NooSphere.Infrastructure.ActivityBase;
 
 
-namespace ABC.Infrastructure.Web.Controllers
+namespace NooSphere.Infrastructure.Web.Controllers
 {
     public class ControllerResolver : IDependencyResolver
     {

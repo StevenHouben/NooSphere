@@ -13,7 +13,7 @@
 using System;
 
 
-namespace ABC.Infrastructure.Discovery
+namespace NooSphere.Infrastructure.Discovery
 {
     public class DiscoveryAddressAddedEventArgs : EventArgs
     {

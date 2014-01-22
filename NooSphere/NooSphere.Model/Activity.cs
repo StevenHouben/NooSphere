@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using ABC.Model.Users;
-using ABC.Model.Primitives;
+using NooSphere.Model.Users;
+using NooSphere.Model.Primitives;
 
 
-namespace ABC.Model
+namespace NooSphere.Model
 {
 	/// <summary>
 	/// Activity Base Class

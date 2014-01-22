@@ -16,7 +16,7 @@ using System.Net;
 using System.Net.Sockets;
 
 
-namespace ABC.Infrastructure.Helpers
+namespace NooSphere.Infrastructure.Helpers
 {
     public static class Net
     {

@@ -2,7 +2,7 @@
 using System.IO;
 
 
-namespace ABC.Infrastructure.Helpers
+namespace NooSphere.Infrastructure.Helpers
 {
     public static class MIMEAssistant
     {

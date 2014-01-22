@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
-namespace ABC.Infrastructure.Context.Location.Sonitor
+namespace NooSphere.Infrastructure.Context.Location.Sonitor
 {
     public class SonitorTracker : IContextService
     {

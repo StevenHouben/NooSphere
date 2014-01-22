@@ -15,11 +15,11 @@ using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.ServiceModel.Discovery;
 using Mono.Zeroconf.Providers.Bonjour;
-using ABC.Infrastructure.Helpers;
+using NooSphere.Infrastructure.Helpers;
 using System.Diagnostics;
 
 
-namespace ABC.Infrastructure.Discovery
+namespace NooSphere.Infrastructure.Discovery
 {
     public class BroadcastService
     {

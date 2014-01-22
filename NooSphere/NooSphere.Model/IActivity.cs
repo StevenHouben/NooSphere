@@ -1,9 +1,9 @@
-﻿using ABC.Model.Primitives;
-using ABC.Model.Users;
+﻿using NooSphere.Model.Primitives;
+using NooSphere.Model.Users;
 using System.Collections.Generic;
 
 
-namespace ABC.Model
+namespace NooSphere.Model
 {
 	public interface IActivity : INoo
 	{

@@ -2,15 +2,15 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
-using ABC.Infrastructure.Context.Location;
-using ABC.Infrastructure.Discovery;
-using ABC.Infrastructure.Helpers;
-using ABC.Model;
-using ABC.Model.Device;
-using ABC.Model.Users;
+using NooSphere.Infrastructure.Context.Location;
+using NooSphere.Infrastructure.Discovery;
+using NooSphere.Infrastructure.Helpers;
+using NooSphere.Model;
+using NooSphere.Model.Device;
+using NooSphere.Model.Users;
 
 
-namespace ABC.Infrastructure.ActivityBase
+namespace NooSphere.Infrastructure.ActivityBase
 {
     public abstract class ActivityNode
     {

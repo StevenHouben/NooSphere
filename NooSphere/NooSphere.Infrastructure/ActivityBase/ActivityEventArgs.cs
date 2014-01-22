@@ -10,9 +10,9 @@
  http://www.gnu.org/licenses/gpl.html for details.
 ****************************************************************************/
 
-using ABC.Model;
+using NooSphere.Model;
 
-namespace ABC.Infrastructure
+namespace NooSphere.Infrastructure
 {
     public class ActivityEventArgs
     {

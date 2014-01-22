@@ -7,8 +7,8 @@
     <ProjectGuid>{DC2A799F-B985-4A95-9B3C-FECFE14B8597}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ABC.Model</RootNamespace>
-    <AssemblyName>ABC.Model</AssemblyName>
+    <RootNamespace>NooSphere.Model</RootNamespace>
+    <AssemblyName>NooSphere.Model</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

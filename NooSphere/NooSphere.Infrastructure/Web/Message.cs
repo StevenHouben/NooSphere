@@ -1,4 +1,4 @@
-﻿namespace ABC.Infrastructure.Web
+﻿namespace NooSphere.Infrastructure.Web
 {
     public class Message
     {

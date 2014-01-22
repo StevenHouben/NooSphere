@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using ABC.Model.Primitives;
+using NooSphere.Model.Primitives;
 
 
-namespace ABC.Model
+namespace NooSphere.Model
 {
 	public class Action : Noo
 	{

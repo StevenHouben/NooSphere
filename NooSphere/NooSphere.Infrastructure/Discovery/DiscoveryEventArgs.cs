@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 
 
-namespace ABC.Infrastructure.Discovery
+namespace NooSphere.Infrastructure.Discovery
 {
     public class DiscoveryEventArgs : EventArgs
     {

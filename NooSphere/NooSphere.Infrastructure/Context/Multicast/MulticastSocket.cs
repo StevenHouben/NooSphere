@@ -18,7 +18,7 @@ using System.Net;
 using System.Threading.Tasks;
 
 
-namespace ABC.Infrastructure.Context.Multicast
+namespace NooSphere.Infrastructure.Context.Multicast
 {
     /// <summary>
     /// Taken from http://www.osix.net/modules/article/?id=409

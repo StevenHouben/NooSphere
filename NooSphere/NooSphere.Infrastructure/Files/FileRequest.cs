@@ -1,8 +1,8 @@
 ﻿using System;
-using ABC.Model;
+using NooSphere.Model;
 
 
-namespace ABC.Infrastructure.Files
+namespace NooSphere.Infrastructure.Files
 {
     public class FileRequest
     {

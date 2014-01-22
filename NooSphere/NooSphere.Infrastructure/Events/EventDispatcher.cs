@@ -3,7 +3,7 @@ using Microsoft.AspNet.SignalR;
 using System;
 
 
-namespace ABC.Infrastructure.Events
+namespace NooSphere.Infrastructure.Events
 {
     internal class EventDispatcher : PersistentConnection
     {

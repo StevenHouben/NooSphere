@@ -1,8 +1,8 @@
-﻿using ABC.Infrastructure.Context.Location.Sonitor;
+﻿using NooSphere.Infrastructure.Context.Location.Sonitor;
 using System.Collections.Generic;
 
 
-namespace ABC.Infrastructure.Context.Location
+namespace NooSphere.Infrastructure.Context.Location
 {
     public class Detector
     {

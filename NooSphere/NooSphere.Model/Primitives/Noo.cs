@@ -2,7 +2,7 @@
 using System.Windows.Input;
 
 
-namespace ABC.Model.Primitives
+namespace NooSphere.Model.Primitives
 {
 	public class Noo : Base, INoo
 	{

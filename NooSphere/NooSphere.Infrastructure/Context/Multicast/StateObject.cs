@@ -13,7 +13,7 @@
 using System.Net.Sockets;
 
 
-namespace ABC.Infrastructure.Context.Multicast
+namespace NooSphere.Infrastructure.Context.Multicast
 {
     public class StateObject
     {

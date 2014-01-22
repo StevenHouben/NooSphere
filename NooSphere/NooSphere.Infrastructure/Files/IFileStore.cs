@@ -11,7 +11,7 @@
 ****************************************************************************/
 
 
-namespace ABC.Infrastructure.Files
+namespace NooSphere.Infrastructure.Files
 {
     public interface IFileStore
     {

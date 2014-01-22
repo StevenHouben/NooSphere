@@ -1,4 +1,4 @@
-﻿namespace ABC.Infrastructure.Files
+﻿namespace NooSphere.Infrastructure.Files
 {
     public enum FileSource
     {

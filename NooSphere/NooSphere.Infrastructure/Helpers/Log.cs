@@ -2,7 +2,7 @@
 using System.Diagnostics;
 
 
-namespace ABC.Infrastructure.Helpers
+namespace NooSphere.Infrastructure.Helpers
 {
     public class Log
     {

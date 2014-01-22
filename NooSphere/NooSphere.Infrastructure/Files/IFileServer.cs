@@ -1,4 +1,4 @@
-﻿using ABC.Model;
+﻿using NooSphere.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace ABC.Infrastructure.Files
+namespace NooSphere.Infrastructure.Files
 {
     public interface IFileServer
     {

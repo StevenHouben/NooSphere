@@ -1,4 +1,4 @@
-﻿namespace ABC.Infrastructure.Context.Location
+﻿namespace NooSphere.Infrastructure.Context.Location
 {
     public class Tag
     {

@@ -13,7 +13,7 @@
 using System;
 
 
-namespace ABC.Infrastructure.Context
+namespace NooSphere.Infrastructure.Context
 {
     public delegate void DataReceivedHandler( Object sender, DataEventArgs e );
 

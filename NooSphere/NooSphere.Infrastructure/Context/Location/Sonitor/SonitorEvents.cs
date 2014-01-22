@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace ABC.Infrastructure.Context.Location.Sonitor
+namespace NooSphere.Infrastructure.Context.Location.Sonitor
 {
     /// <summary>
     /// Sonitor Events

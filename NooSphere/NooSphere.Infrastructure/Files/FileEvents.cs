@@ -1,4 +1,4 @@
-﻿using ABC.Model;
+﻿using NooSphere.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace ABC.Infrastructure.Files
+namespace NooSphere.Infrastructure.Files
 {
     /// <summary>
     /// File Events used by local File Server

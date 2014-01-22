@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ABC.Infrastructure.Helpers
+namespace NooSphere.Infrastructure.Helpers
 {
     public class WebConfiguration
     {

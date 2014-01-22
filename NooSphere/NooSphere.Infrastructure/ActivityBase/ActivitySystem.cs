@@ -2,12 +2,12 @@
 using System.Net;
 using System.ServiceModel;
 using System.Threading.Tasks;
-using ABC.Infrastructure.Context.Location;
-using ABC.Infrastructure.Helpers;
-using ABC.Model;
-using ABC.Model.Device;
-using ABC.Model.Primitives;
-using ABC.Model.Users;
+using NooSphere.Infrastructure.Context.Location;
+using NooSphere.Infrastructure.Helpers;
+using NooSphere.Model;
+using NooSphere.Model.Device;
+using NooSphere.Model.Primitives;
+using NooSphere.Model.Users;
 using Raven.Abstractions.Data;
 using Raven.Client;
 using Raven.Client.Document;
@@ -18,7 +18,7 @@ using System.Linq;
 using Raven.Json.Linq;
 
 
-namespace ABC.Infrastructure.ActivityBase
+namespace NooSphere.Infrastructure.ActivityBase
 {
     public class ActivitySystem : ActivityNode
     {

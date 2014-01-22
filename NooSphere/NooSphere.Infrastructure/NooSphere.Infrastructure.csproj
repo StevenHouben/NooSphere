@@ -6,8 +6,8 @@
     <ProjectGuid>{CF6BF4DE-E88F-448E-8F6B-F5E2A9E3B033}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ABC.Infrastructure</RootNamespace>
-    <AssemblyName>ABC.Infrastructure</AssemblyName>
+    <RootNamespace>NooSphere.Infrastructure</RootNamespace>
+    <AssemblyName>NooSphere.Infrastructure</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>

@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
-namespace ABC.Infrastructure.Context
+namespace NooSphere.Infrastructure.Context
 {
     public class ContextMonitor
     {

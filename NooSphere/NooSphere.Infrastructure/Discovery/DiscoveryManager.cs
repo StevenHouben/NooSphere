@@ -16,7 +16,7 @@ using System.ServiceModel.Discovery;
 using Mono.Zeroconf;
 
 
-namespace ABC.Infrastructure.Discovery
+namespace NooSphere.Infrastructure.Discovery
 {
     public class DiscoveryManager
     {

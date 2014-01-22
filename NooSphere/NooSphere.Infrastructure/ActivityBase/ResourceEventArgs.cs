@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ABC.Model;
+using NooSphere.Model;
 
-namespace ABC.Infrastructure.ActivityBase
+namespace NooSphere.Infrastructure.ActivityBase
 {
     public class ResourceEventArgs
     {

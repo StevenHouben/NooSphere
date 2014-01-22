@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace ABC.Infrastructure.Driver
+namespace NooSphere.Infrastructure.Driver
 {
     public class SafeSerialPort : SerialPort
     {

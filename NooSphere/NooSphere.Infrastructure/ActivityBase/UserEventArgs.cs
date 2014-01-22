@@ -1,7 +1,7 @@
-﻿using ABC.Model.Users;
+﻿using NooSphere.Model.Users;
 
 
-namespace ABC.Infrastructure.ActivityBase
+namespace NooSphere.Infrastructure.ActivityBase
 {
     public class UserEventArgs
     {

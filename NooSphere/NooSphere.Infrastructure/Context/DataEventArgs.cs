@@ -10,7 +10,7 @@
  http://www.gnu.org/licenses/gpl.html for details.
 ****************************************************************************/
 
-namespace ABC.Infrastructure.Context
+namespace NooSphere.Infrastructure.Context
 {
     public class DataEventArgs
     {

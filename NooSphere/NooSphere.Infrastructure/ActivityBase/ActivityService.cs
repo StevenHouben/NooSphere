@@ -1,10 +1,10 @@
 ﻿using System;
 
-using ABC.Infrastructure.Web;
-using ABC.Infrastructure.Events;
+using NooSphere.Infrastructure.Web;
+using NooSphere.Infrastructure.Events;
 
 
-namespace ABC.Infrastructure.ActivityBase
+namespace NooSphere.Infrastructure.ActivityBase
 {
     public class ActivityService
     {

@@ -1,4 +1,4 @@
-namespace ABC.Infrastructure.Events
+namespace NooSphere.Infrastructure.Events
 {
     public enum NotificationType
     {

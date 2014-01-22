@@ -1,14 +1,14 @@
-﻿using ABC.Infrastructure.Driver;
-using ABC.Model.Device;
+﻿using NooSphere.Infrastructure.Driver;
+using NooSphere.Model.Device;
 using System;
 using System.IO;
 using System.IO.Ports;
 using System.Threading;
-using ABC.Model.Primitives;
+using NooSphere.Model.Primitives;
 using LibUsbDotNet.DeviceNotify;
 
 
-namespace ABC.Infrastructure.Drivers
+namespace NooSphere.Infrastructure.Drivers
 {
     public delegate void RfidDataReceivedHandler( object sender, RfdiDataReceivedEventArgs e );
 

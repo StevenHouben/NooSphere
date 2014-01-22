@@ -2,7 +2,7 @@
 using System.ServiceModel.Web;
 
 
-namespace ABC.Infrastructure.Services
+namespace NooSphere.Infrastructure.Services
 {
     [ServiceContract]
     public interface IServiceBase

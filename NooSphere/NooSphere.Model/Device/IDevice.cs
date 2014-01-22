@@ -1,7 +1,7 @@
-﻿using ABC.Model.Primitives;
+﻿using NooSphere.Model.Primitives;
 
 
-namespace ABC.Model.Device
+namespace NooSphere.Model.Device
 {
 	public interface IDevice : INoo
 	{

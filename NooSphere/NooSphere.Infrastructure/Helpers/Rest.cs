@@ -9,7 +9,7 @@ using System.Web.UI.WebControls;
 using Newtonsoft.Json;
 
 
-namespace ABC.Infrastructure.Helpers
+namespace NooSphere.Infrastructure.Helpers
 {
     public static class Rest
     {

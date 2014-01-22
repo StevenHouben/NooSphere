@@ -14,11 +14,11 @@ using System;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Threading;
-using ABC.Infrastructure.Discovery;
-using ABC.Infrastructure.Helpers;
+using NooSphere.Infrastructure.Discovery;
+using NooSphere.Infrastructure.Helpers;
 
 
-namespace ABC.Infrastructure.Services
+namespace NooSphere.Infrastructure.Services
 {
     public delegate void HostLaunchedHandler( object sender, EventArgs e );
 

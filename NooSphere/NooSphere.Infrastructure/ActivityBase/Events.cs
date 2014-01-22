@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace ABC.Infrastructure.ActivityBase
+namespace NooSphere.Infrastructure.ActivityBase
 {
     /// <summary>
     /// Events used to distributed activity model

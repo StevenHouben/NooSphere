@@ -13,7 +13,7 @@
 using System;
 
 
-namespace ABC.Infrastructure.Context.Multicast
+namespace NooSphere.Infrastructure.Context.Multicast
 {
     public interface IMulticastSocketListener
     {

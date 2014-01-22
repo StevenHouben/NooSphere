@@ -1,4 +1,4 @@
-﻿namespace ABC.Infrastructure.Context.Location.Sonitor
+﻿namespace NooSphere.Infrastructure.Context.Location.Sonitor
 {
     public class DetectorStatus
     {

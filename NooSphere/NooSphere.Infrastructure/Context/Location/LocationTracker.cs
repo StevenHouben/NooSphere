@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using ABC.Infrastructure.Context.Location.Sonitor;
+using NooSphere.Infrastructure.Context.Location.Sonitor;
 
-namespace ABC.Infrastructure.Context.Location
+namespace NooSphere.Infrastructure.Context.Location
 {
     public class LocationTracker : IContextService
     {

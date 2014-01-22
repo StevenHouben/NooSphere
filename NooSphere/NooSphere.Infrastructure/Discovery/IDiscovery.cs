@@ -14,7 +14,7 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 
 
-namespace ABC.Infrastructure.Discovery
+namespace NooSphere.Infrastructure.Discovery
 {
     [ServiceContract]
     public interface IDiscovery

@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
-using ABC.Infrastructure.ActivityBase;
-using ABC.Infrastructure.Helpers;
-using ABC.Model;
+using NooSphere.Infrastructure.ActivityBase;
+using NooSphere.Infrastructure.Helpers;
+using NooSphere.Model;
 using Newtonsoft.Json.Linq;
-using ABC.Infrastructure.Events;
+using NooSphere.Infrastructure.Events;
 
 
-namespace ABC.Infrastructure.Web.Controllers
+namespace NooSphere.Infrastructure.Web.Controllers
 {
     public class ActivitiesController : ApiController
     {

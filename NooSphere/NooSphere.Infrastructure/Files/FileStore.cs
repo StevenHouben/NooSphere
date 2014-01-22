@@ -1,5 +1,5 @@
-using ABC.Infrastructure.Helpers;
-using ABC.Model;
+using NooSphere.Infrastructure.Helpers;
+using NooSphere.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 
-namespace ABC.Infrastructure.Files
+namespace NooSphere.Infrastructure.Files
 {
     public class FileStore : IFileStore
     {
