@@ -324,16 +324,19 @@ namespace NooSphere.Infrastructure.ActivityBase
                     {
                         if (typeof (T).Name == "IUser")
                         {
+                            Console.WriteLine("BackUp Convertion: Cannot find {0} and will convert to {1}", typeof(T).Name, typeof(User).Name);
                             var usr = entry.JsonDeserialization<User>();
                             users.AddOrUpdate(usr.Id, usr, (key, oldValue) => usr != null ? usr : null);
                         }
                         if (typeof(T).Name == "IActivity")
                         {
+                            Console.WriteLine("BackUp Convertion: Cannot find {0} and will convert to {1}", typeof(T).Name, typeof(Activity).Name);
                             var act = entry.JsonDeserialization<Activity>();
                             activities.AddOrUpdate(act.Id, act, (key, oldValue) => act != null ? act : null);
                         }
                         if (typeof(T).Name == "IDevice")
                         {
+                            Console.WriteLine("BackUp Convertion: Cannot find {0} and will convert to {1}", typeof(T).Name, typeof(Device).Name);
                             var dev = entry.JsonDeserialization<Device>();
                             devices.AddOrUpdate(dev.Id, dev, (key, oldValue) => dev != null ? dev : null);
                         }
