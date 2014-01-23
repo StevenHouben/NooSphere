@@ -29,7 +29,7 @@ namespace NooSphere.Examples
             };
 
             //create databaseconfiguration
-            var databaseConfiguration = new DatabaseConfiguration("127.0.0.1", 8080, "activitysystem");
+            var databaseConfiguration = new DatabaseConfiguration("127.0.0.1", 8080, "test");
 
             //create activitysystem: this is the main component that provides an activity-
             //centric wrapper over a pure datastore. This system cam be used by the UI
