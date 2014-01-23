@@ -168,6 +168,7 @@
     <Compile Include="Files\FileStore.cs" />
     <Compile Include="Files\IFileServer.cs" />
     <Compile Include="Files\IFileStore.cs" />
+    <Compile Include="Helpers\DatabaseConfiguration.cs" />
     <Compile Include="Helpers\Json.cs" />
     <Compile Include="Helpers\Log.cs" />
     <Compile Include="Helpers\Mime.cs" />

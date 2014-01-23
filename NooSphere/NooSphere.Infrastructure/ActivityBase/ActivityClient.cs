@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Reactive;
 using NooSphere.Model.Device;
 using NooSphere.Model.Users;
 

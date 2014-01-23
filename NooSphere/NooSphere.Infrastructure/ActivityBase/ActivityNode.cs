@@ -122,7 +122,6 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         #region Properties
 
-        public string DatabaseName { get; set; }
         public string Name { get; set; }
         public string Ip { get; set; }
         public int Port { get; set; }
@@ -150,7 +149,6 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         #region Members
 
-        readonly BroadcastService _broadcast = new BroadcastService();
         protected readonly ConcurrentDictionary<string, IUser> users = new ConcurrentDictionary<string, IUser>();
         protected readonly ConcurrentDictionary<string, IActivity> activities = new ConcurrentDictionary<string, IActivity>();
         protected readonly ConcurrentDictionary<string, IDevice> devices = new ConcurrentDictionary<string, IDevice>();
@@ -160,23 +158,7 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         #region Methods
 
-        public virtual void StartBroadcast( DiscoveryType type, string hostName, string location = "undefined", string code = "-1" )
-        {
-            var t = new Thread( () =>
-            {
-                StopBroadcast();
-                _broadcast.Start( type, hostName, location, code,
-                                  Net.GetUrl( Ip, Port, "" ) );
-            } ) { IsBackground = true };
-            t.Start();
-        }
-
-        public virtual void StopBroadcast()
-        {
-            if ( _broadcast != null )
-                if ( _broadcast.IsRunning )
-                    _broadcast.Stop();
-        }
+      
 
         #endregion
 

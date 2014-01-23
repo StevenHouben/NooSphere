@@ -1,5 +1,7 @@
 ﻿using System;
-
+using System.Threading;
+using NooSphere.Infrastructure.Discovery;
+using NooSphere.Infrastructure.Helpers;
 using NooSphere.Infrastructure.Web;
 using NooSphere.Infrastructure.Events;
 
@@ -14,6 +16,8 @@ namespace NooSphere.Infrastructure.ActivityBase
         public static ActivitySystem ActivitySystem;
 
         WebApiServer _webApi;
+
+        readonly BroadcastService _broadcast = new BroadcastService();
 
         public bool IsRunning
         {
@@ -45,6 +49,25 @@ namespace NooSphere.Infrastructure.ActivityBase
             ActivitySystem.ResourceChanged += ActivitySystem_ResourceChanged;
             ActivitySystem.ResourceRemoved += ActivitySystem_ResourceRemoved;
 
+        }
+
+
+        public virtual void StartBroadcast(DiscoveryType type, string hostName, string location = "undefined", string code = "-1")
+        {
+            var t = new Thread(() =>
+            {
+                StopBroadcast();
+                _broadcast.Start(type, hostName, location, code,
+                                  Net.GetUrl(Ip, Port, ""));
+            }) { IsBackground = true };
+            t.Start();
+        }
+
+        public virtual void StopBroadcast()
+        {
+            if (_broadcast != null)
+                if (_broadcast.IsRunning)
+                    _broadcast.Stop();
         }
 
         void ActivitySystem_ResourceRemoved(object sender, ResourceRemovedEventArgs e)

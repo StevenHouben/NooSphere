@@ -28,21 +28,21 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         #endregion
 
+        public string DatabaseName { get; private set; }
 
         #region Constructor
 
-        public ActivitySystem( string databaseName)
+        public ActivitySystem( DatabaseConfiguration databaseConfiguration)
         {
-
-            DatabaseName = databaseName;
+            DatabaseName = databaseConfiguration.DatabaseName;
             Ip = Net.GetIp( IpType.All );
-            Port = 8070;
+            Port = databaseConfiguration.Port;
             Tracker = new LocationTracker(Ip);
+            InitializeDocumentStore(Net.GetUrl(databaseConfiguration.Address, databaseConfiguration.Port, "").ToString());
         }
 
         ~ActivitySystem()
         {
-            StopBroadcast();
             StopLocationTracker();
         }
 
@@ -420,15 +420,6 @@ namespace NooSphere.Infrastructure.ActivityBase
 
 
         #region Public Methods
-
-        public void Run( string storeAddress )
-        {
-            InitializeDocumentStore( storeAddress );
-        }
-        public void Run(WebConfiguration configuration)
-        {
-            InitializeDocumentStore(Net.GetUrl(configuration.Address, configuration.Port, "").ToString());
-        }
 
         public void StartLocationTracker()
         {
