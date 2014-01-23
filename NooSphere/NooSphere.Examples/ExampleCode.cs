@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using NooSphere.Infrastructure.ActivityBase;
 using NooSphere.Infrastructure.Discovery;
@@ -66,9 +67,30 @@ namespace NooSphere.Examples
                 activityClient.ActivityAdded += activityClient_ActivityAdded;
                 activityClient.UserAdded += activityClient_UserAdded;
                 activityClient.DeviceAdded += activityClient_DeviceAdded;
+
+                activityClient.ResourceAdded += (o, i) =>
+                {
+                    Console.WriteLine("Resource {0} update received from activityclient over http", i.Resource.Id);
+
+                    using (var stream = activityClient.GetResource(i.Resource))
+                    {
+                        var fileStream = File.Create(@"C:\Users\Public\Pictures\Sample Pictures\Desert-"+DateTime.Now.ToShortDateString()+".jpg", (int)stream.Length);
+                        var bytesInStream = new byte[stream.Length];
+                        stream.Read(bytesInStream, 0, bytesInStream.Length);
+                        fileStream.Write(bytesInStream, 0, bytesInStream.Length);
+                        fileStream.Close();
+                    }
+                };
+
+                var act = new Activity();
+
+                activityClient.AddActivity(act);
+                activityClient.AddResource(act, new MemoryStream(File.ReadAllBytes(@"C:\Users\Public\Pictures\Sample Pictures\Desert.jpg")));
             };
 
             disco.Find(DiscoveryType.Zeroconf);
+
+
 
 
             //To produce test data
@@ -83,6 +105,7 @@ namespace NooSphere.Examples
             }
 
         }
+
 
         static void activityClient_DeviceAdded(object sender, DeviceEventArgs e)
         {

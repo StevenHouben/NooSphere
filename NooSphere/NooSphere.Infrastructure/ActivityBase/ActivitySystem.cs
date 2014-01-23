@@ -113,8 +113,6 @@ namespace NooSphere.Infrastructure.ActivityBase
                 LoadStore();
                 SubscribeToChanges();
                 OnConnectionEstablished();
-
-                //DeleteAllAttachments(_documentStore);
             }
             catch (WebException ex)
             {
@@ -326,19 +324,19 @@ namespace NooSphere.Infrastructure.ActivityBase
                         {
                             Console.WriteLine("BackUp Convertion: Cannot find {0} and will convert to {1}", typeof(T).Name, typeof(User).Name);
                             var usr = entry.JsonDeserialization<User>();
-                            users.AddOrUpdate(usr.Id, usr, (key, oldValue) => usr != null ? usr : null);
+                            users.AddOrUpdate(usr.Id, usr, (key, oldValue) => usr);
                         }
                         if (typeof(T).Name == "IActivity")
                         {
                             Console.WriteLine("BackUp Convertion: Cannot find {0} and will convert to {1}", typeof(T).Name, typeof(Activity).Name);
                             var act = entry.JsonDeserialization<Activity>();
-                            activities.AddOrUpdate(act.Id, act, (key, oldValue) => act != null ? act : null);
+                            activities.AddOrUpdate(act.Id, act, (key, oldValue) => act);
                         }
                         if (typeof(T).Name == "IDevice")
                         {
                             Console.WriteLine("BackUp Convertion: Cannot find {0} and will convert to {1}", typeof(T).Name, typeof(Device).Name);
                             var dev = entry.JsonDeserialization<Device>();
-                            devices.AddOrUpdate(dev.Id, dev, (key, oldValue) => dev != null ? dev : null);
+                            devices.AddOrUpdate(dev.Id, dev, (key, oldValue) => dev);
                         }
                     }
                 }
