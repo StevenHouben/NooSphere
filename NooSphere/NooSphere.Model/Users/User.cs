@@ -56,8 +56,20 @@ namespace NooSphere.Model.Users
 			}
 		}
 
+	    private Dictionary<string, string> _descriptors;
 
-		bool _selected;
+	    public Dictionary<string, string> Descriptors
+	    {
+	        get { return _descriptors; }
+	        set
+	        {
+	            _descriptors = value;
+                OnPropertyChanged("descriptors");
+	        }
+	    }
+
+
+	    bool _selected;
 
 		public bool Selected
 		{

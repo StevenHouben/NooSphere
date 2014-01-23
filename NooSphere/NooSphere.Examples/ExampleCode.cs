@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.Eventing;
 using System.Threading;
 using NooSphere.Infrastructure.ActivityBase;
 using NooSphere.Infrastructure.Discovery;
@@ -29,7 +28,7 @@ namespace NooSphere.Examples
             };
 
             //create databaseconfiguration
-            var databaseConfiguration = new DatabaseConfiguration("127.0.0.1", 8080, "test");
+            var databaseConfiguration = new DatabaseConfiguration("127.0.0.1", 8080, "activitysystem");
 
             //create activitysystem: this is the main component that provides an activity-
             //centric wrapper over a pure datastore. This system cam be used by the UI

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Net;
+using System.Security.Policy;
 using System.ServiceModel;
 using System.Threading.Tasks;
 using NooSphere.Infrastructure.Context.Location;
@@ -9,6 +10,7 @@ using NooSphere.Model.Device;
 using NooSphere.Model.Primitives;
 using NooSphere.Model.Users;
 using Raven.Abstractions.Data;
+using Raven.Abstractions.Extensions;
 using Raven.Client;
 using Raven.Client.Document;
 using System;
@@ -257,34 +259,103 @@ namespace NooSphere.Infrastructure.ActivityBase
         {
             using (var session = _documentStore.OpenSession(DatabaseName))
             {
-                var userResult = from user in session.Query<IUser>()
-                                 where user.BaseType == typeof( IUser ).Name
-                                 select user;
-
-                foreach ( var entry in userResult )
+                try
                 {
-                    users.AddOrUpdate( entry.Id, entry, ( key, oldValue ) => entry != null ? entry : null );
+                    var userResult = from user in session.Query<IUser>()
+                                     where user.BaseType == typeof(IUser).Name
+                                     select user;
+                    foreach (var entry in userResult)
+                    {
+                        users.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry != null ? entry : null);
+                    }
+
+                }
+                catch (InvalidOperationException)
+                {
+                    HandleUnfoundType<IUser>();
                 }
 
-                var activityResult = from activity in session.Query<IActivity>()
-                                     where activity.BaseType == typeof( IActivity ).Name
-                                     select activity;
-
-                foreach ( var entry in activityResult )
+                try
                 {
-                    activities.AddOrUpdate( entry.Id, entry, ( key, oldValue ) => entry );
+                    var activityResult = from activity in session.Query<IActivity>()
+                                         where activity.BaseType == typeof(IActivity).Name
+                                         select activity;
+
+                    foreach (var entry in activityResult)
+                    {
+                        activities.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry);
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    HandleUnfoundType<Activity>();
                 }
 
-                var deviceResult = from device in session.Query<IDevice>()
-                                   where device.BaseType == typeof(IDevice).Name
-                                   select device;
-
-                foreach (var entry in deviceResult)
+                try
                 {
-                    devices.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry);
+                    var deviceResult = from device in session.Query<IDevice>()
+                                       where device.BaseType == typeof(IDevice).Name
+                                       select device;
+
+                    foreach (var entry in deviceResult)
+                    {
+                        devices.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry);
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    HandleUnfoundType<Device>();
+                }
+
+               
+            }
+        }
+
+        private void HandleUnfoundType<T>()
+        {
+            using (var session = _documentStore.OpenSession(DatabaseName))
+            {
+                var results = from result in session.Query<RavenJObject>()
+                    select result;
+
+                foreach (var entry in results)
+                {
+                    if (entry["BaseType"].ToString() == typeof (T).Name)
+                    {
+                        if (typeof (T).Name == "IUser")
+                        {
+                            var usr = entry.JsonDeserialization<User>();
+                            users.AddOrUpdate(usr.Id, usr, (key, oldValue) => usr != null ? usr : null);
+                        }
+                        if (typeof(T).Name == "IActivity")
+                        {
+                            var act = entry.JsonDeserialization<Activity>();
+                            activities.AddOrUpdate(act.Id, act, (key, oldValue) => act != null ? act : null);
+                        }
+                        if (typeof(T).Name == "IDevice")
+                        {
+                            var dev = entry.JsonDeserialization<Device>();
+                            devices.AddOrUpdate(dev.Id, dev, (key, oldValue) => dev != null ? dev : null);
+                        }
+                    }
                 }
             }
         }
+        public void UpdateAllProperties(object newUser)
+        {
+            foreach (var propertyInfo in newUser.GetType().GetProperties())
+                if (propertyInfo.CanRead)
+                {
+                    var p = propertyInfo.GetValue(newUser, null);
+                    var o = propertyInfo.GetValue(this, null);
+                    if (o != p)
+                    {
+                        propertyInfo.SetValue(this, propertyInfo.GetValue(newUser, null));
+                    }
+
+                }
+        }
+
 
         public Resource AddResourceToActivity(Activity activity, byte[] data, string path, string type)
         {
