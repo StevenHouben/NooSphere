@@ -357,41 +357,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                 }
         }
 
-
-        public Resource AddResourceToActivity(Activity activity, byte[] data, string path, string type)
-        {
-            var resource = new Resource()
-            {
-                FileType = type,
-                ActivityId = activity.Id
-            };
-
-            try
-            {
-                using (var stream = new MemoryStream(data))
-                {
-                    _documentStore.DatabaseCommands.PutAttachment(
-                activity.Name + "/" + resource.Id,
-                null,
-                stream,
-                    new RavenJObject
-                                {
-                                    { "Extension", resource.FileType}, 
-                                }
-                );
-                }
-                
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
-
-            return resource;
-        }
+      
         public void AddResourceToActivity( Activity activity,Stream stream,string path,string type)
         {
            var resource = new Resource()
@@ -412,6 +378,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                 );
 
                 Activities[activity.Id].Resources.Add(resource);
+                UpdateActivity(Activities[activity.Id]);
                 OnResourceAdded(new ResourceEventArgs(resource));
 
             }
