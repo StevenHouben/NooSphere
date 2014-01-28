@@ -5,7 +5,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
-using System.Web.UI.WebControls;
 using Newtonsoft.Json;
 
 
@@ -58,6 +57,8 @@ namespace NooSphere.Infrastructure.Helpers
                     } 
                 }
                 Log.Out( "REST", String.Format( "{0} request send to {1}", request.Method, request.RequestUri ) );
+
+
                 var task = Task.Factory.FromAsync(
                     request.BeginGetResponse,
                     asyncResult => request.EndGetResponse( asyncResult ), null );

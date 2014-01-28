@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR;
 using System;
+using NooSphere.Infrastructure.ActivityBase;
 
 
 namespace NooSphere.Infrastructure.Events
@@ -24,6 +25,7 @@ namespace NooSphere.Infrastructure.Events
 
         protected override Task OnDisconnected(IRequest request, string connectionId)
         {
+            ActivityService.ActivitySystem.RemoveDeviceByConnectionId(connectionId);
             return Connection.Send(connectionId, "DisConnected");
         }
     }

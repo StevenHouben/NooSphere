@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNet.SignalR;
-using System;
-
 
 namespace NooSphere.Infrastructure.Events
 {
@@ -11,6 +9,13 @@ namespace NooSphere.Infrastructure.Events
             var context = GlobalHost.ConnectionManager.GetConnectionContext<EventDispatcher>();
             var output = ConstructEvent(type, obj);
             context.Connection.Broadcast(output);
+        }
+
+        public static void NotifyConnection(string connection,NotificationType type, object obj)
+        {
+            var context = GlobalHost.ConnectionManager.GetConnectionContext<EventDispatcher>();
+            var output = ConstructEvent(type, obj);
+            context.Connection.Send(connection,output);
         }
 
         protected static object ConstructEvent(NotificationType type, object obj)

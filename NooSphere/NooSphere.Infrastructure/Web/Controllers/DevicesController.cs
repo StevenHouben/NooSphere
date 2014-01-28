@@ -4,8 +4,6 @@ using System.Web.Http;
 using NooSphere.Model.Device;
 using Newtonsoft.Json.Linq;
 using NooSphere.Infrastructure.ActivityBase;
-using NooSphere.Infrastructure.Helpers;
-using NooSphere.Infrastructure.Events;
 
 
 namespace NooSphere.Infrastructure.Web.Controllers

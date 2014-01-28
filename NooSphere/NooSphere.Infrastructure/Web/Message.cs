@@ -1,23 +1,23 @@
 ﻿namespace NooSphere.Infrastructure.Web
 {
-    public class Message
+    public class NooMessage
     {
         public string Header { get; set; }
         public string From { get; set; }
         public string To { get; set; }
-        public string Content { get; set; }
+        public object Content { get; set; }
         public string[] Extensions { get; set; }
         public MessageType Type { get; set; }
 
-        public Message()
+        public NooMessage()
         {
             Type = MessageType.Communication;
         }
     }
 
-    public class BulkMessage : Message
+    public class BulkMessage : NooMessage
     {
-        public Message[] Bulk { get; set; }
+        public NooMessage[] Bulk { get; set; }
     }
 
     public enum MessageType
@@ -27,6 +27,7 @@
         Device,
         Communication,
         Notification,
-        Custom
+        Custom,
+        Resource
     }
 }

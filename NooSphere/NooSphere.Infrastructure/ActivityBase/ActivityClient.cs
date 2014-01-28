@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using NooSphere.Infrastructure.Web;
 using NooSphere.Model.Device;
 using NooSphere.Model.Users;
 
@@ -57,8 +58,6 @@ namespace NooSphere.Infrastructure.ActivityBase
             {
                 try
                 {
-                    //RemoveDevice(Device.Id);
-
                     _eventHandler.Stop();
                 }
                 catch (Exception)
@@ -89,6 +88,7 @@ namespace NooSphere.Infrastructure.ActivityBase
             foreach (var item in dvs)
                 devices.AddOrUpdate(item.Id, item, (key, oldValue) => item);
 
+            Device.ConnectionId = _eventHandler.ConnectionId;
             AddDevice(Device);
         }
 
@@ -99,7 +99,6 @@ namespace NooSphere.Infrastructure.ActivityBase
                 _connected = true;
                 Device.ConnectionId = _eventHandler.ConnectionId;
                 Initialize();
-                AddDevice(Device);
                 OnConnectionEstablished();
                 return;
             }
@@ -141,6 +140,10 @@ namespace NooSphere.Infrastructure.ActivityBase
                 case NotificationType.ResoureRemoved:
                     OnResourceRemoved(
                             new ResourceRemovedEventArgs(data));
+                    break;
+                case NotificationType.Message:
+                    OnMessageReceived(
+                        new MessageEventArgs(Json.ConvertFromTypedJson<NooMessage>(data)));
                     break;
             }
         }

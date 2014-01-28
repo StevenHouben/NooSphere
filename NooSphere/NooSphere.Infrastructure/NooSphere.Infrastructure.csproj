@@ -146,6 +146,7 @@
     <Compile Include="ActivityBase\DeviceEventArgs.cs" />
     <Compile Include="ActivityBase\ActivityEventArgs.cs" />
     <Compile Include="ActivityBase\ActivitySystem.cs" />
+    <Compile Include="ActivityBase\MessageEventArgs.cs" />
     <Compile Include="ActivityBase\NetEventArgs.cs" />
     <Compile Include="ActivityBase\ResourceEventArgs.cs" />
     <Compile Include="Context\ContextMonitor.cs" />
@@ -189,6 +190,7 @@
     <Compile Include="Web\ConnectedClient.cs" />
     <Compile Include="Web\Controllers\ActivityController.cs" />
     <Compile Include="Web\Controllers\DevicesController.cs" />
+    <Compile Include="Web\Controllers\MessagesController.cs" />
     <Compile Include="Web\Controllers\ResourcesController.cs" />
     <Compile Include="Web\Controllers\TestController.cs" />
     <Compile Include="Web\Controllers\UsersController.cs" />

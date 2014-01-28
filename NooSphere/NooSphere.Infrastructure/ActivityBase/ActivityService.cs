@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Threading;
+using System.Web.Http.Results;
 using NooSphere.Infrastructure.Discovery;
 using NooSphere.Infrastructure.Helpers;
 using NooSphere.Infrastructure.Web;
 using NooSphere.Infrastructure.Events;
+using NooSphere.Model.Device;
 
 
 namespace NooSphere.Infrastructure.ActivityBase
@@ -14,6 +16,8 @@ namespace NooSphere.Infrastructure.ActivityBase
         public event ConnectionEstablishedHandler ConnectionEstablished = delegate { };
 
         public static ActivitySystem ActivitySystem;
+
+        public static ActivityService Instance;
 
         WebApiServer _webApi;
 
@@ -49,6 +53,8 @@ namespace NooSphere.Infrastructure.ActivityBase
             ActivitySystem.ResourceChanged += ActivitySystem_ResourceChanged;
             ActivitySystem.ResourceRemoved += ActivitySystem_ResourceRemoved;
 
+            Instance = this;
+
         }
 
 
@@ -68,6 +74,28 @@ namespace NooSphere.Infrastructure.ActivityBase
             if (_broadcast != null)
                 if (_broadcast.IsRunning)
                     _broadcast.Stop();
+        }
+
+        public void SendMessage(MessageType msgType, object body)
+        {
+            var message = new NooMessage()
+            {
+                Content = body,
+                Type = msgType
+            };
+
+            Notifier.NotifyAll(NotificationType.Message, message);
+        }
+
+        public void SendMessage(Device device,MessageType msgType, object body)
+        {
+            var message = new NooMessage()
+            {
+                Content = body,
+                Type = msgType
+            };
+
+            Notifier.NotifyConnection(device.ConnectionId, NotificationType.Message, message);
         }
 
         void ActivitySystem_ResourceRemoved(object sender, ResourceRemovedEventArgs e)

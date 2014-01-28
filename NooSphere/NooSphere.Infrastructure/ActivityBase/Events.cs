@@ -49,4 +49,6 @@ namespace NooSphere.Infrastructure.ActivityBase
     public delegate void ResourceChangedHandler(object sender, ResourceEventArgs e);
 
     public delegate void ResourceRemovedHandler(object sender, ResourceRemovedEventArgs e);
+
+    public delegate void MessageReceivedHandler(object sender, MessageEventArgs e);
 }

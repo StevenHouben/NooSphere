@@ -64,6 +64,14 @@ namespace NooSphere.Infrastructure.ActivityBase
             if (handler != null) handler(this, e);
         }
 
+        public event MessageReceivedHandler MessageReceived = delegate { };
+
+        protected virtual void OnMessageReceived(MessageEventArgs e)
+        {
+            var handler = MessageReceived;
+            if (handler != null) handler(this, e);
+        }
+
         public event DeviceAddedHandler DeviceAdded = delegate { };
 
         protected virtual void OnDeviceAdded(DeviceEventArgs e)
@@ -125,7 +133,7 @@ namespace NooSphere.Infrastructure.ActivityBase
         public string Name { get; set; }
         public string Ip { get; set; }
         public int Port { get; set; }
-        public IDevice Device { get; set; }
+        public IDevice Device { get; protected set; }
 
         public Dictionary<string, IActivity> Activities
         {

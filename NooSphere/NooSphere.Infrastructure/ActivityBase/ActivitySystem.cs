@@ -1,8 +1,6 @@
 ﻿using System.IO;
 using System.Net;
 using System.Security.Policy;
-using System.ServiceModel;
-using System.Threading.Tasks;
 using NooSphere.Infrastructure.Context.Location;
 using NooSphere.Infrastructure.Helpers;
 using NooSphere.Model;
@@ -11,7 +9,6 @@ using NooSphere.Model.Primitives;
 using NooSphere.Model.Users;
 using Raven.Abstractions.Data;
 using Raven.Abstractions.Extensions;
-using Raven.Client;
 using Raven.Client.Document;
 using System;
 using System.Collections.Generic;
@@ -357,7 +354,8 @@ namespace NooSphere.Infrastructure.ActivityBase
                 }
         }
 
-      
+
+        private Object thisLock = new Object();
         public void AddResourceToActivity( Activity activity,Stream stream,string path,string type)
         {
            var resource = new Resource()
@@ -368,18 +366,21 @@ namespace NooSphere.Infrastructure.ActivityBase
 
             try
             {
-                _documentStore.DatabaseCommands.PutAttachment(resource.Id,
-                null,
-                stream,
-                    new RavenJObject
-                                {
-                                    { "Extension", resource.FileType}, 
-                                }
-                );
+                lock (thisLock)
+                {
+                    _documentStore.DatabaseCommands.PutAttachment(resource.Id,
+                        null,
+                        stream,
+                        new RavenJObject
+                        {
+                            {"Extension", resource.FileType},
+                        }
+                        );
 
-                Activities[activity.Id].Resources.Add(resource);
-                UpdateActivity(Activities[activity.Id]);
-                OnResourceAdded(new ResourceEventArgs(resource));
+                    Activities[activity.Id].Resources.Add(resource);
+                    UpdateActivity(Activities[activity.Id]);
+                    OnResourceAdded(new ResourceEventArgs(resource));
+                }
 
             }
             catch (Exception)
@@ -533,7 +534,6 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         public override void AddDevice( IDevice dev )
         {
-            AddToStore(dev);
             OnDeviceAdded( new DeviceEventArgs( dev ) );
         }
 
@@ -563,6 +563,20 @@ namespace NooSphere.Infrastructure.ActivityBase
         }
 
         #endregion
+
+        internal void RemoveDeviceByConnectionId(string connectionId)
+        {
+            var id = "-1";
+            foreach (var d in Devices.Values)
+            {
+                if (d.ConnectionId == connectionId)
+                    id = connectionId;
+
+            }
+            if(id=="-1")return;
+            RemoveDevice(id);
+                 
+        }
     }
 
 
