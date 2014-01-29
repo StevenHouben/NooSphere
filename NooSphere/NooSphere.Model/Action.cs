@@ -16,7 +16,7 @@ namespace NooSphere.Model
 
 		void InitializeProperties()
 		{
-			Resources = new List<LegacyResource>();
+			FileResources = new List<LegacyResource>();
 		}
 
 		#endregion
@@ -24,14 +24,14 @@ namespace NooSphere.Model
 
 		#region Properties
 
-		List<LegacyResource> _resources;
+		List<LegacyResource> _fileResources;
 
-		public List<LegacyResource> Resources
+		public List<LegacyResource> FileResources
 		{
-			get { return _resources; }
+			get { return _fileResources; }
 			set
 			{
-				_resources = value;
+				_fileResources = value;
 				OnPropertyChanged( "Resources" );
 			}
 		}

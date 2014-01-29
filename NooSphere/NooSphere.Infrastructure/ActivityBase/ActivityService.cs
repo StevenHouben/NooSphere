@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Web.Http.Results;
 using NooSphere.Infrastructure.Discovery;
 using NooSphere.Infrastructure.Helpers;
 using NooSphere.Infrastructure.Web;
@@ -49,9 +48,9 @@ namespace NooSphere.Infrastructure.ActivityBase
             ActivitySystem.UserChanged += ActivitySystem_UserChanged;
             ActivitySystem.UserRemoved += ActivitySystem_UserRemoved;
 
-            ActivitySystem.ResourceAdded += ActivitySystem_ResourceAdded;
-            ActivitySystem.ResourceChanged += ActivitySystem_ResourceChanged;
-            ActivitySystem.ResourceRemoved += ActivitySystem_ResourceRemoved;
+            ActivitySystem.FileResourceAdded += ActivitySystem_FileResourceAdded;
+            ActivitySystem.FileResourceChanged += ActivitySystem_FileResourceChanged;
+            ActivitySystem.FileResourceRemoved += ActivitySystem_FileResourceRemoved;
 
             Instance = this;
 
@@ -98,19 +97,19 @@ namespace NooSphere.Infrastructure.ActivityBase
             Notifier.NotifyConnection(device.ConnectionId, NotificationType.Message, message);
         }
 
-        void ActivitySystem_ResourceRemoved(object sender, ResourceRemovedEventArgs e)
+        void ActivitySystem_FileResourceRemoved(object sender, FileResourceRemovedEventArgs e)
         {
-            Notifier.NotifyAll(NotificationType.ResoureRemoved, e.Id);
+            Notifier.NotifyAll(NotificationType.FileResoureRemoved, e.Id);
         }
 
-        void ActivitySystem_ResourceChanged(object sender, ResourceEventArgs e)
+        void ActivitySystem_FileResourceChanged(object sender, FileResourceEventArgs e)
         {
-            Notifier.NotifyAll(NotificationType.ResourceChanged, e.Resource);
+            Notifier.NotifyAll(NotificationType.FileResourceChanged, e.Resource);
         }
 
-        void ActivitySystem_ResourceAdded(object sender, ResourceEventArgs e)
+        void ActivitySystem_FileResourceAdded(object sender, FileResourceEventArgs e)
         {
-            Notifier.NotifyAll(NotificationType.ResourceAdded, e.Resource);
+            Notifier.NotifyAll(NotificationType.FileResourceAdded, e.Resource);
         }
 
         void ActivitySystem_UserChanged(object sender, UserEventArgs e)

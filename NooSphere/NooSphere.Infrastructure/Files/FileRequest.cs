@@ -6,7 +6,7 @@ namespace NooSphere.Infrastructure.Files
 {
     public class FileRequest
     {
-        public LegacyResource Resouce { get; set; }
+        public LegacyResource Resource { get; set; }
         public String Bytes { get; set; }
     }
 }
