@@ -81,12 +81,16 @@
     <Compile Include="Activity.cs" />
     <Compile Include="IActivity.cs" />
     <Compile Include="Metadata.cs" />
-    <Compile Include="Resource.cs" />
+    <Compile Include="FileResource.cs" />
+    <Compile Include="Notifications\INotification.cs" />
+    <Compile Include="Notifications\Notification.cs" />
     <Compile Include="Primitives\Base.cs" />
     <Compile Include="Primitives\INoo.cs" />
     <Compile Include="Primitives\Noo.cs" />
     <Compile Include="Primitives\RGB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\IResource.cs" />
+    <Compile Include="Resources\Resource.cs" />
     <Compile Include="Users\IUser.cs" />
     <Compile Include="Users\User.cs" />
   </ItemGroup>

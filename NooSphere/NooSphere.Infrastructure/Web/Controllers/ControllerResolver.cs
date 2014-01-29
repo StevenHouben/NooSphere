@@ -21,8 +21,12 @@ namespace NooSphere.Infrastructure.Web.Controllers
                 return new MessagesController(ActivityService.Instance);
             if ( serviceType == typeof( DevicesController ) )
                 return new DevicesController( ActivityService.ActivitySystem );
+            if (serviceType == typeof(FileResourcesController))
+                return new FileResourcesController(ActivityService.ActivitySystem);
             if (serviceType == typeof(ResourcesController))
                 return new ResourcesController(ActivityService.ActivitySystem);
+            if (serviceType == typeof(NotificationsController))
+                return new NotificationsController(ActivityService.ActivitySystem);
             return serviceType == typeof( UsersController ) ? new UsersController( ActivityService.ActivitySystem ) : null;
         }
 

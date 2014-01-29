@@ -44,11 +44,33 @@ namespace NooSphere.Infrastructure.ActivityBase
 
     public delegate void DeviceRemovedHandler( Object sender, DeviceRemovedEventArgs e );
 
-    public delegate void ResourceAddedHandler(object sender, ResourceEventArgs e);
+    /// <summary>
+    /// FileResource events
+    /// </summary>
 
-    public delegate void ResourceChangedHandler(object sender, ResourceEventArgs e);
+    public delegate void FileResourceAddedHandler(object sender, FileResourceEventArgs e);
 
-    public delegate void ResourceRemovedHandler(object sender, ResourceRemovedEventArgs e);
+    public delegate void FileResourceChangedHandler(object sender, FileResourceEventArgs e);
 
-    public delegate void MessageReceivedHandler(object sender, MessageEventArgs e);
+    public delegate void FileResourceRemovedHandler(object sender, FileResourceRemovedEventArgs e);
+
+    /// <summary>
+    /// Resource events
+    /// </summary>
+    public delegate void ResourceAddedHandler(Object sender, ResourceEventArgs e);
+
+    public delegate void ResourceRemovedHandler(Object sender, ResourceRemovedEventArgs e);
+
+    public delegate void ResourceChangedHandler(Object sender, ResourceEventArgs e);
+
+    /// <summary>
+    /// Notification events
+    /// </summary>
+    public delegate void NotificationAddedHandler(Object sender, NotificationEventArgs e);
+
+    public delegate void NotificationRemovedHandler(Object sender, NotificationRemovedEventArgs e);
+
+    public delegate void NotificationChangedHandler(Object sender, NotificationEventArgs e);
+
+	public delegate void MessageReceivedHandler(object sender, MessageEventArgs e);
 }

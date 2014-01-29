@@ -12,6 +12,8 @@ using Microsoft.AspNet.SignalR.Client;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NooSphere.Infrastructure.Events;
+using NooSphere.Model.Resources;
+using NooSphere.Model.Notifications;
 
 
 namespace NooSphere.Infrastructure.ActivityBase
@@ -90,6 +92,14 @@ namespace NooSphere.Infrastructure.ActivityBase
 
             Device.ConnectionId = _eventHandler.ConnectionId;
             AddDevice(Device);
+
+            var res = GetResources();
+            foreach (var item in res)
+                resources.AddOrUpdate(item.Id, item, (key, oldValue) => item);
+
+            var n = GetNotifications();
+            foreach (var item in n)
+                notifications.AddOrUpdate(item.Id, item, (key, oldValue) => item);
         }
 
         void eventHandler_Received( string obj )
@@ -126,20 +136,29 @@ namespace NooSphere.Infrastructure.ActivityBase
                     OnUserChanged( new UserEventArgs( Json.ConvertFromTypedJson<IUser>( data ) ) );
                     break;
                 case NotificationType.UserRemoved:
-                    OnUserRemoved(
-                        new UserRemovedEventArgs( data ) );
+                    OnUserRemoved( new UserRemovedEventArgs( data ) );
+                    break;
+                case NotificationType.FileResourceAdded:
+                    OnFileResourceAdded(
+                            new FileResourceEventArgs(Json.ConvertFromTypedJson<FileResource>(data)));
+                    break;
+                case NotificationType.FileResourceChanged:
+                    OnFileResourceChanged(
+                            new FileResourceEventArgs(Json.ConvertFromTypedJson<FileResource>(data)));
+                    break;
+                case NotificationType.FileResoureRemoved:
+                    OnFileResourceRemoved(
+                            new FileResourceRemovedEventArgs(data));
                     break;
                 case NotificationType.ResourceAdded:
-                    OnResourceAdded(
-                            new ResourceEventArgs(Json.ConvertFromTypedJson<Resource>(data)));
+                    OnResourceAdded(new ResourceEventArgs(Json.ConvertFromTypedJson<IResource>(data)));
                     break;
                 case NotificationType.ResourceChanged:
-                    OnResourceChanged(
-                            new ResourceEventArgs(Json.ConvertFromTypedJson<Resource>(data)));
+                    OnResourceChanged(new ResourceEventArgs(Json.ConvertFromTypedJson<IResource>(data)));
                     break;
-                case NotificationType.ResoureRemoved:
+                case NotificationType.ResourceRemoved:
                     OnResourceRemoved(
-                            new ResourceRemovedEventArgs(data));
+                        new ResourceRemovedEventArgs(data));
                     break;
                 case NotificationType.Message:
                     OnMessageReceived(
@@ -153,14 +172,14 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         #region Public Members
 
-        public void AddResource(IActivity activity, MemoryStream stream)
+        public void AddFileResource(IActivity activity, MemoryStream stream)
         {
-            Rest.UploadFile(Address + Url.Resources, activity.Id, stream);
+            Rest.UploadFile(Address + Url.Files, activity.Id, stream);
         }
 
-        public Stream GetResource(Resource resource)
+        public Stream GetFileResource(FileResource resource)
         {
-            return Rest.DownloadFile(Address + Url.Resources, resource.Id);
+            return Rest.DownloadFile(Address + Url.Files, resource.Id);
         }
 
         public override void AddActivity( IActivity activity )
@@ -240,6 +259,56 @@ namespace NooSphere.Infrastructure.ActivityBase
             return Json.ConvertFromTypedJson<List<IDevice>>(Rest.Get(Address + Url.Devices, ""));
         }
 
+        public override void AddResource(IResource resource)
+        {
+            Rest.Post(Address + Url.Resources, resource);
+        }
+
+        public override void RemoveResource(string id)
+        {
+            Rest.Delete(Address + Url.Resources, id);
+        }
+
+        public override void UpdateResource(IResource resource)
+        {
+            Rest.Put(Address + Url.Resources, resource);
+        }
+
+        public override IResource GetResource(string id)
+        {
+            return Json.ConvertFromTypedJson<IResource>(Rest.Get(Address + Url.Resources, id));
+        }
+
+        public override List<IResource> GetResources()
+        {
+            return Json.ConvertFromTypedJson<List<IResource>>(Rest.Get(Address + Url.Resources, ""));
+        }
+
+        public override void AddNotification(INotification Notification)
+        {
+            Rest.Post(Address + Url.Notifications, Notification);
+        }
+
+        public override void RemoveNotification(string id)
+        {
+            Rest.Delete(Address + Url.Notifications, id);
+        }
+
+        public override void UpdateNotification(INotification Notification)
+        {
+            Rest.Put(Address + Url.Notifications, Notification);
+        }
+
+        public override INotification GetNotification(string id)
+        {
+            return Json.ConvertFromTypedJson<INotification>(Rest.Get(Address + Url.Notifications, id));
+        }
+
+        public override List<INotification> GetNotifications()
+        {
+            return Json.ConvertFromTypedJson<List<INotification>>(Rest.Get(Address + Url.Notifications, ""));
+        }
+
         #endregion
     }
 
@@ -250,6 +319,8 @@ namespace NooSphere.Infrastructure.ActivityBase
         Subscribers,
         Messages,
         Users,
-        Resources
+        Resources,
+        Files,
+        Notifications
     }
 }

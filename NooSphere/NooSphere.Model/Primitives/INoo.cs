@@ -6,7 +6,7 @@
 		string Name { get; set; }
 		string Description { get; set; }
 		string Uri { get; set; }
-		string BaseType { get; set; }
+		string Type { get; set; }
 		void UpdateAllProperties( object newUser );
 	}
 }

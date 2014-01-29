@@ -4,7 +4,7 @@ using NooSphere.Model.Primitives;
 
 namespace NooSphere.Model
 {
-    public class Resource : Noo
+    public class FileResource : Noo
     {
         public string FileType { get; set; }
         public string ActivityId { get; set; }

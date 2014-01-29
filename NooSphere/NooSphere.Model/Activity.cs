@@ -14,7 +14,7 @@ namespace NooSphere.Model
 
 		public Activity()
 		{
-			BaseType = typeof( IActivity ).Name;
+			Type = typeof( IActivity ).Name;
 			InitializeProperties();
 		}
 
@@ -28,7 +28,7 @@ namespace NooSphere.Model
 			Actions = new List<Action>();
 			Participants = new List<User>();
 			Meta = new Metadata();
-			Resources = new List<Resource>();
+			FileResources = new List<FileResource>();
 		}
 
 		#endregion
@@ -84,14 +84,14 @@ namespace NooSphere.Model
 			}
 		}
 
-		List<Resource> resources;
+		List<FileResource> fileResources;
 
-		public List<Resource> Resources
+		public List<FileResource> FileResources
 		{
-			get { return resources; }
+			get { return fileResources; }
 			set
 			{
-				resources = value;
+				fileResources = value;
 				OnPropertyChanged( "resouces" );
 			}
 		}
@@ -112,9 +112,9 @@ namespace NooSphere.Model
 
 		#region Public Methods
 
-		public List<Resource> GetResources()
+		public List<FileResource> GetFileResources()
 		{
-			return Resources;
+			return FileResources;
 		}
 
 		#endregion

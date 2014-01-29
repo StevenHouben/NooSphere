@@ -22,7 +22,10 @@ namespace NooSphere.Infrastructure.Events
         ParticipantAdded,
         ParticipantRemoved,
         ResourceAdded,
-        ResoureRemoved,
-        ResourceChanged
+        ResourceRemoved,
+        ResourceChanged,
+        FileResourceAdded,
+        FileResoureRemoved,
+        FileResourceChanged
     }
 }
