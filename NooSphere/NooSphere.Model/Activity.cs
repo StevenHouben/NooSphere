@@ -1,105 +1,119 @@
 ﻿using System.Collections.Generic;
 using NooSphere.Model.Users;
 using NooSphere.Model.Primitives;
+using NooSphere.Model.Resources;
 
 
 namespace NooSphere.Model
 {
-	/// <summary>
-	/// Activity Base Class
-	/// </summary>
-	public class Activity : Noo, IActivity
-	{
-		#region Constructors
+    /// <summary>
+    /// Activity Base Class
+    /// </summary>
+    public class Activity : Noo, IActivity
+    {
+        #region Constructors
 
-		public Activity()
-		{
-			Type = typeof( IActivity ).Name;
-			InitializeProperties();
-		}
+        public Activity()
+        {
+            Type = typeof(IActivity).Name;
+            InitializeProperties();
+        }
 
-		#endregion
-
-
-		#region Initializers
-
-		void InitializeProperties()
-		{
-			Actions = new List<Action>();
-			Participants = new List<User>();
-			Meta = new Metadata();
-			FileResources = new List<FileResource>();
-		}
-
-		#endregion
+        #endregion
 
 
-		#region Properties
+        #region Initializers
 
-		User _owner;
+        void InitializeProperties()
+        {
+            Actions = new List<Action>();
+            Participants = new List<string>();
+            Meta = new Metadata();
+            Resources = new List<Resource>();
+            FileResources = new List<FileResource>();
+        }
 
-		public User Owner
-		{
-			get { return _owner; }
-			set
-			{
-				_owner = value;
-				OnPropertyChanged( "owner" );
-			}
-		}
+        #endregion
 
-		List<User> _participants;
 
-		public List<User> Participants
-		{
-			get { return _participants; }
-			set
-			{
-				_participants = value;
-				OnPropertyChanged( "participants" );
-			}
-		}
+        #region Properties
 
-		List<Action> _actions;
+        User owner;
 
-		public List<Action> Actions
-		{
-			get { return _actions; }
-			set
-			{
-				_actions = value;
-				OnPropertyChanged( "actions" );
-			}
-		}
+        public User Owner
+        {
+            get { return owner; }
+            set
+            {
+                owner = value;
+                OnPropertyChanged("owner");
+            }
+        }
 
-		Metadata _meta;
+        List<string> participants;
 
-		public Metadata Meta
-		{
-			get { return _meta; }
-			set
-			{
-				_meta = value;
-				OnPropertyChanged( "meta" );
-			}
-		}
+        public List<string> Participants
+        {
+            get { return participants; }
+            set
+            {
+                participants = value;
+                OnPropertyChanged("participants");
+            }
+        }
 
-		List<FileResource> fileResources;
+        List<Action> actions;
 
-		public List<FileResource> FileResources
-		{
-			get { return fileResources; }
-			set
-			{
-				fileResources = value;
-				OnPropertyChanged( "resouces" );
-			}
-		}
+        public List<Action> Actions
+        {
+            get { return actions; }
+            set
+            {
+                actions = value;
+                OnPropertyChanged("actions");
+            }
+        }
+
+        Metadata meta;
+
+        public Metadata Meta
+        {
+            get { return meta; }
+            set
+            {
+                meta = value;
+                OnPropertyChanged("meta");
+            }
+        }
+
+        List<Resource> resources;
+
+        public List<Resource> Resources
+        {
+            get { return resources; }
+            set
+            {
+                resources = value;
+                OnPropertyChanged("resouces");
+            }
+        }
+
+        List<FileResource> fileResources;
+
+        public List<FileResource> FileResources
+        {
+            get { return fileResources; }
+            set
+            {
+                fileResources = value;
+                OnPropertyChanged("fileResources");
+            }
+        }
 
         private ActivityState _state;
         public ActivityState State
         {
-            get { return this._state;}
+            get { return this._state; }
             set
             {
                 _state = value;
@@ -107,33 +121,38 @@ namespace NooSphere.Model
             }
         }
 
-		#endregion
+        #endregion
 
 
-		#region Public Methods
+        #region Public Methods
 
-		public List<FileResource> GetFileResources()
-		{
-			return FileResources;
-		}
+        public List<Resource> GetResources()
+        {
+            return Resources;
+        }
 
-		#endregion
+        public List<FileResource> GetFileResources()
+        {
+            return FileResources;
+        }
+
+        #endregion
 
 
-		#region Overrides
+        #region Overrides
 
-		public override string ToString()
-		{
-			return Name;
-		}
+        public override string ToString()
+        {
+            return Name;
+        }
 
-		public bool Equals( Activity act )
-		{
-			return Id == act.Id;
-		}
+        public bool Equals(Activity act)
+        {
+            return Id == act.Id;
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 
     public enum ActivityState
     {
