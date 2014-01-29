@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Web.Http.Results;
 using NooSphere.Infrastructure.Discovery;
 using NooSphere.Infrastructure.Helpers;
 using NooSphere.Infrastructure.Web;

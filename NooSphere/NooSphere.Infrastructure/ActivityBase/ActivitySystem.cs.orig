@@ -325,14 +325,20 @@ namespace NooSphere.Infrastructure.ActivityBase
         {
             using (var session = _documentStore.OpenSession(DatabaseName))
             {
+<<<<<<< HEAD
                 try
                 {
                     var userResult = from user in session.Query<IUser>()
+                                     where user.BaseType == typeof(IUser).Name
                                      select user;
                     foreach (var entry in userResult)
                     {
                         users.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry != null ? entry : null);
                     }
+=======
+                var userResult = from user in session.Query<IUser>()
+                                 select user;
+>>>>>>> Resources consolidation and Notifications
 
                 }
                 catch (InvalidOperationException)
@@ -340,11 +346,16 @@ namespace NooSphere.Infrastructure.ActivityBase
                     HandleUnfoundType<IUser>();
                 }
 
+<<<<<<< HEAD
                 try
                 {
                     var activityResult = from activity in session.Query<IActivity>()
-                                         where activity.Type == typeof(IActivity).Name
+                                         where activity.BaseType == typeof(IActivity).Name
                                          select activity;
+=======
+                var activityResult = from activity in session.Query<IActivity>()
+                                     select activity;
+>>>>>>> Resources consolidation and Notifications
 
                     foreach (var entry in activityResult)
                     {
@@ -356,17 +367,37 @@ namespace NooSphere.Infrastructure.ActivityBase
                     HandleUnfoundType<Activity>();
                 }
 
+<<<<<<< HEAD
                 try
                 {
                     var deviceResult = from device in session.Query<IDevice>()
-                                       where device.Type == typeof(IDevice).Name
+                                       where device.BaseType == typeof(IDevice).Name
                                        select device;
+=======
+                var deviceResult = from device in session.Query<IDevice>()
+                                   where device.Type == typeof(IDevice).Name
+                                   select device;
+>>>>>>> Resources consolidation and Notifications
 
-                foreach (var entry in deviceResult)
+                    foreach (var entry in deviceResult)
+                    {
+                        devices.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry);
+                    }
+                }
+                catch (InvalidOperationException)
                 {
-                    devices.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry);
+                    HandleUnfoundType<Device>();
                 }
 
+<<<<<<< HEAD
+               
+            }
+        }
+
+        private void HandleUnfoundType<T>()
+        {
+            using (var session = _documentStore.OpenSession(DatabaseName))
+=======
                 var resourceResult = from resource in session.Query<IResource>()
                                      select resource;
 
@@ -382,16 +413,13 @@ namespace NooSphere.Infrastructure.ActivityBase
                 {
                     notifications.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry != null ? entry : null);
                 }
-		}
-		catch (InvalidOperationException)
-                {
-                    HandleUnfoundType<Device>();
-                }
             }
         }
-	private void HandleUnfoundType<T>()
+
+        public FileResource AddFileResourceToActivity(Activity activity, byte[] data, string path, string type)
         {
-            using (var session = _documentStore.OpenSession(DatabaseName))
+            var resource = new FileResource()
+>>>>>>> Resources consolidation and Notifications
             {
                 var results = from result in session.Query<RavenJObject>()
                     select result;
@@ -438,43 +466,14 @@ namespace NooSphere.Infrastructure.ActivityBase
         }
 
 
+<<<<<<< HEAD
         private Object thisLock = new Object();
-
-        public FileResource AddFileResourceToActivity(Activity activity, byte[] data, string path, string type)
-        {
-            var resource = new FileResource()
-            {
-                FileType = type,
-                ActivityId = activity.Id
-            };
-
-            try
-            {
-                using (var stream = new MemoryStream(data))
-                {
-                    _documentStore.DatabaseCommands.PutAttachment(
-                activity.Name + "/" + resource.Id,
-                null,
-                stream,
-                    new RavenJObject
-                                {
-                                    { "Extension", resource.FileType}, 
-                                }
-                );
-                }
-                
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
-
+        public void AddResourceToActivity( Activity activity,Stream stream,string path,string type)
+=======
             return resource;
         }
         public void AddFileResourceToActivity( Activity activity,Stream stream,string path,string type)
+>>>>>>> Resources consolidation and Notifications
         {
            var resource = new FileResource()
             {
@@ -484,6 +483,7 @@ namespace NooSphere.Infrastructure.ActivityBase
 
             try
             {
+<<<<<<< HEAD
                 lock (thisLock)
                 {
                     _documentStore.DatabaseCommands.PutAttachment(resource.Id,
@@ -495,10 +495,23 @@ namespace NooSphere.Infrastructure.ActivityBase
                         }
                         );
 
-                    Activities[activity.Id].FileResources.Add(resource);
+                    Activities[activity.Id].Resources.Add(resource);
                     UpdateActivity(Activities[activity.Id]);
-                    OnFileResourceAdded(new FileResourceEventArgs(resource));
+                    OnResourceAdded(new ResourceEventArgs(resource));
                 }
+=======
+                _documentStore.DatabaseCommands.PutAttachment(resource.Id,
+                null,
+                stream,
+                    new RavenJObject
+                                {
+                                    { "Extension", resource.FileType}, 
+                                }
+                );
+
+                Activities[activity.Id].FileResources.Add(resource);
+                OnFileResourceAdded(new FileResourceEventArgs(resource));
+>>>>>>> Resources consolidation and Notifications
 
             }
             catch (Exception)
@@ -578,15 +591,6 @@ namespace NooSphere.Infrastructure.ActivityBase
 
 
         #region Public Methods
-
-        public void Run( string storeAddress )
-        {
-            InitializeDocumentStore( storeAddress );
-        }
-        public void Run(WebConfiguration configuration)
-        {
-            InitializeDocumentStore(Net.GetUrl(configuration.Address, configuration.Port, "").ToString());
-        }
 
         public void StartLocationTracker()
         {
@@ -743,7 +747,8 @@ namespace NooSphere.Infrastructure.ActivityBase
         }
 
         #endregion
-	internal void RemoveDeviceByConnectionId(string connectionId)
+
+        internal void RemoveDeviceByConnectionId(string connectionId)
         {
             var id = "-1";
             foreach (var d in Devices.Values)

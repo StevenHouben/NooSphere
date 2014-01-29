@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using NooSphere.Infrastructure.ActivityBase;
 using NooSphere.Model;
@@ -37,19 +38,32 @@ namespace NooSphere.Infrastructure.Web.Controllers
             return result;
         }
 
-        public void Post()
+        public async void Post()
         {
             var request = Request.Content as StreamContent;
             var activityId = Request.Headers.GetValues("activityId").First();
 
             if (request != null)
             {
-                var stream = request.ReadAsStreamAsync().Result;
+                var stream = await request.ReadAsStreamAsync();
+
+                //Task task = request.ReadAsStreamAsync().ContinueWith(t =>
+                //{
+                //    var stream = t.Result;
                 if (_system.Activities.ContainsKey(activityId))
                 {
-                   _system.AddFileResourceToActivity(_system.Activities[activityId] as Activity, stream, "", "");
-  
+                    _system.AddFileResourceToActivity(_system.Activities[activityId] as Activity, stream, "", "");
+
                 }
+                //  });
+
+
+                //var stream = request.ReadAsStreamAsync().Result;
+                //if (_system.Activities.ContainsKey(activityId))
+                //{
+                //   _system.AddResourceToActivity(_system.Activities[activityId] as Activity, stream, "", "");
+
+                //}
             }
         }
 
