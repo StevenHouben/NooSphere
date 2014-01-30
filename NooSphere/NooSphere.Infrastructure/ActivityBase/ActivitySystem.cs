@@ -33,8 +33,9 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         #region Constructor
 
-        public ActivitySystem( DatabaseConfiguration databaseConfiguration)
+        public ActivitySystem( DatabaseConfiguration databaseConfiguration, Device device = null)
         {
+            if(device != null) Device = device;
             DatabaseName = databaseConfiguration.DatabaseName;
             Ip = Net.GetIp( IpType.All );
             Port = databaseConfiguration.Port;
@@ -343,7 +344,6 @@ namespace NooSphere.Infrastructure.ActivityBase
                 try
                 {
                     var activityResult = from activity in session.Query<IActivity>()
-                                         where activity.Type == typeof(IActivity).Name
                                          select activity;
 
                     foreach (var entry in activityResult)

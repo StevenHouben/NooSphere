@@ -35,7 +35,7 @@ namespace NooSphere.Examples
             //centric wrapper over a pure datastore. This system cam be used by the UI
             //directly through events or be exposed to a REST service using the activityservice
             //and accessed on other devices by using the activityclient
-            var activitySystem = new ActivitySystem(databaseConfiguration) { Device = device };
+            var activitySystem = new ActivitySystem(databaseConfiguration, device);
 
             //add handlers to the system for local UI support.
             activitySystem.ActivityAdded+=activitySystem_ActivityAdded;
@@ -68,11 +68,11 @@ namespace NooSphere.Examples
                 activityClient.UserAdded += activityClient_UserAdded;
                 activityClient.DeviceAdded += activityClient_DeviceAdded;
 
-                activityClient.ResourceAdded += (o, i) =>
+                activityClient.FileResourceAdded += (o, i) =>
                 {
                     Console.WriteLine("Resource {0} update received from activityclient over http", i.Resource.Id);
 
-                    using (var stream = activityClient.GetResource(i.Resource))
+                    using (var stream = activityClient.GetFileResource(i.Resource))
                     {
                         var fileStream = File.Create(@"C:\Users\Public\Pictures\Sample Pictures\Desert-"+DateTime.Now.ToShortDateString()+".jpg", (int)stream.Length);
                         var bytesInStream = new byte[stream.Length];
@@ -85,7 +85,7 @@ namespace NooSphere.Examples
                 var act = new Activity();
 
                 activityClient.AddActivity(act);
-                activityClient.AddResource(act, new MemoryStream(File.ReadAllBytes(@"C:\Users\Public\Pictures\Sample Pictures\Desert.jpg")));
+                activityClient.AddFileResource(act, new MemoryStream(File.ReadAllBytes(@"C:\Users\Public\Pictures\Sample Pictures\Desert.jpg")));
             };
 
             disco.Find(DiscoveryType.Zeroconf);
