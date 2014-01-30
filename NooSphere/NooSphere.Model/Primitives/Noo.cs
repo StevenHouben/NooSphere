@@ -68,6 +68,23 @@ namespace NooSphere.Model.Primitives
 			return Id == id.Id;
 		}
 
+        // override object.Equals
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            Noo n = obj as Noo;
+            return this.Equals(n);
+        }
+
+        // override object.GetHashCode
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
 
 		#region Methods
 
