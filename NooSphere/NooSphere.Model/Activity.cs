@@ -38,9 +38,9 @@ namespace NooSphere.Model
 
         #region Properties
 
-        User owner;
+        string owner;
 
-        public User Owner
+        public string OwnerId
         {
             get { return owner; }
             set

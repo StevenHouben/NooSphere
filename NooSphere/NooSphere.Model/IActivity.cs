@@ -8,7 +8,7 @@ namespace NooSphere.Model
 {
 	public interface IActivity : INoo
 	{
-		User Owner { get; set; }
+		string OwnerId { get; set; }
 		List<string> Participants { get; set; }
 		List<Action> Actions { get; set; }
 		Metadata Meta { get; set; }
