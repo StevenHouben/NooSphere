@@ -184,7 +184,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                         var device = session.Load<IDevice>( change.Id );
                         if ( devices.ContainsKey( change.Id ) )
                         {
-                            OnDeviceChanged( new DeviceEventArgs( devices[ change.Id ] ) );
+                            OnDeviceChanged( new DeviceEventArgs( device ) );
                         }
                         else
                         {
@@ -215,7 +215,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                         var activity = session.Load<IActivity>( change.Id );
                         if ( activities.ContainsKey( change.Id ) )
                         {
-                            OnActivityChanged( new ActivityEventArgs( activities[ change.Id ] ) );
+                            OnActivityChanged(new ActivityEventArgs( activity ));
                         }
                         else
                         {
@@ -398,7 +398,7 @@ namespace NooSphere.Infrastructure.ActivityBase
 
                 foreach (var entry in results)
                 {
-                    if (entry["BaseType"].ToString() == typeof (T).Name)
+                    if (entry["Type"].ToString() == typeof (T).Name)
                     {
                         if (typeof (T).Name == "IUser")
                         {
