@@ -150,12 +150,12 @@ namespace NooSphere.Infrastructure.ActivityBase
                                   else if (obj is INotification)
                                       HandleNotificationMessages(change);
                                   else
-                                      HandleUnknowMessage(change);
+                                      HandleUnknownMessage(change);
                               }
                           } );
         }
 
-        void HandleUnknowMessage( DocumentChangeNotification change )
+        void HandleUnknownMessage( DocumentChangeNotification change )
         {
             if ( change.Type == DocumentChangeTypes.Delete )
             {
@@ -165,6 +165,10 @@ namespace NooSphere.Infrastructure.ActivityBase
                     OnUserRemoved( new UserRemovedEventArgs( change.Id ) );
                 if ( devices.ContainsKey( change.Id ) )
                     OnDeviceRemoved( new DeviceRemovedEventArgs( change.Id ) );
+                if ( resources.ContainsKey(change.Id))
+                    OnResourceRemoved(new ResourceRemovedEventArgs(change.Id));
+                if (notifications.ContainsKey(change.Id))
+                    OnNotificationRemoved(new NotificationRemovedEventArgs(change.Id));
             }
         }
 

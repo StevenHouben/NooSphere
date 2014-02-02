@@ -37,7 +37,7 @@ namespace NooSphere.Infrastructure.Web.Controllers
 
         public void Delete(string id)
         {
-            _system.RemoveUser(id);
+            _system.RemoveResource(id);
         }
 
         public void Put(JObject resource)

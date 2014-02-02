@@ -36,7 +36,7 @@ namespace NooSphere.Infrastructure.Web.Controllers
 
         public void Delete(string id)
         {
-            _system.RemoveUser(id);
+            _system.RemoveNotification(id);
         }
 
         public void Put(JObject Notification)
