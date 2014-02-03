@@ -135,9 +135,9 @@ namespace NooSphere.Infrastructure.ActivityBase
                                   if ( obj is IUser )
                                       HandleIUserMessages( change );
                                   else if ( obj is IActivity )
-                                      HandleActivityMessages( change );
+                                      HandleIActivityMessages( change );
                                   else if ( obj is IDevice )
-                                      HandleDeviceMessages( change );
+                                      HandleIDeviceMessages( change );
                                   else
                                       HandleUnknowMessage( change );
                               }
@@ -157,7 +157,7 @@ namespace NooSphere.Infrastructure.ActivityBase
             }
         }
 
-        void HandleDeviceMessages( DocumentChangeNotification change )
+        void HandleIDeviceMessages( DocumentChangeNotification change )
         {
             switch ( change.Type )
             {
@@ -173,7 +173,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                         var device = session.Load<IDevice>( change.Id );
                         if ( devices.ContainsKey( change.Id ) )
                         {
-                            OnDeviceChanged( new DeviceEventArgs( devices[ change.Id ] ) );
+                            OnDeviceChanged( new DeviceEventArgs( device) );
                         }
                         else
                         {
@@ -188,7 +188,7 @@ namespace NooSphere.Infrastructure.ActivityBase
             }
         }
 
-        void HandleActivityMessages( DocumentChangeNotification change )
+        void HandleIActivityMessages( DocumentChangeNotification change )
         {
             switch ( change.Type )
             {
@@ -204,7 +204,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                         var activity = session.Load<IActivity>( change.Id );
                         if ( activities.ContainsKey( change.Id ) )
                         {
-                            OnActivityChanged( new ActivityEventArgs( activities[ change.Id ] ) );
+                            OnActivityChanged( new ActivityEventArgs( activity) );
                         }
                         else
                         {
