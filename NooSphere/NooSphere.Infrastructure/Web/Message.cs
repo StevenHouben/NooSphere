@@ -28,6 +28,7 @@
         Communication,
         Notification,
         Custom,
-        Resource
+        Resource,
+        ResourceRemove
     }
 }

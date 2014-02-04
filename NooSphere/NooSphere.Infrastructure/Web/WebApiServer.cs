@@ -57,17 +57,12 @@ namespace NooSphere.Infrastructure.Web
             config.Routes.MapHttpRoute("Default", "{controller}/{id}", new { id = RouteParameter.Optional });
 
             app.UseWebApi(config);
-
-            var hubConfig = new HubConfiguration() { };
-            app.MapSignalR(hubConfig);
-            app.MapConnection<EventDispatcher>("", new ConnectionConfiguration { });
+            app.MapSignalR<EventDispatcher>("", new ConnectionConfiguration { });
 
             GlobalHost.DependencyResolver.Register(typeof(JsonSerializer), () => JsonSerializer.Create(new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.All
             }));
-
-            app.MapHubs(hubConfig);
         }
     }
 }

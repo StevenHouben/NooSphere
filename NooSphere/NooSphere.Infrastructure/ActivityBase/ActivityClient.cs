@@ -97,7 +97,6 @@ namespace NooSphere.Infrastructure.ActivityBase
             if ( obj == "Connected" )
             {
                 _connected = true;
-                Device.ConnectionId = _eventHandler.ConnectionId;
                 Initialize();
                 OnConnectionEstablished();
                 return;
