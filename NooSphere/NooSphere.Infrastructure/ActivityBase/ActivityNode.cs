@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
 using NooSphere.Infrastructure.Context.Location;
-using NooSphere.Infrastructure.Discovery;
-using NooSphere.Infrastructure.Helpers;
 using NooSphere.Model;
 using NooSphere.Model.Device;
 using NooSphere.Model.Users;
@@ -182,7 +179,7 @@ namespace NooSphere.Infrastructure.ActivityBase
         public string Name { get; set; }
         public string Ip { get; set; }
         public int Port { get; set; }
-        public IDevice Device { get; protected set; }
+        public IDevice Device { get; set; }
 
         public Dictionary<string, IActivity> Activities
         {

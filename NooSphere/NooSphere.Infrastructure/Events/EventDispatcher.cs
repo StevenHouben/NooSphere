@@ -1,12 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR;
-using System;
 using NooSphere.Infrastructure.ActivityBase;
 
 
 namespace NooSphere.Infrastructure.Events
 {
-    internal class EventDispatcher : PersistentConnection
+    public class EventDispatcher : PersistentConnection
     {
         protected override Task OnReceived(IRequest request, string connectionId, string data)
         {
@@ -27,6 +26,10 @@ namespace NooSphere.Infrastructure.Events
         {
             ActivityService.ActivitySystem.RemoveDeviceByConnectionId(connectionId);
             return Connection.Send(connectionId, "DisConnected");
+        }
+
+        public void SendMessager(string c)
+        {
         }
     }
 }
