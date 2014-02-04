@@ -281,7 +281,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                             var resource = session.Load<IResource>(change.Id);
                             if (resources.ContainsKey(change.Id))
                             {
-                                OnResourceChanged(new ResourceEventArgs(resource));
+                                OnResourceChanged(new ResourceEventArgs( resource ));
                             }
                             else
                             {
