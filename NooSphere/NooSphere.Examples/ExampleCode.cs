@@ -25,8 +25,10 @@ namespace NooSphere.Examples
             var device = new Device
             {
                 DeviceType = DeviceType.Desktop,
-                DevicePortability = DevicePortability.Stationary
+                DevicePortability = DevicePortability.Stationary,
+                Owner = user
             };
+
 
             //create databaseconfiguration
             var databaseConfiguration = new DatabaseConfiguration("127.0.0.1", 8080, "test");
@@ -110,6 +112,8 @@ namespace NooSphere.Examples
         static void activityClient_DeviceAdded(object sender, DeviceEventArgs e)
         {
             Console.WriteLine("Device {0} received from activityclient over http", e.Device.Name);
+
+            Console.WriteLine("Associated user is {0}",e.Device.Owner.Name);
         }
 
         static void activityClient_UserAdded(object sender, UserEventArgs e)

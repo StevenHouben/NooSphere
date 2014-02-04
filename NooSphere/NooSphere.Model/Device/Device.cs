@@ -1,4 +1,6 @@
-﻿using NooSphere.Model.Primitives;
+﻿using System.Collections.Generic;
+using NooSphere.Model.Primitives;
+using NooSphere.Model.Users;
 
 
 namespace NooSphere.Model.Device
@@ -13,6 +15,10 @@ namespace NooSphere.Model.Device
 		public string Location { get; set; }
 		public string BaseAddress { get; set; }
 		public string ConnectionId { get; set; }
+
+        public IUser Owner { get; set; }
+
+        public List<IUser> Users { get; set; } 
 
 		public Device()
 		{
