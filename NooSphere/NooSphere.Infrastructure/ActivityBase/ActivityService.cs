@@ -48,6 +48,14 @@ namespace NooSphere.Infrastructure.ActivityBase
             ActivitySystem.UserChanged += ActivitySystem_UserChanged;
             ActivitySystem.UserRemoved += ActivitySystem_UserRemoved;
 
+            ActivitySystem.ResourceAdded += ActivitySystem_ResourceAdded;
+            ActivitySystem.ResourceChanged += ActivitySystem_ResourceChanged;
+            ActivitySystem.ResourceRemoved += ActivitySystem_ResourceRemoved;
+
+            ActivitySystem.NotificationAdded += ActivitySystem_NotificationAdded;
+            ActivitySystem.NotificationChanged += ActivitySystem_NotificationChanged;
+            ActivitySystem.NotificationRemoved += ActivitySystem_NotificationRemoved;
+
             ActivitySystem.FileResourceAdded += ActivitySystem_FileResourceAdded;
             ActivitySystem.FileResourceChanged += ActivitySystem_FileResourceChanged;
             ActivitySystem.FileResourceRemoved += ActivitySystem_FileResourceRemoved;
@@ -155,6 +163,35 @@ namespace NooSphere.Infrastructure.ActivityBase
         void ActivitySystem_ActivityAdded(object sender, ActivityEventArgs e)
         {
             Notifier.NotifyAll(NotificationType.ActivityAdded, e.Activity);
+        }
+        void ActivitySystem_ResourceRemoved(object sender, ResourceRemovedEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.ResourceRemoved, e.Id);
+        }
+
+        void ActivitySystem_ResourceChanged(object sender, ResourceEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.ResourceChanged, e.Resource);
+        }
+
+        void ActivitySystem_ResourceAdded(object sender, ResourceEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.ResourceAdded, e.Resource);
+        }
+
+        void ActivitySystem_NotificationRemoved(object sender, NotificationRemovedEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.NotificationRemoved, e.Id);
+        }
+
+        void ActivitySystem_NotificationChanged(object sender, NotificationEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.NotificationChanged, e.Notification);
+        }
+
+        void ActivitySystem_NotificationAdded(object sender, NotificationEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.NotificationAdded, e.Notification);
         }
 
         void InitializeSevice( ActivitySystem system, string ip, int port )

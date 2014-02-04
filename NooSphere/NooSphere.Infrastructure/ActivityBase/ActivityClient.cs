@@ -159,6 +159,16 @@ namespace NooSphere.Infrastructure.ActivityBase
                     OnResourceRemoved(
                         new ResourceRemovedEventArgs(data));
                     break;
+                case NotificationType.NotificationAdded:
+                    OnNotificationAdded(new NotificationEventArgs(Json.ConvertFromTypedJson<INotification>(data)));
+                    break;
+                case NotificationType.NotificationChanged:
+                    OnNotificationChanged(new NotificationEventArgs(Json.ConvertFromTypedJson<INotification>(data)));
+                    break;
+                case NotificationType.NotificationRemoved:
+                    OnNotificationRemoved(
+                        new NotificationRemovedEventArgs(data));
+                    break;
                 case NotificationType.Message:
                     OnMessageReceived(
                         new MessageEventArgs(Json.ConvertFromTypedJson<NooMessage>(data)));

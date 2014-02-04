@@ -26,6 +26,9 @@ namespace NooSphere.Infrastructure.Events
         ResourceChanged,
         FileResourceAdded,
         FileResoureRemoved,
-        FileResourceChanged
+        FileResourceChanged,
+        NotificationAdded,
+        NotificationRemoved,
+        NotificationChanged,
     }
 }

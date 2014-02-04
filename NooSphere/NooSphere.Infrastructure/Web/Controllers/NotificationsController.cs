@@ -10,7 +10,7 @@ using System.Web.Http;
 
 namespace NooSphere.Infrastructure.Web.Controllers
 {
-    class NotificationsController : ApiController
+    public class NotificationsController : ApiController
     {
         readonly ActivitySystem _system;
 
