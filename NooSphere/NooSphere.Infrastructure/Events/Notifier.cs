@@ -9,6 +9,7 @@ namespace NooSphere.Infrastructure.Events
             var context = GlobalHost.ConnectionManager.GetConnectionContext<EventDispatcher>();
             var output = ConstructEvent(type, obj);
             context.Connection.Broadcast(output);
+
         }
 
         public static void NotifyConnection(string connection,NotificationType type, object obj)

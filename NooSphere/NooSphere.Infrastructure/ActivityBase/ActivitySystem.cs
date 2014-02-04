@@ -142,13 +142,13 @@ namespace NooSphere.Infrastructure.ActivityBase
                                   if (obj is IUser)
                                       HandleIUserMessages(change);
                                   else if (obj is IActivity)
-                                      HandleActivityMessages(change);
+                                      HandleIActivityMessages(change);
                                   else if (obj is IDevice)
-                                      HandleDeviceMessages(change);
+                                      HandleIDeviceMessages(change);
                                   else if (obj is IResource)
-                                      HandleResourceMessages(change);
+                                      HandleIResourceMessages(change);
                                   else if (obj is INotification)
-                                      HandleNotificationMessages(change);
+                                      HandleINotificationMessages(change);
                                   else
                                       HandleUnknownMessage(change);
                               }
@@ -172,7 +172,7 @@ namespace NooSphere.Infrastructure.ActivityBase
             }
         }
 
-        void HandleDeviceMessages( DocumentChangeNotification change )
+        void HandleIDeviceMessages( DocumentChangeNotification change )
         {
             switch ( change.Type )
             {
@@ -203,7 +203,7 @@ namespace NooSphere.Infrastructure.ActivityBase
             }
         }
 
-        void HandleActivityMessages( DocumentChangeNotification change )
+        void HandleIActivityMessages( DocumentChangeNotification change )
         {
             switch ( change.Type )
             {
@@ -265,7 +265,7 @@ namespace NooSphere.Infrastructure.ActivityBase
             }
         }
 
-        void HandleResourceMessages(DocumentChangeNotification change)
+        void HandleIResourceMessages(DocumentChangeNotification change)
         {
             switch (change.Type)
             {
@@ -295,7 +295,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                     break;
             }
         }
-        void HandleNotificationMessages(DocumentChangeNotification change)
+        void HandleINotificationMessages(DocumentChangeNotification change)
         {
             switch (change.Type)
             {
