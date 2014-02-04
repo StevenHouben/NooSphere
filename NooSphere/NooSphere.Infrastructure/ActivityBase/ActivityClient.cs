@@ -40,6 +40,8 @@ namespace NooSphere.Infrastructure.ActivityBase
 
             Device = device;
 
+            //AddDevice(Device);
+
             try
             {
                 _eventHandler = new Connection(Address);

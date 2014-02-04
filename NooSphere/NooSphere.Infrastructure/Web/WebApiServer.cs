@@ -32,7 +32,7 @@ namespace NooSphere.Infrastructure.Web
             Port = port;
             Task.Factory.StartNew( () =>
             {
-                using ( WebApp.Start<WebService>( Helpers.Net.GetUrl( addr, port, "" ).ToString() ) )
+                using ( WebApp.Start<WebService>( Helpers.Net.GetUrl( addr, 8060, "" ).ToString() ) )
                 {
                     Console.WriteLine( "WebAPI running on {0}", Helpers.Net.GetUrl( addr, port, "" ) );
                     while ( Running ) {}
