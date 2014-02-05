@@ -198,7 +198,7 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         public override void UpdateUser( IUser user )
         {
-            //Rest.Put( Address + Url.Users, user );
+            Rest.Put( Address + Url.Users, user );
         }
 
         public override IUser GetUser( string id )
