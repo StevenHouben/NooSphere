@@ -58,7 +58,7 @@ namespace NooSphere.Infrastructure.ActivityBase
         }
 
 
-        public virtual void StartBroadcast(DiscoveryType type, string hostName, string location = "undefined", string code = "-1")
+        public virtual void StartBroadcast(DiscoveryType type, string hostName,string location = "undefined", string code = "-1")
         {
             var t = new Thread(() =>
             {

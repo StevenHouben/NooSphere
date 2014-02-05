@@ -9,6 +9,7 @@ namespace NooSphere.Infrastructure.Events
     {
         protected override Task OnReceived(IRequest request, string connectionId, string data)
         {
+            ActivityService.ActivitySystem.HandleMessage(data);
             return Connection.Broadcast(data);
         }
 

@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.ServiceModel.Discovery;
+using System.Threading.Tasks;
 using Mono.Zeroconf;
 
 
@@ -81,11 +82,7 @@ namespace NooSphere.Infrastructure.Discovery
                 case DiscoveryType.Zeroconf:
                 {
                     var zcBrowser = new ServiceBrowser();
-                    zcBrowser.ServiceAdded += delegate( object o, ServiceBrowseEventArgs args )
-                    {
-                        args.Service.Resolved += ZcBrowserServiceResolved;
-                        args.Service.Resolve();
-                    };
+                    zcBrowser.ServiceAdded += zcBrowser_ServiceAdded;
                     zcBrowser.Browse( "_am._tcp", "local" );
                 }
                     break;
@@ -93,6 +90,16 @@ namespace NooSphere.Infrastructure.Discovery
 #else
             Probe();
 #endif
+        }
+
+        void zcBrowser_ServiceAdded(object o, ServiceBrowseEventArgs args)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                args.Service.Resolved += ZcBrowserServiceResolved;
+                args.Service.Resolve();
+            });
+
         }
 
         #endregion

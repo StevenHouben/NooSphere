@@ -29,6 +29,7 @@
         Notification,
         Custom,
         Resource,
-        ResourceRemove
+        ResourceRemove,
+        ActivityChanged
     }
 }

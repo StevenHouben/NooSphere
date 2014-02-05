@@ -1,7 +1,7 @@
-﻿using NooSphere.Model.Primitives;
+﻿using NooSphere.Model.Configuration;
+using NooSphere.Model.Primitives;
 using NooSphere.Model.Users;
 using System.Collections.Generic;
-
 
 namespace NooSphere.Model
 {
@@ -12,5 +12,6 @@ namespace NooSphere.Model
 		List<Action> Actions { get; set; }
 		Metadata Meta { get; set; }
 		List<Resource> Resources { get; set; }
+	    ISituatedConfiguration Configuration { get; set; }
 	}
 }
