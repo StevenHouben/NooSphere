@@ -1,8 +1,11 @@
 ﻿using System.IO;
 using System.Net;
-using System.Security.Policy;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NooSphere.Infrastructure.Context.Location;
+using NooSphere.Infrastructure.Events;
 using NooSphere.Infrastructure.Helpers;
+using NooSphere.Infrastructure.Web;
 using NooSphere.Model;
 using NooSphere.Model.Device;
 using NooSphere.Model.Primitives;
@@ -759,6 +762,21 @@ namespace NooSphere.Infrastructure.ActivityBase
             if(id=="-1")return;
             RemoveDevice(id);
                  
+        }
+
+        internal void HandleMessage(string obj)
+        {
+            var content = JsonConvert.DeserializeObject<JObject>(obj);
+            var eventType = content["Event"].ToString();
+            var data = content["Data"].ToString();
+
+            switch ((NotificationType)Enum.Parse(typeof(NotificationType), eventType))
+            {
+                case NotificationType.Message:
+                    OnMessageReceived(
+                        new MessageEventArgs(Json.ConvertFromTypedJson<NooMessage>(data)));
+                    break;
+            }
         }
     }
 

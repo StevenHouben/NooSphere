@@ -49,7 +49,7 @@ namespace NooSphere.Examples
             activityService.Start();
 
             //make the system discoverable on the LAN
-            activityService.StartBroadcast(DiscoveryType.Zeroconf, "activitySystem", "mycompany");
+            activityService.StartBroadcast(DiscoveryType.Zeroconf, "activitySystem", "mycompany","1234");
 
             //Wait for one second to allow the service to start
             Thread.Sleep(1000);
@@ -61,6 +61,9 @@ namespace NooSphere.Examples
 
             disco.DiscoveryAddressAdded += (sender, e) =>
             {
+                if (e.ServiceInfo.Code != "1234")
+                    return;
+
                 var foundWebConfiguration = new WebConfiguration(e.ServiceInfo.Address);
 
                 //Note that you don't have to use discovery but can connect directly

@@ -28,7 +28,6 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         #endregion
 
-
         #region Constructor/Destructor
 
         public ActivityClient( string ip, int port, IDevice device )
@@ -45,6 +44,7 @@ namespace NooSphere.Infrastructure.ActivityBase
             try
             {
                 _eventHandler = new Connection(Address);
+                _eventHandler.JsonSerializer.TypeNameHandling = TypeNameHandling.Objects;
                 _eventHandler.Received += eventHandler_Received;
                 _eventHandler.Start().Wait();
             }
@@ -182,6 +182,23 @@ namespace NooSphere.Infrastructure.ActivityBase
 
 
         #region Public Members
+        public void SendMessage(MessageType type, object message)
+        {
+            var msg = new NooMessage()
+            {
+                Content = message,
+                Type = type
+            };
+
+            var output = ConstructEvent(NotificationType.Message,msg);
+
+            _eventHandler.Send(output);
+        }
+        protected object ConstructEvent(NotificationType type, object obj)
+        {
+            var notevent = new { Event = type.ToString(), Data = obj };
+            return notevent;
+        }
 
         public void AddFileResource(IActivity activity, MemoryStream stream)
         {
@@ -210,7 +227,7 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         public override void UpdateUser( IUser user )
         {
-            Rest.Put( Address + Url.Users, user );
+            //Rest.Put( Address + Url.Users, user );
         }
 
         public override IUser GetUser( string id )

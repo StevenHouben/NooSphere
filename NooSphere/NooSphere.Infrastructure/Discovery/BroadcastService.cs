@@ -121,8 +121,7 @@ namespace NooSphere.Infrastructure.Discovery
                     break;
                 case DiscoveryType.Zeroconf:
                 {
-                    _service = new RegisterService
-                    { Name = nameToBroadcast, RegType = "_am._tcp", ReplyDomain = "local", Port = 3689 };
+                    _service = new RegisterService { Name = nameToBroadcast, RegType = "_am._tcp", ReplyDomain = "local", Port = 3792 };
 
 
                     // TxtRecords are optional

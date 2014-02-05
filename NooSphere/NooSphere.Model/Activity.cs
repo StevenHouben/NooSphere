@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NooSphere.Model.Configuration;
 using NooSphere.Model.Users;
 using NooSphere.Model.Primitives;
 using NooSphere.Model.Resources;
@@ -71,6 +72,18 @@ namespace NooSphere.Model
             {
                 actions = value;
                 OnPropertyChanged("actions");
+            }
+        }
+
+        ISituatedConfiguration _configuration;
+
+        public ISituatedConfiguration Configuration
+        {
+            get { return _configuration; }
+            set
+            {
+                _configuration = value;
+                OnPropertyChanged("Configurations");
             }
         }
 
