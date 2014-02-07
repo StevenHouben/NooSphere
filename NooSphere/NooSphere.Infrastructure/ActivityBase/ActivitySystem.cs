@@ -359,7 +359,7 @@ namespace NooSphere.Infrastructure.ActivityBase
 
 
         private Object thisLock = new Object();
-        public void AddResourceToActivity( Activity activity,Stream stream,string path,string type)
+        public void AddResourceToActivity( Activity activity,Stream stream,string type)
         {
            var resource = new Resource()
             {

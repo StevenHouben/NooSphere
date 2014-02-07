@@ -52,7 +52,7 @@ namespace NooSphere.Infrastructure.Web.Controllers
                 //    var stream = t.Result;
                     if (_system.Activities.ContainsKey(activityId))
                     {
-                        _system.AddResourceToActivity(_system.Activities[activityId] as Activity, stream, "", "");
+                        _system.AddResourceToActivity(_system.Activities[activityId] as Activity, stream, "");
 
                     }
               //  });
