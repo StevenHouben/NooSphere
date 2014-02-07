@@ -16,6 +16,9 @@ namespace NooSphere.Infrastructure.Events
         {
             var context = GlobalHost.ConnectionManager.GetConnectionContext<EventDispatcher>();
             var output = ConstructEvent(type, obj);
+
+            if (string.IsNullOrEmpty(connection))
+                return;
             context.Connection.Send(connection,output);
         }
 
