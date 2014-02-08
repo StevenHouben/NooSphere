@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
@@ -61,10 +62,10 @@ namespace NooSphere.Infrastructure.Helpers
 
                 var task = Task.Factory.FromAsync(
                     request.BeginGetResponse,
-                    asyncResult => request.EndGetResponse( asyncResult ), null );
+                    asyncResult => request.EndGetResponse(asyncResult),
+                    null);
 
-
-                return task.ContinueWith( t => ReadStreamFromResponse( t.Result ) );
+                return task.ContinueWith(t => !t.IsFaulted ? ReadStreamFromResponse(t.Result) : null);
             }
             catch ( WebException wex )
             {
@@ -82,11 +83,12 @@ namespace NooSphere.Infrastructure.Helpers
             return HttpClient.GetAsync( path ).ContinueWith( resp => resp.Result.Content.ReadAsStreamAsync().ContinueWith( s => s.Result ).Result );
         }
 
-        public static void UploadFile(string path,string activityId, MemoryStream stream)
+        public static void UploadFile(string path,string activityId,string resourceType, MemoryStream stream)
         {
             var message = new HttpRequestMessage();
             var content = new StreamContent(stream);
             content.Headers.Add("activityId",activityId);
+            content.Headers.Add("resourceType", resourceType);
 
             message.Method = System.Net.Http.HttpMethod.Post;
             message.Content = content;

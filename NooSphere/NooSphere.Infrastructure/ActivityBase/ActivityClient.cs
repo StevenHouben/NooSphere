@@ -94,57 +94,75 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         void eventHandler_Received( string obj )
         {
-            if ( obj == "Connected" )
+            if ( obj.ToLower() == "connected")
             {
                 _connected = true;
                 Initialize();
                 OnConnectionEstablished();
                 return;
             }
-            var content = JsonConvert.DeserializeObject<JObject>( obj );
-            var eventType = content[ "Event" ].ToString();
-            var data = content[ "Data" ].ToString();
-
-            switch ( (NotificationType)Enum.Parse( typeof( NotificationType ), eventType ) )
+            try
             {
-                case NotificationType.ActivityAdded:
-                    OnActivityAdded( new ActivityEventArgs( Json.ConvertFromTypedJson<IActivity>( data ) ) );
-                    break;
-                case NotificationType.ActivityChanged:
-                    OnActivityChanged( new ActivityEventArgs( Json.ConvertFromTypedJson<IActivity>( data ) ) );
-                    break;
-                case NotificationType.ActivityRemoved:
-                    OnActivityRemoved(
-                        new ActivityRemovedEventArgs(
-                            JsonConvert.DeserializeObject<JObject>( data )[ "Id" ].ToString() ) );
-                    break;
-                case NotificationType.UserAdded:
-                    OnUserAdded( new UserEventArgs( Json.ConvertFromTypedJson<IUser>( data ) ) );
-                    break;
-                case NotificationType.UserChanged:
-                    OnUserChanged( new UserEventArgs( Json.ConvertFromTypedJson<IUser>( data ) ) );
-                    break;
-                case NotificationType.UserRemoved:
-                    OnUserRemoved(
-                        new UserRemovedEventArgs( data ) );
-                    break;
-                case NotificationType.ResourceAdded:
-                    OnResourceAdded(
-                            new ResourceEventArgs(Json.ConvertFromTypedJson<Resource>(data)));
-                    break;
-                case NotificationType.ResourceChanged:
-                    OnResourceChanged(
-                            new ResourceEventArgs(Json.ConvertFromTypedJson<Resource>(data)));
-                    break;
-                case NotificationType.ResoureRemoved:
-                    OnResourceRemoved(
-                            new ResourceRemovedEventArgs(data));
-                    break;
-                case NotificationType.Message:
-                    OnMessageReceived(
-                        new MessageEventArgs(Json.ConvertFromTypedJson<NooMessage>(data)));
-                    break;
+                var content = JsonConvert.DeserializeObject<JObject>(obj);
+                var eventType = content["Event"].ToString();
+                var data = content["Data"].ToString();
+
+                switch ((NotificationType)Enum.Parse(typeof(NotificationType), eventType))
+                {
+                    case NotificationType.ActivityAdded:
+                        OnActivityAdded(new ActivityEventArgs(Json.ConvertFromTypedJson<IActivity>(data)));
+                        break;
+                    case NotificationType.ActivityChanged:
+                        OnActivityChanged(new ActivityEventArgs(Json.ConvertFromTypedJson<IActivity>(data)));
+                        break;
+                    case NotificationType.ActivityRemoved:
+                        OnActivityRemoved(
+                            new ActivityRemovedEventArgs(
+                                JsonConvert.DeserializeObject<JObject>(data)["Id"].ToString()));
+                        break;
+                    case NotificationType.DeviceAdded:
+                        OnDeviceAdded(new DeviceEventArgs(Json.ConvertFromTypedJson<IDevice>(data)));
+                        break;
+                    case NotificationType.DeviceChanged:
+                        OnDeviceChanged(new DeviceEventArgs(Json.ConvertFromTypedJson<IDevice>(data)));
+                        break;
+                    case NotificationType.DeviceRemoved:
+                        OnDeviceRemoved(new DeviceRemovedEventArgs(data));
+                        break;
+                    case NotificationType.UserAdded:
+                        OnUserAdded(new UserEventArgs(Json.ConvertFromTypedJson<IUser>(data)));
+                        break;
+                    case NotificationType.UserChanged:
+                        OnUserChanged(new UserEventArgs(Json.ConvertFromTypedJson<IUser>(data)));
+                        break;
+                    case NotificationType.UserRemoved:
+                        OnUserRemoved(
+                            new UserRemovedEventArgs(data));
+                        break;
+                    case NotificationType.ResourceAdded:
+                        OnResourceAdded(
+                                new ResourceEventArgs(Json.ConvertFromTypedJson<Resource>(data)));
+                        break;
+                    case NotificationType.ResourceChanged:
+                        OnResourceChanged(
+                                new ResourceEventArgs(Json.ConvertFromTypedJson<Resource>(data)));
+                        break;
+                    case NotificationType.ResoureRemoved:
+                        OnResourceRemoved(
+                                new ResourceRemovedEventArgs(data));
+                        break;
+                    case NotificationType.Message:
+                        OnMessageReceived(
+                            new MessageEventArgs(Json.ConvertFromTypedJson<NooMessage>(data)));
+                        break;
+                }
             }
+            catch (Exception)
+            {
+                
+                Console.WriteLine("Error reading JSON");
+            }
+            
         }
 
         #endregion
@@ -171,9 +189,9 @@ namespace NooSphere.Infrastructure.ActivityBase
             return notevent;
         }
 
-        public void AddResource(IActivity activity, MemoryStream stream)
+        public void AddResource(IActivity activity,string resourceType, MemoryStream stream)
         {
-            Rest.UploadFile(Address + Url.Resources, activity.Id, stream);
+            Rest.UploadFile(Address + Url.Resources, activity.Id,resourceType, stream);
         }
 
         public Stream GetResource(Resource resource)

@@ -42,7 +42,7 @@ namespace NooSphere.Infrastructure.Web.Controllers
         {
             var request = Request.Content as StreamContent;
             var activityId = Request.Headers.GetValues("activityId").First();
-
+            var resourceType = Request.Headers.GetValues("resourceType").First();
             if (request != null)
             {
                 var  stream = await request.ReadAsStreamAsync();
@@ -52,7 +52,7 @@ namespace NooSphere.Infrastructure.Web.Controllers
                 //    var stream = t.Result;
                     if (_system.Activities.ContainsKey(activityId))
                     {
-                        _system.AddResourceToActivity(_system.Activities[activityId] as Activity, stream, "");
+                        _system.AddResourceToActivity(_system.Activities[activityId] as Activity, stream, resourceType);
 
                     }
               //  });
