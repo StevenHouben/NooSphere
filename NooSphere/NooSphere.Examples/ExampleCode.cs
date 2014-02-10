@@ -90,7 +90,7 @@ namespace NooSphere.Examples
                 var act = new Activity();
 
                 activityClient.AddActivity(act);
-                activityClient.AddResource(act, new MemoryStream(File.ReadAllBytes(@"C:\Users\Public\Pictures\Sample Pictures\Desert.jpg")));
+                activityClient.AddResource(act,"IMG", new MemoryStream(File.ReadAllBytes(@"C:\Users\Public\Pictures\Sample Pictures\Desert.jpg")));
             };
 
             disco.Find(DiscoveryType.Zeroconf);

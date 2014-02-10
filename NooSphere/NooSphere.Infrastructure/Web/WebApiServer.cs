@@ -56,6 +56,9 @@ namespace NooSphere.Infrastructure.Web
             config.Formatters.JsonFormatter.SerializerSettings.TypeNameHandling = TypeNameHandling.All;
             config.Routes.MapHttpRoute("Default", "{controller}/{id}", new { id = RouteParameter.Optional });
 
+
+            GlobalHost.Configuration.DisconnectTimeout = TimeSpan.FromSeconds(6);
+
             app.UseWebApi(config);
             app.MapSignalR<EventDispatcher>("", new ConnectionConfiguration { });
 
