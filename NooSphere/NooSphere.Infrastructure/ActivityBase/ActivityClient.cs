@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.ServiceModel;
 using NooSphere.Infrastructure.Web;
 using NooSphere.Model.Device;
 using NooSphere.Model.Users;
@@ -58,6 +59,7 @@ namespace NooSphere.Infrastructure.ActivityBase
             {
                 try
                 {
+                    RemoveDevice(Device.Id);
                     _eventHandler.Stop();
                 }
                 catch (Exception)
@@ -179,9 +181,17 @@ namespace NooSphere.Infrastructure.ActivityBase
                 Type = type
             };
 
-            var output = ConstructEvent(NotificationType.Message,msg);
+            var output = ConstructEvent(NotificationType.Message, msg);
 
-            _eventHandler.Send(output);
+            try
+            {
+                _eventHandler.Send(output);
+            }
+            catch
+            {
+              
+            }
+
         }
         protected object ConstructEvent(NotificationType type, object obj)
         {

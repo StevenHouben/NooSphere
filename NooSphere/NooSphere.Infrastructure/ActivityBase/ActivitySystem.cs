@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using System.Net;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NooSphere.Infrastructure.Context.Location;
@@ -24,22 +24,19 @@ namespace NooSphere.Infrastructure.ActivityBase
 {
     public class ActivitySystem : ActivityNode
     {
-        #region Members
-
         DocumentStore _documentStore;
-
-        #endregion
-
         public string DatabaseName { get; private set; }
-
-        #region Constructor
 
         public ActivitySystem( DatabaseConfiguration databaseConfiguration)
         {
             DatabaseName = databaseConfiguration.DatabaseName;
+
             Ip = Net.GetIp( IpType.All );
+
             Port = databaseConfiguration.Port;
+
             Tracker = new LocationTracker(Ip);
+
             InitializeDocumentStore(Net.GetUrl(databaseConfiguration.Address, databaseConfiguration.Port, "").ToString());
         }
 
@@ -48,7 +45,6 @@ namespace NooSphere.Infrastructure.ActivityBase
             StopLocationTracker();
         }
 
-        #endregion
 
 
         #region Eventhandlers
@@ -114,17 +110,11 @@ namespace NooSphere.Infrastructure.ActivityBase
                 SubscribeToChanges();
                 OnConnectionEstablished();
             }
-            catch (WebException ex)
+            catch
             {
-                
-                Console.WriteLine(ex.StackTrace);
+                throw new Exception("RavenDB data bases " + DatabaseName + "_is not running or not found on url "+address);
             }
 
-        }
-
-        public T Cast<T>( object input )
-        {
-            return (T)input;
         }
 
         void SubscribeToChanges()
@@ -149,15 +139,13 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         void HandleUnknowMessage( DocumentChangeNotification change )
         {
-            if ( change.Type == DocumentChangeTypes.Delete )
-            {
-                if ( activities.ContainsKey( change.Id ) )
-                    OnActivityRemoved( new ActivityRemovedEventArgs( change.Id ) );
-                if ( users.ContainsKey( change.Id ) )
-                    OnUserRemoved( new UserRemovedEventArgs( change.Id ) );
-                if ( devices.ContainsKey( change.Id ) )
-                    OnDeviceRemoved( new DeviceRemovedEventArgs( change.Id ) );
-            }
+            if (change.Type != DocumentChangeTypes.Delete) return;
+            if ( activities.ContainsKey( change.Id ) )
+                OnActivityRemoved( new ActivityRemovedEventArgs( change.Id ) );
+            if ( users.ContainsKey( change.Id ) )
+                OnUserRemoved( new UserRemovedEventArgs( change.Id ) );
+            if ( devices.ContainsKey( change.Id ) )
+                OnDeviceRemoved( new DeviceRemovedEventArgs( change.Id ) );
         }
 
         void HandleIDeviceMessages( DocumentChangeNotification change )
@@ -358,7 +346,7 @@ namespace NooSphere.Infrastructure.ActivityBase
         }
 
 
-        private Object thisLock = new Object();
+        private readonly Object _thisLock = new Object();
         public void AddResourceToActivity( Activity activity,Stream stream,string type)
         {
            var resource = new Resource()
@@ -367,9 +355,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                 ActivityId = activity.Id
             };
 
-            try
-            {
-                lock (thisLock)
+                lock (_thisLock)
                 {
                     _documentStore.DatabaseCommands.PutAttachment(resource.Id,
                         null,
@@ -384,14 +370,6 @@ namespace NooSphere.Infrastructure.ActivityBase
                     UpdateActivity(Activities[activity.Id]);
                     OnResourceAdded(new ResourceEventArgs(resource));
                 }
-
-            }
-            catch (Exception)
-            {
-                
-                throw;
-            }
-         
                 stream.Dispose();
         }
 
@@ -569,15 +547,16 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         internal void RemoveDeviceByConnectionId(string connectionId)
         {
-            var id = "-1";
+            IDevice device = null;
+
             foreach (var d in Devices.Values)
             {
                 if (d.ConnectionId == connectionId)
-                    id = connectionId;
+                    device =d ;
 
             }
-            if(id=="-1")return;
-            RemoveDevice(id);
+            if(device==null)return;
+            RemoveDevice(device.Id);
                  
         }
 

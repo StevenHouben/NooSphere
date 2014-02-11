@@ -22,7 +22,6 @@ namespace NooSphere.Infrastructure.Helpers
         {
             var array = JArray.Parse( json );
             var list = array.Select( item => ConvertFromTypedJson<T>( item.ToString() ) ).ToList();
-            //array.ToObject<List<SelectableEnumItem>>()
             return list;
         }
     }

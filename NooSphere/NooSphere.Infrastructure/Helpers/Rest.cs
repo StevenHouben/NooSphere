@@ -62,7 +62,19 @@ namespace NooSphere.Infrastructure.Helpers
 
                 var task = Task.Factory.FromAsync(
                     request.BeginGetResponse,
-                    asyncResult => request.EndGetResponse(asyncResult),
+                    asyncResult =>
+                    {
+                        try
+                        {
+                            return request.EndGetResponse(asyncResult);
+                        }
+                        catch (Exception)
+                        {
+
+                            return null;
+                        }
+                       
+                    },
                     null);
 
                 return task.ContinueWith(t => !t.IsFaulted ? ReadStreamFromResponse(t.Result) : null);
@@ -99,6 +111,8 @@ namespace NooSphere.Infrastructure.Helpers
 
             var client = new HttpClient();
             client.SendAsync(message).ContinueWith(task => stream.Close());
+
+            stream.Close();
         }
         public static Stream DownloadFile(string path, string id)
         {
