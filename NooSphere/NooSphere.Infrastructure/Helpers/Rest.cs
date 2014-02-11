@@ -68,9 +68,9 @@ namespace NooSphere.Infrastructure.Helpers
                         {
                             return request.EndGetResponse(asyncResult);
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-
+                            Console.WriteLine(ex.InnerException.Message);
                             return null;
                         }
                        

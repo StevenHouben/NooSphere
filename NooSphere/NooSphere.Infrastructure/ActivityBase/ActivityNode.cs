@@ -9,7 +9,7 @@ using NooSphere.Model.Users;
 
 namespace NooSphere.Infrastructure.ActivityBase
 {
-    public abstract class ActivityNode
+    public  abstract class ActivityNode
     {
         #region Events
 
