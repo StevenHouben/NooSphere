@@ -82,7 +82,25 @@ namespace NooSphere.Infrastructure.ActivityBase
             }
         }
 
-        void tracker_Detection( Detector detector, DetectionEventArgs e ) {}
+        void tracker_Detection( Detector detector, DetectionEventArgs e ) {
+            //TODO: Make sure that Detector.Name is a meaningful location or if some other property should be used
+            devices.Values.ToList().ForEach(d =>
+            {
+                if (d.TagValue == e.Tag.Id) 
+                {
+                    d.Location = e.Detector.Name;
+                    UpdateDevice(d);
+                } 
+            });
+            users.Values.ToList().ForEach(u =>
+            {
+                if (u.Tag == e.Tag.Id)
+                {
+                    u.Location = e.Detector.Name;
+                    UpdateUser(u);
+                }
+            });
+        }
 
         #endregion
 
