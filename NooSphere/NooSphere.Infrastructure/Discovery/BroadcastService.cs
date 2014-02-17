@@ -84,8 +84,7 @@ namespace NooSphere.Infrastructure.Discovery
         /// <param name="physicalLocation">The physical location of the service that needs to be broadcasted</param>
         /// <param name="code">code to be broadcasted (e.g. device id)</param>
         /// <param name="addressToBroadcast">The address of the service that needs to be broadcasted</param>
-        /// <param name="broadcastPort">The port of the broadcast service. Default=56789</param>
-        public void Start( DiscoveryType type, string nameToBroadcast, string physicalLocation, string code, Uri addressToBroadcast, int broadcastPort = 7892 )
+        public void Start( DiscoveryType type, string nameToBroadcast, string physicalLocation, string code, Uri addressToBroadcast)
         {
             DiscoveryType = type;
 
@@ -94,7 +93,7 @@ namespace NooSphere.Infrastructure.Discovery
                 case DiscoveryType.WsDiscovery:
                 {
                     Ip = Net.GetIp( IpType.All );
-                    Port = broadcastPort;
+                    Port = 7985;
                     Address = "http://" + Ip + ":" + Port + "/";
 
                     _discoveryHost = new ServiceHost( new DiscoveyService() );
@@ -121,7 +120,7 @@ namespace NooSphere.Infrastructure.Discovery
                     break;
                 case DiscoveryType.Zeroconf:
                 {
-                    _service = new RegisterService { Name = nameToBroadcast, RegType = "_am._tcp", ReplyDomain = "local", Port = 3792 };
+                    _service = new RegisterService { Name = nameToBroadcast, RegType = "_am._tcp", ReplyDomain = "local", Port = 3689 };
 
 
                     // TxtRecords are optional
@@ -135,7 +134,7 @@ namespace NooSphere.Infrastructure.Discovery
                     _service.TxtRecord = txtRecord;
                     _service.Response += service_Response;
                     _service.Register();
-                    Debug.WriteLine( DiscoveryType.ToString() + " is started" );
+                    Debug.WriteLine(DiscoveryType.ToString() + " is started");
                 }
                     break;
             }

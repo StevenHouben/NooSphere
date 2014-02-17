@@ -133,7 +133,7 @@ namespace NooSphere.Infrastructure.Services
             {
                 StopBroadcast();
                 _broadcast.Start( type, hostName, location, code,
-                                  Net.GetUrl( Ip, Port, "" ),1111 );
+                                  Net.GetUrl( Ip, Port, "" ) );
             } ) { IsBackground = true };
             t.Start();
         }

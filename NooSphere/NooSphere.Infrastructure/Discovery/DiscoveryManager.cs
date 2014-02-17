@@ -92,9 +92,9 @@ namespace NooSphere.Infrastructure.Discovery
 #endif
         }
 
-        void zcBrowser_ServiceAdded(object o, ServiceBrowseEventArgs args)
+        async void zcBrowser_ServiceAdded(object o, ServiceBrowseEventArgs args)
         {
-            Task.Factory.StartNew(() =>
+            await Task.Factory.StartNew(() =>
             {
                 args.Service.Resolved += ZcBrowserServiceResolved;
                 args.Service.Resolve();
