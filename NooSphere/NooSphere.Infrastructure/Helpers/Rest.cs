@@ -147,6 +147,8 @@ namespace NooSphere.Infrastructure.Helpers
 
         static string ReadStreamFromResponse( WebResponse response )
         {
+            if (response == null)
+                return null;
             Log.Out( "REST", String.Format( "Recieved response from {0}", response.ResponseUri ) );
             using ( var responseStream = response.GetResponseStream() )
                 if ( responseStream != null )
