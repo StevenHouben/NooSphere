@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.ServiceModel;
 using NooSphere.Infrastructure.Web;
 using NooSphere.Model.Device;
 using NooSphere.Model.Users;
@@ -178,7 +177,8 @@ namespace NooSphere.Infrastructure.ActivityBase
             var msg = new NooMessage()
             {
                 Content = message,
-                Type = type
+                Type = type,
+                From = Device.Id
             };
 
             var output = ConstructEvent(NotificationType.Message, msg);

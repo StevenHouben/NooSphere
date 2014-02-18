@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Microsoft.AspNet.SignalR;
@@ -32,11 +33,22 @@ namespace NooSphere.Infrastructure.Web
             Port = port;
             Task.Factory.StartNew( () =>
             {
-                using ( WebApp.Start<WebService>( Helpers.Net.GetUrl( addr, port, "" ).ToString() ) )
+                try
                 {
-                    Console.WriteLine( "WebAPI running on {0}", Helpers.Net.GetUrl( addr, port, "" ) );
-                    while ( Running ) {}
+                    using (WebApp.Start<WebService>(Helpers.Net.GetUrl(addr, port, "").ToString()))
+                    {
+                        Console.WriteLine("WebAPI running on {0}", Helpers.Net.GetUrl(addr, port, ""));
+                        while (Running)
+                        {
+                        }
+                    }
                 }
+                catch (HttpListenerException)
+                {
+                    throw new Exception("Servcie already running on this machine. Choose a different port.");
+                }
+
+
             } );
         }
 
@@ -57,7 +69,7 @@ namespace NooSphere.Infrastructure.Web
             config.Routes.MapHttpRoute("Default", "{controller}/{id}", new { id = RouteParameter.Optional });
 
 
-            GlobalHost.Configuration.DisconnectTimeout = TimeSpan.FromSeconds(6);
+           // GlobalHost.Configuration.DisconnectTimeout = TimeSpan.FromSeconds(6);
 
             app.UseWebApi(config);
             app.MapSignalR<EventDispatcher>("", new ConnectionConfiguration { });

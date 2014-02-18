@@ -120,6 +120,17 @@ namespace NooSphere.Model
             }
         }
 
+        private Resource _logo;
+        public Resource Logo
+        {
+            get { return this._logo; }
+            set
+            {
+                _logo = value;
+                OnPropertyChanged("Logo");
+            }
+        }
+
 		#endregion
 
 
