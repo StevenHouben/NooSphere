@@ -46,24 +46,12 @@ namespace NooSphere.Infrastructure.Web.Controllers
             if (request != null)
             {
                 var  stream = await request.ReadAsStreamAsync();
-
-                //Task task = request.ReadAsStreamAsync().ContinueWith(t =>
-                //{
-                //    var stream = t.Result;
                     if (_system.Activities.ContainsKey(activityId))
                     {
                         _system.AddResourceToActivity(_system.Activities[activityId] as Activity, stream, resourceType);
 
                     }
-              //  });
-
-
-                //var stream = request.ReadAsStreamAsync().Result;
-                //if (_system.Activities.ContainsKey(activityId))
-                //{
-                //   _system.AddResourceToActivity(_system.Activities[activityId] as Activity, stream, "", "");
-  
-                //}
+ 
             }
         }
 

@@ -111,8 +111,6 @@ namespace NooSphere.Infrastructure.Helpers
 
             var client = new HttpClient();
             client.SendAsync(message).ContinueWith(task => stream.Close());
-
-            //stream.Close();
         }
         public static Stream DownloadFile(string path, string id)
         {

@@ -13,5 +13,7 @@ namespace NooSphere.Model
 		Metadata Meta { get; set; }
 		List<Resource> Resources { get; set; }
 	    ISituatedConfiguration Configuration { get; set; }
+
+        Resource Logo { get; set; }
 	}
 }

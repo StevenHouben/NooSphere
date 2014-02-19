@@ -209,6 +209,11 @@ namespace NooSphere.Infrastructure.ActivityBase
             return Rest.DownloadFile(Address + Url.Resources, resource.Id);
         }
 
+        public Uri GetResourceUri(Resource resource)
+        {
+            return new Uri(Address+Url.Resources+"/"+resource.Id);
+        }
+
         public override void AddActivity( IActivity activity )
         {
             Rest.Post( Address + Url.Activities, activity );

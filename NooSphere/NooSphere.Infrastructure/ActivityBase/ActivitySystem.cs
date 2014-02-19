@@ -366,9 +366,14 @@ namespace NooSphere.Infrastructure.ActivityBase
                         }
                         );
 
-                    Activities[activity.Id].Resources.Add(resource);
+                    if (type == "LOGO")
+                        Activities[activity.Id].Logo = resource;
+                    else
+                    {
+                        Activities[activity.Id].Resources.Add(resource);
+                        OnResourceAdded(new ResourceEventArgs(resource));
+                    }
                     UpdateActivity(Activities[activity.Id]);
-                    OnResourceAdded(new ResourceEventArgs(resource));
                 }
                 stream.Dispose();
         }
