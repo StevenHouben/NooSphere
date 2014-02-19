@@ -69,7 +69,7 @@ namespace NooSphere.Infrastructure.Web
             config.Routes.MapHttpRoute("Default", "{controller}/{id}", new { id = RouteParameter.Optional });
 
 
-            GlobalHost.Configuration.DisconnectTimeout = TimeSpan.FromSeconds(6);
+            GlobalHost.Configuration.DisconnectTimeout = TimeSpan.FromSeconds(500);
 
             app.UseWebApi(config);
             app.MapSignalR<EventDispatcher>("", new ConnectionConfiguration { });

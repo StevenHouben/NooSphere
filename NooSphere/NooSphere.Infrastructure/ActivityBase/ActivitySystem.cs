@@ -427,7 +427,10 @@ namespace NooSphere.Infrastructure.ActivityBase
             using (var session = _documentStore.OpenSession(DatabaseName))
             {
                 var obj = session.Load<INoo>( id );
-                obj.UpdateAllProperties( noo );
+                if(obj == null)
+                    AddToStore(noo);
+                else
+                    obj.UpdateAllProperties( noo );
                 session.SaveChanges();
             }
         }
