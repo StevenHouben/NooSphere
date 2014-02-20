@@ -118,8 +118,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                         break;
                     case NotificationType.ActivityRemoved:
                         OnActivityRemoved(
-                            new ActivityRemovedEventArgs(
-                                JsonConvert.DeserializeObject<JObject>(data)["Id"].ToString()));
+                            new ActivityRemovedEventArgs(data));
                         break;
                     case NotificationType.DeviceAdded:
                         OnDeviceAdded(new DeviceEventArgs(Json.ConvertFromTypedJson<IDevice>(data)));
