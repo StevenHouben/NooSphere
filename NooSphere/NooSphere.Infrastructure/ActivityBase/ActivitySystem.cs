@@ -85,25 +85,14 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         void tracker_Detection( Detector detector, DetectionEventArgs e ) { }
 
-        void TagMoved(Detector detector, TagEventArgs e) 
+        public void SubscribeToTagMoved(TagMovedHandler h) 
         {
-            //TODO: Make sure that Detector.Name is a meaningful location or if some other property should be used
-            devices.Values.ToList().ForEach(d =>
-            {
-                if (d.TagValue == e.Tag.Id && d.Location != e.Tag.Detector.Name)
-                {
-                    d.Location = e.Tag.Detector.Name;
-                    UpdateDevice(d);
-                }
-            });
-            users.Values.ToList().ForEach(u =>
-            {
-                if (u.Tag == e.Tag.Id && u.Location != e.Tag.Detector.Name)
-                {
-                    u.Location = e.Tag.Detector.Name;
-                    UpdateUser(u);
-                }
-            });
+            Tracker.TagMoved += h;
+        }
+
+        public void UnsubscribeToTagMoved(TagMovedHandler h)
+        {
+            Tracker.TagMoved -= h;
         }
 
         #endregion
@@ -622,7 +611,6 @@ namespace NooSphere.Infrastructure.ActivityBase
             if ( Tracker.IsRunning ) return;
             Tracker.Detection += tracker_Detection;
             Tracker.TagButtonDataReceived += TrackerTagButtonDataReceived;
-            Tracker.TagMoved += TagMoved;
             Tracker.Start();
         }
 

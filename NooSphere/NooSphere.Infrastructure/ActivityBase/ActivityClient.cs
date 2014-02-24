@@ -170,6 +170,16 @@ namespace NooSphere.Infrastructure.ActivityBase
                     OnNotificationRemoved(
                         new NotificationRemovedEventArgs(data));
                     break;
+                case NotificationType.DeviceAdded:
+                    OnDeviceAdded(new DeviceEventArgs(Json.ConvertFromTypedJson<IDevice>(data)));
+                    break;
+                case NotificationType.DeviceChanged:
+                    OnDeviceChanged(new DeviceEventArgs(Json.ConvertFromTypedJson<IDevice>(data)));
+                    break;
+                case NotificationType.DeviceRemoved:
+                    OnDeviceRemoved(
+                        new DeviceRemovedEventArgs(data));
+                    break;
                 case NotificationType.Message:
                     OnMessageReceived(
                         new MessageEventArgs(Json.ConvertFromTypedJson<NooMessage>(data)));
@@ -336,9 +346,9 @@ namespace NooSphere.Infrastructure.ActivityBase
             return Json.ConvertFromTypedJson<List<INotification>>(Rest.Get(Address + Url.Notifications, ""));
         }
 
-        public string GetTag(string id)
+        public string GetTagLocation(string id)
         {
-            return Json.ConvertFromTypedJson<string>(Rest.Get(Address + Url.Tags, id));
+            return Json.ConvertFromTypedJson<string>(Rest.Get(Address + Url.TagLocations, id));
         }
 
         #endregion
@@ -354,6 +364,6 @@ namespace NooSphere.Infrastructure.ActivityBase
         Resources,
         Files,
         Notifications,
-        Tags
+        TagLocations
     }
 }
