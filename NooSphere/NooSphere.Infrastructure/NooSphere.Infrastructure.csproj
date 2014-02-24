@@ -193,6 +193,7 @@
     <Compile Include="Web\Controllers\ActivityController.cs" />
     <Compile Include="Web\Controllers\DevicesController.cs" />
     <Compile Include="Web\Controllers\FileResourcesController.cs" />
+    <Compile Include="Web\Controllers\TagLocationsController.cs" />
     <Compile Include="Web\Controllers\NotificationsController.cs" />
     <Compile Include="Web\Controllers\MessagesController.cs" />
     <Compile Include="Web\Controllers\ResourcesController.cs" />

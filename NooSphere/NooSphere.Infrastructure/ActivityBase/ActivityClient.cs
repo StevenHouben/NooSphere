@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using NooSphere.Infrastructure.Events;
 using NooSphere.Model.Resources;
 using NooSphere.Model.Notifications;
+using NooSphere.Infrastructure.Context.Location;
 
 
 namespace NooSphere.Infrastructure.ActivityBase
@@ -38,8 +39,6 @@ namespace NooSphere.Infrastructure.ActivityBase
             Address = Net.GetUrl( ip, port, "" ).ToString();
 
             Device = device;
-
-            //AddDevice(Device);
 
             try
             {
@@ -337,6 +336,11 @@ namespace NooSphere.Infrastructure.ActivityBase
             return Json.ConvertFromTypedJson<List<INotification>>(Rest.Get(Address + Url.Notifications, ""));
         }
 
+        public string GetTag(string id)
+        {
+            return Json.ConvertFromTypedJson<string>(Rest.Get(Address + Url.Tags, id));
+        }
+
         #endregion
     }
 
@@ -349,6 +353,7 @@ namespace NooSphere.Infrastructure.ActivityBase
         Users,
         Resources,
         Files,
-        Notifications
+        Notifications,
+        Tags
     }
 }
