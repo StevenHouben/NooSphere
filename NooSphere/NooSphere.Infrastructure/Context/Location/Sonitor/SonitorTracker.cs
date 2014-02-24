@@ -6,6 +6,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -178,7 +179,7 @@ namespace NooSphere.Infrastructure.Context.Location.Sonitor
                     {
                         HostName = rawDetection[ 0 ],
                         Channel = Convert.ToInt16( rawDetection[ 1 ] ),
-                        Name = rawDetection[ 2 ],
+                        Name = Regex.Match(rawDetection[ 2 ], @"\w+").Value,
                         Location = new GenericLocation<float>( float.Parse( rawDetection[ 3 ], CultureInfo.InvariantCulture.NumberFormat ),
                                                                float.Parse( rawDetection[ 4 ], CultureInfo.InvariantCulture.NumberFormat ) ),
                         FloorPlan = Convert.ToInt16( rawDetection[ 5 ] ),
