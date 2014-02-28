@@ -256,7 +256,7 @@ namespace NooSphere.Infrastructure.Context.Location
                 Tags.Remove(detection.TagId);
                 return false;
             }
-            return true;
+            return Tags.ContainsKey(detection.TagId);
         }
 
         #endregion
