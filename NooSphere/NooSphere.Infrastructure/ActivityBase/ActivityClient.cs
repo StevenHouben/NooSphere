@@ -105,7 +105,7 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         void eventHandler_Received( string obj )
         {
-            if ( obj == "Connected" )
+            if ( obj == "Connected" || obj == "Reconnected" )
             {
                 _connected = true;
                 Initialize();
