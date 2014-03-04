@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Web.Http.Results;
 using NooSphere.Infrastructure.Discovery;
 using NooSphere.Infrastructure.Helpers;
 using NooSphere.Infrastructure.Web;
@@ -53,6 +52,14 @@ namespace NooSphere.Infrastructure.ActivityBase
             ActivitySystem.ResourceChanged += ActivitySystem_ResourceChanged;
             ActivitySystem.ResourceRemoved += ActivitySystem_ResourceRemoved;
 
+            ActivitySystem.NotificationAdded += ActivitySystem_NotificationAdded;
+            ActivitySystem.NotificationChanged += ActivitySystem_NotificationChanged;
+            ActivitySystem.NotificationRemoved += ActivitySystem_NotificationRemoved;
+
+            ActivitySystem.FileResourceAdded += ActivitySystem_FileResourceAdded;
+            ActivitySystem.FileResourceChanged += ActivitySystem_FileResourceChanged;
+            ActivitySystem.FileResourceRemoved += ActivitySystem_FileResourceRemoved;
+
             Instance = this;
 
         }
@@ -98,19 +105,19 @@ namespace NooSphere.Infrastructure.ActivityBase
             Notifier.NotifyConnection(device.ConnectionId, NotificationType.Message, message);
         }
 
-        void ActivitySystem_ResourceRemoved(object sender, ResourceRemovedEventArgs e)
+        void ActivitySystem_FileResourceRemoved(object sender, FileResourceRemovedEventArgs e)
         {
-            Notifier.NotifyAll(NotificationType.ResoureRemoved, e.Id);
+            Notifier.NotifyAll(NotificationType.FileResoureRemoved, e.Id);
         }
 
-        void ActivitySystem_ResourceChanged(object sender, ResourceEventArgs e)
+        void ActivitySystem_FileResourceChanged(object sender, FileResourceEventArgs e)
         {
-            Notifier.NotifyAll(NotificationType.ResourceChanged, e.Resource);
+            Notifier.NotifyAll(NotificationType.FileResourceChanged, e.Resource);
         }
 
-        void ActivitySystem_ResourceAdded(object sender, ResourceEventArgs e)
+        void ActivitySystem_FileResourceAdded(object sender, FileResourceEventArgs e)
         {
-            Notifier.NotifyAll(NotificationType.ResourceAdded, e.Resource);
+            Notifier.NotifyAll(NotificationType.FileResourceAdded, e.Resource);
         }
 
         void ActivitySystem_UserChanged(object sender, UserEventArgs e)
@@ -156,6 +163,35 @@ namespace NooSphere.Infrastructure.ActivityBase
         void ActivitySystem_ActivityAdded(object sender, ActivityEventArgs e)
         {
             Notifier.NotifyAll(NotificationType.ActivityAdded, e.Activity);
+        }
+        void ActivitySystem_ResourceRemoved(object sender, ResourceRemovedEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.ResourceRemoved, e.Id);
+        }
+
+        void ActivitySystem_ResourceChanged(object sender, ResourceEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.ResourceChanged, e.Resource);
+        }
+
+        void ActivitySystem_ResourceAdded(object sender, ResourceEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.ResourceAdded, e.Resource);
+        }
+
+        void ActivitySystem_NotificationRemoved(object sender, NotificationRemovedEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.NotificationRemoved, e.Id);
+        }
+
+        void ActivitySystem_NotificationChanged(object sender, NotificationEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.NotificationChanged, e.Notification);
+        }
+
+        void ActivitySystem_NotificationAdded(object sender, NotificationEventArgs e)
+        {
+            Notifier.NotifyAll(NotificationType.NotificationAdded, e.Notification);
         }
 
         void InitializeSevice( ActivitySystem system, string ip, int port )

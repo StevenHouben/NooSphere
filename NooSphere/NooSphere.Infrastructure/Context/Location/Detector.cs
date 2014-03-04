@@ -1,4 +1,5 @@
 ﻿using NooSphere.Infrastructure.Context.Location.Sonitor;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 
@@ -17,29 +18,24 @@ namespace NooSphere.Infrastructure.Context.Location
         public event TagEnterHandler TagEnter = delegate { };
         public event TagLeaveHandler TagLeave = delegate { };
 
-        public Dictionary<string, Tag> Tags { get; private set; }
+        public ConcurrentDictionary<string, Tag> Tags { get; private set; }
 
         public Detector()
         {
-            Tags = new Dictionary<string, Tag>();
+            Tags = new ConcurrentDictionary<string, Tag>();
         }
 
         public void AttachTag( Tag t )
         {
-            if ( !Tags.ContainsKey( t.Id ) )
-            {
-                Tags.Add( t.Id, t );
-                TagEnter( this, new TagEventArgs( t ) );
-            }
+            var added = Tags.TryAdd( t.Id, t );
+            if (added) TagEnter( this, new TagEventArgs( t ) );
         }
 
         public void DetachTag( Tag t )
         {
-            if ( Tags.ContainsKey( t.Id ) )
-            {
-                Tags.Remove( t.Id );
-                TagLeave( this, new TagEventArgs( t ) );
-            }
+            Tag removedItem;
+            var removed = Tags.TryRemove( t.Id, out removedItem );
+            if (removed) TagLeave( this, new TagEventArgs( removedItem ) );
         }
     }
 }

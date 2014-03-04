@@ -1,5 +1,4 @@
 ﻿using System.IO;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NooSphere.Infrastructure.Context.Location;
@@ -18,6 +17,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Raven.Json.Linq;
+using NooSphere.Model.Resources;
+using NooSphere.Model.Notifications;
 
 
 namespace NooSphere.Infrastructure.ActivityBase
@@ -77,6 +78,16 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         void tracker_Detection( Detector detector, DetectionEventArgs e ) {}
 
+        public void SubscribeToTagMoved(TagMovedHandler h) 
+        {
+            Tracker.TagMoved += h;
+        }
+
+        public void UnsubscribeToTagMoved(TagMovedHandler h)
+        {
+            Tracker.TagMoved -= h;
+        }
+
         #endregion
 
 
@@ -98,6 +109,10 @@ namespace NooSphere.Infrastructure.ActivityBase
                                 return "IActivity";
                             if (typeof(IDevice).IsAssignableFrom(type))
                                 return "IDevice";
+                            if (typeof(IResource).IsAssignableFrom(type))
+                                return "IResource";
+                            if (typeof(INotification).IsAssignableFrom(type))
+                                return "INotification";
                             return DocumentConvention.DefaultTypeTagName(type);
                         }
                     }
@@ -117,6 +132,11 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         }
 
+        public T Cast<T>( object input )
+        {
+            return (T)input;
+        }
+
         void SubscribeToChanges()
         {
             _documentStore.Changes(DatabaseName).ForAllDocuments()
@@ -125,27 +145,37 @@ namespace NooSphere.Infrastructure.ActivityBase
                               using (var session = _documentStore.OpenSession(DatabaseName))
                               {
                                   var obj = session.Load<object>( change.Id );
-                                  if ( obj is IUser )
-                                      HandleIUserMessages( change );
-                                  else if ( obj is IActivity )
-                                      HandleIActivityMessages( change );
-                                  else if ( obj is IDevice )
-                                      HandleIDeviceMessages( change );
+                                  if (obj is IUser)
+                                      HandleIUserMessages(change);
+                                  else if (obj is IActivity)
+                                      HandleIActivityMessages(change);
+                                  else if (obj is IDevice)
+                                      HandleIDeviceMessages(change);
+                                  else if (obj is IResource)
+                                      HandleIResourceMessages(change);
+                                  else if (obj is INotification)
+                                      HandleINotificationMessages(change);
                                   else
-                                      HandleUnknowMessage( change );
+                                      HandleUnknownMessage(change);
                               }
                           } );
         }
 
-        void HandleUnknowMessage( DocumentChangeNotification change )
+        void HandleUnknownMessage( DocumentChangeNotification change )
         {
-            if (change.Type != DocumentChangeTypes.Delete) return;
-            if ( activities.ContainsKey( change.Id ) )
-                OnActivityRemoved( new ActivityRemovedEventArgs( change.Id ) );
-            if ( users.ContainsKey( change.Id ) )
-                OnUserRemoved( new UserRemovedEventArgs( change.Id ) );
-            if ( devices.ContainsKey( change.Id ) )
-                OnDeviceRemoved( new DeviceRemovedEventArgs( change.Id ) );
+            if ( change.Type == DocumentChangeTypes.Delete )
+            {
+                if ( activities.ContainsKey( change.Id ) )
+                    OnActivityRemoved( new ActivityRemovedEventArgs( change.Id ) );
+                if ( users.ContainsKey( change.Id ) )
+                    OnUserRemoved( new UserRemovedEventArgs( change.Id ) );
+                if ( devices.ContainsKey( change.Id ) )
+                    OnDeviceRemoved( new DeviceRemovedEventArgs( change.Id ) );
+                if ( resources.ContainsKey(change.Id))
+                    OnResourceRemoved(new ResourceRemovedEventArgs(change.Id));
+                if (notifications.ContainsKey(change.Id))
+                    OnNotificationRemoved(new NotificationRemovedEventArgs(change.Id));
+            }
         }
 
         void HandleIDeviceMessages( DocumentChangeNotification change )
@@ -164,7 +194,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                         var device = session.Load<IDevice>( change.Id );
                         if ( devices.ContainsKey( change.Id ) )
                         {
-                            OnDeviceChanged( new DeviceEventArgs( device) );
+                            OnDeviceChanged( new DeviceEventArgs( device ) );
                         }
                         else
                         {
@@ -195,7 +225,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                         var activity = session.Load<IActivity>( change.Id );
                         if ( activities.ContainsKey( change.Id ) )
                         {
-                            OnActivityChanged( new ActivityEventArgs( activity) );
+                            OnActivityChanged(new ActivityEventArgs( activity ));
                         }
                         else
                         {
@@ -241,6 +271,67 @@ namespace NooSphere.Infrastructure.ActivityBase
             }
         }
 
+        void HandleIResourceMessages(DocumentChangeNotification change)
+        {
+            switch (change.Type)
+            {
+                case DocumentChangeTypes.Delete:
+                    {
+                        OnResourceRemoved(new ResourceRemovedEventArgs(change.Id));
+                    }
+                    break;
+                case DocumentChangeTypes.Put:
+                    {
+                        using (var session = _documentStore.OpenSession("activitysystem"))
+                        {
+                            var resource = session.Load<IResource>(change.Id);
+                            if (resources.ContainsKey(change.Id))
+                            {
+                                OnResourceChanged(new ResourceEventArgs( resource ));
+                            }
+                            else
+                            {
+                                OnResourceAdded(new ResourceEventArgs(resource));
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    Console.WriteLine(change.Type.ToString() + " received.");
+                    break;
+            }
+        }
+        void HandleINotificationMessages(DocumentChangeNotification change)
+        {
+            switch (change.Type)
+            {
+                case DocumentChangeTypes.Delete:
+                    {
+                        OnNotificationRemoved(new NotificationRemovedEventArgs(change.Id));
+                    }
+                    break;
+                case DocumentChangeTypes.Put:
+                    {
+                        using (var session = _documentStore.OpenSession("activitysystem"))
+                        {
+                            var Notification = session.Load<INotification>(change.Id);
+                            if (Notifications.ContainsKey(change.Id))
+                            {
+                                OnNotificationChanged(new NotificationEventArgs(Notification));
+                            }
+                            else
+                            {
+                                OnNotificationAdded(new NotificationEventArgs(Notification));
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    Console.WriteLine(change.Type.ToString() + " received.");
+                    break;
+            }
+        }
+
         void LoadStore()
         {
             using (var session = _documentStore.OpenSession(DatabaseName))
@@ -248,7 +339,6 @@ namespace NooSphere.Infrastructure.ActivityBase
                 try
                 {
                     var userResult = from user in session.Query<IUser>()
-                                     where user.BaseType == typeof(IUser).Name
                                      select user;
                     foreach (var entry in userResult)
                     {
@@ -264,7 +354,6 @@ namespace NooSphere.Infrastructure.ActivityBase
                 try
                 {
                     var activityResult = from activity in session.Query<IActivity>()
-                                         where activity.BaseType == typeof(IActivity).Name
                                          select activity;
 
                     foreach (var entry in activityResult)
@@ -280,24 +369,37 @@ namespace NooSphere.Infrastructure.ActivityBase
                 try
                 {
                     var deviceResult = from device in session.Query<IDevice>()
-                                       where device.BaseType == typeof(IDevice).Name
+                                       where device.Type == typeof(IDevice).Name
                                        select device;
 
-                    foreach (var entry in deviceResult)
-                    {
-                        devices.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry);
-                    }
+                foreach (var entry in deviceResult)
+                {
+                    devices.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry);
                 }
-                catch (InvalidOperationException)
+
+                var resourceResult = from resource in session.Query<IResource>()
+                                     select resource;
+
+                foreach (var entry in resourceResult)
+                {
+                    resources.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry != null ? entry : null);
+                }
+
+                var notificationResult = from notification in session.Query<INotification>()
+                                         select notification;
+
+                foreach (var entry in notificationResult)
+                {
+                    notifications.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry != null ? entry : null);
+                }
+		}
+		catch (InvalidOperationException)
                 {
                     HandleUnfoundType<Device>();
                 }
-
-               
             }
         }
-
-        private void HandleUnfoundType<T>()
+	private void HandleUnfoundType<T>()
         {
             using (var session = _documentStore.OpenSession(DatabaseName))
             {
@@ -306,7 +408,7 @@ namespace NooSphere.Infrastructure.ActivityBase
 
                 foreach (var entry in results)
                 {
-                    if (entry["BaseType"].ToString() == typeof (T).Name)
+                    if (entry["Type"].ToString() == typeof (T).Name)
                     {
                         if (typeof (T).Name == "IUser")
                         {
@@ -346,16 +448,16 @@ namespace NooSphere.Infrastructure.ActivityBase
         }
 
 
-        private readonly Object _thisLock = new Object();
-        public void AddResourceToActivity( Activity activity,Stream stream,string type)
+        private Object thisLock = new Object();
+        public void AddFileResourceToActivity( Activity activity,Stream stream,string type)
         {
-           var resource = new Resource()
+           var resource = new FileResource()
             {
                 FileType =  type,
                 ActivityId = activity.Id
             };
 
-                lock (_thisLock)
+           lock (thisLock)
                 {
                     _documentStore.DatabaseCommands.PutAttachment(resource.Id,
                         null,
@@ -370,22 +472,22 @@ namespace NooSphere.Infrastructure.ActivityBase
                         Activities[activity.Id].Logo = resource;
                     else
                     {
-                        Activities[activity.Id].Resources.Add(resource);
-                        OnResourceAdded(new ResourceEventArgs(resource));
+                        Activities[activity.Id].FileResources.Add(resource);
+                        OnFileResourceAdded(new FileResourceEventArgs(resource));
                     }
                     UpdateActivity(Activities[activity.Id]);
                 }
                 stream.Dispose();
         }
 
-        public void DeleteResource(Resource resource)
+        public void DeleteFileResource(FileResource resource)
         {
             _documentStore.DatabaseCommands.DeleteAttachment(resource.Id,null);
 
-            OnResourceRemoved(new ResourceRemovedEventArgs(resource.Id));
+            OnFileResourceRemoved(new FileResourceRemovedEventArgs(resource.Id));
         }
 
-        public Stream GetStreamFromResource(string resourceId)
+        public Stream GetStreamFromFileResource(string resourceId)
         {
             try
             {
@@ -450,6 +552,15 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         #region Public Methods
 
+        public void Run( string storeAddress )
+        {
+            InitializeDocumentStore( storeAddress );
+        }
+        public void Run(WebConfiguration configuration)
+        {
+            InitializeDocumentStore(Net.GetUrl(configuration.Address, configuration.Port, "").ToString());
+        }
+
         public void StartLocationTracker()
         {
             if ( Tracker.IsRunning ) return;
@@ -494,6 +605,26 @@ namespace NooSphere.Infrastructure.ActivityBase
         public override IUser GetUser( string id )
         {
             return users[ id ];
+        }
+
+        public override void AddResource(IResource res)
+        {
+            AddToStore(res);
+        }
+
+        public override void RemoveResource(string id)
+        {
+            RemoveFromStore(id);
+        }
+
+        public override void UpdateResource(IResource res)
+        {
+            UpdateStore(res.Id, res);
+        }
+
+        public override IResource GetResource(string id)
+        {
+            return resources[id];
         }
 
         public override void AddActivity( IActivity act )
@@ -551,9 +682,41 @@ namespace NooSphere.Infrastructure.ActivityBase
             return devices.Values.ToList();
         }
 
-        #endregion
+        public override List<IResource> GetResources()
+        {
+            return resources.Values.ToList();
+        }
 
-        internal void RemoveDeviceByConnectionId(string connectionId)
+        public override void AddNotification(INotification n)
+        {
+            AddToStore(n);
+            OnNotificationAdded(new NotificationEventArgs(n));
+        }
+
+        public override void UpdateNotification(INotification n)
+        {
+            UpdateStore(n.Id, n);
+            OnNotificationChanged(new NotificationEventArgs(n));
+        }
+
+        public override void RemoveNotification(string id)
+        {
+            RemoveFromStore(id);
+            OnNotificationRemoved(new NotificationRemovedEventArgs(id));
+        }
+
+        public override INotification GetNotification(string id)
+        {
+            return notifications[id];
+        }
+
+        public override List<INotification> GetNotifications()
+        {
+            return notifications.Values.ToList();
+        }
+
+        #endregion
+	internal void RemoveDeviceByConnectionId(string connectionId)
         {
             IDevice device = null;
 

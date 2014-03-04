@@ -21,18 +21,18 @@ namespace NooSphere.Infrastructure.Files
 
     public class FileEventArgs
     {
-        public LegacyResource Resource { get; set; }
+        public LegacyResource FileResource { get; set; }
         public string LocalPath { get; set; }
         public FileEventArgs() {}
 
         public FileEventArgs( LegacyResource resource )
         {
-            Resource = resource;
+            FileResource = resource;
         }
 
         public FileEventArgs( LegacyResource resource, string localPath )
         {
-            Resource = resource;
+            FileResource = resource;
             LocalPath = localPath;
         }
     }

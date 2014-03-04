@@ -1,64 +1,48 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.Web.Http;
+using NooSphere.Model.Resources;
+using Newtonsoft.Json.Linq;
 using NooSphere.Infrastructure.ActivityBase;
-using NooSphere.Model;
+using NooSphere.Infrastructure.Helpers;
+using NooSphere.Infrastructure.Events;
+
 
 namespace NooSphere.Infrastructure.Web.Controllers
 {
     public class ResourcesController : ApiController
     {
-        private readonly ActivitySystem _system;
+        readonly ActivitySystem _system;
 
         public ResourcesController(ActivitySystem system)
         {
             _system = system;
         }
 
-        public string Get()
+        public List<IResource> Get()
         {
-            _system.DeleteAllAttachments();
-            Console.WriteLine("WARNING- DEBUG CODE ENABLED");
-            return "No-files-here";
+            return _system.Resources.Values.ToList();
         }
 
-
-        public HttpResponseMessage Get(string id)
+        public IResource Get(string id)
         {
-            var result = new HttpResponseMessage(HttpStatusCode.OK);
-
-            var stream = _system.GetStreamFromResource(id) as MemoryStream;
-
-            if (stream != null)
-                result.Content = new ByteArrayContent(stream.ToArray());
-            return result;
+            return _system.Resources[id];
         }
 
-        public async void Post()
+        public void Post(JObject resource)
         {
-            var request = Request.Content as StreamContent;
-            var activityId = Request.Headers.GetValues("activityId").First();
-            var resourceType = Request.Headers.GetValues("resourceType").First();
-            if (request != null)
-            {
-                var  stream = await request.ReadAsStreamAsync();
-                    if (_system.Activities.ContainsKey(activityId))
-                    {
-                        _system.AddResourceToActivity(_system.Activities[activityId] as Activity, stream, resourceType);
-
-                    }
- 
-            }
+            _system.AddResource(Helpers.Json.ConvertFromTypedJson<IResource>(resource.ToString()));
         }
 
-        public void Delete(Resource resource)
+        public void Delete(string id)
         {
-            _system.Activities[resource.ActivityId].Resources.Remove(resource);
-            _system.DeleteResource(resource);
+            _system.RemoveResource(id);
+        }
+
+        public void Put(JObject resource)
+        {
+            _system.UpdateResource(Helpers.Json.ConvertFromTypedJson<IResource>(resource.ToString()));
         }
     }
 }

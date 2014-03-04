@@ -105,6 +105,18 @@ namespace NooSphere.Model.Users
 			}
 		}
 
+        string _location;
+
+        public string Location
+        {
+            get { return _location; }
+            set
+            {
+                _location = value;
+                OnPropertyChanged("location");
+            }
+        }
+
 		List<Activity> _activities;
 
 		public List<Activity> Activities
@@ -132,7 +144,7 @@ namespace NooSphere.Model.Users
 
 		public User()
 		{
-			BaseType = typeof( IUser ).Name;
+			Type = typeof( IUser ).Name;
 		}
 	}
 }

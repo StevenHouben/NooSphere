@@ -20,6 +20,8 @@ namespace NooSphere.Model.Users
 
 		int State { get; set; }
 
+        string Location { get; set; }
+
 		List<Activity> Activities { get; set; }
 	}
 }

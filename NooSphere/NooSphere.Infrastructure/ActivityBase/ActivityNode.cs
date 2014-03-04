@@ -5,6 +5,8 @@ using NooSphere.Infrastructure.Context.Location;
 using NooSphere.Model;
 using NooSphere.Model.Device;
 using NooSphere.Model.Users;
+using NooSphere.Model.Resources;
+using NooSphere.Model.Notifications;
 
 
 namespace NooSphere.Infrastructure.ActivityBase
@@ -93,6 +95,53 @@ namespace NooSphere.Infrastructure.ActivityBase
             if (handler != null) handler(this, e);
         }
 
+        public event ResourceAddedHandler ResourceAdded = delegate { };
+
+        protected virtual void OnResourceAdded(ResourceEventArgs e)
+        {
+            var handler = ResourceAdded;
+            if (handler != null) handler(this, e);
+        }
+
+        public event ResourceRemovedHandler ResourceRemoved = delegate { };
+
+        protected virtual void OnResourceRemoved(ResourceRemovedEventArgs e)
+        {
+            var handler = ResourceRemoved;
+            if (handler != null) handler(this, e);
+        }
+
+        public event ResourceChangedHandler ResourceChanged = delegate { };
+
+        protected virtual void OnResourceChanged(ResourceEventArgs e)
+        {
+            var handler = ResourceChanged;
+            if (handler != null) handler(this, e);
+        }
+        public event NotificationAddedHandler NotificationAdded = delegate { };
+
+        protected virtual void OnNotificationAdded(NotificationEventArgs e)
+        {
+            var handler = NotificationAdded;
+            if (handler != null) handler(this, e);
+        }
+
+        public event NotificationRemovedHandler NotificationRemoved = delegate { };
+
+        protected virtual void OnNotificationRemoved(NotificationRemovedEventArgs e)
+        {
+            var handler = NotificationRemoved;
+            if (handler != null) handler(this, e);
+        }
+
+        public event NotificationChangedHandler NotificationChanged = delegate { };
+
+        protected virtual void OnNotificationChanged(NotificationEventArgs e)
+        {
+            var handler = NotificationChanged;
+            if (handler != null) handler(this, e);
+        }
+
         public event ConnectionEstablishedHandler ConnectionEstablished = delegate { };
 
         protected virtual void OnConnectionEstablished()
@@ -101,24 +150,24 @@ namespace NooSphere.Infrastructure.ActivityBase
             if (handler != null) handler(this, EventArgs.Empty);
         }
 
-        public event ResourceAddedHandler ResourceAdded = delegate {};
-        protected virtual void OnResourceAdded(ResourceEventArgs e)
+        public event FileResourceAddedHandler FileResourceAdded = delegate {};
+        protected virtual void OnFileResourceAdded(FileResourceEventArgs e)
         {
-            var handler = ResourceAdded;
+            var handler = FileResourceAdded;
             if (handler != null) handler(this, e);
         }
 
-        public event ResourceChangedHandler ResourceChanged = delegate { };
-        protected virtual void OnResourceChanged(ResourceEventArgs e)
+        public event FileResourceChangedHandler FileResourceChanged = delegate { };
+        protected virtual void OnFileResourceChanged(FileResourceEventArgs e)
         {
-            var handler = ResourceChanged;
+            var handler = FileResourceChanged;
             if (handler != null) handler(this, e);
         }
 
-        public event ResourceRemovedHandler ResourceRemoved = delegate { };
-        protected virtual void OnResourceRemoved(ResourceRemovedEventArgs e)
+        public event FileResourceRemovedHandler FileResourceRemoved = delegate { };
+        protected virtual void OnFileResourceRemoved(FileResourceRemovedEventArgs e)
         {
-            var handler = ResourceRemoved;
+            var handler = FileResourceRemoved;
             if (handler != null) handler(this, e);
         }
 
@@ -147,6 +196,16 @@ namespace NooSphere.Infrastructure.ActivityBase
             get { return new Dictionary<string, IDevice>( devices ); }
         }
 
+        public Dictionary<string, IResource> Resources
+        {
+            get { return new Dictionary<string, IResource>(resources); }
+        }
+
+        public Dictionary<string, INotification> Notifications
+        {
+            get { return new Dictionary<string, INotification>(notifications); }
+        }
+
         public LocationTracker Tracker { get; set; }
 
         #endregion
@@ -157,6 +216,8 @@ namespace NooSphere.Infrastructure.ActivityBase
         protected readonly ConcurrentDictionary<string, IUser> users = new ConcurrentDictionary<string, IUser>();
         protected readonly ConcurrentDictionary<string, IActivity> activities = new ConcurrentDictionary<string, IActivity>();
         protected readonly ConcurrentDictionary<string, IDevice> devices = new ConcurrentDictionary<string, IDevice>();
+        protected readonly ConcurrentDictionary<string, IResource> resources = new ConcurrentDictionary<string, IResource>();
+        protected readonly ConcurrentDictionary<string, INotification> notifications = new ConcurrentDictionary<string, INotification>();
 
         #endregion
 
@@ -181,6 +242,12 @@ namespace NooSphere.Infrastructure.ActivityBase
             DeviceAdded += ActivityNode_DeviceAdded;
             DeviceChanged += ActivityNode_DeviceChanged;
             DeviceRemoved += ActivityNode_DeviceRemoved;
+            ResourceAdded += ActivityNode_ResourceAdded;
+            ResourceChanged += ActivityNode_ResourceChanged;
+            ResourceRemoved += ActivityNode_ResourceRemoved;
+            NotificationAdded += ActivityNode_NotificationAdded;
+            NotificationChanged += ActivityNode_NotificationChanged;
+            NotificationRemoved += ActivityNode_NotificationRemoved;
         }
 
         #endregion
@@ -236,6 +303,37 @@ namespace NooSphere.Infrastructure.ActivityBase
             activities.AddOrUpdate( e.Activity.Id, e.Activity, ( key, oldValue ) => e.Activity );
         }
 
+        void ActivityNode_ResourceChanged(object sender, ResourceEventArgs e)
+        {
+            resources[e.Resource.Id].UpdateAllProperties(e.Resource);
+        }
+
+        void ActivityNode_ResourceRemoved(object sender, ResourceRemovedEventArgs e)
+        {
+            IResource backupResource;
+            resources.TryRemove(e.Id, out backupResource);
+        }
+
+        void ActivityNode_ResourceAdded(object sender, ResourceEventArgs e)
+        {
+            resources.AddOrUpdate(e.Resource.Id, e.Resource, (key, oldValue) => e.Resource);
+        }
+        void ActivityNode_NotificationChanged(object sender, NotificationEventArgs e)
+        {
+            notifications[e.Notification.Id].UpdateAllProperties(e.Notification);
+        }
+
+        void ActivityNode_NotificationRemoved(object sender, NotificationRemovedEventArgs e)
+        {
+            INotification backupNotification;
+            notifications.TryRemove(e.Id, out backupNotification);
+        }
+
+        void ActivityNode_NotificationAdded(object sender, NotificationEventArgs e)
+        {
+            notifications.AddOrUpdate(e.Notification.Id, e.Notification, (key, oldValue) => e.Notification);
+        }
+
         #endregion
 
 
@@ -256,6 +354,16 @@ namespace NooSphere.Infrastructure.ActivityBase
         public abstract void RemoveDevice( string id );
         public abstract IDevice GetDevice( string id );
         public abstract List<IDevice> GetDevices();
+        public abstract void AddResource(IResource resource);
+        public abstract void RemoveResource(string id);
+        public abstract void UpdateResource(IResource resource);
+        public abstract IResource GetResource(string id);
+        public abstract List<IResource> GetResources();
+        public abstract void AddNotification(INotification notification);
+        public abstract void RemoveNotification(string id);
+        public abstract void UpdateNotification(INotification notification);
+        public abstract INotification GetNotification(string id);
+        public abstract List<INotification> GetNotifications();
 
         #endregion
     }

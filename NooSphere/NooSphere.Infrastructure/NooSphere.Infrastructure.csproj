@@ -38,7 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LibUsbDotNet">
-      <HintPath>..\..\..\SmartWard\Libs\LibUsbDotNet.dll</HintPath>
+      <HintPath>Libs\LibUsbDotNet.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Client, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -74,11 +74,11 @@
     </Reference>
     <Reference Include="Mono.Zeroconf, Version=4.0.0.90, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\SmartWard\Libs\mono\Mono.Zeroconf.dll</HintPath>
+      <HintPath>Libs\mono\Mono.Zeroconf.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Zeroconf.Providers.Bonjour, Version=4.0.0.90, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\SmartWard\Libs\mono\Mono.Zeroconf.Providers.Bonjour.dll</HintPath>
+      <HintPath>Libs\mono\Mono.Zeroconf.Providers.Bonjour.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.6.0.1-beta1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -146,8 +146,10 @@
     <Compile Include="ActivityBase\DeviceEventArgs.cs" />
     <Compile Include="ActivityBase\ActivityEventArgs.cs" />
     <Compile Include="ActivityBase\ActivitySystem.cs" />
-    <Compile Include="ActivityBase\MessageEventArgs.cs" />
+    <Compile Include="ActivityBase\FileResourceEventArgs.cs" />
     <Compile Include="ActivityBase\NetEventArgs.cs" />
+    <Compile Include="ActivityBase\MessageEventArgs.cs" />
+    <Compile Include="ActivityBase\NotificationEventArgs.cs" />
     <Compile Include="ActivityBase\ResourceEventArgs.cs" />
     <Compile Include="Context\ContextMonitor.cs" />
     <Compile Include="Context\DataEventArgs.cs" />
@@ -190,6 +192,9 @@
     <Compile Include="Web\ConnectedClient.cs" />
     <Compile Include="Web\Controllers\ActivityController.cs" />
     <Compile Include="Web\Controllers\DevicesController.cs" />
+    <Compile Include="Web\Controllers\FilesController.cs" />
+    <Compile Include="Web\Controllers\TagLocationsController.cs" />
+    <Compile Include="Web\Controllers\NotificationsController.cs" />
     <Compile Include="Web\Controllers\MessagesController.cs" />
     <Compile Include="Web\Controllers\ResourcesController.cs" />
     <Compile Include="Web\Controllers\TestController.cs" />

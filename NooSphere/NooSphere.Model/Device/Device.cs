@@ -22,7 +22,7 @@ namespace NooSphere.Model.Device
 
 		public Device()
 		{
-			BaseType = typeof( IDevice ).Name;
+			Type = typeof( IDevice ).Name;
 		}
 	}
 

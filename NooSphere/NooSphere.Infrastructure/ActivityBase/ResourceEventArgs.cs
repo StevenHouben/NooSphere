@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NooSphere.Model;
+﻿using NooSphere.Model.Resources;
+
 
 namespace NooSphere.Infrastructure.ActivityBase
 {
     public class ResourceEventArgs
     {
-        public string ActivityId { get; set; }
-        public Resource Resource { get; set; }
+        public IResource Resource { get; set; }
         public ResourceEventArgs() {}
 
-        public ResourceEventArgs(Resource resource )
+        public ResourceEventArgs(IResource resource)
         {
-            ActivityId = resource.ActivityId;
             Resource = resource;
         }
     }
@@ -25,7 +19,7 @@ namespace NooSphere.Infrastructure.ActivityBase
         public string Id { get; set; }
         public ResourceRemovedEventArgs() {}
 
-        public ResourceRemovedEventArgs( string id)
+        public ResourceRemovedEventArgs(string id)
         {
             Id = id;
         }

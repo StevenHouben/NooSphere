@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NooSphere.Infrastructure.Context.Location.Sonitor;
+using System.Collections.Concurrent;
 
 namespace NooSphere.Infrastructure.Context.Location
 {
@@ -31,8 +32,8 @@ namespace NooSphere.Infrastructure.Context.Location
 
         #region Properties
 
-        public Dictionary<string, Tag> Tags { get; private set; }
-        public Dictionary<string, Detector> Detectors { get; private set; }
+        public ConcurrentDictionary<string, Tag> Tags { get; private set; }
+        public ConcurrentDictionary<string, Detector> Detectors { get; private set; }
 
         public bool IsRunning
         {
@@ -55,8 +56,8 @@ namespace NooSphere.Infrastructure.Context.Location
         public LocationTracker(string address)
         {
             _tracker = new SonitorTracker(address, DefaultSonitorPort);
-            Tags = new Dictionary<string, Tag>();
-            Detectors = new Dictionary<string, Detector>();
+            Tags = new ConcurrentDictionary<string, Tag>();
+            Detectors = new ConcurrentDictionary<string, Detector>();
 
             _tracker.DetectionsReceived += tracker_DetectionsReceived;
             _tracker.DetectorsReceived += tracker_DetectorsReceived;
@@ -105,16 +106,13 @@ namespace NooSphere.Infrastructure.Context.Location
             DataReceived(this, new DataEventArgs(msg));
             foreach (var tag in msg.Tags)
             {
-                if (!Tags.ContainsKey(tag.Id))
-                {
-                    Tags.Add(tag.Id, tag);
-                    TagAdded(null, new TagEventArgs(tag));
-                }
-                else
-                {
+                bool updated = false;
+                Tags.AddOrUpdate(tag.Id, tag, (k, v) => {
                     Tags[tag.Id] = tag;
                     TagStateChanged(null, new TagEventArgs(tag));
-                }
+                    return tag;
+                });
+                if (updated) TagAdded(null, new TagEventArgs(tag));
             }
         }
 
@@ -150,16 +148,16 @@ namespace NooSphere.Infrastructure.Context.Location
 
             foreach (var det in msg.Detectors)
             {
-                if (!Detectors.ContainsKey(det.HostName))
-                {
-                    Detectors.Add(det.HostName, det);
-                    DetectorAdded(this, new DetectorEventArgs(Detectors[det.HostName]));
-                }
-                else
-                {
-                    Detectors[det.HostName] = det;
-                    DetectorStateChanged(this, new DetectorEventArgs(Detectors[det.HostName]));
-                }
+                bool updated = false;
+                Detectors.AddOrUpdate(det.HostName, det, (k, v) =>
+                    {
+                        Detectors[det.HostName] = det;
+                        DetectorStateChanged(this, new DetectorEventArgs(Detectors[det.HostName]));
+                        updated = true;
+                        return det;
+                    }
+                );
+                if (!updated) DetectorAdded(this, new DetectorEventArgs(Detectors[det.HostName]));
             }
         }
 
@@ -253,10 +251,12 @@ namespace NooSphere.Infrastructure.Context.Location
         {
             if (!Detectors.ContainsKey(detection.HostName))
             {
-                Tags.Remove(detection.TagId);
+                Tag removedTag;
+                var removed = Tags.TryRemove(detection.TagId, out removedTag);
+                //TODO: Shouldn't a TagRemoved event be fired here?
                 return false;
             }
-            return true;
+            return Tags.ContainsKey(detection.TagId);
         }
 
         #endregion

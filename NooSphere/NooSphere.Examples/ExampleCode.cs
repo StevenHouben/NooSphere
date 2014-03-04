@@ -73,11 +73,11 @@ namespace NooSphere.Examples
                 activityClient.UserAdded += activityClient_UserAdded;
                 activityClient.DeviceAdded += activityClient_DeviceAdded;
 
-                activityClient.ResourceAdded += (o, i) =>
+                activityClient.FileResourceAdded += (o, i) =>
                 {
                     Console.WriteLine("Resource {0} update received from activityclient over http", i.Resource.Id);
 
-                    using (var stream = activityClient.GetResource(i.Resource))
+                    using (var stream = activityClient.GetFileResource(i.Resource))
                     {
                         var fileStream = File.Create(@"C:\Users\Public\Pictures\Sample Pictures\Desert-"+DateTime.Now.ToShortDateString()+".jpg", (int)stream.Length);
                         var bytesInStream = new byte[stream.Length];
@@ -90,7 +90,7 @@ namespace NooSphere.Examples
                 var act = new Activity();
 
                 activityClient.AddActivity(act);
-                activityClient.AddResource(act,"IMG", new MemoryStream(File.ReadAllBytes(@"C:\Users\Public\Pictures\Sample Pictures\Desert.jpg")));
+                activityClient.AddFileResource(act,"IMG", new MemoryStream(File.ReadAllBytes(@"C:\Users\Public\Pictures\Sample Pictures\Desert.jpg")));
             };
 
             disco.Find(DiscoveryType.Zeroconf);
