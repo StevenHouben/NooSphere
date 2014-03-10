@@ -449,12 +449,13 @@ namespace NooSphere.Infrastructure.ActivityBase
 
 
         private Object thisLock = new Object();
-        public void AddFileResourceToActivity( Activity activity,Stream stream,string type)
+        public void AddFileResourceToActivity( Activity activity,Stream stream,string type,string filename)
         {
            var resource = new FileResource()
             {
                 FileType =  type,
-                ActivityId = activity.Id
+                ActivityId = activity.Id,
+                FileName = filename
             };
 
            lock (thisLock)

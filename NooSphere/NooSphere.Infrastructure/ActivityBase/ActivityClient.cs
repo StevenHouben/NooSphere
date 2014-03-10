@@ -320,9 +320,9 @@ namespace NooSphere.Infrastructure.ActivityBase
         }
 
 
-        public void AddFileResource(IActivity activity, string resourceType, MemoryStream stream)
+        public void AddFileResource(IActivity activity, string resourceType, string filenameWithExtension, MemoryStream stream)
         {
-            Rest.UploadFile(Address + Url.Files, activity.Id, resourceType, stream);
+            Rest.UploadFile(Address + Url.Files, activity.Id, filenameWithExtension, resourceType, stream);
         }
 
         public Stream GetFileResource(FileResource resource)

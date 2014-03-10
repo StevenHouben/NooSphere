@@ -42,12 +42,13 @@ namespace NooSphere.Infrastructure.Web.Controllers
             var request = Request.Content as StreamContent;
             var activityId = Request.Headers.GetValues("activityId").First();
             var resourceType = Request.Headers.GetValues("resourceType").First();
+            var fileName = Request.Headers.GetValues("fileName").First();
             if (request != null)
             {
                 var  stream = await request.ReadAsStreamAsync();
                     if (_system.Activities.ContainsKey(activityId))
                     {
-                        _system.AddFileResourceToActivity(_system.Activities[activityId] as Activity, stream, resourceType);
+                        _system.AddFileResourceToActivity(_system.Activities[activityId] as Activity, stream, resourceType,fileName);
 
                     }
  

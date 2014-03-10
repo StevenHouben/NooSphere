@@ -7,6 +7,7 @@ namespace NooSphere.Model
     public class FileResource : Noo
     {
         public string FileType { get; set; }
+        public string FileName { get; set; }
         public string ActivityId { get; set; }
     }
 

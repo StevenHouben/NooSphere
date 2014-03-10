@@ -95,12 +95,13 @@ namespace NooSphere.Infrastructure.Helpers
             return HttpClient.GetAsync( path ).ContinueWith( resp => resp.Result.Content.ReadAsStreamAsync().ContinueWith( s => s.Result ).Result );
         }
 
-        public static void UploadFile(string path,string activityId,string resourceType, MemoryStream stream)
+        public static void UploadFile(string path,string activityId,string filenameWithExtension,string resourceType, MemoryStream stream)
         {
             var message = new HttpRequestMessage();
             var content = new StreamContent(stream);
             content.Headers.Add("activityId",activityId);
             content.Headers.Add("resourceType", resourceType);
+            content.Headers.Add("fileName", filenameWithExtension);
 
             message.Method = System.Net.Http.HttpMethod.Post;
             message.Content = content;
