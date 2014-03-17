@@ -21,12 +21,12 @@ namespace NooSphere.Infrastructure.Web.Controllers
 
         public List<INotification> Get()
         {
-            return _system.Notifications.Values.ToList();
+            return _system.GetNotifications();
         }
 
         public INotification Get(string id)
         {
-            return _system.Notifications[id];
+            return _system.GetNotification(id);
         }
 
         public void Post(JObject Notification)

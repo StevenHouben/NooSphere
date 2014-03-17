@@ -22,12 +22,12 @@ namespace NooSphere.Infrastructure.Web.Controllers
 
         public List<IResource> Get()
         {
-            return _system.Resources.Values.ToList();
+            return _system.GetResources();
         }
 
         public IResource Get(string id)
         {
-            return _system.Resources[id];
+            return _system.GetResource(id);
         }
 
         public void Post(JObject resource)

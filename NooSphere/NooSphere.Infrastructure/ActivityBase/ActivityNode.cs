@@ -15,6 +15,9 @@ namespace NooSphere.Infrastructure.ActivityBase
     {
         #region Events
 
+
+        public bool LocalCaching { get; set; }
+
         public event UserAddedHandler UserAdded = delegate { };
 
         protected virtual void OnUserAdded(UserEventArgs e)
@@ -222,26 +225,22 @@ namespace NooSphere.Infrastructure.ActivityBase
         #endregion
 
 
-        #region Methods
-
-      
-
-        #endregion
-
-
         #region Constructor
 
         protected ActivityNode()
         {
+            DeviceAdded += ActivityNode_DeviceAdded;
+            DeviceChanged += ActivityNode_DeviceChanged;
+            DeviceRemoved += ActivityNode_DeviceRemoved;
+
+            if (!LocalCaching)
+                return;
             ActivityAdded += ActivityNode_ActivityAdded;
             ActivityChanged += ActivityNode_ActivityChanged;
             ActivityRemoved += ActivityNode_ActivityRemoved;
             UserAdded += ActivityNode_UserAdded;
             UserRemoved += ActivityNode_UserRemoved;
             UserChanged += ActivityNode_UserChanged;
-            DeviceAdded += ActivityNode_DeviceAdded;
-            DeviceChanged += ActivityNode_DeviceChanged;
-            DeviceRemoved += ActivityNode_DeviceRemoved;
             ResourceAdded += ActivityNode_ResourceAdded;
             ResourceChanged += ActivityNode_ResourceChanged;
             ResourceRemoved += ActivityNode_ResourceRemoved;

@@ -12,6 +12,8 @@ namespace NooSphere.Examples
 {
     class ExampleCode
     {
+
+        static ActivitySystem activitySystem;
         static void Main(string[] args)
         {
 
@@ -37,7 +39,7 @@ namespace NooSphere.Examples
             //centric wrapper over a pure datastore. This system cam be used by the UI
             //directly through events or be exposed to a REST service using the activityservice
             //and accessed on other devices by using the activityclient
-            var activitySystem = new ActivitySystem(databaseConfiguration) { Device = device };
+            activitySystem = new ActivitySystem(databaseConfiguration,false) { Device = device };
 
             //add handlers to the system for local UI support.
             activitySystem.ActivityAdded+=activitySystem_ActivityAdded;
@@ -50,6 +52,9 @@ namespace NooSphere.Examples
 
             //make the system discoverable on the LAN
             activityService.StartBroadcast(DiscoveryType.Zeroconf, "activitySystem", "mycompany","1234");
+
+            activitySystem.StartLocationTracker();
+            activitySystem.Tracker.TagEnter += Tracker_TagEnter;
 
             //Wait for one second to allow the service to start
             Thread.Sleep(1000);
@@ -90,11 +95,11 @@ namespace NooSphere.Examples
                 var act = new Activity();
 
                 activityClient.AddActivity(act);
-                activityClient.AddFileResource(
-                    act,
-                    "IMG",
-                    Path.GetFileName(@"C:\Users\Public\Pictures\Sample Pictures\Desert.jpg"), 
-                    new MemoryStream(File.ReadAllBytes(@"C:\Users\Public\Pictures\Sample Pictures\Desert.jpg")));
+                //activityClient.AddFileResource(
+                //    act,
+                //    "IMG",
+                //    Path.GetFileName(@"C:\Users\Public\Pictures\Sample Pictures\Desert.jpg"), 
+                //    new MemoryStream(File.ReadAllBytes(@"C:\Users\Public\Pictures\Sample Pictures\Desert.jpg")));
             };
 
             disco.Find(DiscoveryType.Zeroconf);
@@ -113,6 +118,16 @@ namespace NooSphere.Examples
                     activitySystem.AddUser(new User());
             }
 
+        }
+
+        static void Tracker_TagEnter(Infrastructure.Context.Location.Detector detector, Infrastructure.Context.Location.TagEventArgs e)
+        {
+            Console.WriteLine("{0}:{1}:{2}, tag {3} entering Detector {4}",
+              DateTime.Now.Hour,
+             DateTime.Now.Minute,
+             DateTime.Now.Second,
+             e.Tag.Name,
+             detector.Name);
         }
 
 

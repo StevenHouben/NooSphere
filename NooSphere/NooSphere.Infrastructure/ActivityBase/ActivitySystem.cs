@@ -28,9 +28,11 @@ namespace NooSphere.Infrastructure.ActivityBase
         DocumentStore _documentStore;
         public string DatabaseName { get; private set; }
 
-        public ActivitySystem( DatabaseConfiguration databaseConfiguration)
+        public ActivitySystem( DatabaseConfiguration databaseConfiguration,bool localCaching=true)
         {
             DatabaseName = databaseConfiguration.DatabaseName;
+
+            LocalCaching = localCaching;
 
             Ip = Net.GetIp( IpType.All );
 
@@ -45,8 +47,6 @@ namespace NooSphere.Infrastructure.ActivityBase
         {
             StopLocationTracker();
         }
-
-
 
         #region Eventhandlers
 
@@ -334,6 +334,9 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         void LoadStore()
         {
+            if (!LocalCaching)
+                return;
+
             using (var session = _documentStore.OpenSession(DatabaseName))
             {
                 try
@@ -399,7 +402,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                 }
             }
         }
-	private void HandleUnfoundType<T>()
+	    private void HandleUnfoundType<T>()
         {
             using (var session = _documentStore.OpenSession(DatabaseName))
             {
@@ -446,7 +449,6 @@ namespace NooSphere.Infrastructure.ActivityBase
 
                 }
         }
-
 
         private Object thisLock = new Object();
         public void AddFileResourceToActivity( Activity activity,Stream stream,string type,string filename)
@@ -605,7 +607,19 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         public override IUser GetUser( string id )
         {
-            return users[ id ];
+            if (!LocalCaching)
+            {
+                using (var session = _documentStore.OpenSession(DatabaseName))
+                {
+                    var results = from user in session.Query<IUser>()
+                                  where user.Id == id
+                                  select user;
+                    var resultList = results.ToList();
+                    return resultList.Count > 0 ? resultList[0] : null;
+                }
+            }
+            else 
+                return users[ id ];
         }
 
         public override void AddResource(IResource res)
@@ -625,7 +639,19 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         public override IResource GetResource(string id)
         {
-            return resources[id];
+            if (!LocalCaching)
+            {
+                using (var session = _documentStore.OpenSession(DatabaseName))
+                {
+                    var results = from res in session.Query<IResource>()
+                                  where res.Id == id
+                                  select res;
+                    var resultList = results.ToList();
+                    return resultList.Count > 0 ? resultList[0] : null;
+                }
+            }
+            else
+                return resources[id];
         }
 
         public override void AddActivity( IActivity act )
@@ -645,12 +671,34 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         public override IActivity GetActivity( string id )
         {
-            return activities[ id ];
+            if (!LocalCaching)
+            {
+                using (var session = _documentStore.OpenSession(DatabaseName))
+                {
+                    var results = from act in session.Query<IActivity>()
+                                  where act.Id == id
+                                  select act;
+                    var resultList = results.ToList();
+                    return resultList.Count > 0 ? resultList[0] : null;
+                }
+            }
+            else
+                return activities[ id ];
         }
 
         public override List<IActivity> GetActivities()
         {
-            return activities.Values.ToList();
+            if (!LocalCaching)
+            {
+                using (var session = _documentStore.OpenSession(DatabaseName))
+                {
+                    var userResult = from act in session.Query<IActivity>()
+                                     select act;
+                    return userResult.ToList();
+                }
+            }
+            else
+                return activities.Values.ToList();
         }
 
         public override void AddDevice( IDevice dev )
@@ -675,17 +723,47 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         public override List<IUser> GetUsers()
         {
-            return users.Values.ToList();
+            if (!LocalCaching)
+            {
+                using (var session = _documentStore.OpenSession(DatabaseName))
+                {
+                    var results = from user in session.Query<IUser>()
+                                  select user;
+                    return results.ToList();
+                }
+            }
+            else
+                return users.Values.ToList();
         }
 
         public override List<IDevice> GetDevices()
         {
-            return devices.Values.ToList();
+            if (!LocalCaching)
+            {
+                using (var session = _documentStore.OpenSession(DatabaseName))
+                {
+                    var results = from dev in session.Query<IDevice>()
+                                  select dev;
+                    return results.ToList();
+                }
+            }
+            else
+                return devices.Values.ToList();
         }
 
         public override List<IResource> GetResources()
         {
-            return resources.Values.ToList();
+            if (!LocalCaching)
+            {
+                using (var session = _documentStore.OpenSession(DatabaseName))
+                {
+                    var results = from res in session.Query<IResource>()
+                                  select res;
+                    return results.ToList();
+                }
+            }
+            else
+                return resources.Values.ToList();
         }
 
         public override void AddNotification(INotification n)
@@ -708,16 +786,39 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         public override INotification GetNotification(string id)
         {
-            return notifications[id];
+            if (!LocalCaching)
+            {
+                using (var session = _documentStore.OpenSession(DatabaseName))
+                {
+                    var results = from not in session.Query<INotification>()
+                                  where not.Id == id
+                                  select not;
+                    var resultList = results.ToList();
+                    return resultList.Count > 0 ? resultList[0] : null;
+                }
+            }
+            else
+                return notifications[id];
         }
 
         public override List<INotification> GetNotifications()
         {
-            return notifications.Values.ToList();
+            if (!LocalCaching)
+            {
+                using (var session = _documentStore.OpenSession(DatabaseName))
+                {
+                    var results = from not in session.Query<INotification>()
+                                     select not;
+                    return results.ToList();
+                }
+            }
+            else
+                return notifications.Values.ToList();
         }
 
         #endregion
-	internal void RemoveDeviceByConnectionId(string connectionId)
+	        
+        internal void RemoveDeviceByConnectionId(string connectionId)
         {
             IDevice device = null;
 

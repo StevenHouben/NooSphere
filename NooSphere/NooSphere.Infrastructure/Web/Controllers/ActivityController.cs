@@ -22,12 +22,12 @@ namespace NooSphere.Infrastructure.Web.Controllers
 
         public List<IActivity> Get()
         {
-            return _system.Activities.Values.ToList();
+            return _system.GetActivities();
         }
 
         public IActivity Get(string id)
         {
-            return _system.Activities[id];
+            return _system.GetActivity(id);
         }
 
         public void Post(JObject activity)

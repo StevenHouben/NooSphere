@@ -19,12 +19,12 @@ namespace NooSphere.Infrastructure.Web.Controllers
 
         public List<IDevice> Get()
         {
-            return _system.Devices.Values.ToList();
+            return _system.GetDevices();
         }
 
         public IDevice Get(string id)
         {
-            return _system.Devices[id];
+            return _system.GetDevice(id);
         }
 
         public void Post(JObject device)

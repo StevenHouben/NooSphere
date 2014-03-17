@@ -195,7 +195,6 @@
     <Compile Include="Web\Controllers\FilesController.cs" />
     <Compile Include="Web\Controllers\TagLocationsController.cs" />
     <Compile Include="Web\Controllers\NotificationsController.cs" />
-    <Compile Include="Web\Controllers\MessagesController.cs" />
     <Compile Include="Web\Controllers\ResourcesController.cs" />
     <Compile Include="Web\Controllers\TestController.cs" />
     <Compile Include="Web\Controllers\UsersController.cs" />

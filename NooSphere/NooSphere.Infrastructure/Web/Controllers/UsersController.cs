@@ -22,12 +22,12 @@ namespace NooSphere.Infrastructure.Web.Controllers
 
         public List<IUser> Get()
         {
-            return _system.Users.Values.ToList();
+            return _system.GetUsers();
         }
 
         public IUser Get(string id)
         {
-            return _system.Users[id];
+            return _system.GetUser(id);
         }
 
         public void Post(JObject user)
