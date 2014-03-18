@@ -33,7 +33,9 @@ namespace NooSphere.Infrastructure.ActivityBase
         public ActivityClient( string ip, int port, IDevice device, bool useCache = true )
         {
             LocalCaching = useCache;
-            if(useCache)
+
+            InitializeEvents();
+
             Ip = ip;
             Port = port;
 
@@ -80,14 +82,17 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         void Initialize()
         {
+            if (!LocalCaching)
+                return;
+
             var acts = GetActivities();
 
             foreach (var item in acts)
-                activities.AddOrUpdate(item.Id, item, (key, oldValue) => item);
+                activitiesCache.AddOrUpdate(item.Id, item, (key, oldValue) => item);
 
             var usrs = GetUsers();
             foreach (var item in usrs)
-                users.AddOrUpdate(item.Id, item, (key, oldValue) => item);
+                usersCache.AddOrUpdate(item.Id, item, (key, oldValue) => item);
 
             var dvs = GetDevices();
             foreach (var item in dvs)
@@ -98,11 +103,11 @@ namespace NooSphere.Infrastructure.ActivityBase
 
             var res = GetResources();
             foreach (var item in res)
-                resources.AddOrUpdate(item.Id, item, (key, oldValue) => item);
+                resourcesCache.AddOrUpdate(item.Id, item, (key, oldValue) => item);
 
             var n = GetNotifications();
             foreach (var item in n)
-                notifications.AddOrUpdate(item.Id, item, (key, oldValue) => item);
+                notificationsCache.AddOrUpdate(item.Id, item, (key, oldValue) => item);
         }
 
         void eventHandler_Received( string obj )

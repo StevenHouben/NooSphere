@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using NooSphere.Infrastructure.Context.Location;
 using NooSphere.Model;
 using NooSphere.Model.Device;
+using NooSphere.Model.Primitives;
 using NooSphere.Model.Users;
 using NooSphere.Model.Resources;
 using NooSphere.Model.Notifications;
@@ -14,9 +15,6 @@ namespace NooSphere.Infrastructure.ActivityBase
     public  abstract class ActivityNode
     {
         #region Events
-
-
-        public bool LocalCaching { get; set; }
 
         public event UserAddedHandler UserAdded = delegate { };
 
@@ -176,9 +174,9 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         #endregion
 
-
         #region Properties
 
+        public bool LocalCaching { get; internal set; }
         public string Name { get; set; }
         public string Ip { get; set; }
         public int Port { get; set; }
@@ -189,7 +187,7 @@ namespace NooSphere.Infrastructure.ActivityBase
             get
             {
                 if (LocalCaching)
-                    return new Dictionary<string, IActivity>(activities);
+                    return new Dictionary<string, IActivity>(activitiesCache);
                 throw new Exception("Local Caching not enabled, use GetActivities() method");
             }
         }
@@ -199,7 +197,7 @@ namespace NooSphere.Infrastructure.ActivityBase
             get
             {
                 if(LocalCaching)
-                    return new Dictionary<string, IUser>( users );
+                    return new Dictionary<string, IUser>( usersCache );
                 throw new Exception("Local Caching not enabled, use GetUsers() method");
             }
         }
@@ -219,7 +217,7 @@ namespace NooSphere.Infrastructure.ActivityBase
             get
             {
                 if(LocalCaching)
-                    return new Dictionary<string, IResource>(resources);
+                    return new Dictionary<string, IResource>(resourcesCache);
                 throw new Exception("Local Caching not enabled, use GetResources() method");
             }
         }
@@ -229,23 +227,30 @@ namespace NooSphere.Infrastructure.ActivityBase
             get
             {
                 if(LocalCaching)
-                    return new Dictionary<string, INotification>(notifications);
+                    return new Dictionary<string, INotification>(notificationsCache);
                 throw new Exception("Local Caching not enabled, use GetNotifications() method");
             }
         }
 
         public LocationTracker Tracker { get; set; }
-
+        
         #endregion
 
 
         #region Members
 
-        protected readonly ConcurrentDictionary<string, IUser> users = new ConcurrentDictionary<string, IUser>();
-        protected readonly ConcurrentDictionary<string, IActivity> activities = new ConcurrentDictionary<string, IActivity>();
+        //Caches used for LocalCache = true;
+        protected readonly ConcurrentDictionary<string, IUser> usersCache = new ConcurrentDictionary<string, IUser>();
+        protected readonly ConcurrentDictionary<string, IActivity> activitiesCache = new ConcurrentDictionary<string, IActivity>();
+        protected readonly ConcurrentDictionary<string, IResource> resourcesCache = new ConcurrentDictionary<string, IResource>();
+        protected readonly ConcurrentDictionary<string, INotification> notificationsCache = new ConcurrentDictionary<string, INotification>();
+
+        //Local caches to handle state managment
+        protected readonly ConcurrentDictionary<string, INoo> updatesInProgress = new ConcurrentDictionary<string, INoo>();
+        protected readonly ConcurrentDictionary<string, INoo> deletesInProgress = new ConcurrentDictionary<string, INoo>();
+
+        //Devices are always cached in session, not in store
         protected readonly ConcurrentDictionary<string, IDevice> devices = new ConcurrentDictionary<string, IDevice>();
-        protected readonly ConcurrentDictionary<string, IResource> resources = new ConcurrentDictionary<string, IResource>();
-        protected readonly ConcurrentDictionary<string, INotification> notifications = new ConcurrentDictionary<string, INotification>();
 
         #endregion
 
@@ -253,6 +258,11 @@ namespace NooSphere.Infrastructure.ActivityBase
         #region Constructor
 
         protected ActivityNode()
+        {
+          
+        }
+
+        public void InitializeEvents()
         {
             DeviceAdded += ActivityNode_DeviceAdded;
             DeviceChanged += ActivityNode_DeviceChanged;
@@ -297,65 +307,65 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         void ActivityNode_UserChanged( object sender, UserEventArgs e )
         {
-            users[ e.User.Id ].UpdateAllProperties( e.User );
+            usersCache[ e.User.Id ].UpdateAllProperties( e.User );
         }
 
         void ActivityNode_UserRemoved( object sender, UserRemovedEventArgs e )
         {
             IUser backupUser;
-            users.TryRemove( e.Id, out backupUser );
+            usersCache.TryRemove( e.Id, out backupUser );
         }
 
         void ActivityNode_UserAdded( object sender, UserEventArgs e )
         {
-            users.AddOrUpdate( e.User.Id, e.User, ( key, oldValue ) => e.User );
+            usersCache.AddOrUpdate( e.User.Id, e.User, ( key, oldValue ) => e.User );
         }
 
         void ActivityNode_ActivityRemoved( object sender, ActivityRemovedEventArgs e )
         {
             IActivity backupActivity;
-            activities.TryRemove( e.Id, out backupActivity );
+            activitiesCache.TryRemove( e.Id, out backupActivity );
         }
 
         void ActivityNode_ActivityChanged( object sender, ActivityEventArgs e )
         {
-            activities[ e.Activity.Id ].UpdateAllProperties( e.Activity );
+            activitiesCache[ e.Activity.Id ].UpdateAllProperties( e.Activity );
         }
 
         void ActivityNode_ActivityAdded( object sender, ActivityEventArgs e )
         {
-            activities.AddOrUpdate( e.Activity.Id, e.Activity, ( key, oldValue ) => e.Activity );
+            activitiesCache.AddOrUpdate( e.Activity.Id, e.Activity, ( key, oldValue ) => e.Activity );
         }
 
         void ActivityNode_ResourceChanged(object sender, ResourceEventArgs e)
         {
-            resources[e.Resource.Id].UpdateAllProperties(e.Resource);
+            resourcesCache[e.Resource.Id].UpdateAllProperties(e.Resource);
         }
 
         void ActivityNode_ResourceRemoved(object sender, ResourceRemovedEventArgs e)
         {
             IResource backupResource;
-            resources.TryRemove(e.Id, out backupResource);
+            resourcesCache.TryRemove(e.Id, out backupResource);
         }
 
         void ActivityNode_ResourceAdded(object sender, ResourceEventArgs e)
         {
-            resources.AddOrUpdate(e.Resource.Id, e.Resource, (key, oldValue) => e.Resource);
+            resourcesCache.AddOrUpdate(e.Resource.Id, e.Resource, (key, oldValue) => e.Resource);
         }
         void ActivityNode_NotificationChanged(object sender, NotificationEventArgs e)
         {
-            notifications[e.Notification.Id].UpdateAllProperties(e.Notification);
+            notificationsCache[e.Notification.Id].UpdateAllProperties(e.Notification);
         }
 
         void ActivityNode_NotificationRemoved(object sender, NotificationRemovedEventArgs e)
         {
             INotification backupNotification;
-            notifications.TryRemove(e.Id, out backupNotification);
+            notificationsCache.TryRemove(e.Id, out backupNotification);
         }
 
         void ActivityNode_NotificationAdded(object sender, NotificationEventArgs e)
         {
-            notifications.AddOrUpdate(e.Notification.Id, e.Notification, (key, oldValue) => e.Notification);
+            notificationsCache.AddOrUpdate(e.Notification.Id, e.Notification, (key, oldValue) => e.Notification);
         }
 
         #endregion

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.ComponentModel.Design;
+using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NooSphere.Infrastructure.Context.Location;
@@ -34,6 +35,8 @@ namespace NooSphere.Infrastructure.ActivityBase
 
             LocalCaching = localCaching;
 
+            InitializeEvents();
+
             Ip = Net.GetIp( IpType.All );
 
             Port = databaseConfiguration.Port;
@@ -47,49 +50,6 @@ namespace NooSphere.Infrastructure.ActivityBase
         {
             StopLocationTracker();
         }
-
-        #region Eventhandlers
-
-        void TrackerTagButtonDataReceived( Tag tag, TagEventArgs e )
-        {
-            var col = new Collection<IUser>( users.Values.ToList() );
-            if ( col.Contains( u => u.Tag == e.Tag.Id ) )
-            {
-                int index = col.FindIndex( u => u.Tag == e.Tag.Id );
-
-                if ( e.Tag.ButtonA == ButtonState.Pressed )
-                {
-                    users[ col[ index ].Id ].State = 2;
-                    users[ col[ index ].Id ].Selected = true;
-                }
-                else if ( e.Tag.ButtonB == ButtonState.Pressed )
-                {
-                    users[ col[ index ].Id ].State = 1;
-                    users[ col[ index ].Id ].Selected = true;
-                }
-                else
-                {
-                    users[ col[ index ].Id ].State = 0;
-                    users[ col[ index ].Id ].Selected = true;
-                }
-                OnUserChanged( new UserEventArgs( users[ col[ index ].Id ] ) );
-            }
-        }
-
-        void tracker_Detection( Detector detector, DetectionEventArgs e ) {}
-
-        public void SubscribeToTagMoved(TagMovedHandler h) 
-        {
-            Tracker.TagMoved += h;
-        }
-
-        public void UnsubscribeToTagMoved(TagMovedHandler h)
-        {
-            Tracker.TagMoved -= h;
-        }
-
-        #endregion
-
 
         #region Privat Methods
 
@@ -132,11 +92,6 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         }
 
-        public T Cast<T>( object input )
-        {
-            return (T)input;
-        }
-
         void SubscribeToChanges()
         {
             _documentStore.Changes(DatabaseName).ForAllDocuments()
@@ -145,6 +100,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                               using (var session = _documentStore.OpenSession(DatabaseName))
                               {
                                   var obj = session.Load<object>( change.Id );
+
                                   if (obj is IUser)
                                       HandleIUserMessages(change);
                                   else if (obj is IActivity)
@@ -155,7 +111,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                                       HandleIResourceMessages(change);
                                   else if (obj is INotification)
                                       HandleINotificationMessages(change);
-                                  else
+                                  else // in case of delete message we cannot resolve the object
                                       HandleUnknownMessage(change);
                               }
                           } );
@@ -165,15 +121,15 @@ namespace NooSphere.Infrastructure.ActivityBase
         {
             if ( change.Type == DocumentChangeTypes.Delete )
             {
-                if ( activities.ContainsKey( change.Id ) )
+                if (!LocalCaching ? updatesInProgress.ContainsKey(change.Id) : activitiesCache.ContainsKey(change.Id))
                     OnActivityRemoved( new ActivityRemovedEventArgs( change.Id ) );
-                if ( users.ContainsKey( change.Id ) )
-                    OnUserRemoved( new UserRemovedEventArgs( change.Id ) );
+                if (!LocalCaching ? updatesInProgress.ContainsKey(change.Id) : usersCache.ContainsKey(change.Id))
+                    OnUserRemoved( new UserRemovedEventArgs( change.Id ) ); //special as they are not kept in store, but in memory
                 if ( devices.ContainsKey( change.Id ) )
                     OnDeviceRemoved( new DeviceRemovedEventArgs( change.Id ) );
-                if ( resources.ContainsKey(change.Id))
+                if (!LocalCaching ? updatesInProgress.ContainsKey(change.Id) : resourcesCache.ContainsKey(change.Id))
                     OnResourceRemoved(new ResourceRemovedEventArgs(change.Id));
-                if (notifications.ContainsKey(change.Id))
+                if (!LocalCaching ? updatesInProgress.ContainsKey(change.Id) : notificationsCache.ContainsKey(change.Id))
                     OnNotificationRemoved(new NotificationRemovedEventArgs(change.Id));
             }
         }
@@ -223,14 +179,18 @@ namespace NooSphere.Infrastructure.ActivityBase
                     using (var session = _documentStore.OpenSession(DatabaseName))
                     {
                         var activity = session.Load<IActivity>( change.Id );
-                        if ( activities.ContainsKey( change.Id ) )
+                        if (!LocalCaching ? updatesInProgress.ContainsKey(change.Id) : activitiesCache.ContainsKey(change.Id))
                         {
                             OnActivityChanged(new ActivityEventArgs( activity ));
+
                         }
                         else
                         {
                             OnActivityAdded( new ActivityEventArgs( activity ) );
                         }
+
+                        if (!LocalCaching)
+                            updatesInProgress.TryRemove(change.Id, out dump);
                     }
                 }
                     break;
@@ -239,6 +199,8 @@ namespace NooSphere.Infrastructure.ActivityBase
                     break;
             }
         }
+
+        private INoo dump;
 
         void HandleIUserMessages( DocumentChangeNotification change )
         {
@@ -254,7 +216,8 @@ namespace NooSphere.Infrastructure.ActivityBase
                     using (var session = _documentStore.OpenSession(DatabaseName))
                     {
                         var user = session.Load<IUser>( change.Id );
-                        if ( users.ContainsKey( change.Id ) )
+
+                        if (!LocalCaching ? updatesInProgress.ContainsKey(change.Id) : usersCache.ContainsKey(change.Id))
                         {
                             OnUserChanged( new UserEventArgs( user ) );
                         }
@@ -262,6 +225,9 @@ namespace NooSphere.Infrastructure.ActivityBase
                         {
                             OnUserAdded( new UserEventArgs( user ) );
                         }
+
+                        if (!LocalCaching)
+                            updatesInProgress.TryRemove(change.Id,out dump);
                     }
                 }
                     break;
@@ -285,7 +251,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                         using (var session = _documentStore.OpenSession("activitysystem"))
                         {
                             var resource = session.Load<IResource>(change.Id);
-                            if (resources.ContainsKey(change.Id))
+                            if (!LocalCaching ? updatesInProgress.ContainsKey(change.Id) : resourcesCache.ContainsKey(change.Id))
                             {
                                 OnResourceChanged(new ResourceEventArgs( resource ));
                             }
@@ -293,6 +259,9 @@ namespace NooSphere.Infrastructure.ActivityBase
                             {
                                 OnResourceAdded(new ResourceEventArgs(resource));
                             }
+
+                            if (!LocalCaching)
+                                updatesInProgress.TryRemove(change.Id, out dump);
                         }
                     }
                     break;
@@ -314,15 +283,17 @@ namespace NooSphere.Infrastructure.ActivityBase
                     {
                         using (var session = _documentStore.OpenSession("activitysystem"))
                         {
-                            var Notification = session.Load<INotification>(change.Id);
-                            if (Notifications.ContainsKey(change.Id))
+                            var not = session.Load<INotification>(change.Id);
+                            if (!LocalCaching ? updatesInProgress.ContainsKey(change.Id) : notificationsCache.ContainsKey(change.Id))
                             {
-                                OnNotificationChanged(new NotificationEventArgs(Notification));
+                                OnNotificationChanged(new NotificationEventArgs(not));
                             }
                             else
                             {
-                                OnNotificationAdded(new NotificationEventArgs(Notification));
+                                OnNotificationAdded(new NotificationEventArgs(not));
                             }
+                            if (!LocalCaching)
+                                updatesInProgress.TryRemove(change.Id, out dump);
                         }
                     }
                     break;
@@ -345,7 +316,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                                      select user;
                     foreach (var entry in userResult)
                     {
-                        users.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry != null ? entry : null);
+                        usersCache.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry != null ? entry : null);
                     }
 
                 }
@@ -361,7 +332,7 @@ namespace NooSphere.Infrastructure.ActivityBase
 
                     foreach (var entry in activityResult)
                     {
-                        activities.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry);
+                        activitiesCache.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry);
                     }
                 }
                 catch (InvalidOperationException)
@@ -385,7 +356,7 @@ namespace NooSphere.Infrastructure.ActivityBase
 
                 foreach (var entry in resourceResult)
                 {
-                    resources.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry != null ? entry : null);
+                    resourcesCache.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry != null ? entry : null);
                 }
 
                 var notificationResult = from notification in session.Query<INotification>()
@@ -393,7 +364,7 @@ namespace NooSphere.Infrastructure.ActivityBase
 
                 foreach (var entry in notificationResult)
                 {
-                    notifications.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry != null ? entry : null);
+                    notificationsCache.AddOrUpdate(entry.Id, entry, (key, oldValue) => entry != null ? entry : null);
                 }
 		}
 		catch (InvalidOperationException)
@@ -403,7 +374,9 @@ namespace NooSphere.Infrastructure.ActivityBase
             }
         }
 	    private void HandleUnfoundType<T>()
-        {
+	    {
+	        if (!LocalCaching)
+	            return;
             using (var session = _documentStore.OpenSession(DatabaseName))
             {
                 var results = from result in session.Query<RavenJObject>()
@@ -417,13 +390,13 @@ namespace NooSphere.Infrastructure.ActivityBase
                         {
                             Console.WriteLine("BackUp Convertion: Cannot find {0} and will convert to {1}", typeof(T).Name, typeof(User).Name);
                             var usr = entry.JsonDeserialization<User>();
-                            users.AddOrUpdate(usr.Id, usr, (key, oldValue) => usr);
+                            usersCache.AddOrUpdate(usr.Id, usr, (key, oldValue) => usr);
                         }
                         if (typeof(T).Name == "IActivity")
                         {
                             Console.WriteLine("BackUp Convertion: Cannot find {0} and will convert to {1}", typeof(T).Name, typeof(Activity).Name);
                             var act = entry.JsonDeserialization<Activity>();
-                            activities.AddOrUpdate(act.Id, act, (key, oldValue) => act);
+                            activitiesCache.AddOrUpdate(act.Id, act, (key, oldValue) => act);
                         }
                         if (typeof(T).Name == "IDevice")
                         {
@@ -450,62 +423,6 @@ namespace NooSphere.Infrastructure.ActivityBase
                 }
         }
 
-        private Object thisLock = new Object();
-        public void AddFileResourceToActivity( Activity activity,Stream stream,string type,string filename)
-        {
-           var resource = new FileResource()
-            {
-                FileType =  type,
-                ActivityId = activity.Id,
-                FileName = filename
-            };
-
-           lock (thisLock)
-                {
-                    _documentStore.DatabaseCommands.PutAttachment(resource.Id,
-                        null,
-                        stream,
-                        new RavenJObject
-                        {
-                            {"Extension", resource.FileType},
-                        }
-                        );
-
-                    if (type == "LOGO")
-                        Activities[activity.Id].Logo = resource;
-                    else
-                    {
-                        Activities[activity.Id].FileResources.Add(resource);
-                        OnFileResourceAdded(new FileResourceEventArgs(resource));
-                    }
-                    UpdateActivity(Activities[activity.Id]);
-                }
-                stream.Dispose();
-        }
-
-        public void DeleteFileResource(FileResource resource)
-        {
-            _documentStore.DatabaseCommands.DeleteAttachment(resource.Id,null);
-
-            OnFileResourceRemoved(new FileResourceRemovedEventArgs(resource.Id));
-        }
-
-        public Stream GetStreamFromFileResource(string resourceId)
-        {
-            try
-            {
-                var attachment = _documentStore.DatabaseCommands.GetAttachment(resourceId);
-                if (attachment == null)
-                    throw new FileNotFoundException("Resource not found in file store");
-                return attachment.Data();
-            }
-            catch (FileNotFoundException ex)
-            {
-                
-               return null;
-            }
-
-        }
         public void DeleteAllAttachments()
         {
             while (true)
@@ -532,10 +449,15 @@ namespace NooSphere.Infrastructure.ActivityBase
             using (var session = _documentStore.OpenSession(DatabaseName))
             {
                 var obj = session.Load<INoo>( id );
-                if(obj == null)
+                if (obj == null)
                     AddToStore(noo);
                 else
-                    obj.UpdateAllProperties( noo );
+                {
+                    obj.UpdateAllProperties(noo);
+
+                    if (!LocalCaching)
+                        updatesInProgress.AddOrUpdate(id, noo, (key, oldValue) => noo);
+                }
                 session.SaveChanges();
             }
         }
@@ -555,6 +477,62 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         #region Public Methods
 
+        private Object thisLock = new Object();
+        public void AddFileResourceToActivity(Activity activity, Stream stream, string type, string filename)
+        {
+            var resource = new FileResource()
+            {
+                FileType = type,
+                ActivityId = activity.Id,
+                FileName = filename
+            };
+
+            lock (thisLock)
+            {
+                _documentStore.DatabaseCommands.PutAttachment(resource.Id,
+                    null,
+                    stream,
+                    new RavenJObject
+                        {
+                            {"Extension", resource.FileType},
+                        }
+                    );
+
+                if (type == "LOGO")
+                    activity.Logo = resource;
+                else
+                {
+                    activity.FileResources.Add(resource);
+                    OnFileResourceAdded(new FileResourceEventArgs(resource));
+                }
+                UpdateActivity(activity);
+            }
+            stream.Dispose();
+        }
+
+        public void DeleteFileResource(FileResource resource)
+        {
+            _documentStore.DatabaseCommands.DeleteAttachment(resource.Id, null);
+
+            OnFileResourceRemoved(new FileResourceRemovedEventArgs(resource.Id));
+        }
+
+        public Stream GetStreamFromFileResource(string resourceId)
+        {
+            try
+            {
+                var attachment = _documentStore.DatabaseCommands.GetAttachment(resourceId);
+                if (attachment == null)
+                    throw new FileNotFoundException("Resource not found in file store");
+                return attachment.Data();
+            }
+            catch (FileNotFoundException ex)
+            {
+
+                return null;
+            }
+
+        }
         public void Run( string storeAddress )
         {
             InitializeDocumentStore( storeAddress );
@@ -567,8 +545,6 @@ namespace NooSphere.Infrastructure.ActivityBase
         public void StartLocationTracker()
         {
             if ( Tracker.IsRunning ) return;
-            Tracker.Detection += tracker_Detection;
-            Tracker.TagButtonDataReceived += TrackerTagButtonDataReceived;
             Tracker.Start();
         }
 
@@ -598,6 +574,9 @@ namespace NooSphere.Infrastructure.ActivityBase
         public override void RemoveUser( string id )
         {
             RemoveFromStore( id );
+
+            if(!LocalCaching)
+                OnUserRemoved(new UserRemovedEventArgs(id));
         }
 
         public override void UpdateUser( IUser user )
@@ -619,7 +598,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                 }
             }
             else 
-                return users[ id ];
+                return usersCache[ id ];
         }
 
         public override void AddResource(IResource res)
@@ -630,6 +609,9 @@ namespace NooSphere.Infrastructure.ActivityBase
         public override void RemoveResource(string id)
         {
             RemoveFromStore(id);
+
+            if(!LocalCaching)
+                OnResourceRemoved(new ResourceRemovedEventArgs(id));
         }
 
         public override void UpdateResource(IResource res)
@@ -651,7 +633,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                 }
             }
             else
-                return resources[id];
+                return resourcesCache[id];
         }
 
         public override void AddActivity( IActivity act )
@@ -667,6 +649,9 @@ namespace NooSphere.Infrastructure.ActivityBase
         public override void RemoveActivity( string id )
         {
             RemoveFromStore( id );
+
+            if(!LocalCaching)
+                OnActivityRemoved(new ActivityRemovedEventArgs(id));
         }
 
         public override IActivity GetActivity( string id )
@@ -683,7 +668,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                 }
             }
             else
-                return activities[ id ];
+                return activitiesCache[ id ];
         }
 
         public override List<IActivity> GetActivities()
@@ -698,7 +683,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                 }
             }
             else
-                return activities.Values.ToList();
+                return activitiesCache.Values.ToList();
         }
 
         public override void AddDevice( IDevice dev )
@@ -733,7 +718,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                 }
             }
             else
-                return users.Values.ToList();
+                return usersCache.Values.ToList();
         }
 
         public override List<IDevice> GetDevices()
@@ -763,25 +748,25 @@ namespace NooSphere.Infrastructure.ActivityBase
                 }
             }
             else
-                return resources.Values.ToList();
+                return resourcesCache.Values.ToList();
         }
 
         public override void AddNotification(INotification n)
         {
             AddToStore(n);
-            OnNotificationAdded(new NotificationEventArgs(n));
         }
 
         public override void UpdateNotification(INotification n)
         {
             UpdateStore(n.Id, n);
-            OnNotificationChanged(new NotificationEventArgs(n));
         }
 
         public override void RemoveNotification(string id)
         {
             RemoveFromStore(id);
-            OnNotificationRemoved(new NotificationRemovedEventArgs(id));
+
+            if(!LocalCaching)
+                OnNotificationRemoved(new NotificationRemovedEventArgs(id));
         }
 
         public override INotification GetNotification(string id)
@@ -798,7 +783,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                 }
             }
             else
-                return notifications[id];
+                return notificationsCache[id];
         }
 
         public override List<INotification> GetNotifications()
@@ -813,7 +798,7 @@ namespace NooSphere.Infrastructure.ActivityBase
                 }
             }
             else
-                return notifications.Values.ToList();
+                return notificationsCache.Values.ToList();
         }
 
         #endregion
