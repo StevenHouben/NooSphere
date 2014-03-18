@@ -232,6 +232,9 @@ namespace NooSphere.Infrastructure.ActivityBase
             DeviceAdded += ActivityNode_DeviceAdded;
             DeviceChanged += ActivityNode_DeviceChanged;
             DeviceRemoved += ActivityNode_DeviceRemoved;
+            ResourceAdded += ActivityNode_ResourceAdded;
+            ResourceChanged += ActivityNode_ResourceChanged;
+            ResourceRemoved += ActivityNode_ResourceRemoved;
 
             if (!LocalCaching)
                 return;
@@ -241,9 +244,6 @@ namespace NooSphere.Infrastructure.ActivityBase
             UserAdded += ActivityNode_UserAdded;
             UserRemoved += ActivityNode_UserRemoved;
             UserChanged += ActivityNode_UserChanged;
-            ResourceAdded += ActivityNode_ResourceAdded;
-            ResourceChanged += ActivityNode_ResourceChanged;
-            ResourceRemoved += ActivityNode_ResourceRemoved;
             NotificationAdded += ActivityNode_NotificationAdded;
             NotificationChanged += ActivityNode_NotificationChanged;
             NotificationRemoved += ActivityNode_NotificationRemoved;
