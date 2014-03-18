@@ -14,7 +14,6 @@ using Newtonsoft.Json.Linq;
 using NooSphere.Infrastructure.Events;
 using NooSphere.Model.Resources;
 using NooSphere.Model.Notifications;
-using NooSphere.Infrastructure.Context.Location;
 
 
 namespace NooSphere.Infrastructure.ActivityBase
@@ -31,8 +30,10 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         #region Constructor/Destructor
 
-        public ActivityClient( string ip, int port, IDevice device )
+        public ActivityClient( string ip, int port, IDevice device, bool useCache = true )
         {
+            LocalCaching = useCache;
+            if(useCache)
             Ip = ip;
             Port = port;
 

@@ -186,27 +186,52 @@ namespace NooSphere.Infrastructure.ActivityBase
 
         public Dictionary<string, IActivity> Activities
         {
-            get { return new Dictionary<string, IActivity>( activities ); }
+            get
+            {
+                if (LocalCaching)
+                    return new Dictionary<string, IActivity>(activities);
+                throw new Exception("Local Caching not enabled, use GetActivities() method");
+            }
         }
 
         public Dictionary<string, IUser> Users
         {
-            get { return new Dictionary<string, IUser>( users ); }
+            get
+            {
+                if(LocalCaching)
+                    return new Dictionary<string, IUser>( users );
+                throw new Exception("Local Caching not enabled, use GetUsers() method");
+            }
         }
 
         public Dictionary<string, IDevice> Devices
         {
-            get { return new Dictionary<string, IDevice>( devices ); }
+            get
+            {
+                if (LocalCaching)
+                    return new Dictionary<string, IDevice>(devices);
+                throw new Exception("Local Caching not enabled, use GetDevices() method");
+            }
         }
 
         public Dictionary<string, IResource> Resources
         {
-            get { return new Dictionary<string, IResource>(resources); }
+            get
+            {
+                if(LocalCaching)
+                    return new Dictionary<string, IResource>(resources);
+                throw new Exception("Local Caching not enabled, use GetResources() method");
+            }
         }
 
         public Dictionary<string, INotification> Notifications
         {
-            get { return new Dictionary<string, INotification>(notifications); }
+            get
+            {
+                if(LocalCaching)
+                    return new Dictionary<string, INotification>(notifications);
+                throw new Exception("Local Caching not enabled, use GetNotifications() method");
+            }
         }
 
         public LocationTracker Tracker { get; set; }
