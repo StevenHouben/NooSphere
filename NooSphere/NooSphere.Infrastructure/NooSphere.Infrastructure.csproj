@@ -233,6 +233,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Documentation\README.txt" />
     <Content Include="Documentation\Web-adresses.txt" />
   </ItemGroup>
   <ItemGroup>
