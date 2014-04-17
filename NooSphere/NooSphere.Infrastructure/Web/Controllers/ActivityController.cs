@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Web.Http;
 using NooSphere.Infrastructure.ActivityBase;
-using NooSphere.Infrastructure.Helpers;
 using NooSphere.Model;
 using Newtonsoft.Json.Linq;
-using NooSphere.Infrastructure.Events;
 
 
 namespace NooSphere.Infrastructure.Web.Controllers
@@ -13,7 +10,6 @@ namespace NooSphere.Infrastructure.Web.Controllers
     public class ActivitiesController : ApiController
     {
         readonly ActivitySystem _system;
-
 
         public ActivitiesController(ActivitySystem system)
         {

@@ -443,23 +443,28 @@ namespace NooSphere.Infrastructure.ActivityBase
                 session.SaveChanges();
             }
         }
-
+        private Object updateLock = new Object();
         void UpdateStore( string id, INoo noo )
         {
-            using (var session = _documentStore.OpenSession(DatabaseName))
-            {
-                var obj = session.Load<INoo>( id );
-                if (obj == null)
-                    AddToStore(noo);
-                else
-                {
-                    obj.UpdateAllProperties(noo);
 
-                    if (!LocalCaching)
-                        updatesInProgress.AddOrUpdate(id, noo, (key, oldValue) => noo);
+            lock (updateLock)
+            {
+                using (var session = _documentStore.OpenSession(DatabaseName))
+                {
+                    var obj = session.Load<INoo>(id);
+                    if (obj == null)
+                        AddToStore(noo);
+                    else
+                    {
+                        obj.UpdateAllProperties(noo);
+
+                        if (!LocalCaching)
+                            updatesInProgress.AddOrUpdate(id, noo, (key, oldValue) => noo);
+                    }
+                    session.SaveChanges();
                 }
-                session.SaveChanges();
             }
+            
         }
 
         void RemoveFromStore( string id )
